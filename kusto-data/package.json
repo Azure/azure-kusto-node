@@ -1,0 +1,18 @@
+{
+    "name": "azure-kusto-node",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "example": "node example.js",
+        "test": "mocha"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "moment": "^2.22.2"
+    },
+    "devDependencies": {
+        "mocha": "^5.2.0"
+    }
+}
