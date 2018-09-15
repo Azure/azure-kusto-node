@@ -53,8 +53,8 @@ module.exports = class KustoConnectionStringBuilder {
         if (!appKey || appKey.trim().length == 0) throw new Error("Invalid app key");
 
         const kcsb = new KustoConnectionStringBuilder(connectionString);
-        kcsb[KeywordMapping.application_client_id.propName] = aadAppId;
-        kcsb[KeywordMapping.application_key.propName] = appKey;
+        kcsb[KeywordMapping.applicationClientId.propName] = aadAppId;
+        kcsb[KeywordMapping.applicationKey.propName] = appKey;
 
         return kcsb;
     }
@@ -65,9 +65,9 @@ module.exports = class KustoConnectionStringBuilder {
         if (!thumbprint || thumbprint.trim().length == 0) throw new Error("Invalid thumbprint");
 
         const kcsb = KustoConnectionStringBuilder(connectionString);
-        kcsb[KeywordMapping.application_client_id.propName] = aadAppId;
-        kcsb[KeywordMapping.application_certificate.propName] = certificate;
-        kcsb[KeywordMapping.application_certificate_thumbprint.propName] = thumbprint;
+        kcsb[KeywordMapping.applicationClientId.propName] = aadAppId;
+        kcsb[KeywordMapping.applicationCertificate.propName] = certificate;
+        kcsb[KeywordMapping.applicationCertificateThumbprint.propName] = thumbprint;
         return kcsb;
     }
 

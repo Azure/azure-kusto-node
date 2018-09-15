@@ -1,11 +1,23 @@
 {
-  "name": "azure-kusto-node",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "ISC"
+    "name": "azure-kusto-node",
+    "version": "1.0.0",
+    "description": "",
+    "main": "./index.js",
+    "engines": {
+        "node": ">= 0.8.26"
+    },
+    "scripts": {
+        "example": "node example.js",
+        "test": "mocha",
+        "lint": "eslint source --quiet"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "azure-storage": "^2.10.1",
+        "moment": "^2.22.2"
+    },
+    "devDependencies": {
+        "mocha": "^5.2.0"
+    }
 }

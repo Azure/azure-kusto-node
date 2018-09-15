@@ -10,27 +10,30 @@ class KustoResponseDataSet {
 
         this.tables = [];
         this.tableNames = [];
-
+        this.primaryResults = []
         for (let table of _tables) {
             let resultTable = new KustoResultTable(table);
             this.tables.push(resultTable);
             this.tableNames.push(resultTable.name);
-            
-            this[resultTable.kind] = resultTable;    
-        }                
+
+            if (resultTable.kind === WellKnownDataSet.PrimaryResult) {
+                this.primaryResults.push(resultTable);
+            } else if (resultTable === WellKnownDataSet.QueryCompletionInformation) {
+                this.statusTable = resultTable;
+            }
+        }
     }
 
     getErrorsCount() {
         // TODO: this is bad code, since there is no way of 
         // knowing function will be implemented, and versions are not related 
-        // (inherticne is the wrong way to go here)
-        let queryStatusTable = this[WellKnownDataSet.QueryCompletionInformation];
-        if (queryStatusTable.length == 0) return 0;
+        // (inherticne is the wrong way to go here)        
+        if (this.statusTable.length == 0) return 0;
 
         let minLevel = 4;
         let errors = 0;
         const errorColumn = this.constructor.getErrorColumn();
-        for (let row in queryStatusTable) {
+        for (let row in this.statusTable) {
             // TODO: minlevel of what? severity? verbosity?
             // TODO: this is really odd logic, fix this later
             if (row[errorColumn] < 4) {
@@ -47,14 +50,13 @@ class KustoResponseDataSet {
     }
 
     getExceptions() {
-        const queryStatusTable = this[WellKnownDataSet.QueryCompletionInformation];
-        if (queryStatusTable.length == 0) return [];
+        if (this.statusTable.length == 0) return [];
 
         const result = [];
         const errorColumn = this.constructor.getErrorColumn();
         const cridColumn = this.constructor.getCridColumn();
         const statusColumn = this.constructor.getStatusColumn();
-        for (let row in queryStatusTable.rows()) {
+        for (let row in this.statusTable.rows()) {
             if (row[errorColumn] < 4) {
                 result.push(`Please provide the following data to Kusto: CRID=${row[cridColumn]} Description: ${row[statusColumn]}`);
             }
