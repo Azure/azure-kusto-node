@@ -37,12 +37,6 @@ describe("KustoConnectionBuilder", function () {
             kcsb1.password = expectedPassword;
             kcsbs.push(kcsb1);
 
-            // TODO: not sure if wanna test this
-            // const kcsb2 = new KustoConnectionStringBuilder("server=localhost");
-            // kcsb2["AAD User ID"] = user;
-            // kcsb2["Password"] = password;
-            // kcsbs.append(kcsb2);
-
             for (let kcsb of kcsbs) {
                 assert.equal(kcsb.dataSource, "localhost");
                 assert.equal(kcsb.aadUserId, expectedUser);
@@ -71,11 +65,6 @@ describe("KustoConnectionBuilder", function () {
             kcsb1.applicationClientId = uuid;
             kcsb1.applicationKey = key;
             kcsbs.push(kcsb1);
-
-            // kcsb2 = KustoConnectionStringBuilder("Server=localhost")
-            // kcsb2["AppclientId"] = uuid
-            // kcsb2["Application key"] = key
-            // kcsbs.push(kcsb2)
 
             for (let kcsb of kcsbs) {
                 assert.equal(kcsb.dataSource, "localhost");
