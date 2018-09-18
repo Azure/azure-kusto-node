@@ -72,8 +72,8 @@ module.exports.JsonColumnMapping = class JsonColumnMapping extends ColumnMapping
 
 module.exports.IngestionProperties = class IngestionProperties {
     constructor(
-        database,
         table,
+        database,
         dataFormat = DataFormat.csv,
         mapping = null,
         mappingReference = null,
@@ -87,8 +87,7 @@ module.exports.IngestionProperties = class IngestionProperties {
         validationPolicy = null,
         additionalProperties = null
     ) {
-        if (mapping && mappingReference) throw new Error("Duplicate mapping detected");
-
+        
         this.database = database;
         this.table = table;
         this.format = dataFormat;
@@ -113,5 +112,30 @@ module.exports.IngestionProperties = class IngestionProperties {
         else {
             return DataFormat.csv;
         }
+    }
+
+    validate() {
+        if (this.mapping && this.mappingReference) throw new Error("Duplicate mapping detected");
+        if (!this.table) throw new Error("Must define a target table");
+        if (!this.database) throw new Error("Must define a target database");
+        if (!this.dataFormat) throw new Error("Must define a data format");
+    }
+
+    merge(extraProps) {
+        let merged = new IngestionProperties();
+
+        for (let prop of Object(this).entries()) {
+            if (prop[1] != null) {
+                merged[prop[0]] = prop[1];
+            }
+        } 
+
+        for (let prop of Object(extraProps).entries()) {
+            if (prop[1] != null) {
+                merged[prop[0]] = prop[1];
+            }
+        }
+
+        return merged;
     }
 };

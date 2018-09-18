@@ -9,7 +9,7 @@ const WellKnownDataSet = {
 
 module.exports.WellKnownDataSet = WellKnownDataSet;
 
-const RowConverters = {
+const ValueParser = {
     datetime: moment,
     timespan: moment.duration,
     DateTime: moment,
@@ -19,17 +19,12 @@ const RowConverters = {
 class KustoResultRow {
     constructor(columns, row) {
         this.columns = columns.sort((a, b) => a.ordianl - b.ordianl);
-        this.row = row;
+        this.raw = row;
 
         for (let col of this.columns) {
-            let value = this.row[col.ordinal];
-            let convertor = RowConverters[col.type];
+            let parse = ValueParser[col.type];
 
-            if (convertor) {
-                value = convertor(value);
-            }
-
-            this[col.name] = value;
+            this[col.name] = parse ? parse(row[col.ordinal]) : row[col.ordinal];
         }
     }
 
@@ -40,15 +35,7 @@ class KustoResultRow {
     }
 
     getValueAt(index) {
-        let col = this.columns[index];
-        let value = this.row[col.ordianl];
-
-        let convertor = RowConverters[col.type];
-        if (convertor) {
-            return convertor(value);
-        }
-
-        return value;
+        return this[this.columns[index].name];
     }
 
     toJson() {
@@ -71,6 +58,7 @@ module.exports.KustoResultRow = KustoResultRow;
 class KustoResultColumn {
     constructor(columnObj, ordianl) {
         this.name = columnObj.ColumnName;
+        // TODO: should validate type? should coarse value to type?
         this.type = columnObj.ColumnType || columnObj.DateType;
         this.ordinal = ordianl;
     }

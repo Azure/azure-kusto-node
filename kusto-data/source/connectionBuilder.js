@@ -47,7 +47,7 @@ module.exports = class KustoConnectionStringBuilder {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         kcsb[KeywordMapping.aadUserId.propName] = userId;
         kcsb[KeywordMapping.password.propName] = password;
-        kcsb[KeywordMapping.authorityId.propName] = authorityId;
+        kcsb[KeywordMapping.authorityId.propName] = authorityId || "common";
 
         return kcsb;
     }
@@ -59,7 +59,7 @@ module.exports = class KustoConnectionStringBuilder {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         kcsb[KeywordMapping.applicationClientId.propName] = aadAppId;
         kcsb[KeywordMapping.applicationKey.propName] = appKey;
-        kcsb[KeywordMapping.authorityId.propName] = authorityId;
+        kcsb[KeywordMapping.authorityId.propName] = authorityId || "common";
 
         return kcsb;
     }
@@ -73,7 +73,7 @@ module.exports = class KustoConnectionStringBuilder {
         kcsb[KeywordMapping.applicationClientId.propName] = aadAppId;
         kcsb[KeywordMapping.applicationCertificate.propName] = certificate;
         kcsb[KeywordMapping.applicationCertificateThumbprint.propName] = thumbprint;
-        kcsb[KeywordMapping.authorityId.propName] = authorityId;
+        kcsb[KeywordMapping.authorityId.propName] = authorityId || "common";
 
         return kcsb;
     }

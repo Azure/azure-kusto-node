@@ -15,7 +15,8 @@ describe("KustoConnectionBuilder", function () {
 
             for (let kcsb of kcsbs) {
                 assert.equal(kcsb.dataSource, "localhost");
-                let emptyFields = ["aadUserId", "password", "applicationClientId", "applicationKey", "authorityId"];
+                assert.equal(kcsb.authorityId, "common");
+                let emptyFields = ["aadUserId", "password", "applicationClientId", "applicationKey"];
                 for (let field of emptyFields) {
                     assert.equal(kcsb[field], null);
                 }
@@ -41,7 +42,8 @@ describe("KustoConnectionBuilder", function () {
                 assert.equal(kcsb.dataSource, "localhost");
                 assert.equal(kcsb.aadUserId, expectedUser);
                 assert.equal(kcsb.password, expectedPassword);
-                let emptyFields = ["applicationClientId", "applicationKey", "authorityId"];
+                assert.equal(kcsb.authorityId, "common");
+                let emptyFields = ["applicationClientId", "applicationKey"];
                 for (let field of emptyFields) {
                     assert.equal(kcsb[field], null);
                 }
@@ -70,7 +72,8 @@ describe("KustoConnectionBuilder", function () {
                 assert.equal(kcsb.dataSource, "localhost");
                 assert.equal(kcsb.applicationClientId, uuid);
                 assert.equal(kcsb.applicationKey, key);
-                let emptyFields = ["aadUserId", "password", "authorityId"];
+                assert.equal(kcsb.authorityId, "common");
+                let emptyFields = ["aadUserId", "password"];
                 for (let field of emptyFields) {
                     assert.equal(kcsb[field], null);
                 }

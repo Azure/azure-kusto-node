@@ -10,7 +10,7 @@ class KustoResponseDataSet {
 
         this.tables = [];
         this.tableNames = [];
-        this.primaryResults = []
+        this.primaryResults = [];
         for (let table of _tables) {
             let resultTable = new KustoResultTable(table);
             this.tables.push(resultTable);
@@ -18,7 +18,7 @@ class KustoResponseDataSet {
 
             if (resultTable.kind === WellKnownDataSet.PrimaryResult) {
                 this.primaryResults.push(resultTable);
-            } else if (resultTable === WellKnownDataSet.QueryCompletionInformation) {
+            } else if (resultTable.kind === WellKnownDataSet.QueryCompletionInformation) {
                 this.statusTable = resultTable;
             }
         }
@@ -65,6 +65,7 @@ class KustoResponseDataSet {
     }
 }
 
+// TODO: should only expose 1 response type, versioning should be handled internally
 module.exports.KustoResponseDataSetV1 = class KustoResponseDataSetV1 extends KustoResponseDataSet {
     static getStatusColumn() { return "StatusDescription"; }
     static getCridColumn() { return "ClientActivityId"; }
@@ -102,6 +103,7 @@ module.exports.KustoResponseDataSetV1 = class KustoResponseDataSetV1 extends Kus
     }
 };
 
+// TODO: should only expose 1 response type, versioning should be handled internally
 module.exports.KustoResponseDataSetV2 = class KustoResponseDataSetV2 extends KustoResponseDataSet {
     static getStatusColumn() { return "Payload"; }
     static getErrorColumn() { return "Level"; }
