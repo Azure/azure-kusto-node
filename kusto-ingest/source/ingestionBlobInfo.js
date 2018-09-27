@@ -1,20 +1,19 @@
-const uuidv4 = require("uuidv4");
+const uuidv4 = require("uuid/v4");
 const moment = require("moment");
 
 module.exports = class IngestionBlobInfo {
     constructor(blob, ingestionProperties, authContext) {
-        this.properties = {};
-        this.properties.BlobPath = blob.path;
-        this.properties.RawDataSize = blob.size;
-        this.properties.DatabaseName = ingestionProperties.database;
-        this.properties.TableName = ingestionProperties.table;
-        this.properties.RetainBlobOnSuccess = true;
-        this.properties.FlushImmediately = ingestionProperties.flushImmediately;
-        this.properties.IgnoreSizeLimit = false;
-        this.properties.ReportLevel = ingestionProperties.reportLevel.value;
-        this.properties.ReportMethod = ingestionProperties.report_method.value;
-        this.properties.SourceMessageCreationTime = moment.utc();
-        this.properties.Id = uuidv4();
+        this.BlobPath = blob.path;
+        this.RawDataSize = blob.size;
+        this.DatabaseName = ingestionProperties.database;
+        this.TableName = ingestionProperties.table;
+        this.RetainBlobOnSuccess = true;
+        this.FlushImmediately = ingestionProperties.flushImmediately;
+        this.IgnoreSizeLimit = false;
+        this.ReportLevel = ingestionProperties.reportLevel;
+        this.ReportMethod = ingestionProperties.reportMethod;
+        this.SourceMessageCreationTime = moment.utc();
+        this.Id = uuidv4();
 
         let additionalProperties = ingestionProperties.additionalProperties || {};
         additionalProperties.authorizationContext = authContext;
@@ -30,17 +29,30 @@ module.exports = class IngestionBlobInfo {
             tags.concat(ingestionProperties.ingestByTags.map(t => "ingest-by:" + t));
         }
 
-        additionalProperties.tage = tags;
-        additionalProperties.ingestIfNotExists = ingestionProperties.ingestdIfNotExists;
-        additionalProperties[ingestionProperties.getMappingFormat() + "Mapping"] = ingestionProperties.mapping;
-        additionalProperties[ingestionProperties.getMappingFormat() + "MappingReference"] = ingestionProperties.mappingReference;
-        additionalProperties.ValidationPolicy = ingestionProperties.validationPolicy;
-        additionalProperties.format = ingestionProperties.format.name;
-        
-        this.properties.AdditionalProperties = additionalProperties;
-    }
+        if (tags && tags.length > 0) {
+            additionalProperties.tags = tags;
+        }
 
-    toJson() {
-        return JSON.stringify(this.properties);
+        if (ingestionProperties.ingestIfNotExists) {
+            additionalProperties.ingestIfNotExists = ingestionProperties.ingestIfNotExists;
+        }
+
+        if (ingestionProperties.mapping && ingestionProperties.mapping.length > 0) {
+            additionalProperties[ingestionProperties.getMappingFormat() + "Mapping"] = ingestionProperties.mapping;
+        }
+
+        if (ingestionProperties.mappingReference) {
+            additionalProperties[ingestionProperties.getMappingFormat() + "MappingReference"] = ingestionProperties.mappingReference;
+        }
+
+        if (ingestionProperties.validationPolicy) {
+            additionalProperties.ValidationPolicy = ingestionProperties.validationPolicy;
+        }
+
+        if (ingestionProperties.format) {
+            additionalProperties.format = ingestionProperties.format;
+        }
+
+        this.additionalProperties = additionalProperties;
     }
 };

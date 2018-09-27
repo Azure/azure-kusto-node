@@ -20,7 +20,7 @@ const ValidationOptions = Object.freeze({
     ValidateCsvInputColumnLevelOnly: 2
 });
 
-module.exports.ValidationOptions = ValidationImplications;
+module.exports.ValidationOptions = ValidationOptions;
 
 let ValidationImplications = Object.freeze({
     Fail: 0,
@@ -71,10 +71,10 @@ module.exports.JsonColumnMapping = class JsonColumnMapping extends ColumnMapping
 };
 
 module.exports.IngestionProperties = class IngestionProperties {
-    constructor(
-        table,
+    constructor(        
         database,
-        dataFormat = DataFormat.csv,
+        table,
+        dataFormat,
         mapping = null,
         mappingReference = null,
         additionalTags = null,
@@ -118,19 +118,19 @@ module.exports.IngestionProperties = class IngestionProperties {
         if (this.mapping && this.mappingReference) throw new Error("Duplicate mapping detected");
         if (!this.table) throw new Error("Must define a target table");
         if (!this.database) throw new Error("Must define a target database");
-        if (!this.dataFormat) throw new Error("Must define a data format");
+        if (!this.format) throw new Error("Must define a data format");
     }
 
     merge(extraProps) {
         let merged = new IngestionProperties();
 
-        for (let prop of Object(this).entries()) {
+        for (let prop of Object.entries(this)) {
             if (prop[1] != null) {
                 merged[prop[0]] = prop[1];
             }
         } 
 
-        for (let prop of Object(extraProps).entries()) {
+        for (let prop of Object.entries(extraProps)) {
             if (prop[1] != null) {
                 merged[prop[0]] = prop[1];
             }

@@ -1,19 +1,52 @@
 const moment = require("moment");
-const StorageUrl = require("storageUrl");
+
+const URI_FORMAT = /https:\/\/(\w+).(queue|blob|table).core.windows.net\/([\w,-]+)\?(.*)/;
+
+
+class ResourceURI {
+    constructor(storageAccountName, objectType, objectName, sas) {
+        this.storageAccountName = storageAccountName;
+        this.objectType = objectType;
+        this.objectName = objectName;
+        this.sas = sas;
+    }
+
+    static fromURI(uri) {
+        const match = URI_FORMAT.exec(uri);
+        return new ResourceURI(match[1], match[2], match[3], match[4]);
+    }
+
+    toURI(options) {
+        if (options) {
+            let baseURI = `https://${this.storageAccountName}.${this.objectType}.core.windows.net/`;
+
+            if (options.withObjectName !== false) {
+                baseURI += this.objectName;
+            }
+            if (options.withSas !== false) {
+                baseURI += this.sas;
+            }
+
+            return baseURI;
+        } else {
+            return `https://${this.storageAccountName}.${this.objectType}.core.windows.net/${this.objectName}?${this.sas}`;
+        }
+    }
+}
+
+module.exports.ResourceURI = ResourceURI;
 
 class IngestClientResources {
     constructor(
         securedReadyForAggregationQueues = null,
         failedIngestionsQueues = null,
         successfulIngestionsQueues = null,
-        containers = null,
-        statusTables = null
+        containers = null
     ) {
         this.securedReadyForAggregationQueues = securedReadyForAggregationQueues;
         this.failedIngestionsQueues = failedIngestionsQueues;
         this.successfulIngestionsQueues = successfulIngestionsQueues;
         this.containers = containers;
-        this.statusTables = statusTables;
     }
 
     isApplicable() {
@@ -21,8 +54,7 @@ class IngestClientResources {
             this.securedReadyForAggregationQueues,
             this.failedIngestionsQueues,
             this.failedIngestionsQueues,
-            this.containers,
-            this.statusTables,
+            this.containers
         ];
         return resources.reduce((prev, current) => prev && current, true);
     }
@@ -30,7 +62,7 @@ class IngestClientResources {
 
 module.exports.IngestClientResources = IngestClientResources;
 
-module.exports.ResourceManager = class resourceManager {
+module.exports.ResourceManager = class ResourceManager {
     constructor(kustoClient) {
         this.kustoClient = kustoClient;
         this.refreshPeriod = moment.duration(1, "h");
@@ -43,12 +75,19 @@ module.exports.ResourceManager = class resourceManager {
 
     }
 
-    refreshIngestClientResources() {
+    refreshIngestClientResources(callback) {
         let now = moment.now();
+        // TODO: make sure this won't break due to callbacks
         if (!this.ingestClientResources || (this.ingestClientResourcesLastUpdate + this.refreshPeriod) <= now || !this.ingestClientResources.isApplicable()
         ) {
-            this.ingestClientResources = this.getIngestClientResourcesFromService();
-            this.ingestClientResourcesLastUpdate = now;
+            this.getIngestClientResourcesFromService((err, data) => {
+                this.ingestClientResources = data;
+                this.ingestClientResourcesLastUpdate = now;
+
+                callback(err, null);
+            });
+        } else {
+            callback(null);
         }
     }
 
@@ -56,60 +95,90 @@ module.exports.ResourceManager = class resourceManager {
         let result = [];
         for (let row of table.rows()) {
             if (row.ResourceTypeName == resourceName) {
-                result.push(StorageUrl.fromUri(row.StorageRoot));
+                result.push(ResourceURI.fromURI(row.StorageRoot));
             }
         }
         return result;
     }
 
-    getIngestClientResourcesFromService() {
-        let table = this.kustoClient.execute("NetultDB", ".get ingestion resources").primaryResults[0];
+    getIngestClientResourcesFromService(callback) {
+        return this.kustoClient.execute("NetultDB", ".get ingestion resources", (err, resp) => {
+            if (err) callback(err, null);
 
-        return new IngestClientResources(
-            this.getResourceByBame(table, "SecuredReadyForAggregationQueue"),
-            this.getResourceByBame(table, "FailedIngestionsQueue"),
-            this.getResourceByBame(table, "SuccessfulIngestionsQueue"),
-            this.getResourceByBame(table, "TempStorage"),
-            this.getResourceByBame(table, "IngestionsStatusTable")
-        );
+            const table = resp.primaryResults[0];
+
+            const resources = new IngestClientResources(
+                this.getResourceByBame(table, "SecuredReadyForAggregationQueue"),
+                this.getResourceByBame(table, "FailedIngestionsQueue"),
+                this.getResourceByBame(table, "SuccessfulIngestionsQueue"),
+                this.getResourceByBame(table, "TempStorage")
+            );
+
+            return callback(null, resources);
+        });
     }
 
-    refreshAuthorizationContext() {
+    refreshAuthorizationContext(callback) {
         let now = moment.utc();
         if (!this.authorizationContext || this.authorizationContext.isspace() || (this.authorizationContextLastUpdate + this.refreshPeriod) <= now) {
-            this.authorizationContext = this.getAuthorizationContextFromService();
-            // TODO: this can get out of sync
-            this.authorizationContextLastUpdate = now;
+            return this.getAuthorizationContextFromService((err, data) => {
+                this.authorizationContext = data;
+                this.authorizationContextLastUpdate = now;
+
+                return callback(err);
+            });
         }
+
+        //TODO: not sure proper way to handle this, maybe just pass the data ?
+        return callback(null);
+
     }
 
-    getAuthorizationContextFromService() {
-        // TODO: huh?
-        return this.kustoClient.execute("NetultDB", ".get kusto identity token").primaryResults[0][0]["AuthorizationContext"];
+    getAuthorizationContextFromService(callback) {
+        return this.kustoClient.execute("NetultDB", ".get kusto identity token", (err, resp) => {
+            if (err) return callback(err, null);
+            
+            const authContext = resp.primaryResults[0].rows().next().value.AuthorizationContext;
+            
+            return callback(err, authContext);
+        });
     }
 
-    getIngestionQueues() {
-        this.refreshIngestClientResources();
-        return this.ingestClientResources.securedReadyForAggregationQueues;
+    getIngestionQueues(callback) {
+        return this.refreshIngestClientResources((err) => {
+            if (err) return callback(err);
+
+            return callback(null, this.ingestClientResources.securedReadyForAggregationQueues);
+        });
     }
-    getFailedIngestionsQueues() {
-        this.refreshIngestClientResources();
-        return this.ingestClientResources.failedIngestionsQueues;
+
+    getFailedIngestionsQueues(callback) {
+        return this.refreshIngestClientResources((err) => {
+            if (err) return callback(err);
+
+            return callback(null, this.ingestClientResources.failedIngestionsQueues);
+        });
     }
-    getSuccessfulIngestionsQueues() {
-        this.refreshIngestClientResources();
-        return this.ingestClientResources.successfulIngestionsQueues;
+    getSuccessfulIngestionsQueues(callback) {
+        return this.refreshIngestClientResources((err) => {
+            if (err) return callback(err);
+
+            return callback(null, this.ingestClientResources.successfulIngestionsQueues);
+        });
     }
-    getContainers() {
-        this.refreshIngestClientResources();
-        return this.ingestClientResources.containers;
+    getContainers(callback) {
+        return this.refreshIngestClientResources((err) => {
+            if (err) return callback(err);
+
+            return callback(null, this.ingestClientResources.containers);
+        });
     }
-    getIngestionsStatusTables() {
-        this.refreshIngestClientResources();
-        return this.ingestClientResources.statusTables;
-    }
-    getAuthorizationContext() {
-        this.refreshAuthorizationContext();
-        return this.authorizationContext;
+
+    getAuthorizationContext(callback) {
+        return this.refreshAuthorizationContext((err) => {
+            if (err) return callback(err);
+
+            return callback(null, this.authorizationContext);
+        });
     }
 };

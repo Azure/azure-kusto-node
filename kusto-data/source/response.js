@@ -28,7 +28,7 @@ class KustoResponseDataSet {
         // TODO: this is bad code, since there is no way of 
         // knowing function will be implemented, and versions are not related 
         // (inherticne is the wrong way to go here)        
-        if (this.statusTable.length == 0) return 0;
+        if (!this.statusTable || this.statusTable.length == 0) return 0;
 
         let minLevel = 4;
         let errors = 0;
@@ -80,26 +80,28 @@ module.exports.KustoResponseDataSetV1 = class KustoResponseDataSetV1 extends Kus
     }
 
     constructor(data) {
-        super(data["Tables"]);
-        // TODO : this is a bad idea, takes control away from the constructor
-        if (this.tables.length <= 2) {
-            this.tables[0].kind = WellKnownDataSet.PrimaryResult;
-            this.tables[0].id = 0;
+        let tables = data.Tables;
+        
+        if (tables.length <= 2) {
+            tables[0].TableKind = WellKnownDataSet.PrimaryResult;
+            tables[0].TableId = 0;
 
-            if (this.tablesCount == 2) {
-                this.tables[1].kind = WellKnownDataSet.QueryProperties;
-                this.tables[1].id = 1;
+            if (tables.length == 2) {
+                tables[1].TableKind = WellKnownDataSet.QueryProperties;
+                tables[1].TableId = 1;
             }
         } else {
-            const toc = this.tables[this.tables.length - 1];
-            toc.kind = WellKnownDataSet.TableOfContents;
-            toc.id = this.tables.length - 1;
-            for (let i = 0; i < this.tables.length - 1; i++) {
-                this.tables[i].name = toc[i]["Name"];
-                this.tables[i].id = toc[i]["Id"];
-                this.tables[i].kind = this.getTablesKinds()[toc[i]["Kind"]];
+            const toc = tables[tables.length - 1];
+            toc.TableKind = WellKnownDataSet.TableOfContents;
+            toc.TableId = tables.length - 1;
+            for (let i = 0; i < tables.length - 1; i++) {
+                tables[i].TableName = toc[i]["Name"];
+                tables[i].TableId = toc[i]["Id"];
+                tables[i].TableKind = KustoResponseDataSetV1.getTablesKinds()[toc[i]["Kind"]];
             }
         }
+
+        super(tables);
     }
 };
 

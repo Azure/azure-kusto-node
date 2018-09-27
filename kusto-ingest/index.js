@@ -1,5 +1,5 @@
-const client = require("./src/ingestClient");
-const IngestStatusQueue = require("./src/statusQ");
+const client = require("./source/ingestClient");
+const KustoIngestStatusQueues = require("./source/status");
 const {
     IngestionProperties,
     JsonColumnMapping,
@@ -10,11 +10,11 @@ const {
     ValidationImplications,
     ValidationOptions,
     DataFormat
-} = require("./src/IngestionProperties");
+} = require("./source/IngestionProperties");
 
 module.exports = {
     IngestClient: client,
-    IngestStatusQueue,
+    IngestStatusQueues: KustoIngestStatusQueues,
     IngestionProperties,
     IngestionPropertiesEnums: {
         JsonColumnMapping,

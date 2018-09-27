@@ -1,84 +1,105 @@
-const KustoClient = require("kusto-data");
-const { FileDescriptor, BlobDescriptor } = require("./descriptors");
+// FIXME: this requires kusto-data to be installed. for now changed it to work locally
+const KustoClient = require("../../kusto-data").Client; //require("kusto-data");
+const { FileDescriptor, BlobDescriptor, StreamDescriptor } = require("./descriptors");
 const { ResourceManager } = require("./resourceManager");
 const IngestionBlobInfo = require("./ingestionBlobInfo");
 const uuidv4 = require("uuid/v4");
 const azureStorage = require("azure-storage");
-const zlib = require("zlib");
-const fs = require("fs");
-
-function gzipFile(file, callback) {
-    let zipper = zlib.createGzip();
-    let input = fs.createReadStream(file, {autoClose: true});
-    let output = fs.createWriteStream(logfile + ".gz");
-
-    input.pipe(zipper).pipe(output);
-
-    // cleanup
-    input.once('end', function() {
-        zipper.removeAllListeners();
-        zipper.close();
-        zipper = null;
-        input.removeAllListeners();
-        input.close();
-        input = null;
-        output.removeAllListeners();
-        output.close();
-        output = null;
-    });
-
-    output.on("end", function() {
-        // delete original file, it is no longer needed
-        fs.unlink(file);
-
-        // clear listeners
-        zipper.removeAllListeners();
-        input.removeAllListeners();
-    });
-}
 
 module.exports = class KustoIngestClient {
     constructor(kcsb, defaultProps) {
-        this.Resource_manager = new ResourceManager(KustoClient(kcsb));
+        this.resourceManager = new ResourceManager(new KustoClient(kcsb));
         this.defaultProps = defaultProps;
     }
 
-    ingestFromFile(file, ingestionProperties, callback) {
-        let props = ingestionProperties ? this.defaultProps.merge(ingestionProperties) : this.defaultProps;
+    ingestFromStream(stream, ingestionProperties, callback) {
+        let props = ingestionProperties && Object.keys(ingestionProperties).length > 0 ? this.defaultProps.merge(ingestionProperties) : this.defaultProps;
 
-        props.validate();
+        try {
+            props.validate();
+        } catch (e) {
+            callback(e);
+        }
+
+
+        let descriptor = new StreamDescriptor(stream);
+
+        return descriptor.prepare((err, readableStream) => {
+            if (err) return callback(err);
+
+            let blobName = `${props.database}__${props.table}__${uuidv4()}`;
+
+            this.resourceManager.getContainers((err, containers) => {
+                if (err) return callback(err);
+                let containerDetails = containers[Math.floor(Math.random() * containers.length)];
+                let blobService = azureStorage.createBlobServiceWithSas(containerDetails.toURI({ withSas: false, withObjectName: false }), containerDetails.sas);
+
+                blobService.createBlockBlobFromStream(containerDetails.objectName, blobName, readableStream, (err) => {
+                    if (err) return callback(err);
+
+                    return this.ingestFromBlob(BlobDescriptor(containerDetails.toURI(), descriptor.size), props, callback);
+                });
+            });
+
+        });
+    }
+
+    ingestFromFile(file, ingestionProperties, callback) {
+        let props = ingestionProperties && Object.keys(ingestionProperties).length > 0 ? this.defaultProps.merge(ingestionProperties) : this.defaultProps;
+
+        try {
+            props.validate();
+        } catch (e) {
+            callback(e);
+        }
+
 
         let descriptor = file;
+
         if (typeof (descriptor) === "string") {
             descriptor = new FileDescriptor(descriptor);
         }
-        let blobName = `${props.database}__${props.table}__${uuidv4()}__${descriptor.name}`;
 
-        // handle case when file isn't gzipped
-        let containers = this.ResourceManager.getContainers();
-        let containerDetails = containers[Math.floor(Math.random() * containers.length)];
-        let blobService = azureStorage.createBlockBlobService(containerDetails.accountName, containerDetails.accountKey);
+        return descriptor.prepare((err, fileToUpload) => {
+            if (err) return callback(err);
 
-        blobService.createBlobFromFile(containerDetails.objectName, blobName, file, function (error) {
-            this.ingestFromBlob(BlobDescriptor(url, descriptor.size), props, callback);
-          });
-        }
+            let blobName = `${props.database}__${props.table}__${uuidv4()}__${fileToUpload}`;
+
+            this.resourceManager.getContainers((err, containers) => {
+                if (err) return callback(err);
+                let containerDetails = containers[Math.floor(Math.random() * containers.length)];
+                let blobService = azureStorage.createBlobServiceWithSas(containerDetails.toURI({ withObjectName: false, withSas: false }), containerDetails.sas);
+
+                blobService.createBlockBlobFromLocalFile(containerDetails.objectName, blobName, fileToUpload, (err, results) => {
+                    if (err) return callback(err);
+                    let blobUri = `${containerDetails.toURI({ withSas: false })}/${blobName}?${containerDetails.sas}`;
+                    return this.ingestFromBlob(new BlobDescriptor(blobUri, descriptor.size), props, callback);
+                });
+            });
+
+        });
     }
 
+
     ingestFromBlob(blob, ingestionProperties, callback) {
-        let props = ingestionProperties ? this.defaultProps.merge(ingestionProperties) : this.defaultProps;
+        let props = ingestionProperties && Object.keys(ingestionProperties).length > 0 ? this.defaultProps.merge(ingestionProperties) : this.defaultProps;
         props.validate();
 
-        let queues = this.ResourceManager.getIngestionQueues();
-        let queueDetails = queues[Math.floor(Math.random() * queues.length)];
-        let queueService = azureStorage.createQueueService(queueDetails.accountName, queueDetails.accountKey);
-        let authorizationContext = this.ResourceManager.getAuthorizationContext();
-        let ingestionBlobInfo = new IngestionBlobInfo(
-            blob, props, authorizationContext
-        );
-        let ingestionBlobInfoJson = ingestionBlobInfo.toJson();
-        let encoded = Buffer.from(ingestionBlobInfoJson).toString("base64");
-        queueService.putMessage(queueDetails.objectName, encoded);
-        callback(null);
+        return this.resourceManager.getIngestionQueues((err, queues) => {
+            if (err) return callback(err);
+
+            return this.resourceManager.getAuthorizationContext((err, authorizationContext) => {
+                if (err) return callback(err);
+
+                let queueDetails = queues[0];//queues[Math.floor(Math.random() * queues.length)];
+                let queueService = azureStorage.createQueueServiceWithSas(queueDetails.toURI({ withSas: false, withObjectName: false }), queueDetails.sas);
+                let ingestionBlobInfo = new IngestionBlobInfo(blob, props, authorizationContext);
+                let ingestionBlobInfoJson = JSON.stringify(ingestionBlobInfo);
+                let encoded = Buffer.from(ingestionBlobInfoJson).toString("base64");
+                queueService.createMessage(queueDetails.objectName, encoded, (err) => {
+                    return callback(err);
+                });
+            });
+        });
     }
 };

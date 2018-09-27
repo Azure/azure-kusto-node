@@ -1,4 +1,3 @@
-// from azure.storage.common import CloudStorageAccount
 const azureStorage = require("azure-storage");
 
 class QueueDetails {
@@ -8,6 +7,15 @@ class QueueDetails {
     }
 }
 
+
+// function shuffle(a) {
+//     for (let i = a.length - 1; i > 0; i--) {
+//         const j = Math.floor(Math.random() * (i + 1));
+//         [a[i], a[j]] = [a[j], a[i]];
+//     }
+//     return a;
+// }
+
 module.exports = class StatusQueue {
     constructor(getQueuesFunc, messageCls) {
         this.getQueuesFunc = getQueuesFunc;
@@ -15,14 +23,13 @@ module.exports = class StatusQueue {
     }
 
     _getQServices(queuesDetails) {
-        return [
-            queuesDetails.map(q => new QueueDetails(q,
-                azureStorage.createQueueService(q.storageAccount,q.storageKey)))
-        ];
+        return queuesDetails.map(q => new QueueDetails(q.objectName, azureStorage.createQueueServiceWithSas(q.toURI({ withSas: false, withObjectName: false }), q.sas)));
     }
 
-    is_empty() {
-        return !this.peek(1, true);
+    isEmpty(callback) {
+        return this.peek((err, result) => {
+            return callback(err, !result || result.length === 0);
+        }, 1, { raw: true });
     }
     decodeContent(content) {
         return Buffer.from(content, "base64").toString("ascii");
@@ -32,46 +39,79 @@ module.exports = class StatusQueue {
         return this.messageCls(this.decodeContent(m.content));
     }
 
-    peek(n = 1, raw = false) {
-        let qServices = this._getQServices(this.getQueuesFunc());
+    peek(callback, n = 1, options = null) {
+        return this.getQueuesFunc((err, queues) => {
+            if (err) return callback(err);
 
-        const perQ = Math.floor(n / qServices.length) + 1;
+            const qServices = this._getQServices(queues);
+            const perQ = Math.floor(n / qServices.length) + 1;
 
-        const result = [];
-        for (let q of qServices) {
-            for (let m of q.service.peekMessages(q.name, perQ)) {
-                if (m) {
-                    result.push(raw ? m : this.deserializeMessage(m));
-                    if (result.length == n) {
-                        return result;
+            const result = [];
+
+
+            // TODO: handle un-even queues like in python
+            for (let i = 0; i < qServices.length; i++) {
+                let q = qServices[i];
+                q.service.peekMessages(q.name, { numOfMessages: perQ }, (err, messages) => {
+                    if (err) return callback(err);
+
+                    for (let m of messages) {
+                        if (m && Object.keys(m) > 0) {
+                            result.push(options && options.raw ? m : this.deserializeMessage(m));
+
+
+                            if (result.length == n) {
+                                return callback(null, result);
+                            }
+                        }
                     }
-                }
+                    // TODO: handle execution of all better
+                    if (i == qServices.length - 1) {
+                        return callback(null, result);
+                    }
+                });
             }
-        }
 
-        return result;
+        });
     }
 
-    pop(n = 1, raw = false, remove = true) {
-        const qServices = this._getQServices(this.getQueuesFunc());
+    pop(callback, n = 1, options = null) {
+        return this.getQueuesFunc((err, queues) => {
+            if (err) return callback(err);
 
-        const perQ = Math.floor(n / qServices.length) + 1;
+            const qServices = this._getQServices(queues);
+            const perQ = Math.floor(n / qServices.length) + 1;
 
-        const result = [];
-        for (let q of qServices) {
-            for (let m of q.service.getMessages(q.name, perQ)) {
-                if (m) {
-                    result.push(raw ? m : this.deserializeMessage(m));
-                    if (remove) {
-                        q.service.deleteMessage(q.name, m.id, m.popReceipt);
+            const result = [];
+
+
+            // TODO: handle un-even queues like in python
+            for (let i = 0; i < qServices.length; i++) {
+                let q = qServices[i];
+                q.service.getMessages(q.name, { numOfMessages: perQ }, (err, messages) => {
+                    if (err) return callback(err);
+
+                    for (let m of messages) {
+                        if (m && Object.keys(m) > 0) {
+                            result.push(options && options.raw ? m : this.deserializeMessage(m));
+
+                            if (options && options.remove) {
+                                q.service.deleteMessage(q.name, m.id, m.popReceipt, (err) => {
+                                    return callback(err);
+                                });
+                            }
+
+                            if (result.length == n) {
+                                return callback(null, result);
+                            }
+                        }
                     }
-                    if (result.length == n) {
-                        return result;
+                    // TODO: handle execution of all better
+                    if (i == qServices.length - 1) {
+                        return callback(null, result);
                     }
-                }
+                });
             }
-        }
-
-        return result;
+        });
     }
 };

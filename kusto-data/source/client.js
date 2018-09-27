@@ -14,24 +14,24 @@ module.exports = class KustoClient {
         this.aadHelper = new AadHelper(kcsb);
     }
 
-    execute(db, query, acceptPartialResults, timeout, rawResponse, callback) {
+    execute(db, query, callback, acceptPartialResults, timeout, rawResponse) {
         if (query.startsWith(".")) {
-            return this.executeMgmt(db, query, acceptPartialResults, timeout, rawResponse, callback);
+            return this.executeMgmt(db, query, callback, acceptPartialResults, timeout, rawResponse);
         }
 
-        return this.executeQuery(db, query, acceptPartialResults, timeout, rawResponse, callback);
+        return this.executeQuery(db, query, callback, acceptPartialResults, timeout, rawResponse);
     }
 
-    executeQuery(db, query, acceptPartialResults, timeout, rawResponse, callback) {
-        return this._execute(this.endpoints.query, db, query, acceptPartialResults, timeout, rawResponse, callback);
+    executeQuery(db, query, callback, acceptPartialResults, timeout, rawResponse) {
+        return this._execute(this.endpoints.query, db, query, callback, acceptPartialResults, timeout, rawResponse);
     }
 
-    executeMgmt(db, query, acceptPartialResults, timeout, rawResponse, callback) {
-        return this._execute(this.endpoints.mgmt, db, query, acceptPartialResults, timeout, rawResponse, callback);
+    executeMgmt(db, query, callback, acceptPartialResults, timeout, rawResponse) {
+        return this._execute(this.endpoints.mgmt, db, query, callback, acceptPartialResults, timeout, rawResponse);
     }
 
     // TODO: refactor this a bit (callback hell...)
-    _execute(endpoint, db, query, acceptPartialResults, timeout, rawResponse, callback) {
+    _execute(endpoint, db, query, callback, acceptPartialResults, timeout, rawResponse) {
         let doRequest = (authHeader, cb) => {
             const payload = {
                 "db": db,
@@ -48,12 +48,12 @@ module.exports = class KustoClient {
                 "x-ms-client-request-id": `KPC.execute;${uuidv4()}`,
             };
 
-            request({
+            return request({
                 method: "POST",
                 url: endpoint,
                 headers,
                 json: payload,
-                gzip:true,
+                gzip: true,
                 timeout
             }, (error, response, body) => {
                 if (error) return cb(error, null);
@@ -64,9 +64,9 @@ module.exports = class KustoClient {
                     }
 
                     let kustoResponse = null;
-                    if (endpoint) {
+                    if (response.request.path.toLowerCase().startsWith("/v2/")) {
                         kustoResponse = new KustoResponseDataSetV2(body);
-                    } else {
+                    } else if (response.request.path.toLowerCase().startsWith("/v1/")) {
                         kustoResponse = new KustoResponseDataSetV1(body);
                     }
 
