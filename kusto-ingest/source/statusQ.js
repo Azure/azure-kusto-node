@@ -39,40 +39,92 @@ module.exports = class StatusQueue {
         return new this.messageCls(this.decodeContent(m.messageText));
     }
 
+    _peek(qs, n, options, callback) {
+        const result = [];
+        const nonEmptyQs = [];
+
+        for (let i = 0; i < qs.length; i++) {
+            let q = qs[i];
+            q.service.peekMessages(q.name, { numOfMessages: n }, (err, messages) => {
+                if (err) return callback(err);
+
+                if (messages && messages.length > 0) {
+                    nonEmptyQs.push(q);
+                }
+
+                for (let m of messages) {
+                    if (m && Object.keys(m).length > 0) {
+                        result.push(options && options.raw ? m : this.deserializeMessage(m));
+
+
+                        if (result.length == n) {
+                            return callback(null, { done: true, nonEmptyQs, result });
+                        }
+                    }
+                }
+                // TODO: handle execution of all better
+                if (i == qs.length - 1) {
+                    return callback(null, { done: nonEmptyQs.length === 0, nonEmptyQs, result });
+                }
+            });
+        }
+    }
+
     peek(callback, n = 1, options = null) {
         return this.getQueuesFunc((err, queues) => {
             if (err) return callback(err);
 
             const qServices = this._getQServices(queues);
-            const perQ = Math.floor(n / qServices.length) + 1;
+            const perQ = qServices.length > 1 ? Math.floor(n / qServices.length) : qServices.length;
 
-            const result = [];
+            // first, iterate evenly and randomly on status queues
+            return this._peek(qServices, perQ, options, (err, partial) => {
+                if (err) return callback(err);
 
+                if (partial.done) return callback(null, partial.result);
 
-            // TODO: handle un-even queues like in python
-            for (let i = 0; i < qServices.length; i++) {
-                let q = qServices[i];
-                q.service.peekMessages(q.name, { numOfMessages: perQ }, (err, messages) => {
+                let messagesLeftToPeek = n - partial.result.length;
+
+                // incase queues are uneven, iterate again, this time, request entire n messages, and trim
+                return this._peek(partial.result.nonEmptyQs, messagesLeftToPeek, options, (err, final) => {
                     if (err) return callback(err);
 
-                    for (let m of messages) {
-                        if (m && Object.keys(m).length > 0) {
-                            result.push(options && options.raw ? m : this.deserializeMessage(m));
+                    return callback(null, partial.result.concat(final.result));
+                })
+            })
+        });
+    }
 
+    _pop(qs, n, options, callback) {
+        const nonEmptyQs = [];
+        const result = [];
 
-                            if (result.length == n) {
-                                return callback(null, result);
-                            }
+        for (let i = 0; i < qs.length; i++) {
+            let q = qs[i];
+            q.service.getMessages(q.name, { numOfMessages: n }, (err, messages) => {
+                if (err) return callback(err);
+
+                for (let m of messages) {
+                    if (m && Object.keys(m).length > 0) {
+                        result.push(options && options.raw ? m : this.deserializeMessage(m));
+
+                        if (!(options && options.remove === false)) {
+                            q.service.deleteMessage(q.name, m.messageId, m.popReceipt, (err) => {
+                                if (err) return callback(err);
+                            });
+                        }
+
+                        if (result.length == n) {
+                            return callback(null, { done: true, nonEmptyQs, result });
                         }
                     }
-                    // TODO: handle execution of all better
-                    if (i == qServices.length - 1) {
-                        return callback(null, result);
-                    }
-                });
-            }
-
-        });
+                }
+                // TODO: handle execution of all better
+                if (i == qs.length - 1) {
+                    return callback(null, { done: nonEmptyQs.length === 0, nonEmptyQs, result });
+                }
+            });
+        }
     }
 
     pop(callback, n = 1, options = null) {
@@ -80,38 +132,24 @@ module.exports = class StatusQueue {
             if (err) return callback(err);
 
             const qServices = this._getQServices(queues);
-            const perQ = Math.floor(n / qServices.length) + 1;
+            const perQ = qServices.length > 1 ? Math.floor(n / qServices.length) : qServices.length;
 
-            const result = [];
+            // first, iterate evenly and randomly on status queues
+            return this._pop(qServices, perQ, options, (err, partial) => {
+                if (err) return callback(err);
 
+                if (partial.done) return callback(null, partial.result);
 
-            // TODO: handle un-even queues like in python
-            for (let i = 0; i < qServices.length; i++) {
-                let q = qServices[i];
-                q.service.getMessages(q.name, { numOfMessages: perQ }, (err, messages) => {
+                let messagesLeftToPop = n - partial.result.length;
+
+                // incase queues are uneven, iterate again, this time, request entire n messages, and trim
+                return this._pop(partial.result.nonEmptyQs, messagesLeftToPop, options, (err, final) => {
                     if (err) return callback(err);
 
-                    for (let m of messages) {
-                        if (m && Object.keys(m).length > 0) {
-                            result.push(options && options.raw ? m : this.deserializeMessage(m));
+                    return callback(null, partial.result.concat(final.result));
+                })
+            })
 
-                            if (options && options.remove) {
-                                q.service.deleteMessage(q.name, m.id, m.popReceipt, (err) => {
-                                    return callback(err);
-                                });
-                            }
-
-                            if (result.length == n) {
-                                return callback(null, result);
-                            }
-                        }
-                    }
-                    // TODO: handle execution of all better
-                    if (i == qServices.length - 1) {
-                        return callback(null, result);
-                    }
-                });
-            }
         });
     }
 };

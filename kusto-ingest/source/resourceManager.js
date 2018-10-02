@@ -120,7 +120,7 @@ module.exports.ResourceManager = class ResourceManager {
 
     refreshAuthorizationContext(callback) {
         let now = moment.utc();
-        if (!this.authorizationContext || this.authorizationContext.isspace() || (this.authorizationContextLastUpdate + this.refreshPeriod) <= now) {
+        if (!this.authorizationContext || this.authorizationContext.trim() || (this.authorizationContextLastUpdate + this.refreshPeriod) <= now) {
             return this.getAuthorizationContextFromService((err, data) => {
                 this.authorizationContext = data;
                 this.authorizationContextLastUpdate = now;
