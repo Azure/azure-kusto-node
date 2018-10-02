@@ -7,7 +7,6 @@ const IngestClient = require("./index").IngestClient;
 const IngestionProps = require("./index").IngestionProperties;
 const KustoConnectionStringBuilder = require("../kusto-data").KustoConnectionStringBuilder;
 const { DataFormat, JsonColumnMapping } = require("./index").IngestionPropertiesEnums;
-const fs = require("fs");
 
 const ingestClient = new IngestClient(
     KustoConnectionStringBuilder.withAadApplicationKeyAuthentication("https://ingest-toshetah.kusto.windows.net", appId, appKey, tenantId),

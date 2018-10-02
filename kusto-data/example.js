@@ -1,8 +1,8 @@
 const KustoClient = require("kusto-data").Client;
-const KustoConnectionBuilder = require("kusto-data").KustoConnectionBuilder;
+const KustoConnectionStringBuilder = require("kusto-data").KustoConnectionStringBuilder;
 const Console = require("console");
 
-const kcs = KustoConnectionBuilder.withAadUserPasswordAuthentication(`https://${clusterName}.kusto.windows.net`,'username','password');
+const kcs = KustoConnectionStringBuilder.withAadUserPasswordAuthentication(`https://${clusterName}.kusto.windows.net`,'username','password');
 const kustoClient = new KustoClient(kcs);
 
 kustoClient.execute("db", "TableName | limit 1", (err, results) => {

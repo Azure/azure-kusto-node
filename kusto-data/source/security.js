@@ -1,12 +1,12 @@
-const URL = require("url-parse");
+const { URL } = require("url");
 const { AuthenticationContext } = require("adal-node");
 // TODO: not sure this is needed
-const AuthenticationMethod = {
+const AuthenticationMethod = Object.freeze({
     username: 0,
     appKey: 1,
     appCertificate: 2,
     deviceLogin: 3
-};
+});
 
 module.exports = class AadHelper {
     constructor(kcsb) {

@@ -21,27 +21,24 @@ module.exports = class KustoIngestClient {
             callback(e);
         }
 
-
         let descriptor = new StreamDescriptor(stream);
 
-        return descriptor.prepare((err, readableStream) => {
+        return this.resourceManager.getContainers((err, containers) => {
             if (err) return callback(err);
 
+            let containerDetails = containers[Math.floor(Math.random() * containers.length)];
+            let blobService = azureStorage.createBlobServiceWithSas(containerDetails.toURI({ withSas: false, withObjectName: false }), containerDetails.sas);
+
             let blobName = `${props.database}__${props.table}__${uuidv4()}`;
-
-            this.resourceManager.getContainers((err, containers) => {
-                if (err) return callback(err);
-                let containerDetails = containers[Math.floor(Math.random() * containers.length)];
-                let blobService = azureStorage.createBlobServiceWithSas(containerDetails.toURI({ withSas: false, withObjectName: false }), containerDetails.sas);
-
-                blobService.createBlockBlobFromStream(containerDetails.objectName, blobName, readableStream, (err) => {
-                    if (err) return callback(err);
-
-                    return this.ingestFromBlob(BlobDescriptor(containerDetails.toURI(), descriptor.size), props, callback);
-                });
+            const writeStream = blobService.createWriteStreamToBlockBlob(containerDetails.objectName, blobName, (err) => {
+                if (err) return callback(err);                    
+                
+                let blobUri = `${containerDetails.toURI({ withSas: false })}/${blobName}?${containerDetails.sas}`;
+                return this.ingestFromBlob(new BlobDescriptor(blobUri, descriptor.size), props, callback);
             });
 
-        });
+            descriptor.pipe(writeStream);
+        });                
     }
 
     ingestFromFile(file, ingestionProperties, callback) {
@@ -91,11 +88,12 @@ module.exports = class KustoIngestClient {
             return this.resourceManager.getAuthorizationContext((err, authorizationContext) => {
                 if (err) return callback(err);
 
-                let queueDetails = queues[0];//queues[Math.floor(Math.random() * queues.length)];
+                let queueDetails = queues[Math.floor(Math.random() * queues.length)];
                 let queueService = azureStorage.createQueueServiceWithSas(queueDetails.toURI({ withSas: false, withObjectName: false }), queueDetails.sas);
                 let ingestionBlobInfo = new IngestionBlobInfo(blob, props, authorizationContext);
                 let ingestionBlobInfoJson = JSON.stringify(ingestionBlobInfo);
                 let encoded = Buffer.from(ingestionBlobInfoJson).toString("base64");
+
                 queueService.createMessage(queueDetails.objectName, encoded, (err) => {
                     return callback(err);
                 });

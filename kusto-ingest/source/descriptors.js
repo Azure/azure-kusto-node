@@ -1,16 +1,19 @@
 const fs = require("fs");
 const path = require("path");
 const zlib = require("zlib");
-const Writable = require("stream").Writable;
+const Transform = require("stream").Transform;
 
-class BytesCounter extends Writable {
+
+class BytesCounter extends Transform {
     constructor() {
         super();
         this.bytes = 0;
     }
 
-    _write(chunk, encoding, cb) {
+    _transform(chunk, encoding, cb) {
         this.bytes += chunk.length;
+        this.push(chunk);
+        
         this.emit("progress", this.bytes);
         cb();
     }
@@ -51,20 +54,22 @@ class FileDescriptor {
 
 class StreamDescriptor {
     constructor(stream) {
-        this.stream = stream;
-        this.name = path.basename(this.filePath);
+        this._stream = stream;
+
+        this.stream = null;
+        this.name = "stream";
         this.size = null;
     }
 
-    prepare(callback) {
-        let zipper = zlib.createGzip();
-        let bytesCounter = BytesCounter();
-
-        this.stream.pipe(zipper).pipe(bytesCounter);
+    pipe(dest) {
+        let bytesCounter = new BytesCounter();
 
         bytesCounter.once("progress", (sizeInBytes) => this.size = sizeInBytes);
+        // dest.once("close", () => {
+        //     callback(null, this.size);
+        // });
 
-        callback(this.stream);
+        this.stream = this._stream.pipe(bytesCounter).pipe(dest);
     }
 }
 

@@ -4,7 +4,6 @@ const IngestionProps = require("./index").IngestionProperties;
 const { ReportLevel, ReportMethod } = require("./index").IngestionPropertiesEnums;
 const KustoConnectionStringBuilder = require("../kusto-data").KustoConnectionStringBuilder;
 const { DataFormat, JsonColumnMapping } = require("./index").IngestionPropertiesEnums;
-const fs = require("fs");
 
 const appId = "";
 const appKey = "";
@@ -67,10 +66,10 @@ function waitForSuccess() {
             for (let success of successes) {
                 console.log(JSON.stringify(success));
             }
-        })
+        });
     });
 }
-    
+
 console.log("Ingest from file");
 
 ingestClient.ingestFromFile("file.json", null, (err) => {

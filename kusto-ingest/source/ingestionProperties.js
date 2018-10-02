@@ -124,15 +124,15 @@ module.exports.IngestionProperties = class IngestionProperties {
     merge(extraProps) {
         let merged = new IngestionProperties();
 
-        for (let prop of Object.entries(this)) {
-            if (prop[1] != null) {
-                merged[prop[0]] = prop[1];
+        for (let key of Object.keys(this)) {
+            if (this[key] != null) {
+                merged[key] = this[key];
             }
         } 
 
-        for (let prop of Object.entries(extraProps)) {
-            if (prop[1] != null) {
-                merged[prop[0]] = prop[1];
+        for (let key of Object.keys(extraProps)) {
+            if (extraProps[key] != null) {
+                merged[key] = extraProps[key];
             }
         }
 
