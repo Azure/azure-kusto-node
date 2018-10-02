@@ -1,7 +1,8 @@
 const assert = require("assert");
-const StorageUrl = require("../source/storageUrl");
+const ResourceManager = require("../source/resourceManager").ResourceManager;
+const ResourceURI = require("../source/resourceManager").ResourceURI;
 
-describe("StorageUrl", function () {
+describe("ResourceURI", function () {
     describe("#fromUri()", function () {
         it("valid input", function () {
             const accountName = "account";
@@ -10,7 +11,7 @@ describe("StorageUrl", function () {
             const sas = "sas";
 
             let uri = `https://${accountName}.${objectType}.core.windows.net/${objectName}?${sas}`;
-            const storageUrl = StorageUrl.fromURI(uri);
+            const storageUrl = ResourceURI.fromURI(uri);
             
             assert.equal(storageUrl.accountName, accountName);
             assert.equal(storageUrl.objectType, objectType);

@@ -1,5 +1,5 @@
-const KustoClient = require("kusto-data").Client;
-const KustoConnectionStringBuilder = require("kusto-data").KustoConnectionStringBuilder;
+const KustoClient = require("azure-kusto-data").Client;
+const KustoConnectionStringBuilder = require("azure-kusto-data").KustoConnectionStringBuilder;
 const Console = require("console");
 
 const kcs = KustoConnectionStringBuilder.withAadUserPasswordAuthentication(`https://${clusterName}.kusto.windows.net`,'username','password');

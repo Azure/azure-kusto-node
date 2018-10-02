@@ -1,5 +1,3 @@
-
-
 const KeywordMapping = {
     dataSource: { propName: "dataSource", mappedTo: "Data Source", validNames: ["data source", "addr", "address", "network address", "server"] },
     aadUserId: { propName: "aadUserId", mappedTo: "AAD User ID", validNames: ["aad user id"] },

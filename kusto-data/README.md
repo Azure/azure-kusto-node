@@ -3,8 +3,8 @@
 # Quick Start
 
 ```javascript 
-const KustoClient = require("kusto-data").Client;
-const KustoConnectionStringBuilder = require("kusto-data").KustoConnectionStringBuilder;
+const KustoClient = require("azure-kusto-data").Client;
+const KustoConnectionStringBuilder = require("azure-kusto-data").KustoConnectionStringBuilder;
 const Console = require("console");
 
 const kcsb = KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(`https://${clusterName}.kusto.windows.net`,'username','password','tenant_id');

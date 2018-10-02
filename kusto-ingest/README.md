@@ -3,13 +3,13 @@
 # Quick Start
 
 ```javascript 
-const IngestClient = require("./index").IngestClient;
-const IngestionProps = require("./index").IngestionProperties;
-const KustoConnectionStringBuilder = require("../kusto-data").KustoConnectionStringBuilder;
-const { DataFormat, JsonColumnMapping } = require("./index").IngestionPropertiesEnums;
+const IngestClient = require("azure-kusto-ingest").IngestClient;
+const IngestionProps = require("azure-kusto-ingest").IngestionProperties;
+const KustoConnectionStringBuilder = require("azure-kusto-data").KustoConnectionStringBuilder;
+const { DataFormat, JsonColumnMapping } = require("azure-kusto-ingest").IngestionPropertiesEnums;
 
 const ingestClient = new IngestClient(
-    KustoConnectionStringBuilder.withAadApplicationKeyAuthentication("https://ingest-toshetah.kusto.windows.net", appId, appKey, tenantId),
+    KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(`https://ingest-${cluster}.kusto.windows.net`, appId, appKey, tenantId),
     new IngestionProps(
         "Database",
         "Table",
