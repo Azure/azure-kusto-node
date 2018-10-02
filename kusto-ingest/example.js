@@ -5,12 +5,8 @@ const { ReportLevel, ReportMethod } = require("./index").IngestionPropertiesEnum
 const KustoConnectionStringBuilder = require("../kusto-data").KustoConnectionStringBuilder;
 const { DataFormat, JsonColumnMapping } = require("./index").IngestionPropertiesEnums;
 
-const appId = "";
-const appKey = "";
-const authorityId = "";
-
 const ingestClient = new IngestClient(
-    KustoConnectionStringBuilder.withAadApplicationKeyAuthentication("https://ingest-toshetah.kusto.windows.net", appId, appKey, authorityId),
+    KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(`https://ingest-${clusterName}.kusto.windows.net`, appId, appKey, authorityId),
     new IngestionProps(
         "Database",
         "Table",
@@ -40,14 +36,17 @@ function waitForFailures() {
             console.log("no errors...");
             return setTimeout(waitForFailures, 1000);
         }
+        else {
+            statusQueues.failure.pop((err, failures) => {
+                if (err) throw new Error(err);
 
-        statusQueues.failure.pop((err, failures) => {
-            if (err) throw new Error(err);
+                for (let failure of failures) {
+                    console.log(JSON.stringify(failure));
+                }
 
-            for (let failure of failures) {
-                console.log(JSON.stringify(failure));
-            }
-        });
+                return setTimeout(waitForFailures, 1000);
+            });
+        }
     });
 }
 
@@ -59,14 +58,17 @@ function waitForSuccess() {
             console.log("no successes...");
             return setTimeout(waitForSuccess, 1000);
         }
+        else {
+            statusQueues.success.pop((err, successes) => {
+                if (err) throw new Error(err);
 
-        statusQueues.success.pop((err, successes) => {
-            if (err) throw new Error(err);
+                for (let success of successes) {
+                    console.log(JSON.stringify(success));
+                }
 
-            for (let success of successes) {
-                console.log(JSON.stringify(success));
-            }
-        });
+                return setTimeout(waitForSuccess, 1000);
+            })
+        }
     });
 }
 

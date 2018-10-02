@@ -1,68 +1,43 @@
 const StatusQueue = require("./statusQ");
 class StatusMessage {
-    static get getProps() {
-        return [
+    constructor(raw, obj, extraProps) {
+        let props = [
             "OperationId", "Database", "Table",
             "IngestionSourceId", "IngestionSourcePath", "RootActivityId"
         ];
-    }
 
-    constructor(raw, obj) {
-        this.raw = raw || JSON.stringify(raw);
+        if (extraProps && extraProps.length > 0) {
+            props = props.concat(extraProps);
+        }
 
-        const _obj = obj || JSON.parse(raw);
-        let props = this.constructor.getProps();
+        const _obj = obj || JSON.parse(raw || JSON.stringify(raw));
 
         for (let prop of props) {
-            Object.defineProperty(this, prop, _obj[prop]);
+            this[prop] = _obj[prop];
         }
     }
 }
 
 
 class SuccessMessage extends StatusMessage {
-    static get getProps() {
-        return [
-            "SucceededOn"
-        ];
-    }
-
     constructor(raw, obj) {
-        const _obj = obj || JSON.parse(raw);
-
-        super(null, _obj);
-        let props = this.constructor.getProps();
-
-        for (let prop of props) {
-            Object.defineProperty(this, prop, _obj[prop]);
-        }
-
+        super(raw, obj, [
+            "SucceededOn"
+        ]);
     }
 }
 
 
 class FailureMessage extends StatusMessage {
-    static get getProps() {
-        return [
+    constructor(raw, obj) {
+        super(raw, obj, [
             "FailedOn",
             "Details",
             "ErrorCode",
             "FailureStatus",
             "OriginatesFromUpdatePolicy",
             "ShouldRetry"
-        ];
-    }
-
-    constructor(raw, obj) {
-        const _obj = obj || JSON.parse(raw);
-
-        super(null, _obj);
-
-        let props = this.constructor.getProps();
-
-        for (let prop of props) {
-            Object.defineProperty(this, prop, _obj[prop]);
-        }
+        ]);
     }
 }
 

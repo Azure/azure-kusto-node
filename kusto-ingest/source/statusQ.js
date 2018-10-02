@@ -36,7 +36,7 @@ module.exports = class StatusQueue {
     }
 
     deserializeMessage(m) {
-        return this.messageCls(this.decodeContent(m.content));
+        return new this.messageCls(this.decodeContent(m.messageText));
     }
 
     peek(callback, n = 1, options = null) {
@@ -56,7 +56,7 @@ module.exports = class StatusQueue {
                     if (err) return callback(err);
 
                     for (let m of messages) {
-                        if (m && Object.keys(m) > 0) {
+                        if (m && Object.keys(m).length > 0) {
                             result.push(options && options.raw ? m : this.deserializeMessage(m));
 
 
@@ -92,7 +92,7 @@ module.exports = class StatusQueue {
                     if (err) return callback(err);
 
                     for (let m of messages) {
-                        if (m && Object.keys(m) > 0) {
+                        if (m && Object.keys(m).length > 0) {
                             result.push(options && options.raw ? m : this.deserializeMessage(m));
 
                             if (options && options.remove) {
