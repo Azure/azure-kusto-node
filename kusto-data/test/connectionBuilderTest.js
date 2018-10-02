@@ -2,7 +2,7 @@ const assert = require("assert");
 const uuidv4 = require("uuid/v4");
 
 const KustoConnectionStringBuilder = require("../source/connectionBuilder");
-describe("KustoConnectionBuilder", function () {
+describe("KustoConnectionStringBuilder", function () {
     describe("#constructor(connectionString)", function () {
         it("from string with no creds", function () {
             let kcsbs = [

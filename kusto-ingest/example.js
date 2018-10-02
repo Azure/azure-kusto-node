@@ -2,7 +2,7 @@ const IngestClient = require("./index").IngestClient;
 const IngestStatusQueues = require("./index").IngestStatusQueues;
 const IngestionProps = require("./index").IngestionProperties;
 const { ReportLevel, ReportMethod } = require("./index").IngestionPropertiesEnums;
-const KustoConnectionBuilder = require("../kusto-data").KustoConnectionBuilder;
+const KustoConnectionStringBuilder = require("../kusto-data").KustoConnectionStringBuilder;
 const { DataFormat, JsonColumnMapping } = require("./index").IngestionPropertiesEnums;
 const fs = require("fs");
 
@@ -11,7 +11,7 @@ const appKey = "";
 const authorityId = "";
 
 const ingestClient = new IngestClient(
-    KustoConnectionBuilder.withAadApplicationKeyAuthentication("https://ingest-toshetah.kusto.windows.net", appId, appKey, authorityId),
+    KustoConnectionStringBuilder.withAadApplicationKeyAuthentication("https://ingest-toshetah.kusto.windows.net", appId, appKey, authorityId),
     new IngestionProps(
         "Database",
         "Table",

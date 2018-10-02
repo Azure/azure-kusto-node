@@ -4,7 +4,7 @@
     "description": "",
     "main": "./index.js",
     "engines": {
-        "node": ">= 0.8.26"
+        "node": ">= 6.14.0"
     },
     "scripts": {
         "example": "node example.js",

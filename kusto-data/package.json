@@ -3,6 +3,9 @@
     "version": "0.1.0",
     "description": "",
     "main": "index.js",
+    "engines": {
+        "node": ">= 6.14.0"
+    },
     "scripts": {
         "example": "node example.js",
         "test": "mocha",
