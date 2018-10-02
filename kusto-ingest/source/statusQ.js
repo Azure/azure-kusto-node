@@ -8,13 +8,16 @@ class QueueDetails {
 }
 
 
-// function shuffle(a) {
-//     for (let i = a.length - 1; i > 0; i--) {
-//         const j = Math.floor(Math.random() * (i + 1));
-//         [a[i], a[j]] = [a[j], a[i]];
-//     }
-//     return a;
-// }
+function shuffle(a) {
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        let temp = a[j];
+        a[j] = a[i];
+        a[i] = temp;
+    }
+
+    return a;
+}
 
 module.exports = class StatusQueue {
     constructor(getQueuesFunc, messageCls) {
@@ -62,7 +65,7 @@ module.exports = class StatusQueue {
                         }
                     }
                 }
-                // TODO: handle execution of all better
+
                 if (i == qs.length - 1) {
                     return callback(null, { done: nonEmptyQs.length === 0, nonEmptyQs, result });
                 }
@@ -74,7 +77,7 @@ module.exports = class StatusQueue {
         return this.getQueuesFunc((err, queues) => {
             if (err) return callback(err);
 
-            const qServices = this._getQServices(queues);
+            const qServices = shuffle(this._getQServices(queues));
             const perQ = qServices.length > 1 ? Math.floor(n / qServices.length) : qServices.length;
 
             // first, iterate evenly and randomly on status queues
@@ -119,7 +122,7 @@ module.exports = class StatusQueue {
                         }
                     }
                 }
-                // TODO: handle execution of all better
+
                 if (i == qs.length - 1) {
                     return callback(null, { done: nonEmptyQs.length === 0, nonEmptyQs, result });
                 }
@@ -131,7 +134,7 @@ module.exports = class StatusQueue {
         return this.getQueuesFunc((err, queues) => {
             if (err) return callback(err);
 
-            const qServices = this._getQServices(queues);
+            const qServices = shuffle(this._getQServices(queues));
             const perQ = qServices.length > 1 ? Math.floor(n / qServices.length) : qServices.length;
 
             // first, iterate evenly and randomly on status queues

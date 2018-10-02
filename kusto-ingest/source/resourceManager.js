@@ -76,8 +76,7 @@ module.exports.ResourceManager = class ResourceManager {
     }
 
     refreshIngestClientResources(callback) {
-        let now = moment.now();
-        // TODO: make sure this won't break due to callbacks
+        let now = moment.now();        
         if (!this.ingestClientResources || (this.ingestClientResourcesLastUpdate + this.refreshPeriod) <= now || !this.ingestClientResources.isApplicable()
         ) {
             this.getIngestClientResourcesFromService((err, data) => {
@@ -128,8 +127,7 @@ module.exports.ResourceManager = class ResourceManager {
                 return callback(err);
             });
         }
-
-        //TODO: not sure proper way to handle this, maybe just pass the data ?
+        
         return callback(null);
 
     }

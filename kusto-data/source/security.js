@@ -1,6 +1,6 @@
 const { URL } = require("url");
 const { AuthenticationContext } = require("adal-node");
-// TODO: not sure this is needed
+
 const AuthenticationMethod = Object.freeze({
     username: 0,
     appKey: 1,

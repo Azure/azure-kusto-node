@@ -24,18 +24,13 @@ class KustoResponseDataSet {
         }
     }
 
-    getErrorsCount() {
-        // TODO: this is bad code, since there is no way of 
-        // knowing function will be implemented, and versions are not related 
-        // (inherticne is the wrong way to go here)        
+    getErrorsCount() {        
         if (!this.statusTable || this.statusTable.length == 0) return 0;
 
         let minLevel = 4;
         let errors = 0;
         const errorColumn = this.constructor.getErrorColumn();
-        for (let row in this.statusTable) {
-            // TODO: minlevel of what? severity? verbosity?
-            // TODO: this is really odd logic, fix this later
+        for (let row in this.statusTable) {            
             if (row[errorColumn] < 4) {
                 if (row[errorColumn] < minLevel) {
                     minLevel = row[errorColumn];

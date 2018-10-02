@@ -64,10 +64,7 @@ class StreamDescriptor {
     pipe(dest) {
         let bytesCounter = new BytesCounter();
 
-        bytesCounter.once("progress", (sizeInBytes) => this.size = sizeInBytes);
-        // dest.once("close", () => {
-        //     callback(null, this.size);
-        // });
+        bytesCounter.once("progress", (sizeInBytes) => this.size = sizeInBytes);        
 
         this.stream = this._stream.pipe(bytesCounter).pipe(dest);
     }
