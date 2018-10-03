@@ -13,7 +13,7 @@ class BytesCounter extends Transform {
     _transform(chunk, encoding, cb) {
         this.bytes += chunk.length;
         this.push(chunk);
-        
+
         this.emit("progress", this.bytes);
         cb();
     }
@@ -23,8 +23,9 @@ class FileDescriptor {
     constructor(filePath) {
         this.filePath = filePath;
         this.name = path.basename(this.filePath);
+        this.extension = path.extname(this.filePath).toLowerCase();
         this.size = null;
-        this.zipped = false;
+        this.zipped = this.extension === ".gz";
     }
 
     _gzip(callback) {
@@ -42,10 +43,8 @@ class FileDescriptor {
     prepare(callback) {
         return fs.stat(this.filePath, (err, stats) => {
             if (err) return callback(err);
-
-            this.zipped = path.extname(this.filePath).toLowerCase() === ".gz";
+            
             this.size = this.zipped ? stats.size * 5 : stats.size;
-
             return !this.zipped ? this._gzip(callback) : callback(null, this.filePath);
         });
     }
@@ -64,7 +63,7 @@ class StreamDescriptor {
     pipe(dest) {
         let bytesCounter = new BytesCounter();
 
-        bytesCounter.once("progress", (sizeInBytes) => this.size = sizeInBytes);        
+        bytesCounter.once("progress", (sizeInBytes) => this.size = sizeInBytes);
 
         this.stream = this._stream.pipe(bytesCounter).pipe(dest);
     }

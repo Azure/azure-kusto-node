@@ -1,8 +1,8 @@
 # Microsoft Azure Kusto (Azure Data Explorer) SDK for Node.js
 
 This repository contains the following SDKs:
-* **Azure Kusto Data SDK**: Execute queries against a Kusto Cluster. [docs](./kusto-data/README.md)
-* **Azure Kusto Ingest SDK**: Ingest Data into a Kusto Cluster. [docs](./kusto-ingest/README.md)
+* **Azure Kusto Data SDK**: Execute queries against a Kusto Cluster. [docs](./azure-kusto-data/README.md)
+* **Azure Kusto Ingest SDK**: Ingest Data into a Kusto Cluster. [docs](./azure-kusto-ingest/README.md)
 
 
 General docs are located at https://docs.microsoft.com/en-us/azure/data-explorer/
@@ -23,8 +23,8 @@ The SDK team publishes the SDKs as [npm](https://npmjs.org) packages:
 ## Examples
 
 In the repository, you will find a set of simple samples that will help you get started:
-- [Data SDK samples](./kusto-data/example.js)
-- [Ingestion SDK samples](./kusto-ingest/example.js)
+- [Data SDK samples](./azure-kusto-data/example.js)
+- [Ingestion SDK samples](./azure-kusto-ingest/example.js)
 
 ## Platforms compatibility
 

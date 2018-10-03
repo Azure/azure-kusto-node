@@ -49,7 +49,7 @@ class IngestClientResources {
         this.containers = containers;
     }
 
-    isApplicable() {
+    valid() {
         let resources = [
             this.securedReadyForAggregationQueues,
             this.failedIngestionsQueues,
@@ -76,21 +76,21 @@ module.exports.ResourceManager = class ResourceManager {
     }
 
     refreshIngestClientResources(callback) {
-        let now = moment.now();        
-        if (!this.ingestClientResources || (this.ingestClientResourcesLastUpdate + this.refreshPeriod) <= now || !this.ingestClientResources.isApplicable()
+        let now = moment.now();
+        if (!this.ingestClientResources || (this.ingestClientResourcesLastUpdate + this.refreshPeriod) <= now || !this.ingestClientResources.valid()
         ) {
             this.getIngestClientResourcesFromService((err, data) => {
                 this.ingestClientResources = data;
                 this.ingestClientResourcesLastUpdate = now;
 
-                callback(err, null);
+                callback(err);
             });
         } else {
-            callback(null);
+            callback();
         }
     }
 
-    getResourceByBame(table, resourceName) {
+    getResourceByName(table, resourceName) {
         let result = [];
         for (let row of table.rows()) {
             if (row.ResourceTypeName == resourceName) {
@@ -101,16 +101,16 @@ module.exports.ResourceManager = class ResourceManager {
     }
 
     getIngestClientResourcesFromService(callback) {
-        return this.kustoClient.execute("NetultDB", ".get ingestion resources", (err, resp) => {
-            if (err) callback(err, null);
+        return this.kustoClient.execute("NetDefaultDB", ".get ingestion resources", (err, resp) => {
+            if (err) callback(err);
 
             const table = resp.primaryResults[0];
 
             const resources = new IngestClientResources(
-                this.getResourceByBame(table, "SecuredReadyForAggregationQueue"),
-                this.getResourceByBame(table, "FailedIngestionsQueue"),
-                this.getResourceByBame(table, "SuccessfulIngestionsQueue"),
-                this.getResourceByBame(table, "TempStorage")
+                this.getResourceByName(table, "SecuredReadyForAggregationQueue"),
+                this.getResourceByName(table, "FailedIngestionsQueue"),
+                this.getResourceByName(table, "SuccessfulIngestionsQueue"),
+                this.getResourceByName(table, "TempStorage")
             );
 
             return callback(null, resources);
@@ -127,17 +127,17 @@ module.exports.ResourceManager = class ResourceManager {
                 return callback(err);
             });
         }
-        
-        return callback(null);
+
+        return callback();
 
     }
 
     getAuthorizationContextFromService(callback) {
-        return this.kustoClient.execute("NetultDB", ".get kusto identity token", (err, resp) => {
+        return this.kustoClient.execute("NetDefaultDB", ".get kusto identity token", (err, resp) => {
             if (err) return callback(err, null);
-            
+
             const authContext = resp.primaryResults[0].rows().next().value.AuthorizationContext;
-            
+
             return callback(err, authContext);
         });
     }

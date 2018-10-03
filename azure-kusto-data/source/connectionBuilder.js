@@ -1,4 +1,4 @@
-const KeywordMapping = {
+const KeywordMapping = Object.freeze({
     dataSource: { propName: "dataSource", mappedTo: "Data Source", validNames: ["data source", "addr", "address", "network address", "server"] },
     aadUserId: { propName: "aadUserId", mappedTo: "AAD User ID", validNames: ["aad user id"] },
     password: { propName: "password", mappedTo: "Password", validNames: ["password", "pwd"] },
@@ -7,7 +7,7 @@ const KeywordMapping = {
     applicationCertificate: { propName: "applicationCertificate", mappedTo: "Application Certificate", validNames: ["application certificate"] },
     applicationCertificateThumbprint: { propName: "applicationCertificateThumbprint", mappedTo: "Application Certificate Thumbprint", validNames: ["application certificate thumbprint"] },
     authorityId: { propName: "authorityId", mappedTo: "Authority Id", validNames: ["authority id", "authorityid", "authority", "tenantid", "tenant", "tid"] },
-};
+});
 
 const getPropName = (key) => {
     let _key = key.trim().toLowerCase();

@@ -93,8 +93,8 @@ module.exports = class StatusQueue {
                     if (err) return callback(err);
 
                     return callback(null, partial.result.concat(final.result));
-                })
-            })
+                });
+            });
         });
     }
 
@@ -150,8 +150,8 @@ module.exports = class StatusQueue {
                     if (err) return callback(err);
 
                     return callback(null, partial.result.concat(final.result));
-                })
-            })
+                });
+            });
 
         });
     }

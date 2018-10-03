@@ -30,7 +30,7 @@ class KustoResponseDataSet {
         let minLevel = 4;
         let errors = 0;
         const errorColumn = this.constructor.getErrorColumn();
-        for (let row in this.statusTable) {            
+        for (let row of this.statusTable.rows()) {            
             if (row[errorColumn] < 4) {
                 if (row[errorColumn] < minLevel) {
                     minLevel = row[errorColumn];
@@ -51,7 +51,7 @@ class KustoResponseDataSet {
         const errorColumn = this.constructor.getErrorColumn();
         const cridColumn = this.constructor.getCridColumn();
         const statusColumn = this.constructor.getStatusColumn();
-        for (let row in this.statusTable.rows()) {
+        for (let row of this.statusTable.rows()) {
             if (row[errorColumn] < 4) {
                 result.push(`Please provide the following data to Kusto: CRID=${row[cridColumn]} Description: ${row[statusColumn]}`);
             }
@@ -97,6 +97,8 @@ module.exports.KustoResponseDataSetV1 = class KustoResponseDataSetV1 extends Kus
         }
 
         super(tables);
+
+        this.version = "1.0";
     }
 };
 
@@ -108,5 +110,7 @@ module.exports.KustoResponseDataSetV2 = class KustoResponseDataSetV2 extends Kus
 
     constructor(data) {
         super(data.filter(t => t.FrameType === "DataTable"));
+
+        this.version = "2.0";
     }
 };

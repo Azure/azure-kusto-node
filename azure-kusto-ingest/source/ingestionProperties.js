@@ -115,10 +115,11 @@ module.exports.IngestionProperties = class IngestionProperties {
     }
 
     validate() {
-        if (this.mapping && this.mappingReference) throw new Error("Duplicate mapping detected");
-        if (!this.table) throw new Error("Must define a target table");
-        if (!this.database) throw new Error("Must define a target database");
+        if (!this.database) throw new Error("Must define a target database");        
+        if (!this.table) throw new Error("Must define a target table");        
         if (!this.format) throw new Error("Must define a data format");
+        if (this.mapping && this.mappingReference) throw new Error("Duplicate mapping detected");
+        if (!this.mapping && !this.mappingReference && this.format === DataFormat.json) throw new Error("Json must have a mapping defined");
     }
 
     merge(extraProps) {

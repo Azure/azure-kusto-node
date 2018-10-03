@@ -1,5 +1,4 @@
-// FIXME: this requires kusto-data to be installed. for now changed it to work locally
-const KustoClient = require("../../kusto-data").Client; //require("kusto-data");
+const KustoClient = require("azure-kusto-data").Client; //require("kusto-data");
 const { FileDescriptor, BlobDescriptor, StreamDescriptor } = require("./descriptors");
 const { ResourceManager } = require("./resourceManager");
 const IngestionBlobInfo = require("./ingestionBlobInfo");
@@ -67,7 +66,7 @@ module.exports = class KustoIngestClient {
                 let containerDetails = containers[Math.floor(Math.random() * containers.length)];
                 let blobService = azureStorage.createBlobServiceWithSas(containerDetails.toURI({ withObjectName: false, withSas: false }), containerDetails.sas);
 
-                blobService.createBlockBlobFromLocalFile(containerDetails.objectName, blobName, fileToUpload, (err, results) => {
+                blobService.createBlockBlobFromLocalFile(containerDetails.objectName, blobName, fileToUpload, (err) => {
                     if (err) return callback(err);
                     let blobUri = `${containerDetails.toURI({ withSas: false })}/${blobName}?${containerDetails.sas}`;
                     return this.ingestFromBlob(new BlobDescriptor(blobUri, descriptor.size), props, callback);
