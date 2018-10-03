@@ -1,4 +1,4 @@
-const KustoClient = require("azure-kusto-data").Client; //require("kusto-data");
+const KustoClient = require("azure-kusto-data").Client;
 const { FileDescriptor, BlobDescriptor, StreamDescriptor } = require("./descriptors");
 const { ResourceManager } = require("./resourceManager");
 const IngestionBlobInfo = require("./ingestionBlobInfo");

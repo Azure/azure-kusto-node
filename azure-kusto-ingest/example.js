@@ -2,8 +2,13 @@ const IngestClient = require("./index").IngestClient;
 const IngestStatusQueues = require("./index").IngestStatusQueues;
 const IngestionProps = require("./index").IngestionProperties;
 const { ReportLevel, ReportMethod } = require("./index").IngestionPropertiesEnums;
-const KustoConnectionStringBuilder = require("../kusto-data").KustoConnectionStringBuilder;
+const KustoConnectionStringBuilder = require("azure-kusto-data").KustoConnectionStringBuilder;
 const { DataFormat, JsonColumnMapping } = require("./index").IngestionPropertiesEnums;
+
+const clusterName = null;
+const appId = null;
+const appKey = null;
+const authorityId = null;
 
 const ingestClient = new IngestClient(
     KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(`https://ingest-${clusterName}.kusto.windows.net`, appId, appKey, authorityId),
