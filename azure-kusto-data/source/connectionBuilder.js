@@ -67,7 +67,7 @@ module.exports = class KustoConnectionStringBuilder {
         if (!certificate || certificate.trim().length == 0) throw new Error("Invalid certificate");
         if (!thumbprint || thumbprint.trim().length == 0) throw new Error("Invalid thumbprint");
 
-        const kcsb = KustoConnectionStringBuilder(connectionString);
+        const kcsb = new KustoConnectionStringBuilder(connectionString);
         kcsb[KeywordMapping.applicationClientId.propName] = aadAppId;
         kcsb[KeywordMapping.applicationCertificate.propName] = certificate;
         kcsb[KeywordMapping.applicationCertificateThumbprint.propName] = thumbprint;

@@ -40,7 +40,7 @@ module.exports = class KustoClient {
         };
 
         return this.aadHelper.getAuthHeader((err, authHeader) => {
-            if (err) return callback(err, null);
+            if (err) return callback(err);
 
             const headers = {
                 "Authorization": authHeader,

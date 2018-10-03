@@ -21,14 +21,14 @@ module.exports = class AadHelper {
             this.clientId = "db662dc1-0cfe-4e1c-a843-19a68e65be58";
             this.username = kcsb.aadUserId;
             this.password = kcsb.password;
-        } else if (!!kcsb.applicationclientId && !!kcsb.applicationKey) {
+        } else if (!!kcsb.applicationClientId && !!kcsb.applicationKey) {
             this.authMethod = AuthenticationMethod.appKey;
-            this.clientId = kcsb.applicationclientId;
+            this.clientId = kcsb.applicationClientId;
             this.clientSecret = kcsb.applicationKey;
-        } else if (!!kcsb.applicationclientId &&
+        } else if (!!kcsb.applicationClientId &&
             !!kcsb.applicationCertificate && !!kcsb.applicationCertificateThumbprint) {
             this.authMethod = AuthenticationMethod.appCertificate;
-            this.clientId = kcsb.applicationclientId;
+            this.clientId = kcsb.applicationClientId;
             this.certificate = kcsb.applicationCertificate;
             this.thumbprint = kcsb.applicationCertificateThumbprint;
         } else {
@@ -57,25 +57,22 @@ module.exports = class AadHelper {
             case AuthenticationMethod.deviceLogin:
                 return this.adalContext.acquireUserCode(resource, this.clientId, null, (err, tokenResponse) => {
                     if (err) {
-                        return cb(err, null);
+                        return cb(err);
                     } else {
-                        const readline = require("readline");
+                        console.log(tokenResponse.message);
 
-                        const rl = readline.createInterface({
-                            input: process.stdin,
-                            output: process.stdout
+                        return this.adalContext.acquireTokenWithDeviceCode(resource, this.clientId, tokenResponse, (err, tokenResponse) => {
+                            if (err) {
+                                return cb(err);
+                            }
+
+                            return cb(err, tokenResponse && formatHeader(tokenResponse));
                         });
 
-                        rl.question(tokenResponse.message, () => {
-                            rl.close();
-                            return this.adalContext.acquireTokenWithDeviceCode(resource, this.clientId, tokenResponse.userCode, (err, tokenResponse) => {
-                                return cb(err, tokenResponse && formatHeader(tokenResponse));
-                            });
-                        });
                     }
                 });
             default:
-                return cb("Couldn't Authenticate, something went wrong trying to choose authentication method", null);
+                return cb("Couldn't Authenticate, something went wrong trying to choose authentication method");
         }
 
     }

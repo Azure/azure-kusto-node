@@ -134,7 +134,7 @@ module.exports.ResourceManager = class ResourceManager {
 
     getAuthorizationContextFromService(callback) {
         return this.kustoClient.execute("NetDefaultDB", ".get kusto identity token", (err, resp) => {
-            if (err) return callback(err, null);
+            if (err) return callback(err);
 
             const authContext = resp.primaryResults[0].rows().next().value.AuthorizationContext;
 
