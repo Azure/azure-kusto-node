@@ -43,17 +43,23 @@ module.exports = class AadHelper {
 
         switch (this.authMethod) {
             case AuthenticationMethod.username:
-                return this.adalContext.acquireTokenWithUsernamePassword(resource, this.username, this.password, this.clientId, (err, tokenResponse) => {
-                    return cb(err, tokenResponse && formatHeader(tokenResponse));
-                });
+                return this.adalContext.acquireTokenWithUsernamePassword(
+                    resource, this.username, this.password, this.clientId, (err, tokenResponse) => {
+                        return cb(err, tokenResponse && formatHeader(tokenResponse));
+                    }
+                );
             case AuthenticationMethod.appKey:
-                return this.adalContext.acquireTokenWithClientCredentials(resource, this.clientId, this.clientSecret, (err, tokenResponse) => {
-                    return cb(err, tokenResponse && formatHeader(tokenResponse));
-                });
+                return this.adalContext.acquireTokenWithClientCredentials(
+                    resource, this.clientId, this.clientSecret, (err, tokenResponse) => {
+                        return cb(err, tokenResponse && formatHeader(tokenResponse));
+                    }
+                );
             case AuthenticationMethod.appCertificate:
-                return this.adalContext.acquireTokenWithClientCertificate(resource, this.clientId, this.certificate, this.thumbprint, (err, tokenResponse) => {
-                    return cb(err, tokenResponse && formatHeader(tokenResponse));
-                });
+                return this.adalContext.acquireTokenWithClientCertificate(
+                    resource, this.clientId, this.certificate, this.thumbprint, (err, tokenResponse) => {
+                        return cb(err, tokenResponse && formatHeader(tokenResponse));
+                    }
+                );
             case AuthenticationMethod.deviceLogin:
                 return this.adalContext.acquireUserCode(resource, this.clientId, null, (err, tokenResponse) => {
                     if (err) {

@@ -4,7 +4,7 @@ const v2ResponseError = require("./data/response/v2error");
 const v1Response = require("./data/response/v1");
 
 
-const KustoClient = require("../source/client")
+const KustoClient = require("../source/client");
 
 describe("KustoClient", function () {
     describe("#constructor", function () {
@@ -79,7 +79,11 @@ describe("KustoClient", function () {
 
 
             let reqCb = client._getRequestCallback(null, (err, response) => {
-                assert.equal(err, 'Kusto request had errors. Please provide the following data to Kusto: CRID=unspecified;e8e72755-786b-4bdc-835d-ea49d63d09fd Description: {"Count":1,"Text":"Querycompletedsuccessfully"}');
+                assert.equal(err,
+                    `Kusto request had errors. 
+                    Please provide the following data to Kusto: CRID=unspecified;e8e72755-786b-4bdc-835d-ea49d63d09fd 
+                    Description: {"Count":1,"Text":"Querycompletedsuccessfully"}`
+                );
                 assert.equal(response, null);
                 done();
             });

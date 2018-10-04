@@ -77,7 +77,8 @@ module.exports.ResourceManager = class ResourceManager {
 
     refreshIngestClientResources(callback) {
         let now = moment.now();
-        if (!this.ingestClientResources || (this.ingestClientResourcesLastUpdate + this.refreshPeriod) <= now || !this.ingestClientResources.valid()
+        if (!this.ingestClientResources ||
+            (this.ingestClientResourcesLastUpdate + this.refreshPeriod) <= now || !this.ingestClientResources.valid()
         ) {
             this.getIngestClientResourcesFromService((err, data) => {
                 this.ingestClientResources = data;
@@ -119,7 +120,8 @@ module.exports.ResourceManager = class ResourceManager {
 
     refreshAuthorizationContext(callback) {
         let now = moment.utc();
-        if (!this.authorizationContext || this.authorizationContext.trim() || (this.authorizationContextLastUpdate + this.refreshPeriod) <= now) {
+        if (!this.authorizationContext || this.authorizationContext.trim() ||
+            (this.authorizationContextLastUpdate + this.refreshPeriod) <= now) {
             return this.getAuthorizationContextFromService((err, data) => {
                 this.authorizationContext = data;
                 this.authorizationContextLastUpdate = now;

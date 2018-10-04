@@ -43,7 +43,7 @@ class FileDescriptor {
     prepare(callback) {
         return fs.stat(this.filePath, (err, stats) => {
             if (err) return callback(err);
-            
+
             this.size = this.zipped ? stats.size * 5 : stats.size;
             return !this.zipped ? this._gzip(callback) : callback(null, this.filePath);
         });

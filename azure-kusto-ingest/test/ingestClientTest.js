@@ -1,8 +1,4 @@
 const assert = require("assert");
-const moment = require("moment");
-const sinon = require("sinon");
-
-const KustoClient = require("azure-kusto-data").Client;
 
 const KustoIngestClient = require("../source/ingestClient");
 

@@ -26,7 +26,10 @@ module.exports = class StatusQueue {
     }
 
     _getQServices(queuesDetails) {
-        return queuesDetails.map(q => new QueueDetails(q.objectName, azureStorage.createQueueServiceWithSas(q.toURI({ withSas: false, withObjectName: false }), q.sas)));
+        return queuesDetails.map(q => new QueueDetails(q.objectName, azureStorage.createQueueServiceWithSas(
+            q.toURI({ withSas: false, withObjectName: false }), 
+            q.sas))
+        );
     }
 
     isEmpty(callback) {

@@ -12,7 +12,8 @@ module.exports = class KustoIngestClient {
     }
 
     ingestFromStream(stream, ingestionProperties, callback) {
-        let props = ingestionProperties && Object.keys(ingestionProperties).length > 0 ? this.defaultProps.merge(ingestionProperties) : this.defaultProps;
+        let props = ingestionProperties && Object.keys(ingestionProperties).length > 0 ?
+            this.defaultProps.merge(ingestionProperties) : this.defaultProps;
 
         try {
             props.validate();
@@ -26,22 +27,26 @@ module.exports = class KustoIngestClient {
             if (err) return callback(err);
 
             let containerDetails = containers[Math.floor(Math.random() * containers.length)];
-            let blobService = azureStorage.createBlobServiceWithSas(containerDetails.toURI({ withSas: false, withObjectName: false }), containerDetails.sas);
+            let blobService = azureStorage.createBlobServiceWithSas(
+                containerDetails.toURI({ withSas: false, withObjectName: false }),
+                containerDetails.sas
+            );
 
             let blobName = `${props.database}__${props.table}__${uuidv4()}`;
             const writeStream = blobService.createWriteStreamToBlockBlob(containerDetails.objectName, blobName, (err) => {
-                if (err) return callback(err);                    
-                
+                if (err) return callback(err);
+
                 let blobUri = `${containerDetails.toURI({ withSas: false })}/${blobName}?${containerDetails.sas}`;
                 return this.ingestFromBlob(new BlobDescriptor(blobUri, descriptor.size), props, callback);
             });
 
             descriptor.pipe(writeStream);
-        });                
+        });
     }
 
     ingestFromFile(file, ingestionProperties, callback) {
-        let props = ingestionProperties && Object.keys(ingestionProperties).length > 0 ? this.defaultProps.merge(ingestionProperties) : this.defaultProps;
+        let props = ingestionProperties && Object.keys(ingestionProperties).length > 0 ?
+            this.defaultProps.merge(ingestionProperties) : this.defaultProps;
 
         try {
             props.validate();
@@ -64,7 +69,10 @@ module.exports = class KustoIngestClient {
             this.resourceManager.getContainers((err, containers) => {
                 if (err) return callback(err);
                 let containerDetails = containers[Math.floor(Math.random() * containers.length)];
-                let blobService = azureStorage.createBlobServiceWithSas(containerDetails.toURI({ withObjectName: false, withSas: false }), containerDetails.sas);
+                let blobService = azureStorage.createBlobServiceWithSas(containerDetails.toURI({
+                    withObjectName: false,
+                    withSas: false
+                }), containerDetails.sas);
 
                 blobService.createBlockBlobFromLocalFile(containerDetails.objectName, blobName, fileToUpload, (err) => {
                     if (err) return callback(err);
@@ -78,7 +86,8 @@ module.exports = class KustoIngestClient {
 
 
     ingestFromBlob(blob, ingestionProperties, callback) {
-        let props = ingestionProperties && Object.keys(ingestionProperties).length > 0 ? this.defaultProps.merge(ingestionProperties) : this.defaultProps;
+        let props = ingestionProperties && Object.keys(ingestionProperties).length > 0 ?
+            this.defaultProps.merge(ingestionProperties) : this.defaultProps;
         props.validate();
 
         return this.resourceManager.getIngestionQueues((err, queues) => {
@@ -88,7 +97,10 @@ module.exports = class KustoIngestClient {
                 if (err) return callback(err);
 
                 let queueDetails = queues[Math.floor(Math.random() * queues.length)];
-                let queueService = azureStorage.createQueueServiceWithSas(queueDetails.toURI({ withSas: false, withObjectName: false }), queueDetails.sas);
+                let queueService = azureStorage.createQueueServiceWithSas(queueDetails.toURI({
+                    withSas: false,
+                    withObjectName: false
+                }), queueDetails.sas);
                 let ingestionBlobInfo = new IngestionBlobInfo(blob, props, authorizationContext);
                 let ingestionBlobInfoJson = JSON.stringify(ingestionBlobInfo);
                 let encoded = Buffer.from(ingestionBlobInfoJson).toString("base64");
