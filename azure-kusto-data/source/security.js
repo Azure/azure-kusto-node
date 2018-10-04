@@ -12,7 +12,7 @@ module.exports = class AadHelper {
     constructor(kcsb) {
         this.token = {};
 
-        let authority = kcsb.authority_id || "common";
+        let authority = kcsb.authorityId || "common";
         let url = new URL(kcsb.dataSource);
         this.kustoCluster = `${url.protocol}//${url.hostname}`;
         this.adalContext = new AuthenticationContext(`https://login.microsoftonline.com/${authority}`);
