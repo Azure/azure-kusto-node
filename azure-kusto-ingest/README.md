@@ -49,13 +49,13 @@ There are several authentication methods
 The recommended way to authenticate is to use app id and key
 
 ```javascript
-const kcsb = KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(`https://${clusterName}.kusto.windows.net`,'appid','appkey','authorityId');
+const kcsb = KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(`https://ingest-${clusterName}.kusto.windows.net`,'appid','appkey','authorityId');
 ```
 
 It is also possible to use a certificate:
 
 ```javascript
-const kcsb = KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(`https://${clusterName}.kusto.windows.net`, 'appid', 'certificate', 'thumbprint', 'authorityId');
+const kcsb = KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(`https://ingest-${clusterName}.kusto.windows.net`, 'appid', 'certificate', 'thumbprint', 'authorityId');
 ```
 
 
@@ -67,7 +67,7 @@ KustoConnectionStringBuilder.withAadUserPasswordAuthentication(`https://${cluste
 Authority is optional, as it is inferd from the domain ('user@microsoft.com' would make the authority 'microsoft.com'). 
 In any case it is possible to pass the authority id
 ```javascript
-KustoConnectionStringBuilder.withAadUserPasswordAuthentication(`https://${clusterName}.kusto.windows.net`,'username','password','authority_id');
+KustoConnectionStringBuilder.withAadUserPasswordAuthentication(`https://ingest-${clusterName}.kusto.windows.net`,'username','password','authority_id');
 ```
 
 ### Device
@@ -76,12 +76,14 @@ Using this method will write a token to the console, which can be used to authen
 **<!>It is not ment for production purposes<!>**
 
 ```javascript
-KustoConnectionStringBuilder.withAadUserPasswordAuthentication(`https://${clusterName}.kusto.windows.net`,'username','password');
+KustoConnectionStringBuilder.withAadUserPasswordAuthentication(`https://ingest-${clusterName}.kusto.windows.net`,'username','password');
 ```
 
 ## Usage
 
 A Quick Overview is available at https://docs.microsoft.com/en-us/azure/data-explorer/ingest-data-overview
+
+Notice ingestion is done against the ingestion endpoint, which usually include `ingest-` prefix on the cluster name.
 
 ### Ingestion Properties
 Ingestion Props are instructions for Kusto on how to process the data.
