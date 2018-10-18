@@ -52,7 +52,7 @@ KustoConnectionStringBuilder.withAadUserPasswordAuthentication(`https://${cluste
 ### Device
 Using this method will write a token to the console, which can be used to authenticate at https://login.microsoftonline.com/common/oauth2/deviceauth and will allow temporary access. 
 
-**<!>It is not ment for production purposes<!>**
+**<!>It is not meant for production purposes<!>**
 
 ```javascript
 KustoConnectionStringBuilder.withAadUserPasswordAuthentication(`https://${clusterName}.kusto.windows.net`,'username','password');
