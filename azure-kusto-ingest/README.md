@@ -12,7 +12,7 @@ const IngestionProps = require("azure-kusto-ingest").IngestionProperties;
 const KustoConnectionStringBuilder = require("azure-kusto-data").KustoConnectionStringBuilder;
 const { DataFormat, JsonColumnMapping } = require("azure-kusto-ingest").IngestionPropertiesEnums;
 
-const kcsb = KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(`https://ingest-${cluster}.kusto.windows.net`, appId, appKey, tenantId);
+const kcsb = KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(`https://ingest-${cluster}.kusto.windows.net`, appId, appKey, authorityId);
 
 const ingestionProps = new IngestionProps(
         "Database",
@@ -45,14 +45,15 @@ ingestClient.ingestFromFile("file.json", null, (err) => {
 ## Authentication
 There are several authentication methods
 
-### App
-The recommended way to authenticate is to use app id and key
+### AAD App
+The are two ways to authenticate is to use app id and key
 
+1. Using app key
 ```javascript
 const kcsb = KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(`https://ingest-${clusterName}.kusto.windows.net`,'appid','appkey','authorityId');
 ```
 
-It is also possible to use a certificate:
+1. Using a certificate:
 
 ```javascript
 const kcsb = KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(`https://ingest-${clusterName}.kusto.windows.net`, 'appid', 'certificate', 'thumbprint', 'authorityId');
@@ -67,7 +68,7 @@ KustoConnectionStringBuilder.withAadUserPasswordAuthentication(`https://${cluste
 Authority is optional, as it is inferd from the domain ('user@microsoft.com' would make the authority 'microsoft.com'). 
 In any case it is possible to pass the authority id
 ```javascript
-KustoConnectionStringBuilder.withAadUserPasswordAuthentication(`https://ingest-${clusterName}.kusto.windows.net`,'username','password','authority_id');
+KustoConnectionStringBuilder.withAadUserPasswordAuthentication(`https://ingest-${clusterName}.kusto.windows.net`,'username','password','authorityId');
 ```
 
 ### Device
