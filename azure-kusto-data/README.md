@@ -10,7 +10,7 @@
 const KustoClient = require("azure-kusto-data").Client;
 const KustoConnectionStringBuilder = require("azure-kusto-data").KustoConnectionStringBuilder;
 
-const kcsb = KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(`https://${clusterName}.kusto.windows.net`,'appid','appkey','authority_id');
+const kcsb = KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(`https://${clusterName}.kusto.windows.net`,'appid','appkey','authorityId');
 const client = new KustoClient(kcsb);
 
 client.execute("db", "TableName | limit 1", (err, results) => {
