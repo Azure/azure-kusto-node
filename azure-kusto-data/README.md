@@ -24,7 +24,7 @@ client.execute("db", "TableName | limit 1", (err, results) => {
 ## Authentication
 There are several authentication methods
 
-### App
+### AAD appliction
 There are two ways to authenticate using AAD application:
 Option 1: Authenticating using AAD application id and corresponding key.
 ```javascript
