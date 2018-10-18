@@ -31,7 +31,7 @@ Option 1: Authenticating using AAD application id and corresponding key.
 const kcsb = KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(`https://${clusterName}.kusto.windows.net`,'appid','appkey','authorityId');
 ```
 
-It is also possible to use a certificate:
+Option 2: Authenticating using AAD application id and corresponding certificate.
 
 ```javascript
 const kcsb = KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(`https://${clusterName}.kusto.windows.net`, 'appid', 'certificate', 'thumbprint', 'authorityId');
