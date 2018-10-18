@@ -26,7 +26,7 @@ There are several authentication methods
 
 ### App
 There are two ways to authenticate using AAD application:
-
+Option 1: Authenticating using AAD application id and corresponding key.
 ```javascript
 const kcsb = KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(`https://${clusterName}.kusto.windows.net`,'appid','appkey','authorityId');
 ```
