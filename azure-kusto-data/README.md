@@ -43,10 +43,10 @@ const kcsb = KustoConnectionStringBuilder.withAadApplicationCertificateAuthentic
 KustoConnectionStringBuilder.withAadUserPasswordAuthentication(`https://${clusterName}.kusto.windows.net`,'username','password');
 ```
 
-Authority is optional, as it is inferd from the domain ('user@microsoft.com' would make the authority 'microsoft.com'). 
+Authority is optional *when it can inferred from the domain* ('user@microsoft.com' would make the authority 'microsoft.com'). 
 In any case it is possible to pass the authority id
 ```javascript
-KustoConnectionStringBuilder.withAadUserPasswordAuthentication(`https://${clusterName}.kusto.windows.net`,'username','password','authority_id');
+KustoConnectionStringBuilder.withAadUserPasswordAuthentication(`https://${clusterName}.kusto.windows.net`,'username','password','authorityId');
 ```
 
 ### Device
