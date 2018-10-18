@@ -25,7 +25,7 @@ client.execute("db", "TableName | limit 1", (err, results) => {
 There are several authentication methods
 
 ### App
-The recommended way to authenticate is to use app id and key
+There are two ways to authenticate using AAD application:
 
 ```javascript
 const kcsb = KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(`https://${clusterName}.kusto.windows.net`,'appid','appkey','authorityId');
