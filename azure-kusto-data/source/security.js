@@ -34,6 +34,7 @@ module.exports = class AadHelper {
         } else {
             this.authMethod = AuthenticationMethod.deviceLogin;
             this.clientId = "db662dc1-0cfe-4e1c-a843-19a68e65be58";
+            this.authCallback = kcsb.AuthorizationCallback;
         }
     }
 
@@ -65,7 +66,7 @@ module.exports = class AadHelper {
                     if (err) {
                         return cb(err);
                     } else {
-                        console.log(tokenResponse.message);
+                        this.authCallback(tokenResponse);
 
                         return this.adalContext.acquireTokenWithDeviceCode(resource, this.clientId, tokenResponse, (err, tokenResponse) => {
                             if (err) {
