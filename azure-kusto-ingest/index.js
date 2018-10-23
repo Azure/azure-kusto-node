@@ -12,10 +12,21 @@ const {
     DataFormat
 } = require("./source/IngestionProperties");
 
+const {
+    BlobDescriptor,
+    FileDescriptor,
+    StreamDescriptor
+} = require("./source/descriptors");
+
 module.exports = {
     IngestClient: client,
     IngestStatusQueues: KustoIngestStatusQueues,
     IngestionProperties,
+    IngestionDescriptors: {
+        BlobDescriptor,
+        FileDescriptor,
+        StreamDescriptor
+    },
     IngestionPropertiesEnums: {
         JsonColumnMapping,
         CsvColumnMapping,
