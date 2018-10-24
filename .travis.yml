@@ -5,7 +5,7 @@ node_js:
   - "8"
   - "10"
 install:
-  - node i eslint mocha sinon -g
+  - npm i eslint -g
   - cd azure-kusto-data && npm i && cd .. && cd azure-kusto-ingest && npm i && cd ..
 script: 
   - cd azure-kusto-data && npm run lint && npm test && cd .. && cd azure-kusto-ingest && npm run lint && npm test && cd ..
