@@ -6,7 +6,7 @@ node_js:
   - "10"
 install:
   - cd azure-kusto-data && npm i && cd .. && cd azure-kusto-ingest && npm i && cd ..
-test: 
+script: 
   - cd azure-kusto-data && npm run lint && npm test && cd .. && cd azure-kusto-ingest && npm run lint && npm test && cd ..
 # jobs:
 #   include:
