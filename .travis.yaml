@@ -5,9 +5,9 @@ node_js:
   - "8"
   - "10"
 install:
-  - cd kusto-data && npm i && cd ..\kusto-ingest && npm i && cd ..
+  - cd azure-kusto-data && npm i && cd .. && cd azure-kusto-ingest && npm i && cd ..
 test: 
-  - cd kusto-data && npm run lint && npm test && cd ..\kusto-ingest && npm run lint && npm test && cd ..
+  - cd azure-kusto-data && npm run lint && npm test && cd .. && cd azure-kusto-ingest && npm run lint && npm test && cd ..
 # jobs:
 #   include:
 #     - stage: npm release kusto-data
