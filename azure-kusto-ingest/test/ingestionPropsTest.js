@@ -1,6 +1,6 @@
 const assert = require("assert");
 
-const IngestionProperties = require("../source/IngestionProperties").IngestionProperties;
+const IngestionProperties = require("../source/ingestionProperties").IngestionProperties;
 const { DataFormat } = require("../source/ingestionProperties");
 
 describe("IngestionProperties", function () {

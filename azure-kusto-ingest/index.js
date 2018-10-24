@@ -10,7 +10,7 @@ const {
     ValidationImplications,
     ValidationOptions,
     DataFormat
-} = require("./source/IngestionProperties");
+} = require("./source/ingestionProperties");
 
 const {
     BlobDescriptor,
