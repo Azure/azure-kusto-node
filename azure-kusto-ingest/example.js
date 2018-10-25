@@ -1,9 +1,10 @@
-const IngestClient = require("./index").IngestClient;
-const IngestStatusQueues = require("./index").IngestStatusQueues;
-const IngestionProps = require("./index").IngestionProperties;
-const { ReportLevel, ReportMethod } = require("./index").IngestionPropertiesEnums;
+const IngestClient = require("azure-kusto-ingest").IngestClient;
+const IngestStatusQueues = require("azure-kusto-ingest").IngestStatusQueues;
+const IngestionProps = require("azure-kusto-ingest").IngestionProperties;
+const { ReportLevel, ReportMethod } = require("azure-kusto-ingest").IngestionPropertiesEnums;
 const KustoConnectionStringBuilder = require("azure-kusto-data").KustoConnectionStringBuilder;
-const { DataFormat, JsonColumnMapping } = require("./index").IngestionPropertiesEnums;
+const { DataFormat, JsonColumnMapping } = require("azure-kusto-ingest").IngestionPropertiesEnums;
+const { BlobDescriptor } = require("azure-kusto-ingest").IngestionDescriptors;
 
 const clusterName = null;
 const appId = null;
@@ -11,7 +12,9 @@ const appKey = null;
 const authorityId = null;
 
 const ingestClient = new IngestClient(
-    KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(`https://ingest-${clusterName}.kusto.windows.net`, appId, appKey, authorityId),
+    KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(
+        `https://ingest-${clusterName}.kusto.windows.net`, appId, appKey, authorityId
+    ),
     new IngestionProps(
         "Database",
         "Table",
@@ -91,3 +94,18 @@ ingestClient.ingestFromFile("file.json", null, (err) => {
     setTimeout(waitForSuccess, 0);
 });
 
+ingestClient.ingestFromBlob(
+    new BlobDescriptor("https://<account>.blob.core.windows.net/<container>/file.json.gz", 1024 * 50 /* 50MB file */),
+    null,
+    (err) => {
+        if (err) {
+            console.log(err);
+        }
+
+        console.log("Ingestion done?");
+
+
+        setTimeout(waitForFailures, 0);
+        setTimeout(waitForSuccess, 0);
+    }
+);
