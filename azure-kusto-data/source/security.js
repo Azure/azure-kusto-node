@@ -66,7 +66,11 @@ module.exports = class AadHelper {
                     if (err) {
                         return cb(err);
                     } else {
-                        this.authCallback(tokenResponse);
+                        if (this.authCallback) {
+                            this.authCallback(tokenResponse);
+                        } else {
+                            console.log(tokenResponse.message);
+                        }
 
                         return this.adalContext.acquireTokenWithDeviceCode(resource, this.clientId, tokenResponse, (err, tokenResponse) => {
                             if (err) {
