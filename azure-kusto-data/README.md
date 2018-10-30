@@ -55,7 +55,11 @@ Using this method will write a token to the console, which can be used to authen
 **<!>It is not meant for production purposes<!>**
 
 ```javascript
+<<<<<<< HEAD
 KustoConnectionStringBuilder.withAadDeviceAuthentication(`https://${clusterName}.kusto.windows.net`,'username','password');
+=======
+KustoConnectionStringBuilder.withAadDeviceAuthentication(`https://${clusterName}.kusto.windows.net`);
+>>>>>>> 71d3a5997ccb05a1c18b420190b8a1ac4c5c0ade
 ```
 
 ## Usage

@@ -1,6 +1,6 @@
 {
   "name": "azure-kusto-data",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "",
   "main": "index.js",
   "engines": {
@@ -30,6 +30,7 @@
     "uuid": "^3.3.2"
   },
   "devDependencies": {
-    "mocha": "^5.2.0"
+    "mocha": "^5.2.0",
+    "sinon": "^6.3.4"    
   }
 }

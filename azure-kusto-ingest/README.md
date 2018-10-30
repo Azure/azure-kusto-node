@@ -77,7 +77,7 @@ Using this method will write a token to the console, which can be used to authen
 **<!>It is not ment for production purposes<!>**
 
 ```javascript
-KustoConnectionStringBuilder.withAadUserPasswordAuthentication(`https://ingest-${clusterName}.kusto.windows.net`,'username','password');
+KustoConnectionStringBuilder.withAadDeviceAuthentication(`https://ingest-${clusterName}.kusto.windows.net`);
 ```
 
 ## Usage

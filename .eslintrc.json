@@ -9,7 +9,7 @@
     "parserOptions": {
         "ecmaVersion": 2016
     },
-    "rules": {
+    "rules": {        
         "no-console": "off",
         "indent": [
             "error",
@@ -19,7 +19,7 @@
             }
         ],
         "linebreak-style": [
-            "error",
+            "warn",
             "windows"
         ],
         "quotes": [

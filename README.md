@@ -11,7 +11,7 @@ General docs are located at https://docs.microsoft.com/en-us/azure/data-explorer
 The SDK team publishes the SDKs as [npm](https://npmjs.org) packages:
 - **Azure Kusto Data SDK**
   - [Kusto Query Client](https://www.npmjs.com/package/azure-kusto-data) [![npm version](https://badge.fury.io/js/azure-kusto-data.svg)](https://badge.fury.io/js/azure-kusto-data) 
-- **Azure Kusto Service SDK**
+- **Azure Kusto Ingest SDK**
   - [Kusto Ingest Client](https://www.npmjs.com/package/azure-kusto-ingest) [![npm version](https://badge.fury.io/js/azure-kusto-ingest.svg)](https://badge.fury.io/js/azure-kusto-ingest)
 
 ## Need Support?
