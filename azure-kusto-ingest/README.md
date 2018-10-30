@@ -77,7 +77,9 @@ Using this method will write a token to the console, which can be used to authen
 **<!>It is not ment for production purposes<!>**
 
 ```javascript
-KustoConnectionStringBuilder.withAadDeviceAuthentication(`https://ingest-${clusterName}.kusto.windows.net`);
+KustoConnectionStringBuilder.withAadDeviceAuthentication(`https://${clusterName}.kusto.windows.net`, (tokenResponse) => {
+    console.log("Open " + tokenResponse.verificationUrl + " and use " + tokenResponse.userCode + " code to authorize.");
+});
 ```
 
 ## Usage
