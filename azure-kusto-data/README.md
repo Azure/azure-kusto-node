@@ -55,7 +55,14 @@ Using this method will write a token to the console, which can be used to authen
 **<!>It is not meant for production purposes<!>**
 
 ```javascript
-KustoConnectionStringBuilder.withAadDeviceAuthentication(`https://${clusterName}.kusto.windows.net`, (tokenResponse) => {
+// will log the DEVICE token and url to use
+KustoConnectionStringBuilder.withAadDeviceAuthentication(`https://${clusterName}.kusto.windows.net`);
+
+// in case you want to do your own thing with the response, you can pass a callback
+// NOTICE: code will still block until device is authenticated
+KustoConnectionStringBuilder.withAadDeviceAuthentication(`https://${clusterName}.kusto.windows.net`, (toeknResponse) => {
+... // your code, for example copy to clipboard or open url in browser
+});
     console.log("Open " + tokenResponse.verificationUrl + " and use " + tokenResponse.userCode + " code to authorize.");
 });
 ```
