@@ -83,8 +83,7 @@ KustoConnectionStringBuilder.withAadDeviceAuthentication(`https://${clusterName}
 // in case you want to do your own thing with the response, you can pass a callback
 // NOTICE: code will still block until device is authenticated
 KustoConnectionStringBuilder.withAadDeviceAuthentication(`https://${clusterName}.kusto.windows.net`, (toeknResponse) => {
-... // your code, for example copy to clipboard or open url in browser
-});
+    // your code, for example copy to clipboard or open url in browser
     console.log("Open " + tokenResponse.verificationUrl + " and use " + tokenResponse.userCode + " code to authorize.");
 });
 ```
