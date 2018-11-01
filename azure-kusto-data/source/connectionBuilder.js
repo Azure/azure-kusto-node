@@ -109,7 +109,10 @@ module.exports = class KustoConnectionStringBuilder {
     }
 
 
-    static withAadDeviceAuthentication(connectionString) {
-        return new KustoConnectionStringBuilder(connectionString);
+    static withAadDeviceAuthentication(connectionString, authCallback) {
+        const kcsb = new KustoConnectionStringBuilder(connectionString);
+        kcsb.AuthorizationCallback = authCallback;
+
+        return kcsb;
     }
 };
