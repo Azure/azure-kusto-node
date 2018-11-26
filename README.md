@@ -10,9 +10,10 @@ General docs are located at https://docs.microsoft.com/en-us/azure/data-explorer
 
 The SDK team publishes the SDKs as [npm](https://npmjs.org) packages:
 - **Azure Kusto Data SDK**
-  - [Kusto Query Client](https://www.npmjs.com/package/azure-kusto-data) [![npm version](https://badge.fury.io/js/azure-kusto-data.svg)](https://badge.fury.io/js/azure-kusto-data) 
+  - [Kusto Query Client](https://www.npmjs.com/package/azure-kusto-data) [![npm version](https://badge.fury.io/js/azure-kusto-data.svg)](https://badge.fury.io/js/azure-kusto-data) [![npm](https://img.shields.io/npm/dt/azure-kusto-data.svg)](https://github.com/Azure/azure-kusto-node)
 - **Azure Kusto Ingest SDK**
-  - [Kusto Ingest Client](https://www.npmjs.com/package/azure-kusto-ingest) [![npm version](https://badge.fury.io/js/azure-kusto-ingest.svg)](https://badge.fury.io/js/azure-kusto-ingest)
+  - [Kusto Ingest Client](https://www.npmjs.com/package/azure-kusto-ingest) [![npm version](https://badge.fury.io/js/azure-kusto-ingest.svg)](https://badge.fury.io/js/azure-kusto-ingest) 
+[![npm](https://img.shields.io/npm/dt/azure-kusto-ingest.svg)](https://github.com/Azure/azure-kusto-node)
 
 ## Need Support?
 - **Have a feature request for SDKs?** Please post it on [User Voice](https://feedback.azure.com/forums/915733-azure-data-explorer) to help us prioritize
