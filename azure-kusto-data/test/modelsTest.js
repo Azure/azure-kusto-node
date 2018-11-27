@@ -51,6 +51,46 @@ describe("KustoResultRow", function () {
             assert.equal(actual.columns.length, inputColumns.length);
         });
 
+        it("column ordinal affects order", function () {
+            const inputValues = [
+                "2016-06-06T15:35:00Z",
+                "foo",
+                101,
+                3.14,
+                false,
+                3493235670000
+            ];
+
+            const reverseOrderColumns = rawColumns.slice().reverse();            
+            const actual = new KustoResultRow(
+                reverseOrderColumns.map((c, i) => new KustoResultColumn(c, rawColumns.length - i - 1)),
+                inputValues
+            );
+
+            let asJson = actual.toJson();
+            let expectedValues = [
+                moment(inputValues[0]),
+                inputValues[1],
+                inputValues[2],
+                inputValues[3],
+                inputValues[4],
+                moment(inputValues[5]),
+            ];
+
+            for (let index = 0; index < inputColumns.length; index++) {        
+                let actual = asJson[inputColumns[index].name];
+                if (inputColumns[index].type === "timespan") {
+                    assert.equal(Number(actual), expectedValues[index]);
+                }
+                else if (typeof(actual) == "object") {
+                    assert.equal(actual.toString(), expectedValues[index].toString());
+                } else {
+                    assert.equal(actual, expectedValues[index]);
+                }
+            }
+
+        });
+
         it("mismatching data - less data than columns", function () {
             const inputValues = [
                 "2016-06-06T15:35:00Z",

@@ -49,7 +49,7 @@ module.exports = class KustoClient {
                 "Content-Type": "application/json; charset=utf-8",
                 "Fed": "True",
                 "x-ms-client-version": `Kusto.Node.Client:${pkg.version}`,
-                "x-ms-client-request-id": `KPC.execute;${uuidv4()}`,
+                "x-ms-client-request-id": `KNC.execute;${uuidv4()}`,
             };
 
             const { timeout } = options || {};
