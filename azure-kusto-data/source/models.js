@@ -18,7 +18,7 @@ const ValueParser = {
 
 class KustoResultRow {
     constructor(columns, row) {
-        this.columns = columns.sort((a, b) => a.ordianl - b.ordianl);
+        this.columns = columns.sort((a, b) => a.ordinal - b.ordinal);
         this.raw = row;
 
         for (let col of this.columns) {
@@ -56,11 +56,11 @@ class KustoResultRow {
 module.exports.KustoResultRow = KustoResultRow;
 
 class KustoResultColumn {
-    constructor(columnObj, ordianl) {
+    constructor(columnObj, ordinal) {
         this.name = columnObj.ColumnName;
         // TODO: should validate type? should coarse value to type?
         this.type = columnObj.ColumnType || columnObj.DateType;
-        this.ordinal = ordianl;
+        this.ordinal = ordinal;
     }
 }
 
