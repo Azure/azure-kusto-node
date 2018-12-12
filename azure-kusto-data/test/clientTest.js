@@ -5,6 +5,7 @@ const v1Response = require("./data/response/v1");
 
 
 const KustoClient = require("../source/client");
+const KustoClientRequestProperties = require("../source/clientRequestProperties");
 
 describe("KustoClient", function () {
     describe("#constructor", function () {
@@ -60,17 +61,45 @@ describe("KustoClient", function () {
             reqCb(null, { statusCode: 200, request: { path: "/v2/query/" } }, v2Response);
         });
 
-        it("erred v2 partial", function (done) {
+        it("setTimout for request", function () {
             let url = "https://cluster.kusto.windows.net";
             let client = new KustoClient(url);
 
+            let clientRequestProps = new KustoClientRequestProperties();
+            clientRequestProps.setTimeout(10);
+            client.aadHelper.getAuthHeader = (callback) => callback(null, "MockToken");
+            client._doRequest = (endpoint, payload, timeout, properties, callback) => {
+                assert.equal(properties.toString(), JSON.stringify({ "Options": { "servertimeout": 10 } }));
+                callback(v2Response);                
+            };
 
-            let reqCb = client._getRequestCallback({ partial: true }, (err, response) => {
-                assert.equal(response.version, "2.0");
-                done();
-            });
+            client.execute("Database", "Table | count" , () => {}, clientRequestProps);
+        });
 
-            reqCb(null, { statusCode: 200, request: { path: "/v2/query/" } }, v2ResponseError);
+        it("default timeout for query", function () {
+            let url = "https://cluster.kusto.windows.net";
+            let client = new KustoClient(url);
+            
+            client.aadHelper.getAuthHeader = (callback) => callback(null, "MockToken");
+            client._doRequest = (endpoint, payload, timeout, properties, callback) => {
+                assert.equal(timeout, client._getDefaultQueryTimeout());
+                callback(v2Response);                
+            };
+
+            client.execute("Database", "Table | count" , () => {});
+        });
+
+        it("default timeout for admin", function () {
+            let url = "https://cluster.kusto.windows.net";
+            let client = new KustoClient(url);
+            
+            client.aadHelper.getAuthHeader = (callback) => callback(null, "MockToken");
+            client._doRequest = (endpoint, payload, timeout, properties, callback) => {
+                assert.equal(timeout, client._getDefaultCommandTimeout());
+                callback(v2Response);                
+            };
+
+            client.execute("Database", ".show database DataBase schema" , () => {});
         });
 
         it("erred v2 not partial", function (done) {

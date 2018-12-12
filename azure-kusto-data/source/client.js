@@ -3,6 +3,7 @@ const uuidv4 = require("uuid/v4");
 const AadHelper = require("./security");
 const { KustoResponseDataSetV1, KustoResponseDataSetV2 } = require("./response");
 const ConnectionStringBuilder = require("./connectionBuilder");
+const ClientRequestProperties = require("./clientRequestProperties");
 const pkg = require("../package.json");
 
 module.exports = class KustoClient {
@@ -17,58 +18,82 @@ module.exports = class KustoClient {
     }
 
 
-    execute(db, query, callback, options) {
+    execute(db, query, callback, properties) {
         if (query.startsWith(".")) {
-            return this.executeMgmt(db, query, callback, options);
+            return this.executeMgmt(db, query, callback, properties);
         }
 
-        return this.executeQuery(db, query, callback, options);
+        return this.executeQuery(db, query, callback, properties);
     }
 
-    executeQuery(db, query, callback, options) {
-        return this._execute(this.endpoints.query, db, query, callback, options);
+    executeQuery(db, query, callback, properties) {
+        return this._execute(this.endpoints.query, db, query, callback, properties);
     }
 
-    executeMgmt(db, query, callback, options) {
-        return this._execute(this.endpoints.mgmt, db, query, callback, options);
+    executeMgmt(db, query, callback, properties) {
+        return this._execute(this.endpoints.mgmt, db, query, callback, properties);
     }
 
-    _execute(endpoint, db, query, callback, options) {
+    _execute(endpoint, db, query, callback, properties) {
         const payload = {
             "db": db,
             "csl": query
         };
 
+        let timeout = null;
+
+        if (properties != null && properties instanceof ClientRequestProperties) {
+            payload.properties = properties.toJson();
+            timeout = properties.getTimeout();
+        }
+
+        if (timeout == null) {
+            if (endpoint == this.endpoints.mgmt) {                
+                timeout = this._getDefaultCommandTimeout();
+            } else {                
+                timeout = this._getDefaultQueryTimeout();
+            }
+        }
+
         return this.aadHelper.getAuthHeader((err, authHeader) => {
             if (err) return callback(err);
 
-            const headers = {
-                "Authorization": authHeader,
-                "Accept": "application/json",
-                "Accept-Encoding": "gzip,deflate",
-                "Content-Type": "application/json; charset=utf-8",
-                "Fed": "True",
-                "x-ms-client-version": `Kusto.Node.Client:${pkg.version}`,
-                "x-ms-client-request-id": `KNC.execute;${uuidv4()}`,
-            };
-
-            const { timeout } = options || {};
-
-            return request({
-                method: "POST",
-                url: endpoint,
-                headers,
-                json: payload,
-                gzip: true,
-                timeout
-            }, this._getRequestCallback(options, callback)
-            );
+            return this._doRequest(endpoint, payload, timeout, properties, callback , authHeader);
         });
     }
 
+    _getDefaultQueryTimeout() {
+        return  1000 * 60 * 4.5;
+    }
 
-    _getRequestCallback(options, callback) {
-        const { raw, partial } = options || {};
+    _getDefaultCommandTimeout() {
+        return  1000 * 60 * 10;
+    }
+
+    _doRequest(endpoint, payload, timeout, properties, callback, authHeader) {
+        const headers = {
+            "Authorization": authHeader,
+            "Accept": "application/json",
+            "Accept-Encoding": "gzip,deflate",
+            "Content-Type": "application/json; charset=utf-8",
+            "Fed": "True",
+            "x-ms-client-version": `Kusto.Node.Client:${pkg.version}`,
+            "x-ms-client-request-id": `KNC.execute;${uuidv4()}`,
+        };
+
+        return request({
+            method: "POST",
+            url: endpoint,
+            headers,
+            json: payload,
+            gzip: true,
+            timeout
+        }, this._getRequestCallback(properties, callback)
+        );
+    }
+
+    _getRequestCallback(properties, callback) {
+        const { raw } = properties || {};
 
         return (error, response, body) => {
             if (error) return callback(error);
@@ -87,7 +112,7 @@ module.exports = class KustoClient {
                         kustoResponse = new KustoResponseDataSetV1(body);
                     }
 
-                    if (kustoResponse.getErrorsCount() > 0 && !partial) {
+                    if (kustoResponse.getErrorsCount() > 0) {
                         return callback(`Kusto request had errors. ${kustoResponse.getExceptions()}`);
                     }
                 } catch (ex) {
