@@ -9,7 +9,8 @@
     "parserOptions": {
         "ecmaVersion": 2016
     },
-    "rules": {        
+    "rules": {
+        "eol-last":"error",        
         "no-console": "off",
         "indent": [
             "error",
