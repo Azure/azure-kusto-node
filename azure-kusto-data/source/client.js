@@ -42,9 +42,13 @@ module.exports = class KustoClient {
 
         let timeout = null;
 
-        if (properties != null && properties instanceof ClientRequestProperties) {
-            payload.properties = properties.toJson();
-            timeout = properties.getTimeout();
+        if (properties != null) {
+            if (properties instanceof ClientRequestProperties) {
+                payload.properties = properties.toJson();
+                timeout = properties.getTimeout();
+            } else {
+                timeout = properties.timeout;
+            }
         }
 
         if (timeout == null) {
