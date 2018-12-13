@@ -1,3 +1,4 @@
+const moment = require("moment");
 const request = require("request");
 const uuidv4 = require("uuid/v4");
 const AadHelper = require("./security");
@@ -5,6 +6,7 @@ const { KustoResponseDataSetV1, KustoResponseDataSetV2 } = require("./response")
 const ConnectionStringBuilder = require("./connectionBuilder");
 const ClientRequestProperties = require("./clientRequestProperties");
 const pkg = require("../package.json");
+
 
 module.exports = class KustoClient {
     constructor(kcsb) {
@@ -67,11 +69,11 @@ module.exports = class KustoClient {
     }
 
     _getDefaultQueryTimeout() {
-        return  1000 * 60 * 4.5;
+        return moment.duration(4.5, "minutes").asMilliseconds();
     }
 
     _getDefaultCommandTimeout() {
-        return  1000 * 60 * 10;
+        return moment.duration(10.5, "minutes").asMilliseconds();
     }
 
     _doRequest(endpoint, payload, timeout, properties, callback, authHeader) {
