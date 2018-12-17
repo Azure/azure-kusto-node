@@ -11,9 +11,22 @@ module.exports = class KustoIngestClient {
         this.defaultProps = defaultProps;
     }
 
+    _mergeProps(newProperties) {
+        // no default props
+        if (newProperties == null || Object.keys(newProperties).length == 0) {
+            return this.defaultProps;
+        }
+
+        // no new props
+        if (this.defaultProps == null || Object.keys(this.defaultProps) == 0) {
+            return newProperties;    
+        }
+        // both exist - merge
+        return this.defaultProps.merge(newProperties);
+    }
+    
     ingestFromStream(stream, ingestionProperties, callback) {
-        let props = ingestionProperties && Object.keys(ingestionProperties).length > 0 ?
-            this.defaultProps.merge(ingestionProperties) : this.defaultProps;
+        const props = this._mergeProps(ingestionProperties);
 
         try {
             props.validate();
@@ -45,8 +58,7 @@ module.exports = class KustoIngestClient {
     }
 
     ingestFromFile(file, ingestionProperties, callback) {
-        let props = ingestionProperties && Object.keys(ingestionProperties).length > 0 ?
-            this.defaultProps.merge(ingestionProperties) : this.defaultProps;
+        const props = this._mergeProps(ingestionProperties);
 
         try {
             props.validate();
@@ -84,10 +96,8 @@ module.exports = class KustoIngestClient {
         });
     }
 
-
     ingestFromBlob(blob, ingestionProperties, callback) {
-        let props = ingestionProperties && Object.keys(ingestionProperties).length > 0 ?
-            this.defaultProps.merge(ingestionProperties) : this.defaultProps;
+        const props = this._mergeProps(ingestionProperties);
         props.validate();
 
         return this.resourceManager.getIngestionQueues((err, queues) => {
