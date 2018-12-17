@@ -4,6 +4,15 @@ const uuidv4 = require("uuid/v4");
 const KustoConnectionStringBuilder = require("../source/connectionBuilder");
 describe("KustoConnectionStringBuilder", function () {
     describe("#constructor(connectionString)", function () {
+        it("url validation", function () {
+            let kcsb1 = new KustoConnectionStringBuilder("http://cluster.region.kusto.windows.net");
+            assert.equal(kcsb1.dataSource, "http://cluster.region.kusto.windows.net");
+            let kcsb2 = new KustoConnectionStringBuilder("https://cluster.region.kusto.windows.net:443/");
+            assert.equal(kcsb2.dataSource, "https://cluster.region.kusto.windows.net:443");
+            let kcsb3 = new KustoConnectionStringBuilder("https://cluster.region.kusto.windows.net/");
+            assert.equal(kcsb3.dataSource, "https://cluster.region.kusto.windows.net");
+        });
+        
         it("from string with no creds", function () {
             let kcsbs = [
                 new KustoConnectionStringBuilder("localhost"),

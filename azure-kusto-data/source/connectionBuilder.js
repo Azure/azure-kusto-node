@@ -58,7 +58,7 @@ module.exports = class KustoConnectionStringBuilder {
         if (!connectionString || connectionString.trim().length === 0) throw new Error("Missing connection string");
 
         if (!!connectionString && connectionString.split(";")[0].indexOf("=") === -1) {
-            connectionString = "Data Source=" + connectionString;
+            connectionString = "Data Source=" + connectionString.replace(/\/$/, "");
         }
 
         this[KeywordMapping.authorityId.propName] = "common";
