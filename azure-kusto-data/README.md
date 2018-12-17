@@ -69,3 +69,21 @@ KustoConnectionStringBuilder.withAadDeviceAuthentication(`https://${clusterName}
 ## Usage
 Query language docs can be found at https://docs.microsoft.com/en-us/azure/data-explorer/write-queries#overview-of-the-query-language
 
+## Advanced Usage
+
+### ClientRequestProperties
+
+For more fine grained control, we expose `ClientRequestProperties`.
+
+```javascript
+const ClientRequestProperties = require("azure-kusto-data").ClientRequestProperties;
+const Client = require("azure-kusto-data").Client;
+
+let client = new Client("http://cluster.region.kusto.windows.net");
+let clientRequestProps = new ClientRequestProperties();
+clientRequestProps.setOption("servertimeout", 1000 * 60);
+client.executeQuery("db","Table | count", (err, results) => { console.log(results);}, clientRequestProps);
+```
+
+A full list of those properties can be found at https://docs.microsoft.com/en-us/azure/kusto/api/netfx/request-properties
+
