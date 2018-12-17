@@ -1,7 +1,6 @@
 const KustoClient = require("azure-kusto-data").Client;
 const { FileDescriptor, BlobDescriptor, StreamDescriptor } = require("./descriptors");
 const { ResourceManager } = require("./resourceManager");
-const { IngestionProperties } = require("./ingestionProperties");
 const IngestionBlobInfo = require("./ingestionBlobInfo");
 const uuidv4 = require("uuid/v4");
 const azureStorage = require("azure-storage");
