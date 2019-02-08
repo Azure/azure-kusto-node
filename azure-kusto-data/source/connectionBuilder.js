@@ -109,8 +109,9 @@ module.exports = class KustoConnectionStringBuilder {
     }
 
 
-    static withAadDeviceAuthentication(connectionString, authCallback) {
+    static withAadDeviceAuthentication(connectionString, authorityId, authCallback) {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
+        kcsb[KeywordMapping.authorityId.propName] = authorityId;
         kcsb.AuthorizationCallback = authCallback;
 
         return kcsb;

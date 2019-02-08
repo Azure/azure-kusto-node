@@ -49,7 +49,7 @@ class KustoResultRow {
     }
 
     toString() {
-        JSON.stringify(this.toJson());
+        return JSON.stringify(this.toJson());
     }
 }
 
@@ -73,6 +73,13 @@ module.exports.KustoResultTable = class KustoResultTable {
         this.kind = tableObj.TableKind;
         this.columns = tableObj.Columns.map((item, index) => new KustoResultColumn(item, index));
         this._rows = tableObj.Rows;
+
+        if (this._rows && this._rows.length > 0) {
+            for (let i = 0; i<tableObj.Rows.length; i++) {
+                Object.defineProperty(this, i, { get: () => new KustoResultRow(this.columns, this._rows[i])});
+            }
+        }
+        
     }
 
     * rows() {
