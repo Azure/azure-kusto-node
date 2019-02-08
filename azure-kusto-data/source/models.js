@@ -76,7 +76,7 @@ module.exports.KustoResultTable = class KustoResultTable {
 
         if (this._rows && this._rows.length > 0) {
             for (let i = 0; i<tableObj.Rows.length; i++) {
-                Object.defineProperty(this, i, { get: () => new KustoResultRow(this.columns, this._rows[i])})
+                Object.defineProperty(this, i, { get: () => new KustoResultRow(this.columns, this._rows[i])});
             }
         }
         
