@@ -4,9 +4,10 @@ node_js:
   - "6"
   - "8"
   - "10"
+  - "lts/*"
 install:
   - npm i eslint -g
-  - cd azure-kusto-data && npm i && cd .. && cd azure-kusto-ingest && npm i && cd ..
+  - cd azure-kusto-data && npm i && cd .. && cd azure-kusto-ingest && npm i ../azure-kusto-data && npm i && cd ..
 script: 
   - cd azure-kusto-data && npm run lint && npm test && cd .. && cd azure-kusto-ingest && npm run lint && npm test && cd ..
 # jobs:
