@@ -10,7 +10,7 @@ describe("KustoConnectionStringBuilder", function () {
                 new KustoConnectionStringBuilder("data Source=localhost"),
                 new KustoConnectionStringBuilder("Addr=localhost"),
                 new KustoConnectionStringBuilder("Addr = localhost"),
-                KustoConnectionStringBuilder.withAadDeviceAuthentication("localhost"),
+                KustoConnectionStringBuilder.withAadDeviceAuthentication("localhost", "common"),
             ];
 
             for (let kcsb of kcsbs) {
