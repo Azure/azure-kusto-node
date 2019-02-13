@@ -1,6 +1,8 @@
 const assert = require("assert");
 
 const IngestionProperties = require("../source/ingestionProperties").IngestionProperties;
+const JsonColumnMapping = require("../source/ingestionProperties").JsonColumnMapping;
+const IngestionBlobInfo = require("../source/ingestionBlobInfo");
 const { DataFormat } = require("../source/ingestionProperties");
 
 describe("IngestionProperties", function () {
@@ -58,6 +60,14 @@ describe("IngestionProperties", function () {
             } catch (ex) {
                 assert.equal(ex.message, "Json must have a mapping defined");
             }
+        });
+
+        it("json mapping as additional props on ingestion blob info", function () {
+            let columns = [new JsonColumnMapping('Id', '$.Id', 'int'), new JsonColumnMapping('Value', '$.value', 'dynamic')];
+            let props = new IngestionProperties("db", "table", DataFormat.json, columns);
+            let ingestionBlobInfo = new IngestionBlobInfo('https://account.blob.core.windows.net/blobcontainer/blobfile.json', props);
+            
+            assert.deepEqual(JSON.parse(ingestionBlobInfo.AdditionalProperties.jsonMapping), props.mapping);
         });
     });
 });

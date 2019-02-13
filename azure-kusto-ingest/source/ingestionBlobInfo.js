@@ -8,7 +8,7 @@ module.exports = class IngestionBlobInfo {
         this.DatabaseName = ingestionProperties.database;
         this.TableName = ingestionProperties.table;
         this.RetainBlobOnSuccess = true;
-        this.FlushImmediately = ingestionProperties.flushImmediately;
+        this.FlushImmediately = !!ingestionProperties.flushImmediately;
         this.IgnoreSizeLimit = false;
         this.ReportLevel = ingestionProperties.reportLevel;
         this.ReportMethod = ingestionProperties.reportMethod;
@@ -38,7 +38,8 @@ module.exports = class IngestionBlobInfo {
         }
 
         if (ingestionProperties.mapping && ingestionProperties.mapping.length > 0) {
-            additionalProperties[ingestionProperties.getMappingFormat() + "Mapping"] = ingestionProperties.mapping;
+            // server expects a string
+            additionalProperties[ingestionProperties.getMappingFormat() + "Mapping"] = JSON.stringify(ingestionProperties.mapping);
         }
 
         if (ingestionProperties.mappingReference) {
@@ -53,6 +54,6 @@ module.exports = class IngestionBlobInfo {
             additionalProperties.format = ingestionProperties.format;
         }
 
-        this.additionalProperties = additionalProperties;
+        this.AdditionalProperties = additionalProperties;
     }
 };
