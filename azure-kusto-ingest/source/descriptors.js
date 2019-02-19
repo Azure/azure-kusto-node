@@ -2,7 +2,14 @@ const fs = require("fs");
 const path = require("path");
 const zlib = require("zlib");
 const Transform = require("stream").Transform;
+const uuidv4 = require("uuid/v4");
+const uuidValidate = require("uuid-validate");
 
+function assertUuid4(maybeUuid, errorMessage) {
+    if (!!maybeUuid && !uuidValidate(maybeUuid, 4)) {
+        throw Error(errorMessage);
+    }
+}
 
 class BytesCounter extends Transform {
     constructor() {
@@ -20,12 +27,15 @@ class BytesCounter extends Transform {
 }
 
 class FileDescriptor {
-    constructor(filePath) {
+    constructor(filePath, sourceId = null) {
         this.filePath = filePath;
         this.name = path.basename(this.filePath);
         this.extension = path.extname(this.filePath).toLowerCase();
         this.size = null;
         this.zipped = this.extension === ".gz";
+
+        assertUuid4(sourceId, 'sourceId is not a valid uuid/v4');
+        this.sourceId = sourceId;
     }
 
     _gzip(callback) {
@@ -52,12 +62,15 @@ class FileDescriptor {
 
 
 class StreamDescriptor {
-    constructor(stream) {
+    constructor(stream, sourceId = null) {
         this._stream = stream;
 
         this.stream = null;
         this.name = "stream";
         this.size = null;
+
+        assertUuid4(sourceId, 'sourceId is not a valid uuid/v4');
+        this.sourceId = sourceId;
     }
 
     pipe(dest) {
@@ -70,9 +83,12 @@ class StreamDescriptor {
 }
 
 class BlobDescriptor {
-    constructor(path, size = null) {
+    constructor(path, size = null, sourceId = null) {
         this.path = path;
         this.size = size;
+        
+        assertUuid4(sourceId, 'sourceId is not a valid uuid/v4');
+        this.sourceId = sourceId;
     }
 }
 

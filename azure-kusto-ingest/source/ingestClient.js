@@ -89,7 +89,7 @@ module.exports = class KustoIngestClient {
                 blobService.createBlockBlobFromLocalFile(containerDetails.objectName, blobName, fileToUpload, (err) => {
                     if (err) return callback(err);
                     let blobUri = `${containerDetails.toURI({ withSas: false })}/${blobName}?${containerDetails.sas}`;
-                    return this.ingestFromBlob(new BlobDescriptor(blobUri, descriptor.size), props, callback);
+                    return this.ingestFromBlob(new BlobDescriptor(blobUri, descriptor.size, descriptor.sourceId), props, callback);
                 });
             });
 
@@ -99,6 +99,10 @@ module.exports = class KustoIngestClient {
     ingestFromBlob(blob, ingestionProperties, callback) {
         const props = this._mergeProps(ingestionProperties);
         props.validate();
+
+        if (typeof (blob) === "string") {
+            blob = new BlobDescriptor(blobUri);
+        }
 
         return this.resourceManager.getIngestionQueues((err, queues) => {
             if (err) return callback(err);
