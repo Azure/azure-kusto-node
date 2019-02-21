@@ -2,9 +2,9 @@ const uuidv4 = require("uuid/v4");
 const moment = require("moment");
 
 module.exports = class IngestionBlobInfo {
-    constructor(blob, ingestionProperties, authContext) {
-        this.BlobPath = blob.path;
-        this.RawDataSize = blob.size;
+    constructor(blobDescriptor, ingestionProperties, authContext) {
+        this.BlobPath = blobDescriptor.path;
+        this.RawDataSize = blobDescriptor.size;
         this.DatabaseName = ingestionProperties.database;
         this.TableName = ingestionProperties.table;
         this.RetainBlobOnSuccess = true;
@@ -13,7 +13,7 @@ module.exports = class IngestionBlobInfo {
         this.ReportLevel = ingestionProperties.reportLevel;
         this.ReportMethod = ingestionProperties.reportMethod;
         this.SourceMessageCreationTime = moment.utc();
-        this.Id = uuidv4();
+        this.Id = blobDescriptor.sourceId || uuidv4();
 
         let additionalProperties = ingestionProperties.additionalProperties || {};
         additionalProperties.authorizationContext = authContext;
