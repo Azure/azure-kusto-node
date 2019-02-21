@@ -101,7 +101,7 @@ module.exports = class KustoIngestClient {
         props.validate();
 
         if (typeof (blob) === "string") {
-            blob = new BlobDescriptor(blobUri);
+            blob = new BlobDescriptor(blob);
         }
 
         return this.resourceManager.getIngestionQueues((err, queues) => {

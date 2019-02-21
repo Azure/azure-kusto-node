@@ -2,7 +2,6 @@ const fs = require("fs");
 const path = require("path");
 const zlib = require("zlib");
 const Transform = require("stream").Transform;
-const uuidv4 = require("uuid/v4");
 const uuidValidate = require("uuid-validate");
 
 function assertUuid4(maybeUuid, errorMessage) {
@@ -34,7 +33,7 @@ class FileDescriptor {
         this.size = null;
         this.zipped = this.extension === ".gz";
 
-        assertUuid4(sourceId, 'sourceId is not a valid uuid/v4');
+        assertUuid4(sourceId, "sourceId is not a valid uuid/v4");
         this.sourceId = sourceId;
     }
 
@@ -69,7 +68,7 @@ class StreamDescriptor {
         this.name = "stream";
         this.size = null;
 
-        assertUuid4(sourceId, 'sourceId is not a valid uuid/v4');
+        assertUuid4(sourceId, "sourceId is not a valid uuid/v4");
         this.sourceId = sourceId;
     }
 
@@ -87,7 +86,7 @@ class BlobDescriptor {
         this.path = path;
         this.size = size;
         
-        assertUuid4(sourceId, 'sourceId is not a valid uuid/v4');
+        assertUuid4(sourceId, "sourceId is not a valid uuid/v4");
         this.sourceId = sourceId;
     }
 }
