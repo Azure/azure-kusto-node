@@ -2,6 +2,7 @@ const assert = require("assert");
 const v2Response = require("./data/response/v2");
 const v2ResponseError = require("./data/response/v2error");
 const v1Response = require("./data/response/v1");
+const v1_2Response = require("./data/response/v1_2");
 
 
 const KustoClient = require("../source/client");
@@ -33,6 +34,19 @@ describe("KustoClient", function () {
             });
 
             reqCb(null, { statusCode: 200, request: { path: "/v1/mgmt/" } }, v1Response);
+        });
+
+        it("valid v1 more data", function (done) {
+            let url = "https://cluster.kusto.windows.net";
+            let client = new KustoClient(url);
+
+
+            let reqCb = client._getRequestCallback(null, (err, response) => {
+                assert.equal(response.version, "1.0");
+                done();
+            });
+
+            reqCb(null, { statusCode: 200, request: { path: "/v1/mgmt/" } }, v1_2Response);
         });
 
         it("valid v2", function (done) {

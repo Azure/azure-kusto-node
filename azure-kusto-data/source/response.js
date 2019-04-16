@@ -75,28 +75,26 @@ module.exports.KustoResponseDataSetV1 = class KustoResponseDataSetV1 extends Kus
     }
 
     constructor(data) {
-        let tables = data.Tables;
+        super(data.Tables);
         
-        if (tables.length <= 2) {
-            tables[0].TableKind = WellKnownDataSet.PrimaryResult;
-            tables[0].TableId = 0;
+        if (this.tables.length <= 2) {
+            this.tables[0].TableKind = WellKnownDataSet.PrimaryResult;
+            this.tables[0].TableId = 0;
 
-            if (tables.length == 2) {
-                tables[1].TableKind = WellKnownDataSet.QueryProperties;
-                tables[1].TableId = 1;
+            if (this.tables.length == 2) {
+                this.tables[1].TableKind = WellKnownDataSet.QueryProperties;
+                this.tables[1].TableId = 1;
             }
         } else {
-            const toc = tables[tables.length - 1];
+            const toc = this.tables[this.tables.length - 1];
             toc.TableKind = WellKnownDataSet.TableOfContents;
-            toc.TableId = tables.length - 1;
-            for (let i = 0; i < tables.length - 1; i++) {
-                tables[i].TableName = toc[i]["Name"];
-                tables[i].TableId = toc[i]["Id"];
-                tables[i].TableKind = KustoResponseDataSetV1.getTablesKinds()[toc[i]["Kind"]];
+            toc.TableId = this.tables.length - 1;
+            for (let i = 0; i < this.tables.length - 1; i++) {
+                this.tables[i].TableName = toc[i]["Name"];
+                this.tables[i].TableId = toc[i]["Id"];
+                this.tables[i].TableKind = KustoResponseDataSetV1.getTablesKinds()[toc[i]["Kind"]];
             }
         }
-
-        super(tables);
 
         this.version = "1.0";
     }
