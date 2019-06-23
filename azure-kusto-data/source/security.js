@@ -1,4 +1,4 @@
-const { URL } = require("url");
+
 const { AuthenticationContext } = require("adal-node");
 
 const AuthenticationMethod = Object.freeze({
@@ -8,12 +8,22 @@ const AuthenticationMethod = Object.freeze({
     deviceLogin: 3
 });
 
+
 module.exports = class AadHelper {
     constructor(kcsb) {
         this.token = {};
 
         let authority = kcsb.authorityId || "common";
-        let url = new URL(kcsb.dataSource);
+        let url;
+        
+        // support node compatability
+        try {
+            url = new URL(kcsb.dataSource);
+        } catch (e){            
+            const URL = require("url").URL;
+            url = new URL(kcsb.dataSource);            
+        }
+
         this.kustoCluster = `${url.protocol}//${url.hostname}`;
         this.adalContext = new AuthenticationContext(`https://login.microsoftonline.com/${authority}`);
         if (!!kcsb.aadUserId && !!kcsb.password) {
