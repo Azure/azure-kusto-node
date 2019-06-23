@@ -69,8 +69,14 @@ module.exports.KustoResultColumn = KustoResultColumn;
 module.exports.KustoResultTable = class KustoResultTable {
     constructor(tableObj) {
         this.name = tableObj.TableName;
-        this.id = tableObj.TableId;
-        this.kind = tableObj.TableKind;
+        if (tableObj.TableId !== undefined) {
+            this.id = tableObj.TableId;
+        }
+        
+        if (tableObj.TableKind) {
+            this.kind = tableObj.TableKind;
+        }
+        
         this.columns = tableObj.Columns.map((item, index) => new KustoResultColumn(item, index));
         this._rows = tableObj.Rows;
 
