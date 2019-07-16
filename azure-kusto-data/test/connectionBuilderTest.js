@@ -79,6 +79,28 @@ describe("KustoConnectionStringBuilder", function () {
                 }
             }
         });
+
+        it("from aad managed indentities", function() {
+            const msi_endpoint = "anEndpoint";
+            const msi_secret = "aSecretString";
+
+            let kcsbs = [
+                new KustoConnectionStringBuilder(`localhost;msi_endpoint=${msi_endpoint};msi_secret=${msi_secret}`),
+                KustoConnectionStringBuilder.withAadManagedIdentities("localhost", msi_endpoint, msi_secret)
+            ];
+
+            for(let kcsb of kcsbs) {
+                assert.equal(kcsb.dataSource, "localhost");
+                assert.equal(kcsb.msi_endpoint, msi_endpoint);
+                assert.equal(kcsb.msi_secret, msi_secret);
+                assert.equal(kcsb.authorityId, "common");
+                let emptyFields = ["aadUserId", "password", "applicationClientId", "applicationKey"];
+                for (let field of emptyFields) {
+                    assert.equal(kcsb[field], null);
+                }
+            }
+        });
     });
 });
+
 

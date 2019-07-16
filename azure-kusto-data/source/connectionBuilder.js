@@ -39,6 +39,16 @@ const KeywordMapping = Object.freeze({
         mappedTo: "Authority Id",
         validNames: ["authority id", "authorityid", "authority", "tenantid", "tenant", "tid"]
     },
+    msi_endpoint: {
+        propName: "msi_endpoint",
+        mappedTo: "msi_endpoint",
+        validNames: ["msi_endpoint"]
+    },
+    msi_secret: {
+        propName: "msi_secret",
+        mappedTo: "msi_secret",
+        validNames: ["msi_secret"]
+    }
 });
 
 const getPropName = (key) => {
@@ -113,6 +123,17 @@ module.exports = class KustoConnectionStringBuilder {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         kcsb[KeywordMapping.authorityId.propName] = authorityId;
         kcsb.AuthorizationCallback = authCallback;
+
+        return kcsb;
+    }
+
+    static withAadManagedIdentities(connectionString, msi_endpoint, msi_secret) {
+        if (!msi_endpoint || msi_endpoint.trim().length == 0) throw new Error("Invalid endpoint");
+        if (!msi_secret || msi_secret.trim().length == 0) throw new Error("Invalid secret");
+
+        const kcsb = new KustoConnectionStringBuilder(connectionString);
+        kcsb[KeywordMapping.msi_endpoint.propName] = msi_endpoint;
+        kcsb[KeywordMapping.msi_secret.propName] = msi_secret;
 
         return kcsb;
     }
