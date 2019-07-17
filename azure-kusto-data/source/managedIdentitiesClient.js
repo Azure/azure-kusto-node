@@ -1,8 +1,8 @@
 const http = require("http");
 const url = require("url");
 
-module.exports = function acquireToken(resource, msi_endpoint, msi_secret, callback) {
-    const msiResource = `${msi_endpoint}/?resource=${resource}&api-version=2017-09-01`;
+module.exports = function acquireToken(resource, msiEndpoint, msiSecret, callback) {
+    const msiResource = `${msiEndpoint}/?resource=${resource}&api-version=2017-09-01`;
     const msiUrl = url.parse(msiResource);
 
     const options = {
@@ -11,7 +11,7 @@ module.exports = function acquireToken(resource, msi_endpoint, msi_secret, callb
         port: msiUrl.port,
         path: msiUrl.path,
         headers: {
-            secret: msi_secret
+            secret: msiSecret
         }
     };
 

@@ -25,12 +25,12 @@
   "license": "ISC",
   "dependencies": {
     "adal-node": "^0.1.28",
-    "eslint": "^6.0.1",
     "moment": "^2.22.2",
     "request": "^2.88.0",
     "uuid": "^3.3.2"
   },
   "devDependencies": {
+    "eslint": "^6.0.1",
     "mocha": "^5.2.0",
     "sinon": "^7.2.3"
   }

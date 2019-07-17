@@ -43,11 +43,11 @@ module.exports = class AadHelper {
             this.clientId = kcsb.applicationClientId;
             this.certificate = kcsb.applicationCertificate;
             this.thumbprint = kcsb.applicationCertificateThumbprint;
-        } else if (!!kcsb.msi_endpoint && !!kcsb.msi_secret) {
+        } else if (!!kcsb.msiEndpoint && !!kcsb.msiSecret) {
             this.authMethod = AuthenticationMethod.managedIdentities;
             this.clientId = "db662dc1-0cfe-4e1c-a843-19a68e65be58";
-            this.msi_endpoint = kcsb.msi_endpoint;
-            this.msi_secret = kcsb.msi_secret;
+            this.msiEndpoint = kcsb.msiEndpoint;
+            this.msiSecret = kcsb.msiSecret;
             this.apiVersion = "2017-09-01";
         } else {
             this.authMethod = AuthenticationMethod.deviceLogin;
@@ -101,7 +101,7 @@ module.exports = class AadHelper {
                     }
                 });
             case AuthenticationMethod.managedIdentities:
-                return msiAcquireToken(resource, this.msi_endpoint, this.msi_secret, (err, tokenResponse) => {
+                return msiAcquireToken(resource, this.msiEndpoint, this.msiSecret, (err, tokenResponse) => {
                     if(err) {
                         return cb(err);
                     }

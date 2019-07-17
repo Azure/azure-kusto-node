@@ -81,18 +81,19 @@ describe("KustoConnectionStringBuilder", function () {
         });
 
         it("from aad managed indentities", function() {
-            const msi_endpoint = "anEndpoint";
-            const msi_secret = "aSecretString";
+            const msiEndpoint = "anEndpoint";
+            const msiSecret = "aSecretString";
 
             let kcsbs = [
-                new KustoConnectionStringBuilder(`localhost;msi_endpoint=${msi_endpoint};msi_secret=${msi_secret}`),
-                KustoConnectionStringBuilder.withAadManagedIdentities("localhost", msi_endpoint, msi_secret)
+                new KustoConnectionStringBuilder(`localhost;msi_endpoint=${msiEndpoint};msi_secret=${msiSecret}`),
+                new KustoConnectionStringBuilder(`localhost;msiEndpoint=${msiEndpoint};msiSecret=${msiSecret}`),
+                KustoConnectionStringBuilder.withAadManagedIdentities("localhost", msiEndpoint, msiSecret)
             ];
 
             for(let kcsb of kcsbs) {
                 assert.equal(kcsb.dataSource, "localhost");
-                assert.equal(kcsb.msi_endpoint, msi_endpoint);
-                assert.equal(kcsb.msi_secret, msi_secret);
+                assert.equal(kcsb.msiEndpoint, msiEndpoint);
+                assert.equal(kcsb.msiSecret, msiSecret);
                 assert.equal(kcsb.authorityId, "common");
                 let emptyFields = ["aadUserId", "password", "applicationClientId", "applicationKey"];
                 for (let field of emptyFields) {
