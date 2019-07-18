@@ -1,11 +1,13 @@
 
 const { AuthenticationContext } = require("adal-node");
+const msiAcquireToken = require("./managedIdentitiesClient");
 
 const AuthenticationMethod = Object.freeze({
     username: 0,
     appKey: 1,
     appCertificate: 2,
-    deviceLogin: 3
+    deviceLogin: 3,
+    managedIdentities: 4
 });
 
 
@@ -15,13 +17,13 @@ module.exports = class AadHelper {
 
         let authority = kcsb.authorityId || "common";
         let url;
-        
+
         // support node compatability
         try {
             url = new URL(kcsb.dataSource);
-        } catch (e){            
+        } catch (e) {
             const URL = require("url").URL;
-            url = new URL(kcsb.dataSource);            
+            url = new URL(kcsb.dataSource);
         }
 
         this.kustoCluster = `${url.protocol}//${url.hostname}`;
@@ -41,6 +43,12 @@ module.exports = class AadHelper {
             this.clientId = kcsb.applicationClientId;
             this.certificate = kcsb.applicationCertificate;
             this.thumbprint = kcsb.applicationCertificateThumbprint;
+        } else if (!!kcsb.msiEndpoint && !!kcsb.msiSecret) {
+            this.authMethod = AuthenticationMethod.managedIdentities;
+            this.clientId = "db662dc1-0cfe-4e1c-a843-19a68e65be58";
+            this.msiEndpoint = kcsb.msiEndpoint;
+            this.msiSecret = kcsb.msiSecret;
+            this.apiVersion = "2017-09-01";
         } else {
             this.authMethod = AuthenticationMethod.deviceLogin;
             this.clientId = "db662dc1-0cfe-4e1c-a843-19a68e65be58";
@@ -91,6 +99,14 @@ module.exports = class AadHelper {
                         });
 
                     }
+                });
+            case AuthenticationMethod.managedIdentities:
+                return msiAcquireToken(resource, this.msiEndpoint, this.msiSecret, (err, tokenResponse) => {
+                    if(err) {
+                        return cb(err);
+                    }
+
+                    return cb(err, tokenResponse && formatHeader(tokenResponse));
                 });
             default:
                 return cb("Couldn't Authenticate, something went wrong trying to choose authentication method");

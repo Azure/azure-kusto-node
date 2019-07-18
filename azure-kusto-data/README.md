@@ -24,8 +24,8 @@ client.execute("db", "TableName | limit 1", (err, results) => {
 ## Authentication
 There are several authentication methods
 
-### AAD appliction
-There are two ways to authenticate using AAD application:
+### AAD application
+There are three ways to authenticate using AAD application:
 Option 1: Authenticating using AAD application id and corresponding key.
 ```javascript
 const kcsb = KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(`https://${clusterName}.kusto.windows.net`,'appid','appkey','authorityId');
@@ -35,6 +35,12 @@ Option 2: Authenticating using AAD application id and corresponding certificate.
 
 ```javascript
 const kcsb = KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(`https://${clusterName}.kusto.windows.net`, 'appid', 'certificate', 'thumbprint', 'authorityId');
+```
+
+Option 3: Authenticating using AAD Managed Identities.
+
+```javascript
+const kcsb = KustoConnectionStringBuilder.withAadManagedIdentities(`https://${clusterName}.kusto.windows.net`, 'msi_endpoint', 'msi_secret');
 ```
 
 

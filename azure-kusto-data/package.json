@@ -30,6 +30,7 @@
     "uuid": "^3.3.2"
   },
   "devDependencies": {
+    "eslint": "^6.0.1",
     "mocha": "^5.2.0",
     "sinon": "^7.2.3"
   }
