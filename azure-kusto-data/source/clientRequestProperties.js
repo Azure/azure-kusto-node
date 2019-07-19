@@ -27,7 +27,7 @@ module.exports = class ClientRequestProperties {
         return this._parameters[name];
     }
 
-    clearParameter() {
+    clearParameters() {
         this._parameters = {};
     }
 
