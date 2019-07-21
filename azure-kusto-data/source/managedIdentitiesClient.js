@@ -17,7 +17,7 @@ module.exports = function acquireToken(resource, msiEndpoint, msiClientId, callb
         if (error) return callback(error);
 
         if (response.statusCode < 200 || response.statusCode >= 400) {
-            return callback(`Unexpected status ${response.statusCode}.\n ${response.body}`)
+            return callback(`Unexpected status ${response.statusCode}.\n ${response.body}`);
         }
 
         return callback(null, { tokenType: body.token_type, accessToken: body.access_token });
