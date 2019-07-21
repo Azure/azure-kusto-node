@@ -85,10 +85,15 @@ For more fine grained control, we expose `ClientRequestProperties`.
 const ClientRequestProperties = require("azure-kusto-data").ClientRequestProperties;
 const Client = require("azure-kusto-data").Client;
 
-let client = new Client("http://cluster.region.kusto.windows.net");
-let clientRequestProps = new ClientRequestProperties();
+const client = new Client("http://cluster.region.kusto.windows.net");
+const query = `
+declare query_parameters(amount:long);
+T | where amountColumn == amount
+`;
+const clientRequestProps = new ClientRequestProperties();
 clientRequestProps.setOption("servertimeout", 1000 * 60);
-client.executeQuery("db","Table | count", (err, results) => { console.log(results);}, clientRequestProps);
+clientRequestProps.setParameter("amount", 100);
+client.executeQuery("db", query, (err, results) => { console.log(results); }, clientRequestProps);
 ```
 
 A full list of those properties can be found at https://docs.microsoft.com/en-us/azure/kusto/api/netfx/request-properties

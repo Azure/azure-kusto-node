@@ -1,6 +1,7 @@
 module.exports = class ClientRequestProperties {
-    constructor() {
-        this._options = {};      
+    constructor(options, parameters) {
+        this._options = options || {};
+        this._parameters = parameters || {};
     }
 
     setOption(name, value) {
@@ -12,6 +13,22 @@ module.exports = class ClientRequestProperties {
             return defaultValue;
 
         return this._options[name];
+    }
+
+    setParameter(name, value) {
+        this._parameters[name] = value;
+    }
+
+    getParameter(name, defaultValue) {
+        if (!this._parameters || this._parameters[name] === undefined) {
+            return defaultValue;
+        }
+
+        return this._parameters[name];
+    }
+
+    clearParameters() {
+        this._parameters = {};
     }
 
     setTimeout(timeoutMillis) {
@@ -27,11 +44,17 @@ module.exports = class ClientRequestProperties {
     }
 
     toJson() {
-        if (!this._options || Object.keys(this._options).length == 0) {
-            return null;
+        let json = {};
+
+        if (Object.keys(this._options).length !== 0) {
+            json.Options = this._options;
         }
 
-        return { "Options" : this._options };
+        if (Object.keys(this._parameters).length !== 0) {
+            json.Parameters = this._parameters;
+        }
+
+        return Object.keys(json).length !== 0 ? json : null;
     }
 
     toString() {
