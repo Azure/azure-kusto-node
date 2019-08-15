@@ -1,7 +1,7 @@
 const request = require("request");
 
-const MSI_API_VERSION = '2018-02-01';
-const MSI_FUNCTION_API_VERSION = '2017-09-01';
+const MSI_API_VERSION = "2018-02-01";
+const MSI_FUNCTION_API_VERSION = "2017-09-01";
 
 module.exports = function acquireToken(resource, msiEndpoint, msiClientId, msiSecret, callback) {
     let msiUri = `${msiEndpoint}/?resource=${resource}&api-version=${msiSecret ? MSI_FUNCTION_API_VERSION : MSI_API_VERSION}`;
