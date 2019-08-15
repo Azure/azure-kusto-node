@@ -1,18 +1,25 @@
 const request = require("request");
 
-module.exports = function acquireToken(resource, msiEndpoint, msiClientId, callback) {
-    // provided endpoint should be of the following format http://169.254.169.254/metadata/identity/oauth2/token
-    // or http://localhost/oauth2/token (to be deprecated)
-    // for more info refer to: https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/overview
-    let msiUri = `${msiEndpoint}/?resource=${resource}&api-version=2018-02-01`;
+const MSI_API_VERSION = '2018-02-01';
+const MSI_FUNCTION_API_VERSION = '2017-09-01';
 
-    if (msiClientId != null) {
+module.exports = function acquireToken(resource, msiEndpoint, msiClientId, msiSecret, callback) {
+    let msiUri = `${msiEndpoint}/?resource=${resource}&api-version=${msiSecret ? MSI_FUNCTION_API_VERSION : MSI_API_VERSION}`;
+
+    if (msiClientId) {
         msiUri += `&client_id=${msiClientId}`;
+    }
+
+    const headers = {};
+
+    if (msiSecret) {
+        headers.Secret = msiSecret;
     }
 
     request({
         method: "GET",
-        url: msiUri
+        url: msiUri,
+        headers
     }, (error, response, body) => {
         if (error) return callback(error);
 

@@ -117,9 +117,20 @@ module.exports = class KustoConnectionStringBuilder {
         return kcsb;
     }
 
-    static withAadManagedIdentities(connectionString, msiEndpoint = undefined, clientId = undefined) {
+    // Notice: you can leave `msiEndpoint` and `clientId` 
+    static withAadManagedIdentities(connectionString, msiEndpoint, clientId) {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
-        kcsb.msiEndpoint = msiEndpoint || "http://169.254.169.254/metadata/identity/oauth2/token";
+        kcsb.msiEndpoint = msiEndpoint;
+        
+        if (msiEndpoint == undefined) {
+            if (process && process.env && process.env.MSI_ENDPOINT) {
+                kcsb.msiEndpoint = process.env.MSI_ENDPOINT;
+                kcsb.msiSecret = process.env.MSI_SECRET;
+            } else {
+                kcsb.msiEndpoint = "http://169.254.169.254/metadata/identity/oauth2/token";
+            }
+        }
+
         kcsb.msiClientId = clientId;
         kcsb.managedIdentity = true;
 

@@ -46,6 +46,7 @@ module.exports = class AadHelper {
         } else if (kcsb.managedIdentity) {
             this.authMethod = AuthenticationMethod.managedIdentities;
             this.msiEndpoint = kcsb.msiEndpoint;
+            this.msiSecret = kcsb.msiSecret;
             this.msiClientId = kcsb.msiClientId;
         } else {
             this.authMethod = AuthenticationMethod.deviceLogin;
@@ -100,7 +101,7 @@ module.exports = class AadHelper {
                 });
             case AuthenticationMethod.managedIdentities:
                 return acquireManagedIdentityToken(
-                    resource, this.msiEndpoint, this.msiClientId, (err, tokenResponse) => {
+                    resource, this.msiEndpoint, this.msiClientId, this.msiSecret, (err, tokenResponse) => {
                         if (err) {
                             return cb(err);
                         }
