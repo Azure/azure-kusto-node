@@ -27,6 +27,7 @@ module.exports = function acquireToken(resource, msiEndpoint, msiClientId, msiSe
             return callback(`Unexpected status ${response.statusCode}.\n ${response.body}`);
         }
 
-        return callback(null, { tokenType: body.token_type, accessToken: body.access_token });
+        const tokenData = JSON.parse(body);
+        return callback(null, { tokenType: tokenData.token_type, accessToken: tokenData.access_token });
     });
 };

@@ -79,6 +79,20 @@ describe("KustoConnectionStringBuilder", function () {
                 }
             }
         });
+
+        it("from string with managed identity", function () {    
+            const kcsb1 = KustoConnectionStringBuilder.withAadManagedIdentities("https://dadubovs1.westus.kusto.windows.net");
+
+            assert.equal(kcsb1.msiEndpoint, "http://169.254.169.254/metadata/identity/oauth2/token");
+
+            process.env.MSI_ENDPOINT = "http://localhost";
+            process.env.MSI_SECRET = "123";
+
+            const kcsb2 = KustoConnectionStringBuilder.withAadManagedIdentities("https://dadubovs1.westus.kusto.windows.net");
+
+            assert.equal(kcsb2.msiEndpoint, process.env.MSI_ENDPOINT);
+            assert.equal(kcsb2.msiSecret, process.env.MSI_SECRET);
+        });
     });
 });
 
