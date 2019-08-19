@@ -80,26 +80,18 @@ describe("KustoConnectionStringBuilder", function () {
             }
         });
 
-        it("from aad managed indentities", function() {
-            const msiEndpoint = "anEndpoint";
-            const msiSecret = "aSecretString";
+        it("from string with managed identity", function () {    
+            const kcsb1 = KustoConnectionStringBuilder.withAadManagedIdentities("https://dadubovs1.westus.kusto.windows.net");
 
-            let kcsbs = [
-                new KustoConnectionStringBuilder(`localhost;msi_endpoint=${msiEndpoint};msi_secret=${msiSecret}`),
-                new KustoConnectionStringBuilder(`localhost;msiEndpoint=${msiEndpoint};msiSecret=${msiSecret}`),
-                KustoConnectionStringBuilder.withAadManagedIdentities("localhost", msiEndpoint, msiSecret)
-            ];
+            assert.equal(kcsb1.msiEndpoint, "http://169.254.169.254/metadata/identity/oauth2/token");
 
-            for(let kcsb of kcsbs) {
-                assert.equal(kcsb.dataSource, "localhost");
-                assert.equal(kcsb.msiEndpoint, msiEndpoint);
-                assert.equal(kcsb.msiSecret, msiSecret);
-                assert.equal(kcsb.authorityId, "common");
-                let emptyFields = ["aadUserId", "password", "applicationClientId", "applicationKey"];
-                for (let field of emptyFields) {
-                    assert.equal(kcsb[field], null);
-                }
-            }
+            process.env.MSI_ENDPOINT = "http://localhost";
+            process.env.MSI_SECRET = "123";
+
+            const kcsb2 = KustoConnectionStringBuilder.withAadManagedIdentities("https://dadubovs1.westus.kusto.windows.net");
+
+            assert.equal(kcsb2.msiEndpoint, process.env.MSI_ENDPOINT);
+            assert.equal(kcsb2.msiSecret, process.env.MSI_SECRET);
         });
     });
 });

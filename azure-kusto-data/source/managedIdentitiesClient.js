@@ -1,39 +1,33 @@
-const http = require("http");
-const url = require("url");
+const request = require("request");
 
-module.exports = function acquireToken(resource, msiEndpoint, msiSecret, callback) {
-    const msiResource = `${msiEndpoint}/?resource=${resource}&api-version=2017-09-01`;
-    const msiUrl = url.parse(msiResource);
+const MSI_API_VERSION = "2018-02-01";
+const MSI_FUNCTION_API_VERSION = "2017-09-01";
 
-    const options = {
-        host: msiUrl.host,
-        hostname: msiUrl.hostname,
-        port: msiUrl.port,
-        path: msiUrl.path,
-        headers: {
-            secret: msiSecret
+module.exports = function acquireToken(resource, msiEndpoint, msiClientId, msiSecret, callback) {
+    let msiUri = `${msiEndpoint}/?resource=${resource}&api-version=${msiSecret ? MSI_FUNCTION_API_VERSION : MSI_API_VERSION}`;
+
+    if (msiClientId) {
+        msiUri += `&client_id=${msiClientId}`;
+    }
+
+    const headers = {};
+
+    if (msiSecret) {
+        headers.Secret = msiSecret;
+    }
+
+    request({
+        method: "GET",
+        url: msiUri,
+        headers
+    }, (error, response, body) => {
+        if (error) return callback(error);
+
+        if (response.statusCode < 200 || response.statusCode >= 400) {
+            return callback(`Unexpected status ${response.statusCode}.\n ${response.body}`);
         }
-    };
 
-    const request = http.request(options, res => {
-        let data = "";
-
-        res.on("data", chunk => {
-            data += chunk;
-        });
-
-        res.on("end", () => {
-            let responseData = JSON.parse(data);
-            responseData.tokenType = responseData.token_type;
-            responseData.accessToken = responseData.access_token;
-
-            return callback(null, responseData);
-        });
+        const tokenData = JSON.parse(body);
+        return callback(null, { tokenType: tokenData.token_type, accessToken: tokenData.access_token });
     });
-
-    request.on("error", err => {
-        return callback(err);
-    });
-
-    request.end();
 };

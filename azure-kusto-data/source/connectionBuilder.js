@@ -38,16 +38,6 @@ const KeywordMapping = Object.freeze({
         propName: "authorityId",
         mappedTo: "Authority Id",
         validNames: ["authority id", "authorityid", "authority", "tenantid", "tenant", "tid"]
-    },
-    msiEndpoint: {
-        propName: "msiEndpoint",
-        mappedTo: "msi_endpoint",
-        validNames: ["msi_endpoint", "msiendpoint"]
-    },
-    msiSecret: {
-        propName: "msiSecret",
-        mappedTo: "msi_secret",
-        validNames: ["msi_secret", "msisecret"]
     }
 });
 
@@ -127,13 +117,22 @@ module.exports = class KustoConnectionStringBuilder {
         return kcsb;
     }
 
-    static withAadManagedIdentities(connectionString, msiEndpoint, msiSecret) {
-        if (!msiEndpoint || msiEndpoint.trim().length == 0) throw new Error("Invalid endpoint");
-        if (!msiSecret || msiSecret.trim().length == 0) throw new Error("Invalid secret");
-
+    // Notice: you can leave `msiEndpoint` and `clientId` 
+    static withAadManagedIdentities(connectionString, msiEndpoint, clientId) {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
-        kcsb[KeywordMapping.msiEndpoint.propName] = msiEndpoint;
-        kcsb[KeywordMapping.msiSecret.propName] = msiSecret;
+        kcsb.msiEndpoint = msiEndpoint;
+        
+        if (msiEndpoint == undefined) {
+            if (process && process.env && process.env.MSI_ENDPOINT) {
+                kcsb.msiEndpoint = process.env.MSI_ENDPOINT;
+                kcsb.msiSecret = process.env.MSI_SECRET;
+            } else {
+                kcsb.msiEndpoint = "http://169.254.169.254/metadata/identity/oauth2/token";
+            }
+        }
+
+        kcsb.msiClientId = clientId;
+        kcsb.managedIdentity = true;
 
         return kcsb;
     }

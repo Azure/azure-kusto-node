@@ -1,6 +1,6 @@
 
 const { AuthenticationContext } = require("adal-node");
-const msiAcquireToken = require("./managedIdentitiesClient");
+const acquireManagedIdentityToken = require("./managedIdentitiesClient");
 
 const AuthenticationMethod = Object.freeze({
     username: 0,
@@ -43,12 +43,11 @@ module.exports = class AadHelper {
             this.clientId = kcsb.applicationClientId;
             this.certificate = kcsb.applicationCertificate;
             this.thumbprint = kcsb.applicationCertificateThumbprint;
-        } else if (!!kcsb.msiEndpoint && !!kcsb.msiSecret) {
+        } else if (kcsb.managedIdentity) {
             this.authMethod = AuthenticationMethod.managedIdentities;
-            this.clientId = "db662dc1-0cfe-4e1c-a843-19a68e65be58";
             this.msiEndpoint = kcsb.msiEndpoint;
             this.msiSecret = kcsb.msiSecret;
-            this.apiVersion = "2017-09-01";
+            this.msiClientId = kcsb.msiClientId;
         } else {
             this.authMethod = AuthenticationMethod.deviceLogin;
             this.clientId = "db662dc1-0cfe-4e1c-a843-19a68e65be58";
@@ -101,13 +100,15 @@ module.exports = class AadHelper {
                     }
                 });
             case AuthenticationMethod.managedIdentities:
-                return msiAcquireToken(resource, this.msiEndpoint, this.msiSecret, (err, tokenResponse) => {
-                    if(err) {
-                        return cb(err);
-                    }
+                return acquireManagedIdentityToken(
+                    resource, this.msiEndpoint, this.msiClientId, this.msiSecret, (err, tokenResponse) => {
+                        if (err) {
+                            return cb(err);
+                        }
 
-                    return cb(err, tokenResponse && formatHeader(tokenResponse));
-                });
+                        return cb(err, tokenResponse && formatHeader(tokenResponse));
+                    }
+                );
             default:
                 return cb("Couldn't Authenticate, something went wrong trying to choose authentication method");
         }
