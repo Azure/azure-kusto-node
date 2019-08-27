@@ -21,6 +21,7 @@ module.exports = class KustoClient {
 
 
     execute(db, query, callback, properties) {
+        query = query.trim();
         if (query.startsWith(".")) {
             return this.executeMgmt(db, query, callback, properties);
         }
