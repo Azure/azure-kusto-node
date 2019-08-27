@@ -1,6 +1,6 @@
 {
   "name": "azure-kusto-ingest",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Azure Data Explorer Ingestion SDK",
   "main": "index.js",
   "engines": {
@@ -25,7 +25,7 @@
   "license": "ISC",
   "dependencies": {
     "adal-node": "^0.1.28",
-    "azure-kusto-data": "^0.3.0",
+    "azure-kusto-data": "^0.3.1",
     "azure-storage": "^2.10.2",
     "moment": "^2.22.2",
     "request": "^2.88.0",
