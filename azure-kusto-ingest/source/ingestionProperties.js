@@ -85,7 +85,7 @@ module.exports.IngestionProperties = class IngestionProperties {
     constructor({     
         database,
         table,
-        dataFormat,
+        format,
         ingestionMapping = null,
         ingestionMappingReference = null,
         ingestionMappingType = null,
@@ -93,39 +93,20 @@ module.exports.IngestionProperties = class IngestionProperties {
         ingestIfNotExists = null,
         ingestByTags = null,
         dropByTags = null,
-        flushImmediately = false,
-        reportLevel = ReportLevel.DoNotReport,
-        reportMethod = ReportMethod.Queue,
+        flushImmediately = null,
+        reportLevel = null,
+        reportMethod = null,
         validationPolicy = null,
         additionalProperties = null
     }) {
-        if (mapping) {
-            deprecate(noop, "mapping will be deprecated in the next major version. \
-                                    Please use ingestionMapping instead");
-        }
-
-        if (mappingReference) {
-            deprecate(noop, "mappingReference will be deprecated in the next major version. \
-                                    Please use ingestionMappingReference instead");
-        }
-
-        // Validate
-        if (!database) throw new Error("Must define a target database");        
-        if (!table) throw new Error("Must define a target table");        
-        if (!dataFormat) throw new Error("Must define a data format");
-        if (mapping && ingestionMapping) throw new Error("Duplicate mappings detected");
-        if (mappingReference && ingestionMappingReference) throw new Error("Duplicate mapping references detected");
-
-        var mappingExists = !!mapping || !!ingestionMapping;
-        if (mappingExists && (mappingReference || ingestionMappingReference)) throw new Error("Both mapping and a mapping reference detected");
-        if (!mapping && !mappingReference && dataFormat === DataFormat.JSON) throw new Error("Json must have a mapping defined");
+        if (ingestionMapping && ingestionMappingReference) throw new Error("Both mapping and a mapping reference detected");
 
         this.database = database;
         this.table = table;
-        this.format = dataFormat;
-        this.ingestionMapping = ingestionMapping ? ingestionMapping : mapping;
+        this.format = format;
+        this.ingestionMapping = ingestionMapping;
         this.ingestionMappingType = ingestionMappingType;
-        this.ingestionMappingReference = ingestionMappingReference ? ingestionMappingReference : mappingReference; 
+        this.ingestionMappingReference = ingestionMappingReference; 
         this.additionalTags = additionalTags;
         this.ingestIfNotExists = ingestIfNotExists;
         this.ingestByTags = ingestByTags;
@@ -138,32 +119,32 @@ module.exports.IngestionProperties = class IngestionProperties {
     }
 
     validate() {
+
+        if (!this.flushImmediately) this.flushImmediately = false;
+        if (!this.reportLevel) this.reportLevel = ReportLevel.DoNotReport;
+        if (!this.reportMethod) this.reportMethod = ReportMethod.Queue;
+
         if (!this.database) throw new Error("Must define a target database");        
         if (!this.table) throw new Error("Must define a target table");        
         if (!this.format) throw new Error("Must define a data format");
-        if (this.mapping && this.ingestionMapping) throw new Error("Duplicate mappings detected");
-        if (this.mappingReference && this.ingestionMappingReference) throw new Error("Duplicate mapping references detected");
-
-        var mappingExists = !!this.mapping || !!this.ingestionMapping;
-        if (mappingExists && (this.mappingReference || this.ingestionMappingReference)) throw new Error("Both mapping and a mapping reference detected");
-        if (!this.mapping && !this.mappingReference && this.format === DataFormat.JSON) throw new Error("Json must have a mapping defined");
+        if (this.ingestionMapping && this.ingestionMappingReference) throw new Error("Both mapping and a mapping reference detected");
+        if (!this.ingestionMapping && !this.ingestionMappingReference && this.format === DataFormat.JSON) throw new Error("Json must have a mapping defined");
     }
 
     merge(extraProps) {
-        let merged = new IngestionProperties();
-
+        const merged = new Object();
         for (let key of Object.keys(this)) {
             if (this[key] != null) {
                 merged[key] = this[key];
             }
         } 
-
+        
         for (let key of Object.keys(extraProps)) {
             if (extraProps[key] != null) {
                 merged[key] = extraProps[key];
             }
         }
-
-        return merged;
+        
+        return new IngestionProperties(merged); 
     }
 };
