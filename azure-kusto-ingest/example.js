@@ -11,28 +11,20 @@ const appId = null;
 const appKey = null;
 const authorityId = null;
 
-const props = new IngestionProps(
-    "Database",
-    "Table",
-    DataFormat.JSON,
-    [
+const props = new IngestionProps({
+    database: "Database",
+    table: "Table",
+    format: DataFormat.JSON,
+    ingestionMapping : [
         new JsonColumnMapping("TargetColumn1", "$.sourceProp1"),
         new JsonColumnMapping("TargetColumn2", "$.sourceProp2"),
         new JsonColumnMapping("TargetColumn3", "$.sourceProp3")
     ],
-    null,
-    null,
-    null,
-    IngestionMappingType.JSON,
-    null,
-    null,
-    null,
-    null,
-    null,
-    ReportLevel.FailuresAndSuccesses,
-    ReportMethod.Queue);
+    ingestionMappingType: IngestionMappingType.JSON,
+    reportLevel: ReportLevel.FailuresAndSuccesses,
+    reportMethod: ReportMethod.Queue
 
-props.validate();
+});
 
 const ingestClient = new IngestClient(
     KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(
