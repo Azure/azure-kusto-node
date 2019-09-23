@@ -1,18 +1,29 @@
+const deprecate = require("util").deprecate;
+const noop = () => {};
 
 const DataFormat = Object.freeze({
-    csv: "csv",
-    tsv: "tsv",
-    scsv: "scsv",
-    sohsv: "sohsv",
-    psv: "psv",
-    txt: "txt",
-    json: "json",
-    singlejson: "singlejson",
-    avro: "avro",
-    parquet: "parquet",
+    CSV: "csv",
+    TSV: "tsv",
+    SCSV: "scsv",
+    SOHSV: "sohsv",
+    PSV: "psv",
+    TXT: "txt",
+    JSON: "json",
+    SINGLEJSON: "singlejson",
+    AVRO: "avro",
+    PARQUET: "parquet",
 });
 
 module.exports.DataFormat = DataFormat;
+
+const IngestionMappingType = Object.freeze({
+    CSV: "Csv",
+    PARQUET: "Parquet",
+    AVRO: "Avro",
+    JSON: "Json"
+});
+
+module.exports.IngestionMappingType = IngestionMappingType;
 
 const ValidationOptions = Object.freeze({
     DoNotValidate: 0,
@@ -71,12 +82,13 @@ module.exports.JsonColumnMapping = class JsonColumnMapping extends ColumnMapping
 };
 
 module.exports.IngestionProperties = class IngestionProperties {
-    constructor(        
+    constructor({     
         database,
         table,
         dataFormat,
-        mapping = null,
-        mappingReference = null,
+        ingestionMapping = null,
+        ingestionMappingReference = null,
+        ingestionMappingType = null,
         additionalTags = null,
         ingestIfNotExists = null,
         ingestByTags = null,
@@ -86,13 +98,34 @@ module.exports.IngestionProperties = class IngestionProperties {
         reportMethod = ReportMethod.Queue,
         validationPolicy = null,
         additionalProperties = null
-    ) {
-        
+    }) {
+        if (mapping) {
+            deprecate(noop, "mapping will be deprecated in the next major version. \
+                                    Please use ingestionMapping instead");
+        }
+
+        if (mappingReference) {
+            deprecate(noop, "mappingReference will be deprecated in the next major version. \
+                                    Please use ingestionMappingReference instead");
+        }
+
+        // Validate
+        if (!database) throw new Error("Must define a target database");        
+        if (!table) throw new Error("Must define a target table");        
+        if (!dataFormat) throw new Error("Must define a data format");
+        if (mapping && ingestionMapping) throw new Error("Duplicate mappings detected");
+        if (mappingReference && ingestionMappingReference) throw new Error("Duplicate mapping references detected");
+
+        var mappingExists = !!mapping || !!ingestionMapping;
+        if (mappingExists && (mappingReference || ingestionMappingReference)) throw new Error("Both mapping and a mapping reference detected");
+        if (!mapping && !mappingReference && dataFormat === DataFormat.JSON) throw new Error("Json must have a mapping defined");
+
         this.database = database;
         this.table = table;
         this.format = dataFormat;
-        this.mapping = mapping;
-        this.mappingReference = mappingReference;
+        this.ingestionMapping = ingestionMapping ? ingestionMapping : mapping;
+        this.ingestionMappingType = ingestionMappingType;
+        this.ingestionMappingReference = ingestionMappingReference ? ingestionMappingReference : mappingReference; 
         this.additionalTags = additionalTags;
         this.ingestIfNotExists = ingestIfNotExists;
         this.ingestByTags = ingestByTags;
@@ -104,22 +137,16 @@ module.exports.IngestionProperties = class IngestionProperties {
         this.additionalProperties = additionalProperties;
     }
 
-    // TODO: huh? why?
-    getMappingFormat() {
-        if (this.format == DataFormat.json || this.format == DataFormat.avro) {
-            return this.format;
-        }
-        else {
-            return DataFormat.csv;
-        }
-    }
-
     validate() {
         if (!this.database) throw new Error("Must define a target database");        
         if (!this.table) throw new Error("Must define a target table");        
         if (!this.format) throw new Error("Must define a data format");
-        if (this.mapping && this.mappingReference) throw new Error("Duplicate mapping detected");
-        if (!this.mapping && !this.mappingReference && this.format === DataFormat.json) throw new Error("Json must have a mapping defined");
+        if (this.mapping && this.ingestionMapping) throw new Error("Duplicate mappings detected");
+        if (this.mappingReference && this.ingestionMappingReference) throw new Error("Duplicate mapping references detected");
+
+        var mappingExists = !!this.mapping || !!this.ingestionMapping;
+        if (mappingExists && (this.mappingReference || this.ingestionMappingReference)) throw new Error("Both mapping and a mapping reference detected");
+        if (!this.mapping && !this.mappingReference && this.format === DataFormat.JSON) throw new Error("Json must have a mapping defined");
     }
 
     merge(extraProps) {

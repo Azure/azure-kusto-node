@@ -3,7 +3,7 @@ const IngestStatusQueues = require("azure-kusto-ingest").IngestStatusQueues;
 const IngestionProps = require("azure-kusto-ingest").IngestionProperties;
 const { ReportLevel, ReportMethod } = require("azure-kusto-ingest").IngestionPropertiesEnums;
 const KustoConnectionStringBuilder = require("azure-kusto-data").KustoConnectionStringBuilder;
-const { DataFormat, JsonColumnMapping } = require("azure-kusto-ingest").IngestionPropertiesEnums;
+const { DataFormat, JsonColumnMapping , IngestionMappingType} = require("azure-kusto-ingest").IngestionPropertiesEnums;
 const { BlobDescriptor } = require("azure-kusto-ingest").IngestionDescriptors;
 
 const clusterName = null;
@@ -11,27 +11,34 @@ const appId = null;
 const appKey = null;
 const authorityId = null;
 
+const props = new IngestionProps(
+    "Database",
+    "Table",
+    DataFormat.JSON,
+    [
+        new JsonColumnMapping("TargetColumn1", "$.sourceProp1"),
+        new JsonColumnMapping("TargetColumn2", "$.sourceProp2"),
+        new JsonColumnMapping("TargetColumn3", "$.sourceProp3")
+    ],
+    null,
+    null,
+    null,
+    IngestionMappingType.JSON,
+    null,
+    null,
+    null,
+    null,
+    null,
+    ReportLevel.FailuresAndSuccesses,
+    ReportMethod.Queue);
+
+props.validate();
+
 const ingestClient = new IngestClient(
     KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(
         `https://ingest-${clusterName}.kusto.windows.net`, appId, appKey, authorityId
     ),
-    new IngestionProps(
-        "Database",
-        "Table",
-        DataFormat.json,
-        [
-            new JsonColumnMapping("TargetColumn1", "$.sourceProp1"),
-            new JsonColumnMapping("TargetColumn2", "$.sourceProp2"),
-            new JsonColumnMapping("TargetColumn3", "$.sourceProp3")
-        ],
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        ReportLevel.FailuresAndSuccesses,
-        ReportMethod.Queue)
+    props
 );
 
 const statusQueues = new IngestStatusQueues(ingestClient);

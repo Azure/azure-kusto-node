@@ -17,7 +17,7 @@ const kcsb = KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(`h
 const ingestionProps = new IngestionProps(
         "Database",
         "Table",
-        DataFormat.json,
+        DataFormat.JSON,
         [
             new JsonColumnMapping("TargetColumn1", "$.sourceProp1"),
             new JsonColumnMapping("TargetColumn2", "$.sourceProp2"),
@@ -106,7 +106,7 @@ Example props:
 const ingestionProps = new IngestionProps(
         "Database",
         "Table",
-        DataFormat.json,
+        DataFormat.JSON,
         [
             new JsonColumnMapping("TargetColumn1", "$.sourceProp1"),
             new JsonColumnMapping("TargetColumn2", "$.sourceProp2"),
@@ -191,7 +191,7 @@ const ingestClient = new IngestClient(
     new IngestionProps(
         "db",
         "table",
-        DataFormat.json,
+        DataFormat.JSON,
         [
             new JsonColumnMapping("Id", "$.id"),
             new JsonColumnMapping("Type", "$.type"),

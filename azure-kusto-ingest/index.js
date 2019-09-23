@@ -9,7 +9,8 @@ const {
     ReportMethod,
     ValidationImplications,
     ValidationOptions,
-    DataFormat
+    DataFormat,
+    IngestionMappingType
 } = require("./source/ingestionProperties");
 
 const {
@@ -35,6 +36,7 @@ module.exports = {
         ReportMethod,
         ValidationImplications,
         ValidationOptions,
-        DataFormat
+        DataFormat,
+        IngestionMappingType
     }
 };
