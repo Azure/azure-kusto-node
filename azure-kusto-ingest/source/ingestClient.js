@@ -66,7 +66,7 @@ module.exports = class KustoIngestClient {
             callback(e);
         }
 
-        const descriptor = file;
+        let descriptor = file;
 
         if (typeof (descriptor) === "string") {
             descriptor = new FileDescriptor(descriptor);

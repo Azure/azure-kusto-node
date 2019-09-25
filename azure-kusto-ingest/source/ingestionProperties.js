@@ -1,5 +1,3 @@
-const deprecate = require("util").deprecate;
-const noop = () => {};
 
 const DataFormat = Object.freeze({
     CSV: "csv",
@@ -127,8 +125,10 @@ module.exports.IngestionProperties = class IngestionProperties {
         if (!this.database) throw new Error("Must define a target database");        
         if (!this.table) throw new Error("Must define a target table");        
         if (!this.format) throw new Error("Must define a data format");
-        if (this.ingestionMapping && this.ingestionMappingReference) throw new Error("Both mapping and a mapping reference detected");
-        if (!this.ingestionMapping && !this.ingestionMappingReference && this.format === DataFormat.JSON) throw new Error("Json must have a mapping defined");
+        if (this.ingestionMapping && this.ingestionMappingReference)
+            throw new Error("Both mapping and a mapping reference detected");
+        if (!this.ingestionMapping && !this.ingestionMappingReference && this.format === DataFormat.JSON) 
+            throw new Error("Json must have a mapping defined");
     }
 
     merge(extraProps) {
