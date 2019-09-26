@@ -34,22 +34,22 @@ module.exports = class KustoIngestClient {
             callback(e);
         }
 
-        let descriptor = new StreamDescriptor(stream);
+        const descriptor = new StreamDescriptor(stream);
 
         return this.resourceManager.getContainers((err, containers) => {
             if (err) return callback(err);
 
-            let containerDetails = containers[Math.floor(Math.random() * containers.length)];
-            let blobService = azureStorage.createBlobServiceWithSas(
+            const containerDetails = containers[Math.floor(Math.random() * containers.length)];
+            const blobService = azureStorage.createBlobServiceWithSas(
                 containerDetails.toURI({ withSas: false, withObjectName: false }),
                 containerDetails.sas
             );
 
-            let blobName = `${props.database}__${props.table}__${uuidv4()}`;
+            const blobName = `${props.database}__${props.table}__${uuidv4()}`;
             const writeStream = blobService.createWriteStreamToBlockBlob(containerDetails.objectName, blobName, (err) => {
                 if (err) return callback(err);
 
-                let blobUri = `${containerDetails.toURI({ withSas: false })}/${blobName}?${containerDetails.sas}`;
+                const blobUri = `${containerDetails.toURI({ withSas: false })}/${blobName}?${containerDetails.sas}`;
                 return this.ingestFromBlob(new BlobDescriptor(blobUri, descriptor.size), props, callback);
             });
 
@@ -66,7 +66,6 @@ module.exports = class KustoIngestClient {
             callback(e);
         }
 
-
         let descriptor = file;
 
         if (typeof (descriptor) === "string") {
@@ -76,19 +75,19 @@ module.exports = class KustoIngestClient {
         return descriptor.prepare((err, fileToUpload) => {
             if (err) return callback(err);
 
-            let blobName = `${props.database}__${props.table}__${uuidv4()}__${fileToUpload}`;
+            const blobName = `${props.database}__${props.table}__${uuidv4()}__${fileToUpload}`;
 
             this.resourceManager.getContainers((err, containers) => {
                 if (err) return callback(err);
-                let containerDetails = containers[Math.floor(Math.random() * containers.length)];
-                let blobService = azureStorage.createBlobServiceWithSas(containerDetails.toURI({
+                const containerDetails = containers[Math.floor(Math.random() * containers.length)];
+                const blobService = azureStorage.createBlobServiceWithSas(containerDetails.toURI({
                     withObjectName: false,
                     withSas: false
                 }), containerDetails.sas);
 
                 blobService.createBlockBlobFromLocalFile(containerDetails.objectName, blobName, fileToUpload, (err) => {
                     if (err) return callback(err);
-                    let blobUri = `${containerDetails.toURI({ withSas: false })}/${blobName}?${containerDetails.sas}`;
+                    const blobUri = `${containerDetails.toURI({ withSas: false })}/${blobName}?${containerDetails.sas}`;
                     return this.ingestFromBlob(new BlobDescriptor(blobUri, descriptor.size, descriptor.sourceId), props, callback);
                 });
             });
@@ -98,7 +97,12 @@ module.exports = class KustoIngestClient {
 
     ingestFromBlob(blob, ingestionProperties, callback) {
         const props = this._mergeProps(ingestionProperties);
-        props.validate();
+
+        try {
+            props.validate();
+        } catch (e) {
+            callback(e);
+        }
 
         if (typeof (blob) === "string") {
             blob = new BlobDescriptor(blob);
@@ -110,14 +114,14 @@ module.exports = class KustoIngestClient {
             return this.resourceManager.getAuthorizationContext((err, authorizationContext) => {
                 if (err) return callback(err);
 
-                let queueDetails = queues[Math.floor(Math.random() * queues.length)];
-                let queueService = azureStorage.createQueueServiceWithSas(queueDetails.toURI({
+                const queueDetails = queues[Math.floor(Math.random() * queues.length)];
+                const queueService = azureStorage.createQueueServiceWithSas(queueDetails.toURI({
                     withSas: false,
                     withObjectName: false
                 }), queueDetails.sas);
-                let ingestionBlobInfo = new IngestionBlobInfo(blob, props, authorizationContext);
-                let ingestionBlobInfoJson = JSON.stringify(ingestionBlobInfo);
-                let encoded = Buffer.from(ingestionBlobInfoJson).toString("base64");
+                const ingestionBlobInfo = new IngestionBlobInfo(blob, props, authorizationContext);
+                const ingestionBlobInfoJson = JSON.stringify(ingestionBlobInfo);
+                const encoded = Buffer.from(ingestionBlobInfoJson).toString("base64");
 
                 queueService.createMessage(queueDetails.objectName, encoded, (err) => {
                     return callback(err);

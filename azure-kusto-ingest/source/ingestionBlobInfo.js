@@ -37,13 +37,13 @@ module.exports = class IngestionBlobInfo {
             additionalProperties.ingestIfNotExists = ingestionProperties.ingestIfNotExists;
         }
 
-        if (ingestionProperties.mapping && ingestionProperties.mapping.length > 0) {
+        if (ingestionProperties.ingestionMapping && ingestionProperties.ingestionMapping.length > 0) {
             // server expects a string
-            additionalProperties[ingestionProperties.getMappingFormat() + "Mapping"] = JSON.stringify(ingestionProperties.mapping);
+            additionalProperties["ingestionMapping"] = JSON.stringify(ingestionProperties.ingestionMapping);
         }
 
-        if (ingestionProperties.mappingReference) {
-            additionalProperties[ingestionProperties.getMappingFormat() + "MappingReference"] = ingestionProperties.mappingReference;
+        if (ingestionProperties.ingestionMappingReference) {
+            additionalProperties["ingestionMappingReference"] = ingestionProperties.ingestionMappingReference;
         }
 
         if (ingestionProperties.validationPolicy) {

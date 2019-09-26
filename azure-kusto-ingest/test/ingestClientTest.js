@@ -1,7 +1,7 @@
 const assert = require("assert");
 
 const KustoIngestClient = require("../source/ingestClient");
-const { IngestionProperties } = require("../source/ingestionProperties");
+const { IngestionProperties , DataFormat } = require("../source/ingestionProperties");
 
 describe("KustoIngestClient", function () {
     describe("#constructor()", function () {
@@ -21,7 +21,7 @@ describe("KustoIngestClient", function () {
 
     describe("#_resolveProperties()", function () {
         it("empty default props", function () {
-            let newProps = new IngestionProperties("db", "table", "csv");
+            let newProps = new IngestionProperties({database: "db", table: "table", format: DataFormat.CSV});
             // TODO: not sure a unit test will be useful here
             let client = new KustoIngestClient('https://cluster.region.kusto.windows.net');
             let actual = client._mergeProps(newProps);
@@ -33,7 +33,7 @@ describe("KustoIngestClient", function () {
 
         it("empty new props", function () {
             // TODO: not sure a unit test will be useful here
-            let defaultProps = new IngestionProperties("db", "table", "csv");
+            let defaultProps = new IngestionProperties({database: "db", table: "table", format: DataFormat.CSV});
             // TODO: not sure a unit test will be useful here
             let client = new KustoIngestClient('https://cluster.region.kusto.windows.net', defaultProps);
             let actual = client._mergeProps(null);
@@ -44,10 +44,10 @@ describe("KustoIngestClient", function () {
         });
 
         it("both exist props", function () {
-            let defaultProps = new IngestionProperties("db", "table", "csv");
-            let newProps = new IngestionProperties();
+            let defaultProps = new IngestionProperties({database: "db", table: "table", format: DataFormat.CSV});
+            let newProps = new IngestionProperties({});
             newProps.database = "db2";
-            newProps.mappingReference = "MappingRef";
+            newProps.ingestionMappingReference = "MappingRef";
 
             let client = new KustoIngestClient('https://cluster.region.kusto.windows.net', defaultProps);
             let actual = client._mergeProps(newProps);
@@ -55,7 +55,7 @@ describe("KustoIngestClient", function () {
             assert.equal(actual.database, "db2");
             assert.equal(actual.table, "table");
             assert.equal(actual.format, "csv");
-            assert.equal(actual.mappingReference, "MappingRef");
+            assert.equal(actual.ingestionMappingReference, "MappingRef");
         });
 
         it("empty both", function () {
