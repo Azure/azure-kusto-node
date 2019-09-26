@@ -81,9 +81,9 @@ module.exports.JsonColumnMapping = class JsonColumnMapping extends ColumnMapping
 
 module.exports.IngestionProperties = class IngestionProperties {
     constructor({     
-        database,
-        table,
-        format,
+        database = null,
+        table = null,
+        format = null,
         ingestionMapping = null,
         ingestionMappingReference = null,
         ingestionMappingType = null,
@@ -132,12 +132,7 @@ module.exports.IngestionProperties = class IngestionProperties {
     }
 
     merge(extraProps) {
-        const merged = new Object();
-        for (let key of Object.keys(this)) {
-            if (this[key] != null) {
-                merged[key] = this[key];
-            }
-        } 
+        const merged = new IngestionProperties(this);
         
         for (let key of Object.keys(extraProps)) {
             if (extraProps[key] != null) {
@@ -145,6 +140,6 @@ module.exports.IngestionProperties = class IngestionProperties {
             }
         }
         
-        return new IngestionProperties(merged); 
+        return merged; 
     }
 };
