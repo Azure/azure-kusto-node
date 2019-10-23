@@ -158,7 +158,7 @@ describe("KustoResultRow", function () {
                 values.push(v);
                 i++;
             }
-            assert.equal(actual.inputValues);
+            assert.equal(actual.columns.length, inputValues.length);
         });
 
         it("mapped props", function () {
