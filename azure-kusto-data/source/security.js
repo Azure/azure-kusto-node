@@ -26,10 +26,13 @@ module.exports = class AadHelper {
             url = new URL(kcsb.dataSource);
         }
 
-        const authContext = this._fetchAndValidateAadAuthorityUri() + authority;
+        const aadAuthorityUri = process.env.AadAuthorityUri;
+        const fullAuthorityUri = aadAuthorityUri ?
+            aadAuthorityUri + (aadAuthorityUri.endsWith("/") ? "" : "/") + authority
+            : "https://login.microsoftonline.com/" + authority;
 
         this.kustoCluster = `${url.protocol}//${url.hostname}`;
-        this.adalContext = new AuthenticationContext(authContext);
+        this.adalContext = new AuthenticationContext(fullAuthorityUri);
         if (!!kcsb.aadUserId && !!kcsb.password) {
             this.authMethod = AuthenticationMethod.username;
             this.clientId = "db662dc1-0cfe-4e1c-a843-19a68e65be58";
@@ -55,29 +58,6 @@ module.exports = class AadHelper {
             this.clientId = "db662dc1-0cfe-4e1c-a843-19a68e65be58";
             this.authCallback = kcsb.AuthorizationCallback;
         }
-    }
-
-    _fetchAndValidateAadAuthorityUri() {
-        var aadAuthorityUri = process.env.AadAuthorityUri;
-
-        if (!aadAuthorityUri) {
-            return "https://login.microsoftonline.com/";
-        }
-
-        let uri;
-        try {
-            uri = new URL(aadAuthorityUri);
-        } catch (e) {
-            throw(`Invalid Environment Variable. Please set a valid AadAuthority https uri. aad_authority_uri: ${aadAuthorityUri}`);
-        }
-
-        if (uri.protocol != "https:" || !uri.host || (uri.pathname && uri.pathname != "/")) {
-            throw(`Invalid Environment Variable. Please set a valid AadAuthority https uri. aad_authority_uri: ${aadAuthorityUri}`);
-        }
-
-        return aadAuthorityUri.endsWith("/") ?
-            aadAuthorityUri
-            : aadAuthorityUri + "/";
     }
 
     getAuthHeader(cb) {
