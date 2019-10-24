@@ -15,10 +15,10 @@ module.exports = class AadHelper {
     constructor(kcsb) {
         this.token = {};
 
-        let authority = kcsb.authorityId || "common";
+        const authority = kcsb.authorityId || "common";
         let url;
 
-        // support node compatability
+        // support node compatibility
         try {
             url = new URL(kcsb.dataSource);
         } catch (e) {
@@ -26,8 +26,13 @@ module.exports = class AadHelper {
             url = new URL(kcsb.dataSource);
         }
 
+        const aadAuthorityUri = process.env.AadAuthorityUri;
+        const fullAuthorityUri = aadAuthorityUri ?
+            aadAuthorityUri + (aadAuthorityUri.endsWith("/") ? "" : "/") + authority
+            : `https://login.microsoftonline.com/${authority}`;
+
         this.kustoCluster = `${url.protocol}//${url.hostname}`;
-        this.adalContext = new AuthenticationContext(`https://login.microsoftonline.com/${authority}`);
+        this.adalContext = new AuthenticationContext(fullAuthorityUri);
         if (!!kcsb.aadUserId && !!kcsb.password) {
             this.authMethod = AuthenticationMethod.username;
             this.clientId = "db662dc1-0cfe-4e1c-a843-19a68e65be58";
