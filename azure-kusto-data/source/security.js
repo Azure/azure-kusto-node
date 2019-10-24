@@ -29,7 +29,7 @@ module.exports = class AadHelper {
         const aadAuthorityUri = process.env.AadAuthorityUri;
         const fullAuthorityUri = aadAuthorityUri ?
             aadAuthorityUri + (aadAuthorityUri.endsWith("/") ? "" : "/") + authority
-            : "https://login.microsoftonline.com/" + authority;
+            : `https://login.microsoftonline.com/${authority}`;
 
         this.kustoCluster = `${url.protocol}//${url.hostname}`;
         this.adalContext = new AuthenticationContext(fullAuthorityUri);
