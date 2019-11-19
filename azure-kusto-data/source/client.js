@@ -68,13 +68,13 @@ module.exports = class KustoClient {
                 payload.properties = properties.toJson();
             }
         
-            payload = JSON.stringify(payload)
+            payload = JSON.stringify(payload);
 
             headers["Content-Type"] = "application/json; charset=utf-8";
-            clientRequestPrefix = `KNC.execute;`;
+            clientRequestPrefix = "KNC.execute;";
         } else if (stream != null) {
             payload = stream;
-            clientRequestPrefix = `KNC.executeStreamingIngest;`;
+            clientRequestPrefix = "KNC.executeStreamingIngest;";
             headers["Content-Encoding"] = "gzip";     
         }
 
