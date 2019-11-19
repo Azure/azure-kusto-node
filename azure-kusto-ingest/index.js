@@ -1,4 +1,5 @@
 const client = require("./source/ingestClient");
+const streamingIngestClient = require("./source/streamingIngestClient");
 const KustoIngestStatusQueues = require("./source/status");
 const {
     IngestionProperties,
@@ -21,6 +22,7 @@ const {
 
 module.exports = {
     IngestClient: client,
+    StreamingIngestClient: streamingIngestClient,
     IngestStatusQueues: KustoIngestStatusQueues,
     IngestionProperties,
     IngestionDescriptors: {

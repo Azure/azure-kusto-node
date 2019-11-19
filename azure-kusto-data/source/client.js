@@ -14,11 +14,17 @@ module.exports = class KustoClient {
         this.cluster = this.connectionString.dataSource;
         this.endpoints = {
             mgmt: `${this.cluster}/v1/rest/mgmt`,
-            query: `${this.cluster}/v2/rest/query`
+            query: `${this.cluster}/v2/rest/query`,
+            ingest: `${this.cluster}/v1/rest/ingest`,
         };
         this.aadHelper = new AadHelper(this.connectionString);
+        this.headers = {
+            "Accept": "application/json",
+            "Accept-Encoding": "gzip,deflate",
+            "Fed": "True",
+            "x-ms-client-version": `Kusto.Node.Client:${pkg.version}`,
+        };
     }
-
 
     execute(db, query, callback, properties) {
         query = query.trim();
@@ -30,24 +36,73 @@ module.exports = class KustoClient {
     }
 
     executeQuery(db, query, callback, properties) {
-        return this._execute(this.endpoints.query, db, query, callback, properties);
+        return this._execute(this.endpoints.query, db, query, null, callback, properties);
     }
 
     executeMgmt(db, query, callback, properties) {
-        return this._execute(this.endpoints.mgmt, db, query, callback, properties);
+        return this._execute(this.endpoints.mgmt, db, query, null, callback, properties);
     }
 
-    _execute(endpoint, db, query, callback, properties) {
-        const payload = {
-            "db": db,
-            "csl": query
-        };
+    executeStreamingIngest(db, table, stream, streamFormat, callback, properties, mappingName) {
+        var endpoint = this.endpoints.ingest + "/" + db + "/" + table + "?streamFormat=" + streamFormat;
+        if (mappingName != null) {
+            endpoint += "&mappingName=" + mappingName;
+        }
 
-        let timeout = null;
+        return this._execute(endpoint, db, null, stream, callback, properties);
+    }
 
+    _execute(endpoint, db, query, stream, callback, properties) {
+        var headers = {};
+        Object.assign(headers, this.headers);
+        
+        var payload;
+        var clientRequestPrefix = "";
+        if (query != null) {
+            payload = {
+                "db": db,
+                "csl": query
+            };
+
+            if (properties != null && properties instanceof ClientRequestProperties) {
+                payload.properties = properties.toJson();
+            }
+        
+            payload = JSON.stringify(payload)
+
+            headers["Content-Type"] = "application/json; charset=utf-8";
+            clientRequestPrefix = `KNC.execute;`;
+        } else if (stream != null) {
+            payload = stream;
+            clientRequestPrefix = `KNC.executeStreamingIngest;`;
+            headers["Content-Encoding"] = "gzip";     
+        }
+
+        headers["x-ms-client-request-id"] = clientRequestPrefix + `${uuidv4()}`;
+
+        let timeout = this._getTimeout(endpoint, properties);
+
+        return this.aadHelper.getAuthHeader((err, authHeader) => {
+            if (err) return callback(err);
+
+            headers["Authorization"] = authHeader;
+
+            return request({
+                method: "POST",
+                url: endpoint,
+                headers,
+                body: payload,
+                gzip: true,
+                timeout
+            }, this._getRequestCallback(properties, callback)
+            );
+        });
+    }
+
+    _getTimeout(endpoint, properties) {
+        var timeout = null;
         if (properties != null) {
             if (properties instanceof ClientRequestProperties) {
-                payload.properties = properties.toJson();
                 timeout = properties.getTimeout();
             } else {
                 timeout = properties.timeout;
@@ -55,48 +110,10 @@ module.exports = class KustoClient {
         }
 
         if (timeout == null) {
-            if (endpoint == this.endpoints.mgmt) {                
-                timeout = this._getDefaultCommandTimeout();
-            } else {                
-                timeout = this._getDefaultQueryTimeout();
-            }
+            var timeoutInMinutes = endpoint == this.endpoints.mgmt ? 10.5 : 4.5;       
+            timeout = moment.duration(timeoutInMinutes, "minutes").asMilliseconds();
         }
-
-        return this.aadHelper.getAuthHeader((err, authHeader) => {
-            if (err) return callback(err);
-
-            return this._doRequest(endpoint, payload, timeout, properties, callback , authHeader);
-        });
-    }
-
-    _getDefaultQueryTimeout() {
-        return moment.duration(4.5, "minutes").asMilliseconds();
-    }
-
-    _getDefaultCommandTimeout() {
-        return moment.duration(10.5, "minutes").asMilliseconds();
-    }
-
-    _doRequest(endpoint, payload, timeout, properties, callback, authHeader) {
-        const headers = {
-            "Authorization": authHeader,
-            "Accept": "application/json",
-            "Accept-Encoding": "gzip,deflate",
-            "Content-Type": "application/json; charset=utf-8",
-            "Fed": "True",
-            "x-ms-client-version": `Kusto.Node.Client:${pkg.version}`,
-            "x-ms-client-request-id": `KNC.execute;${uuidv4()}`,
-        };
-
-        return request({
-            method: "POST",
-            url: endpoint,
-            headers,
-            json: payload,
-            gzip: true,
-            timeout
-        }, this._getRequestCallback(properties, callback)
-        );
+        return timeout;
     }
 
     _getRequestCallback(properties, callback) {
@@ -107,16 +124,16 @@ module.exports = class KustoClient {
 
             if (response.statusCode >= 200 && response.statusCode < 400) {
                 if (raw === true) {
-                    return callback(null, body);
+                    return callback(null, JSON.parse(body));
                 }
 
                 let kustoResponse = null;
 
                 try {
                     if (response.request.path.toLowerCase().startsWith("/v2/")) {
-                        kustoResponse = new KustoResponseDataSetV2(body);
+                        kustoResponse = new KustoResponseDataSetV2(JSON.parse(body));
                     } else if (response.request.path.toLowerCase().startsWith("/v1/")) {
-                        kustoResponse = new KustoResponseDataSetV1(body);
+                        kustoResponse = new KustoResponseDataSetV1(JSON.parse(body));
                     }
 
                     if (kustoResponse.getErrorsCount() > 0) {
@@ -129,7 +146,7 @@ module.exports = class KustoClient {
 
                 return callback(null, kustoResponse);
             } else {
-                return callback(`Kusto request erred (${response.statusCode}). ${JSON.stringify(body)}.`);
+                return callback(`Kusto request erred (${response.statusCode}). ${body}.`);
             }
         };
     }
