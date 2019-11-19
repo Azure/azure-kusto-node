@@ -8,7 +8,7 @@ module.exports = class KustoStreamingIngestClient {
     constructor(kcsb, defaultProps) {
         this.kustoClient = new KustoClient(kcsb);
         this.defaultProps = defaultProps;
-        this._mapping_required_formats = [ DataFormat.JSON, DataFormat.SINGLEJSON, DataFormat.AVRO ];
+        this._mapping_required_formats = Object.freeze([ DataFormat.JSON, DataFormat.SINGLEJSON, DataFormat.AVRO ]);
     }
 
     _mergeProps(newProperties) {
@@ -31,13 +31,13 @@ module.exports = class KustoStreamingIngestClient {
         try {
             props.validate();
         } catch (e) {
-            callback(e);
+            return callback(e);
         }
 
         const descriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
-        var compressedStream  = descriptor.isCompressed ? descriptor._stream : descriptor._stream.pipe(zlib.createGzip());
+        const compressedStream  = descriptor.isCompressed ? descriptor._stream : descriptor._stream.pipe(zlib.createGzip());
 
-        var mappingName = null;
+        let mappingName = null;
         if (this._mapping_required_formats.includes(props.format)) {
             if (props.ingestionMappingReferrence == null) {
                 return callback(`Mapping referrence required for format ${props.foramt}.`);
@@ -61,7 +61,7 @@ module.exports = class KustoStreamingIngestClient {
         try {
             props.validate();
         } catch (e) {
-            callback(e);
+            return callback(e);
         }
 
         const fileDescriptor = file instanceof FileDescriptor ? file : new FileDescriptor(file);

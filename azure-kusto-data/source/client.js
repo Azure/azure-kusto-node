@@ -21,7 +21,6 @@ module.exports = class KustoClient {
         this.headers = {
             "Accept": "application/json",
             "Accept-Encoding": "gzip,deflate",
-            "Fed": "True",
             "x-ms-client-version": `Kusto.Node.Client:${pkg.version}`,
         };
     }
@@ -44,20 +43,20 @@ module.exports = class KustoClient {
     }
 
     executeStreamingIngest(db, table, stream, streamFormat, callback, properties, mappingName) {
-        var endpoint = this.endpoints.ingest + "/" + db + "/" + table + "?streamFormat=" + streamFormat;
+        let endpoint = `${this.endpoints.ingest}/${db}/${table}?streamFormat=${streamFormat}`;
         if (mappingName != null) {
-            endpoint += "&mappingName=" + mappingName;
+            endpoint += `&mappingName=${mappingName}`;
         }
 
         return this._execute(endpoint, db, null, stream, callback, properties);
     }
 
     _execute(endpoint, db, query, stream, callback, properties) {
-        var headers = {};
+        let headers = {};
         Object.assign(headers, this.headers);
         
-        var payload;
-        var clientRequestPrefix = "";
+        let payload;
+        let clientRequestPrefix = "";
         if (query != null) {
             payload = {
                 "db": db,
@@ -100,17 +99,14 @@ module.exports = class KustoClient {
     }
 
     _getTimeout(endpoint, properties) {
-        var timeout = null;
+        let timeout = null;
         if (properties != null) {
-            if (properties instanceof ClientRequestProperties) {
-                timeout = properties.getTimeout();
-            } else {
-                timeout = properties.timeout;
-            }
+            timeout = properties instanceof ClientRequestProperties ? properties.getTimeout() 
+                                                                    : properties.timeout;
         }
 
         if (timeout == null) {
-            var timeoutInMinutes = endpoint == this.endpoints.mgmt ? 10.5 : 4.5;       
+            let timeoutInMinutes = endpoint == this.endpoints.mgmt ? 10.5 : 4.5;       
             timeout = moment.duration(timeoutInMinutes, "minutes").asMilliseconds();
         }
         return timeout;

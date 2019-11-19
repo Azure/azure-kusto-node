@@ -31,7 +31,7 @@ module.exports = class KustoIngestClient {
         try {
             props.validate();
         } catch (e) {
-            callback(e);
+            return callback(e);
         }
 
         const descriptor = new StreamDescriptor(stream);
@@ -63,7 +63,7 @@ module.exports = class KustoIngestClient {
         try {
             props.validate();
         } catch (e) {
-            callback(e);
+            return callback(e);
         }
 
         let descriptor = file;
@@ -101,7 +101,7 @@ module.exports = class KustoIngestClient {
         try {
             props.validate();
         } catch (e) {
-            callback(e);
+            return callback(e);
         }
 
         if (typeof (blob) === "string") {
