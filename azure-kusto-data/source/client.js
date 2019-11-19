@@ -124,16 +124,16 @@ module.exports = class KustoClient {
 
             if (response.statusCode >= 200 && response.statusCode < 400) {
                 if (raw === true) {
-                    return callback(null, JSON.parse(body));
+                    return callback(null, body);
                 }
 
                 let kustoResponse = null;
 
                 try {
                     if (response.request.path.toLowerCase().startsWith("/v2/")) {
-                        kustoResponse = new KustoResponseDataSetV2(JSON.parse(body));
+                        kustoResponse = new KustoResponseDataSetV2(body);
                     } else if (response.request.path.toLowerCase().startsWith("/v1/")) {
-                        kustoResponse = new KustoResponseDataSetV1(JSON.parse(body));
+                        kustoResponse = new KustoResponseDataSetV1(body);
                     }
 
                     if (kustoResponse.getErrorsCount() > 0) {

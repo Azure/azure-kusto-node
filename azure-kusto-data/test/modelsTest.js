@@ -122,7 +122,7 @@ describe("KustoResultRow", function () {
         });
 
 
-        xit("mismatching data - type mismatch ", function () {
+        it("mismatching data - type mismatch ", function () {
             const inputValues = [
                 "2016-06-06T15:35:00Z",
                 "foo",
