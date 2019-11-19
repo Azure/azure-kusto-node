@@ -102,7 +102,7 @@ module.exports = class KustoClient {
         let timeout = null;
         if (properties != null) {
             timeout = properties instanceof ClientRequestProperties ? properties.getTimeout() 
-                                                                    : properties.timeout;
+                : properties.timeout;
         }
 
         if (timeout == null) {
