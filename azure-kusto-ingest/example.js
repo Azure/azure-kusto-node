@@ -4,7 +4,9 @@ const IngestionProps = require("azure-kusto-ingest").IngestionProperties;
 const { ReportLevel, ReportMethod } = require("azure-kusto-ingest").IngestionPropertiesEnums;
 const KustoConnectionStringBuilder = require("azure-kusto-data").KustoConnectionStringBuilder;
 const { DataFormat, JsonColumnMapping , IngestionMappingType} = require("azure-kusto-ingest").IngestionPropertiesEnums;
-const { BlobDescriptor } = require("azure-kusto-ingest").IngestionDescriptors;
+const { BlobDescriptor, StreamDescriptor } = require("azure-kusto-ingest").IngestionDescriptors;
+const { StreamingIngestClient } = require("azure-kusto-ingest").StreamingIngestClient;
+const fs = require('fs');
 
 const clusterName = null;
 const appId = null;
@@ -108,3 +110,53 @@ ingestClient.ingestFromBlob(
         setTimeout(waitForSuccess, 0);
     }
 );
+
+
+// Streaming ingest client 
+
+const props2 = new IngestionProps({
+    database: "Database",
+    table: "Table",
+    format: DataFormat.JSON,
+    ingestionMappingReference: "Pre-defiend mapping name" // For json format mapping is required
+});
+
+// Init with engine endpoint
+const streamingIngestClient = new StreamingIngestClient(
+    KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(
+        `https://${clusterName}.kusto.windows.net`, appId, appKey, authorityId
+    ),
+    props2
+);
+
+// Ingest from file with either file path or FileDescriptor
+streamingIngestClient.ingestFromFile("file.json", null, (err) => {
+    if (err) {
+        console.log(err);
+    }
+
+    console.log("Ingestion done");
+});
+
+// Ingest from stream with either ReadStream or StreamDescriptor
+const stream = fs.createReadStream("file.json");
+
+streamingIngestClient.ingestFromStream(stream, null, (err) => {
+    if (err) {
+        console.log(err);
+    }
+
+    console.log("Ingestion done");
+});
+
+// For gzip data set StreamDescriptor.isCompressed to true
+const stream = fs.createReadStream("file.json.gz");
+const streamDescriptor = new StreamDescriptor(stream, "id", true);
+
+streamingIngestClient.ingestFromStream(streamDescriptor, null, (err) => {
+    if (err) {
+        console.log(err);
+    }
+
+    console.log("Ingestion done");
+});
