@@ -1,8 +1,8 @@
 const KustoClient = require("azure-kusto-data").Client;
 const { FileDescriptor, StreamDescriptor } = require("./descriptors");
 const DataFormat = require("./resourceManager"); 
-const zlib = require('zlib');
-const fs = require('fs');
+const zlib = require("zlib");
+const fs = require("fs");
 
 module.exports = class KustoStreamingIngestClient {
     constructor(kcsb, defaultProps) {
@@ -45,7 +45,14 @@ module.exports = class KustoStreamingIngestClient {
             mappingName = props.ingestionMappingReferrence;
         }  
 
-        return this.kustoClient.executeStreamingIngest(props.database, props.table, compressedStream, props.format, callback, null, mappingName)
+        return this.kustoClient.executeStreamingIngest(
+            props.database, 
+            props.table, 
+            compressedStream, 
+            props.format, 
+            callback, 
+            null, 
+            mappingName);
     }
 
     ingestFromFile(file, ingestionProperties, callback) {
