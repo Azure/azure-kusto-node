@@ -61,12 +61,13 @@ class FileDescriptor {
 
 
 class StreamDescriptor {
-    constructor(stream, sourceId = null) {
+    constructor(stream, sourceId = null, isCompressed = false) {
         this._stream = stream;
 
         this.stream = null;
         this.name = "stream";
         this.size = null;
+        this.isCompressed = isCompressed;
 
         assertUuid4(sourceId, "sourceId is not a valid uuid/v4");
         this.sourceId = sourceId;
