@@ -33,7 +33,7 @@ describe("KustoClient", function () {
                 done();
             });
 
-            reqCb(null, { statusCode: 200, request: { path: "/v1/mgmt/" } }, v1Response);
+            reqCb(null, { statusCode: 200, request: { path: "/v1/mgmt/" } }, JSON.stringify(v1Response));
         });
 
         it("valid v1 more data", function (done) {
@@ -46,7 +46,7 @@ describe("KustoClient", function () {
                 done();
             });
 
-            reqCb(null, { statusCode: 200, request: { path: "/v1/mgmt/" } }, v1_2Response);
+            reqCb(null, { statusCode: 200, request: { path: "/v1/mgmt/" } }, JSON.stringify(v1_2Response));
         });
 
         it("valid v2", function (done) {
@@ -59,7 +59,7 @@ describe("KustoClient", function () {
                 done();
             });
 
-            reqCb(null, { statusCode: 200, request: { path: "/v2/query/" } }, v2Response);
+            reqCb(null, { statusCode: 200, request: { path: "/v2/query/" } }, JSON.stringify(v2Response));
         });
 
         it("valid v2 raw", function (done) {
@@ -127,7 +127,7 @@ describe("KustoClient", function () {
                 done();
             });
 
-            reqCb(null, { statusCode: 200, request: { path: "/v2/query/" } }, v2ResponseError);
+            reqCb(null, { statusCode: 200, request: { path: "/v2/query/" } }, JSON.stringify(v2ResponseError));
         });
 
         it("304 status", function (done) {
@@ -140,7 +140,7 @@ describe("KustoClient", function () {
                 done();
             });
 
-            reqCb(null, { statusCode: 304, request: { path: "/v2/query/" } }, v2Response);
+            reqCb(null, { statusCode: 304, request: { path: "/v2/query/" } }, JSON.stringify(v2Response));
         });
 
         it("404 status", function (done) {
@@ -168,7 +168,7 @@ describe("KustoClient", function () {
                 done();
             });
 
-            reqCb(null, { statusCode: 200, request: { path: "/v2/query/" } }, {});
+            reqCb(null, { statusCode: 200, request: { path: "/v2/query/" } }, JSON.stringify({}));
         });
     });
 });
