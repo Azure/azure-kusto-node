@@ -5,7 +5,7 @@ const { ReportLevel, ReportMethod } = require("azure-kusto-ingest").IngestionPro
 const KustoConnectionStringBuilder = require("azure-kusto-data").KustoConnectionStringBuilder;
 const { DataFormat, JsonColumnMapping , IngestionMappingType} = require("azure-kusto-ingest").IngestionPropertiesEnums;
 const { BlobDescriptor, StreamDescriptor } = require("azure-kusto-ingest").IngestionDescriptors;
-const { StreamingIngestClient } = require("azure-kusto-ingest").StreamingIngestClient;
+const StreamingIngestClient = require("azure-kusto-ingest").StreamingIngestClient;
 const fs = require('fs');
 
 const clusterName = null;

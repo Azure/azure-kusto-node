@@ -119,7 +119,7 @@ module.exports = class KustoClient {
             if (error) return callback(error);
 
             if (response.statusCode >= 200 && response.statusCode < 400) {
-                if (raw === true) {
+                if (raw === true || response.request.path.toLowerCase().startsWith("/v1/rest/ingest")) {
                     return callback(null, body);
                 }
 
@@ -127,9 +127,9 @@ module.exports = class KustoClient {
 
                 try {
                     if (response.request.path.toLowerCase().startsWith("/v2/")) {
-                        kustoResponse = new KustoResponseDataSetV2(body);
+                        kustoResponse = new KustoResponseDataSetV2(JSON.parse(body));
                     } else if (response.request.path.toLowerCase().startsWith("/v1/")) {
-                        kustoResponse = new KustoResponseDataSetV1(body);
+                        kustoResponse = new KustoResponseDataSetV1(JSON.parse(body));
                     }
 
                     if (kustoResponse.getErrorsCount() > 0) {
@@ -138,8 +138,6 @@ module.exports = class KustoClient {
                 } catch (ex) {
                     return callback(`Failed to parse response ({${response.statusCode}}) with the following error [${ex}].`);
                 }
-
-
                 return callback(null, kustoResponse);
             } else {
                 return callback(`Kusto request erred (${response.statusCode}). ${body}.`);
