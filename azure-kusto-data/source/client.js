@@ -124,22 +124,22 @@ module.exports = class KustoClient {
                 }
 
                 let kustoResponse = null;
-
-                try {
-                    if (response.request.path.toLowerCase().startsWith("/v2/")) {
-                        kustoResponse = new KustoResponseDataSetV2(body);
-                    } else if (response.request.path.toLowerCase().startsWith("/v1/")) {
-                        kustoResponse = new KustoResponseDataSetV1(body);
+                
+                if (body !== null) {
+                    try {
+                        if (response.request.path.toLowerCase().startsWith("/v2/")) {
+                            kustoResponse = new KustoResponseDataSetV2(JSON.parse(body));
+                        } else if (response.request.path.toLowerCase().startsWith("/v1/")) {
+                            kustoResponse = new KustoResponseDataSetV1(JSON.parse(body));
+                        }
+    
+                        if (kustoResponse.getErrorsCount() > 0) {
+                            return callback(`Kusto request had errors. ${kustoResponse.getExceptions()}`);
+                        }
+                    } catch (ex) {
+                        return callback(`Failed to parse response ({${response.statusCode}}) with the following error [${ex}].`);
                     }
-
-                    if (kustoResponse.getErrorsCount() > 0) {
-                        return callback(`Kusto request had errors. ${kustoResponse.getExceptions()}`);
-                    }
-                } catch (ex) {
-                    return callback(`Failed to parse response ({${response.statusCode}}) with the following error [${ex}].`);
                 }
-
-
                 return callback(null, kustoResponse);
             } else {
                 return callback(`Kusto request erred (${response.statusCode}). ${body}.`);
