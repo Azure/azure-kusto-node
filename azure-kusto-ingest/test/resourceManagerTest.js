@@ -91,6 +91,36 @@ describe("ResourceManager", function () {
                 done();
             });
         });
+
+        it("error response", function(done){
+            const client = new KustoClient("https://cluster.kusto.windows.net");
+
+            sinon.replace(client, "execute", (db, query, callback) => {
+                return callback("Kusto request erred (403)", null);
+            });
+
+            const resourceManager = new ResourceManager(client);
+
+            resourceManager.getIngestClientResourcesFromService((err, resources) => {
+                assert.equal(err, "Kusto request erred (403)");
+                assert.equal(resources, undefined);
+                done();
+            });
+        });
+
+        it("no exceptions after callback", function() {
+            const client = new KustoClient("https://cluster.kusto.windows.net");
+
+            sinon.replace(client, "execute", (db, query, callback) => {
+                return callback("Kusto request erred (403)", null);
+            });
+
+            const resourceManager = new ResourceManager(client);
+
+            const response = resourceManager.getIngestClientResourcesFromService(() => true);
+
+            assert.ok(response)
+        });
     });
 
     describe("#getResourceByName()", function () {

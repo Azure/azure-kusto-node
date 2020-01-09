@@ -103,7 +103,7 @@ module.exports.ResourceManager = class ResourceManager {
 
     getIngestClientResourcesFromService(callback) {
         return this.kustoClient.execute("NetDefaultDB", ".get ingestion resources", (err, resp) => {
-            if (err) callback(err);
+            if (err) return callback(err);
 
             const table = resp.primaryResults[0];
 
