@@ -1,0 +1,28 @@
+name: Node.js Package
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 8
+          registry-url: https://registry.npmjs.org/
+      - run: cd azure-kusto-data
+      - run: npm i
+      - run: npm test
+      - run: npm publish
+      - run: cd ..
+      - run: cd azure-kusto-ingest
+      - run: npm i
+      - run: npm i ../azure-kusto-data
+      - run: npm test
+      - run: npm publish
+      - run: cd ..
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
