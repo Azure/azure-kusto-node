@@ -13,16 +13,19 @@ jobs:
         with:
           node-version: 8
           registry-url: https://registry.npmjs.org/
-      - run: cd azure-kusto-data
-      - run: npm i
+      - working-directory: ./azure-kusto-data
+        run: npm i
+      - working-directory: ./azure-kusto-data
+        run: npm test
+      - working-directory: ./azure-kusto-data
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+      - working-directory: ./azure-kusto-ingest
+        run: npm i
+      - working-directory: ./azure-kusto-ingest
       - run: npm test
+      - working-directory: ./azure-kusto-ingest
       - run: npm publish
-      - run: cd ..
-      - run: cd azure-kusto-ingest
-      - run: npm i
-      - run: npm i ../azure-kusto-data
-      - run: npm test
-      - run: npm publish
-      - run: cd ..
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
