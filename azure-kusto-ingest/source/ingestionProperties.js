@@ -10,6 +10,8 @@ const DataFormat = Object.freeze({
     SINGLEJSON: "singlejson",
     AVRO: "avro",
     PARQUET: "parquet",
+    TSVE: "tsve",
+    ORC: "orc"
 });
 
 module.exports.DataFormat = DataFormat;
@@ -18,7 +20,8 @@ const IngestionMappingType = Object.freeze({
     CSV: "Csv",
     PARQUET: "Parquet",
     AVRO: "Avro",
-    JSON: "Json"
+    JSON: "Json",
+    ORC: "orc"
 });
 
 module.exports.IngestionMappingType = IngestionMappingType;

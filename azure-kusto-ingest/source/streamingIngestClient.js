@@ -8,7 +8,7 @@ module.exports = class KustoStreamingIngestClient {
     constructor(kcsb, defaultProps) {
         this.kustoClient = new KustoClient(kcsb);
         this.defaultProps = defaultProps;
-        this._mapping_required_formats = Object.freeze([ DataFormat.JSON, DataFormat.SINGLEJSON, DataFormat.AVRO ]);
+        this._mapping_required_formats = Object.freeze([ DataFormat.JSON, DataFormat.SINGLEJSON, DataFormat.AVRO, DataFormat.ORC ]);
     }
 
     _mergeProps(newProperties) {
