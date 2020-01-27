@@ -1,6 +1,6 @@
 {
-  "name": "@keebler/azure-kusto-data",
-  "version": "0.3.9",
+  "name": "azure-kusto-data",
+  "version": "0.3.7",
   "description": "Azure Data Explorer Query SDK",
   "main": "index.js",
   "engines": {
