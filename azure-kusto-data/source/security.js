@@ -1,13 +1,15 @@
 
 const { AuthenticationContext } = require("adal-node");
 const acquireManagedIdentityToken = require("./managedIdentitiesClient");
+const azLoginIndentityToken = require("./azLoginIdentityClient");
 
 const AuthenticationMethod = Object.freeze({
     username: 0,
     appKey: 1,
     appCertificate: 2,
     deviceLogin: 3,
-    managedIdentities: 4
+    managedIdentities: 4,
+    azLogin: 5,
 });
 
 
@@ -53,6 +55,9 @@ module.exports = class AadHelper {
             this.msiEndpoint = kcsb.msiEndpoint;
             this.msiSecret = kcsb.msiSecret;
             this.msiClientId = kcsb.msiClientId;
+        } else if (kcsb.azLoginIdentity) {
+            this.authMethod = AuthenticationMethod.azLogin;
+        
         } else {
             this.authMethod = AuthenticationMethod.deviceLogin;
             this.clientId = "db662dc1-0cfe-4e1c-a843-19a68e65be58";
@@ -114,6 +119,14 @@ module.exports = class AadHelper {
                         return cb(err, tokenResponse && formatHeader(tokenResponse));
                     }
                 );
+            case AuthenticationMethod.azLogin:
+                return azLoginIndentityToken(resource, (err, tokenResponse) => {
+                    if(err) {
+                        return cb(err);
+                    }
+
+                    return cb(err, tokenResponse && formatHeader(tokenResponse));
+                });
             default:
                 return cb("Couldn't Authenticate, something went wrong trying to choose authentication method");
         }

@@ -136,4 +136,12 @@ module.exports = class KustoConnectionStringBuilder {
 
         return kcsb;
     }
+
+    static withAzLoginIdentity(connectionString) {
+        const kcsb = new KustoConnectionStringBuilder(connectionString);
+
+        kcsb.azLoginIdentity = true;
+
+        return kcsb;
+    }
 };
