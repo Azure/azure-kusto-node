@@ -5,7 +5,7 @@ module.exports = function acquireToken(connectionString, callback) {
     AzureCliCredentials.create({ resource: connectionString }).then((res)=>{
 
         const tokenData = res.tokenInfo;
-        return callback(null, { tokenType: tokenData.token_type, accessToken: tokenData.access_token });
+        return callback(null, { tokenType: tokenData.tokenType, accessToken: tokenData.accessToken });
 
     }).catch(err=>callback(err));
 };
