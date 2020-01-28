@@ -10,6 +10,7 @@ const AuthenticationMethod = Object.freeze({
     deviceLogin: 3,
     managedIdentities: 4,
     azLogin: 5,
+    accessToken: 6,
 });
 
 
@@ -57,7 +58,9 @@ module.exports = class AadHelper {
             this.msiClientId = kcsb.msiClientId;
         } else if (kcsb.azLoginIdentity) {
             this.authMethod = AuthenticationMethod.azLogin;
-        
+        } else if (kcsb.accessToken) {
+            this.authMethod = AuthenticationMethod.accessToken;
+            this.accessToken = kcsb.accessToken;
         } else {
             this.authMethod = AuthenticationMethod.deviceLogin;
             this.clientId = "db662dc1-0cfe-4e1c-a843-19a68e65be58";
@@ -127,6 +130,8 @@ module.exports = class AadHelper {
 
                     return cb(err, tokenResponse && formatHeader(tokenResponse));
                 });
+            case AuthenticationMethod.accessToken:
+                return cb(undefined, `Bearer ${this.accessToken}`);
             default:
                 return cb("Couldn't Authenticate, something went wrong trying to choose authentication method");
         }
