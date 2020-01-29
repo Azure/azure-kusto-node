@@ -144,4 +144,12 @@ module.exports = class KustoConnectionStringBuilder {
 
         return kcsb;
     }
+
+    static withAccessToken(connectionString, accessToken) {
+        const kcsb = new KustoConnectionStringBuilder(connectionString);
+
+        kcsb.accessToken = accessToken;
+
+        return kcsb;
+    }
 };
