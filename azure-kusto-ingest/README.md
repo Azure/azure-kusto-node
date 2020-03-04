@@ -15,14 +15,16 @@ const { DataFormat, JsonColumnMapping } = require("azure-kusto-ingest").Ingestio
 const kcsb = KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(`https://ingest-${cluster}.kusto.windows.net`, appId, appKey, authorityId);
 
 const ingestionProps = new IngestionProps(
-        "Database",
-        "Table",
-        DataFormat.JSON,
-        [
-            new JsonColumnMapping("TargetColumn1", "$.sourceProp1"),
-            new JsonColumnMapping("TargetColumn2", "$.sourceProp2"),
-            new JsonColumnMapping("TargetColumn3", "$.sourceProp3")
-        ]
+        { 
+            database: "Database",
+            table: "Table",
+            format: DataFormat.JSON,
+            ingestionMapping: [
+                new JsonColumnMapping("TargetColumn1", "$.sourceProp1"),
+                new JsonColumnMapping("TargetColumn2", "$.sourceProp2"),
+                new JsonColumnMapping("TargetColumn3", "$.sourceProp3")
+            ]
+        }
 );
 
 const ingestClient = new IngestClient(
