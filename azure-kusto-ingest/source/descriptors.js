@@ -26,11 +26,11 @@ class BytesCounter extends Transform {
 }
 
 class FileDescriptor {
-    constructor(filePath, sourceId = null) {
+    constructor(filePath, sourceId = null, size = null) {
         this.filePath = filePath;
         this.name = path.basename(this.filePath);
         this.extension = path.extname(this.filePath).toLowerCase();
-        this.size = null;
+        this.size = size;
         this.zipped = this.extension === ".gz";
 
         assertUuid4(sourceId, "sourceId is not a valid uuid/v4");
@@ -52,8 +52,8 @@ class FileDescriptor {
     prepare(callback) {
         return fs.stat(this.filePath, (err, stats) => {
             if (err) return callback(err);
-
-            this.size = this.zipped ? stats.size * 5 : stats.size;
+            
+            this.size = this.size || this.zipped ? stats.size * 11 : stats.size;
             return !this.zipped ? this._gzip(callback) : callback(null, this.filePath);
         });
     }
