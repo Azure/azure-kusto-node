@@ -53,7 +53,11 @@ module.exports = class KustoIngestClient {
                 return this.ingestFromBlob(new BlobDescriptor(blobUri, descriptor.size), props, callback);
             });
 
-            descriptor.pipe(writeStream);
+            try {
+                descriptor.pipe(writeStream);
+            } catch (e) {
+                return callback(e);
+            }
         });
     }
 

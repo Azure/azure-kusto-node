@@ -82,7 +82,11 @@ class StreamDescriptor {
 
         bytesCounter.once("progress", (sizeInBytes) => this.size = sizeInBytes);
 
-        this.stream = this._stream.pipe(bytesCounter).pipe(dest);
+        try {
+            this.stream = this._stream.pipe(bytesCounter).pipe(dest);
+        } catch (e) {
+            throw new Error("Unexpected error in stream - " + e);
+        }
     }
 }
 
