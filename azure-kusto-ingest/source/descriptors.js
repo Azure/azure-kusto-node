@@ -82,7 +82,7 @@ class StreamDescriptor {
 
         bytesCounter.once("progress", (sizeInBytes) => this.size = sizeInBytes);
 
-        dest.on('error', (e) => callback(e));
+        dest.on("error", (e) => callback(e));
 
         this.stream = this._stream.pipe(bytesCounter).pipe(dest);
     }
