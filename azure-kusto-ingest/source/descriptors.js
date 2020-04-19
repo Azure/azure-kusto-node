@@ -56,7 +56,7 @@ class FileDescriptor {
 
         return fs.stat(this.filePath, (err, stats) => {
             if (err) return callback(err);
-            
+
             this.size = this.zipped ? stats.size * 11 : stats.size;
             return !this.zipped ? this._gzip(callback) : callback(null, this.filePath);
         });
@@ -77,16 +77,14 @@ class StreamDescriptor {
         this.sourceId = sourceId;
     }
 
-    pipe(dest) {
+    pipe(dest, callback) {
         let bytesCounter = new BytesCounter();
 
         bytesCounter.once("progress", (sizeInBytes) => this.size = sizeInBytes);
 
-        try {
-            this.stream = this._stream.pipe(bytesCounter).pipe(dest);
-        } catch (e) {
-            throw new Error("Unexpected error in stream - " + e);
-        }
+        dest.on('error', (e) => callback(e));
+
+        this.stream = this._stream.pipe(bytesCounter).pipe(dest);
     }
 }
 
@@ -94,7 +92,7 @@ class BlobDescriptor {
     constructor(path, size = null, sourceId = null) {
         this.path = path;
         this.size = size;
-        
+
         assertUuid4(sourceId, "sourceId is not a valid uuid/v4");
         this.sourceId = sourceId;
     }

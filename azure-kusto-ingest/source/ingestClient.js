@@ -19,12 +19,12 @@ module.exports = class KustoIngestClient {
 
         // no new props
         if (this.defaultProps == null || Object.keys(this.defaultProps) == 0) {
-            return newProperties;    
+            return newProperties;
         }
         // both exist - merge
         return this.defaultProps.merge(newProperties);
     }
-    
+
     ingestFromStream(stream, ingestionProperties, callback) {
         const props = this._mergeProps(ingestionProperties);
 
@@ -53,11 +53,7 @@ module.exports = class KustoIngestClient {
                 return this.ingestFromBlob(new BlobDescriptor(blobUri, descriptor.size), props, callback);
             });
 
-            try {
-                descriptor.pipe(writeStream);
-            } catch (e) {
-                return callback(e);
-            }
+            descriptor.pipe(writeStream, callback);
         });
     }
 
