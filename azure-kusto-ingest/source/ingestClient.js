@@ -25,9 +25,8 @@ module.exports = class KustoIngestClient {
     }
 
     _getBlobNameSuffix(format, compressionType){
-        const formatSuffix = format ? "." + format : "";
-        const compressionSuffix = compressionType ? "." + compressionType : ""
-        return formatSuffix + compressionSuffix;
+        const formatSuffix = format ? `.${format}` : "";
+        return `${formatSuffix}${compressionType}`;
     }
 
     ingestFromStream(stream, ingestionProperties, callback) {

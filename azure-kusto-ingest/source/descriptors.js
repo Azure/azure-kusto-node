@@ -8,6 +8,7 @@ const uuidv4 = require("uuid/v4");
 const CompressionType = {
     ZIP : "zip",
     GZIP : "gz",
+    None : ""
 }
 
 function getSourceId(sourceId){
@@ -73,7 +74,7 @@ class FileDescriptor {
 
 
 class StreamDescriptor {
-    constructor(stream, sourceId = null, compressionType) {
+    constructor(stream, sourceId = null, compressionType = CompressionType.None) {
         this._stream = stream;
 
         this.stream = null;
