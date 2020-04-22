@@ -1,5 +1,5 @@
 const KustoClient = require("azure-kusto-data").Client;
-const { FileDescriptor, StreamDescriptor } = require("./descriptors");
+const { FileDescriptor, StreamDescriptor, CompressionType } = require("./descriptors");
 const DataFormat = require("./resourceManager"); 
 const zlib = require("zlib");
 const fs = require("fs");
@@ -35,7 +35,7 @@ module.exports = class KustoStreamingIngestClient {
         }
 
         const descriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
-        const compressedStream  = descriptor.isCompressed ? descriptor._stream : descriptor._stream.pipe(zlib.createGzip());
+        const compressedStream  = descriptor.compressionType == CompressionType.NONE ? descriptor._stream.pipe(zlib.createGzip()) : descriptor._stream;
 
         if (props.ingestionMappingReference == null && this._mapping_required_formats.includes(props.format)) {
             return callback(`Mapping referrence required for format ${props.foramt}.`);
@@ -64,7 +64,8 @@ module.exports = class KustoStreamingIngestClient {
 
         const stream = fs.createReadStream(fileDescriptor.filePath);
 
-        const streamDescriptor = new StreamDescriptor(stream, fileDescriptor.sourceId, fileDescriptor.zipped);
+        const compressionType = fileDescriptor.zipped ? CompressionType.GZIP : CompressionType.NONE;
+        const streamDescriptor = new StreamDescriptor(stream, fileDescriptor.sourceId, compressionType);
 
         return this.ingestFromStream(streamDescriptor, ingestionProperties, callback);
     }

@@ -5,11 +5,11 @@ const Transform = require("stream").Transform;
 const uuidValidate = require("uuid-validate");
 const uuidv4 = require("uuid/v4");
 
-const CompressionType = {
-    ZIP : "zip",
-    GZIP : "gz",
+const CompressionType = Object.freeze({
+    ZIP : ".zip",
+    GZIP : ".gz",
     None : ""
-}
+})
 
 function getSourceId(sourceId){
     if(!!sourceId){

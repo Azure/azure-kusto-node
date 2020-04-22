@@ -17,7 +17,8 @@ const {
 const {
     BlobDescriptor,
     FileDescriptor,
-    StreamDescriptor
+    StreamDescriptor,
+    CompressionType
 } = require("./source/descriptors");
 
 module.exports = {
@@ -39,6 +40,7 @@ module.exports = {
         ValidationImplications,
         ValidationOptions,
         DataFormat,
-        IngestionMappingType
+        IngestionMappingType,
+        CompressionType
     }
 };
