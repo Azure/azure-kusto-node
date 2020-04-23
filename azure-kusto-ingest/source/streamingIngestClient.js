@@ -35,7 +35,7 @@ module.exports = class KustoStreamingIngestClient {
         }
 
         const descriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
-        const compressedStream  = descriptor.compressionType == CompressionType.NONE ? descriptor._stream.pipe(zlib.createGzip()) : descriptor._stream;
+        const compressedStream  = descriptor.compressionType == CompressionType.None ? descriptor._stream.pipe(zlib.createGzip()) : descriptor._stream;
 
         if (props.ingestionMappingReference == null && this._mapping_required_formats.includes(props.format)) {
             return callback(`Mapping referrence required for format ${props.foramt}.`);
@@ -64,7 +64,7 @@ module.exports = class KustoStreamingIngestClient {
 
         const stream = fs.createReadStream(fileDescriptor.filePath);
 
-        const compressionType = fileDescriptor.zipped ? CompressionType.GZIP : CompressionType.NONE;
+        const compressionType = fileDescriptor.zipped ? CompressionType.GZIP : CompressionType.None;
         const streamDescriptor = new StreamDescriptor(stream, fileDescriptor.sourceId, compressionType);
 
         return this.ingestFromStream(streamDescriptor, ingestionProperties, callback);
