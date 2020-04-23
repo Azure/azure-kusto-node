@@ -2,7 +2,6 @@ const KustoClient = require("azure-kusto-data").Client;
 const { FileDescriptor, BlobDescriptor, StreamDescriptor } = require("./descriptors");
 const { ResourceManager } = require("./resourceManager");
 const IngestionBlobInfo = require("./ingestionBlobInfo");
-const uuidv4 = require("uuid/v4");
 const azureStorage = require("azure-storage");
 
 module.exports = class KustoIngestClient {
@@ -19,12 +18,17 @@ module.exports = class KustoIngestClient {
 
         // no new props
         if (this.defaultProps == null || Object.keys(this.defaultProps) == 0) {
-            return newProperties;    
+            return newProperties;
         }
         // both exist - merge
         return this.defaultProps.merge(newProperties);
     }
-    
+
+    _getBlobNameSuffix(format, compressionType){
+        const formatSuffix = format ? `.${format}` : "";
+        return `${formatSuffix}${compressionType}`;
+    }
+
     ingestFromStream(stream, ingestionProperties, callback) {
         const props = this._mergeProps(ingestionProperties);
 
@@ -34,7 +38,7 @@ module.exports = class KustoIngestClient {
             return callback(e);
         }
 
-        const descriptor = new StreamDescriptor(stream);
+        const descriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
 
         return this.resourceManager.getContainers((err, containers) => {
             if (err) return callback(err);
@@ -45,7 +49,8 @@ module.exports = class KustoIngestClient {
                 containerDetails.sas
             );
 
-            const blobName = `${props.database}__${props.table}__${uuidv4()}`;
+            const blobName = `${props.database}__${props.table}__${descriptor.sourceId}${this._getBlobNameSuffix(props.format, descriptor.compressionType)}`;
+
             const writeStream = blobService.createWriteStreamToBlockBlob(containerDetails.objectName, blobName, (err) => {
                 if (err) return callback(err);
 
@@ -66,16 +71,12 @@ module.exports = class KustoIngestClient {
             return callback(e);
         }
 
-        let descriptor = file;
-
-        if (typeof (descriptor) === "string") {
-            descriptor = new FileDescriptor(descriptor);
-        }
+        const descriptor = file instanceof FileDescriptor ? file : new FileDescriptor(file);
 
         return descriptor.prepare((err, fileToUpload) => {
             if (err) return callback(err);
 
-            const blobName = `${props.database}__${props.table}__${uuidv4()}__${fileToUpload}`;
+            const blobName = `${props.database}__${props.table}__${descriptor.sourceId}__${fileToUpload}`;
 
             this.resourceManager.getContainers((err, containers) => {
                 if (err) return callback(err);
@@ -104,9 +105,7 @@ module.exports = class KustoIngestClient {
             return callback(e);
         }
 
-        if (typeof (blob) === "string") {
-            blob = new BlobDescriptor(blob);
-        }
+        const descriptor = blob instanceof BlobDescriptor ? blob : new BlobDescriptor(blob);
 
         return this.resourceManager.getIngestionQueues((err, queues) => {
             if (err) return callback(err);
@@ -119,7 +118,7 @@ module.exports = class KustoIngestClient {
                     withSas: false,
                     withObjectName: false
                 }), queueDetails.sas);
-                const ingestionBlobInfo = new IngestionBlobInfo(blob, props, authorizationContext);
+                const ingestionBlobInfo = new IngestionBlobInfo(descriptor, props, authorizationContext);
                 const ingestionBlobInfoJson = JSON.stringify(ingestionBlobInfo);
                 const encoded = Buffer.from(ingestionBlobInfoJson).toString("base64");
 

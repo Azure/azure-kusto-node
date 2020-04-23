@@ -3,8 +3,8 @@ const IngestStatusQueues = require("azure-kusto-ingest").IngestStatusQueues;
 const IngestionProps = require("azure-kusto-ingest").IngestionProperties;
 const { ReportLevel, ReportMethod } = require("azure-kusto-ingest").IngestionPropertiesEnums;
 const KustoConnectionStringBuilder = require("azure-kusto-data").KustoConnectionStringBuilder;
-const { DataFormat, JsonColumnMapping , IngestionMappingType} = require("azure-kusto-ingest").IngestionPropertiesEnums;
-const { BlobDescriptor, StreamDescriptor } = require("azure-kusto-ingest").IngestionDescriptors;
+const { DataFormat, JsonColumnMapping , IngestionMappingType, CompressionType} = require("azure-kusto-ingest").IngestionPropertiesEnums;
+const { BlobDescriptor, StreamDescriptor} = require("azure-kusto-ingest").IngestionDescriptors;
 const StreamingIngestClient = require("azure-kusto-ingest").StreamingIngestClient;
 const fs = require('fs');
 
@@ -149,9 +149,9 @@ streamingIngestClient.ingestFromStream(stream, null, (err) => {
     console.log("Ingestion done");
 });
 
-// For gzip data set StreamDescriptor.isCompressed to true
+// For gzip data set StreamDescriptor.compressionType to CompressionType.GZIP
 const stream = fs.createReadStream("file.json.gz");
-const streamDescriptor = new StreamDescriptor(stream, "id", true);
+const streamDescriptor = new StreamDescriptor(stream, "id", CompressionType.GZIP);
 
 streamingIngestClient.ingestFromStream(streamDescriptor, null, (err) => {
     if (err) {
