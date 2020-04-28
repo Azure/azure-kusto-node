@@ -49,7 +49,8 @@ module.exports = class KustoIngestClient {
                 containerDetails.sas
             );
 
-            const blobName = `${props.database}__${props.table}__${descriptor.sourceId}${this._getBlobNameSuffix(props.format, descriptor.compressionType)}`;
+            const blobName = `${props.database}__${props.table}__${descriptor.sourceId}` +
+                                `${this._getBlobNameSuffix(props.format, descriptor.compressionType)}`;
 
             const writeStream = blobService.createWriteStreamToBlockBlob(containerDetails.objectName, blobName, (err) => {
                 if (err) return callback(err);

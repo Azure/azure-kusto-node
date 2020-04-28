@@ -9,7 +9,7 @@ const CompressionType = Object.freeze({
     ZIP : ".zip",
     GZIP : ".gz",
     None : ""
-})
+});
 
 function getSourceId(sourceId){
     if(!!sourceId){
