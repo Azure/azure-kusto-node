@@ -9,7 +9,7 @@ const CompressionType = Object.freeze({
     ZIP : ".zip",
     GZIP : ".gz",
     None : ""
-})
+});
 
 function getSourceId(sourceId){
     if(!!sourceId){
@@ -65,7 +65,7 @@ class FileDescriptor {
 
         return fs.stat(this.filePath, (err, stats) => {
             if (err) return callback(err);
-            
+
             this.size = this.zipped ? stats.size * 11 : stats.size;
             return !this.zipped ? this._gzip(callback) : callback(null, this.filePath);
         });
@@ -84,10 +84,12 @@ class StreamDescriptor {
         this.sourceId = getSourceId(sourceId);
     }
 
-    pipe(dest) {
+    pipe(dest, callback) {
         let bytesCounter = new BytesCounter();
 
         bytesCounter.once("progress", (sizeInBytes) => this.size = sizeInBytes);
+
+        dest.on("error", (e) => callback(e));
 
         this.stream = this._stream.pipe(bytesCounter).pipe(dest);
     }
