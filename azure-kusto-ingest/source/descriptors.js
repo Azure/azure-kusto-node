@@ -6,14 +6,14 @@ const uuidValidate = require("uuid-validate");
 const uuidv4 = require("uuid/v4");
 
 const CompressionType = Object.freeze({
-    ZIP : ".zip",
-    GZIP : ".gz",
-    None : ""
+    ZIP: ".zip",
+    GZIP: ".gz",
+    None: ""
 })
 
-function getSourceId(sourceId){
-    if(!!sourceId){
-        if(!uuidValidate(sourceId, 4)){
+function getSourceId(sourceId) {
+    if (!!sourceId) {
+        if (!uuidValidate(sourceId, 4)) {
             throw Error("sourceId is not a valid uuid/v4");
         }
         return sourceId;
@@ -65,7 +65,7 @@ class FileDescriptor {
 
         return fs.stat(this.filePath, (err, stats) => {
             if (err) return callback(err);
-            
+
             this.size = this.zipped ? stats.size * 11 : stats.size;
             return !this.zipped ? this._gzip(callback) : callback(null, this.filePath);
         });

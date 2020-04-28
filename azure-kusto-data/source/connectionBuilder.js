@@ -57,6 +57,10 @@ module.exports = class KustoConnectionStringBuilder {
     constructor(connectionString) {
         if (!connectionString || connectionString.trim().length === 0) throw new Error("Missing connection string");
 
+        if (connectionString.endsWith("/") || connectionString.endsWith("\\")) {
+            connectionString = connectionString.slice(0, -1);
+        }
+
         if (!!connectionString && connectionString.split(";")[0].indexOf("=") === -1) {
             connectionString = "Data Source=" + connectionString;
         }
@@ -121,7 +125,7 @@ module.exports = class KustoConnectionStringBuilder {
     static withAadManagedIdentities(connectionString, msiEndpoint, clientId) {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         kcsb.msiEndpoint = msiEndpoint;
-        
+
         if (msiEndpoint == undefined) {
             if (process && process.env && process.env.MSI_ENDPOINT) {
                 kcsb.msiEndpoint = process.env.MSI_ENDPOINT;
