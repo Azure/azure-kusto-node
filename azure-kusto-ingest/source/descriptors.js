@@ -6,10 +6,10 @@ const uuidValidate = require("uuid-validate");
 const uuidv4 = require("uuid/v4");
 
 const CompressionType = Object.freeze({
-    ZIP: ".zip",
-    GZIP: ".gz",
-    None: ""
-})
+    ZIP : ".zip",
+    GZIP : ".gz",
+    None : ""
+});
 
 function getSourceId(sourceId) {
     if (!!sourceId) {
@@ -84,10 +84,12 @@ class StreamDescriptor {
         this.sourceId = getSourceId(sourceId);
     }
 
-    pipe(dest) {
+    pipe(dest, callback) {
         let bytesCounter = new BytesCounter();
 
         bytesCounter.once("progress", (sizeInBytes) => this.size = sizeInBytes);
+
+        dest.on("error", (e) => callback(e));
 
         this.stream = this._stream.pipe(bytesCounter).pipe(dest);
     }
