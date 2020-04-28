@@ -3,11 +3,22 @@ const path = require("path");
 const zlib = require("zlib");
 const Transform = require("stream").Transform;
 const uuidValidate = require("uuid-validate");
+const uuidv4 = require("uuid/v4");
 
-function assertUuid4(maybeUuid, errorMessage) {
-    if (!!maybeUuid && !uuidValidate(maybeUuid, 4)) {
-        throw Error(errorMessage);
+const CompressionType = Object.freeze({
+    ZIP : ".zip",
+    GZIP : ".gz",
+    None : ""
+})
+
+function getSourceId(sourceId){
+    if(!!sourceId){
+        if(!uuidValidate(sourceId, 4)){
+            throw Error("sourceId is not a valid uuid/v4");
+        }
+        return sourceId;
     }
+    return uuidv4();
 }
 
 class BytesCounter extends Transform {
@@ -32,9 +43,7 @@ class FileDescriptor {
         this.extension = path.extname(this.filePath).toLowerCase();
         this.size = size;
         this.zipped = this.extension === ".gz" || this.extension === ".zip";
-
-        assertUuid4(sourceId, "sourceId is not a valid uuid/v4");
-        this.sourceId = sourceId;
+        this.sourceId = getSourceId(sourceId);
     }
 
     _gzip(callback) {
@@ -65,16 +74,14 @@ class FileDescriptor {
 
 
 class StreamDescriptor {
-    constructor(stream, sourceId = null, isCompressed = false) {
+    constructor(stream, sourceId = null, compressionType = CompressionType.None) {
         this._stream = stream;
 
         this.stream = null;
         this.name = "stream";
         this.size = null;
-        this.isCompressed = isCompressed;
-
-        assertUuid4(sourceId, "sourceId is not a valid uuid/v4");
-        this.sourceId = sourceId;
+        this.compressionType = compressionType;
+        this.sourceId = getSourceId(sourceId);
     }
 
     pipe(dest, callback) {
@@ -92,12 +99,11 @@ class BlobDescriptor {
     constructor(path, size = null, sourceId = null) {
         this.path = path;
         this.size = size;
-
-        assertUuid4(sourceId, "sourceId is not a valid uuid/v4");
-        this.sourceId = sourceId;
+        this.sourceId = getSourceId(sourceId);
     }
 }
 
 module.exports.FileDescriptor = FileDescriptor;
 module.exports.BlobDescriptor = BlobDescriptor;
 module.exports.StreamDescriptor = StreamDescriptor;
+module.exports.CompressionType = CompressionType;
