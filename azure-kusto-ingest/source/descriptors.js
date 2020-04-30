@@ -11,9 +11,9 @@ const CompressionType = Object.freeze({
     None : ""
 });
 
-function getSourceId(sourceId) {
-    if (!!sourceId) {
-        if (!uuidValidate(sourceId, 4)) {
+function getSourceId(sourceId){
+    if(sourceId){
+        if(!uuidValidate(sourceId, 4)){
             throw Error("sourceId is not a valid uuid/v4");
         }
         return sourceId;
