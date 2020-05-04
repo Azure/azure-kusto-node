@@ -14,10 +14,10 @@ const appId = process.env.APP_ID;
 const appKey = process.env.APP_KEY;
 const tenantId = process.env.TENANT_ID;
 
-const engineKcsb = ConnectionStringBuilder.withAadApplicationKeyAuthentication(process.env.ENGINE_CONECTION_STRING, appId, appKey, tenantId);
+const engineKcsb = ConnectionStringBuilder.withAadApplicationKeyAuthentication(process.env.ENGINE_CONNECTION_STRING, appId, appKey, tenantId);
 const queryClient = new Client(engineKcsb);
 const streamingIngestClient = new StreamingIngestClient(engineKcsb);
-const dmKcsb = ConnectionStringBuilder.withAadApplicationKeyAuthentication(process.env.DM_CONECTION_STRING, appId, appKey, tenantId);
+const dmKcsb = ConnectionStringBuilder.withAadApplicationKeyAuthentication(process.env.DM_CONNECTION_STRING, appId, appKey, tenantId);
 const ingestClient = new IngestClient(dmKcsb);
 
 class testDataItem {
@@ -55,7 +55,7 @@ describe('E2E Tests', function () {
     describe('SetUp', function () {
         it('Drop table if exists', function (done) {
             queryClient.execute(databaseName, `.drop table ${tableName} ifexists`, (err, results) => {
-                if (err) assert.fail("Failed to create table");
+                if (err) assert.fail("Failed to drop table");
                 done();
             });
         });
@@ -149,14 +149,15 @@ function getTestResourcePath(name) {
 async function assertRowsCount(testItem) {
     var count = 0;
     var expected = testItem.rows;
-    for (var i = 0; i < 10; i++) {
-        await sleep(1000)
+    // Timeout = 3 min
+    for (var i = 0; i < 18; i++) {
+        await sleep(10000);
         await new Promise((resolve) => {
             queryClient.execute(databaseName, `${tableName} | count `, (err, results) => {
                 if (results) {
                     count = results.primaryResults[0][0].Count - currentCount;
                 }
-                resolve()
+                resolve();
             });
         });
 
@@ -165,6 +166,6 @@ async function assertRowsCount(testItem) {
         }
     }
     currentCount += count;
-    assert.equal(count, expected, `Failed to ingest ${testItem.description}`)
+    assert.equal(count, expected, `Failed to ingest ${testItem.description}`);
 }
 
