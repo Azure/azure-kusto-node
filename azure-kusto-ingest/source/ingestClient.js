@@ -24,7 +24,7 @@ module.exports = class KustoIngestClient {
         return this.defaultProps.merge(newProperties);
     }
 
-    _getBlobNameSuffix(format, compressionType){
+    _getBlobNameSuffix(format, compressionType) {
         const formatSuffix = format ? `.${format}` : "";
         return `${formatSuffix}${compressionType}`;
     }

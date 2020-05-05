@@ -24,13 +24,13 @@ class KustoResponseDataSet {
         }
     }
 
-    getErrorsCount() {        
+    getErrorsCount() {
         if (!this.statusTable || this.statusTable.length == 0) return 0;
 
         let minLevel = 4;
         let errors = 0;
         const errorColumn = this.constructor.getErrorColumn();
-        for (let row of this.statusTable.rows()) {            
+        for (let row of this.statusTable.rows()) {
             if (row[errorColumn] < 4) {
                 if (row[errorColumn] < minLevel) {
                     minLevel = row[errorColumn];
@@ -76,9 +76,9 @@ module.exports.KustoResponseDataSetV1 = class KustoResponseDataSetV1 extends Kus
 
     constructor(data) {
         super(data.Tables);
-        
+
         if (this.tables.length <= 2) {
-            if (this.tables[0].kind === undefined){ 
+            if (this.tables[0].kind === undefined) {
                 this.tables[0].kind = WellKnownDataSet.PrimaryResult;
                 this.primaryResults.push(this.tables[0]);
             }
