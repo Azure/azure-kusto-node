@@ -18,7 +18,7 @@
   ],
   "scripts": {
     "example": "node example.js",
-    "test": "mocha",
+    "test": "mocha ./test/!(e2eTest).js",
     "lint": "eslint source --quiet"
   },
   "author": "",
