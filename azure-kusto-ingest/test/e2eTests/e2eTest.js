@@ -2,12 +2,12 @@ const assert = require("assert");
 const fs = require('fs');
 const path = require('path')
 
-const IngestClient = require("../source/ingestClient");
-const ConnectionStringBuilder = require("azure-kusto-data").KustoConnectionStringBuilder;
-const Client = require("azure-kusto-data").Client;
-const StreamingIngestClient = require("../source/streamingIngestClient");
-const { FileDescriptor, StreamDescriptor, CompressionType } = require("../source/descriptors");
-const { IngestionProperties, DataFormat } = require("../source/ingestionProperties");
+const IngestClient = require("../../source/ingestClient");
+const ConnectionStringBuilder = require("../../node_modules/azure-kusto-data").KustoConnectionStringBuilder;
+const Client = require("../.././node_modules/azure-kusto-data").Client;
+const StreamingIngestClient = require("../../source/streamingIngestClient");
+const { FileDescriptor, StreamDescriptor, CompressionType } = require("../../source/descriptors");
+const { IngestionProperties, DataFormat } = require("../../source/ingestionProperties");
 
 const databaseName = process.env.TEST_DATABASE;
 const appId = process.env.APP_ID;
@@ -143,7 +143,7 @@ function sleep(ms) {
 }
 
 function getTestResourcePath(name) {
-    return path.relative(process.cwd(), `azure-kusto-ingest/test/data/${name}`);
+    return path.relative(process.cwd(), `azure-kusto-ingest/test/e2eTests/e2eData/${name}`);
 }
 
 async function assertRowsCount(testItem) {

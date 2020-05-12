@@ -18,8 +18,9 @@
   ],
   "scripts": {
     "example": "node example.js",
-    "test": "mocha ./test/!(e2eTest).js",
-    "lint": "eslint source --quiet"
+    "test": "mocha",
+    "lint": "eslint source --quiet",
+    "e2etest": "mocha --recursive"
   },
   "author": "",
   "license": "ISC",
