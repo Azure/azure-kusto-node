@@ -1,6 +1,6 @@
 {
   "name": "azure-kusto-data",
-  "version": "0.3.7",
+  "version": "0.3.8",
   "description": "Azure Data Explorer Query SDK",
   "main": "index.js",
   "engines": {
