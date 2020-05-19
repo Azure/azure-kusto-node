@@ -8,7 +8,7 @@ install:
   - npm i eslint -g
   - cd azure-kusto-data && npm i && cd .. && cd azure-kusto-ingest && npm i ../azure-kusto-data && npm i && cd ..
 script: 
-  - cd azure-kusto-data && npm run lint && npm test && cd .. && cd azure-kusto-ingest && npm run lint && npm test && cd ..
+  - cd azure-kusto-data && npm run lint && npm test && cd .. && cd azure-kusto-ingest && npm run lint && npm e2etest && cd ..
 # jobs:
 #   include:
 #     - stage: npm release azure-kusto-data
