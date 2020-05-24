@@ -138,7 +138,7 @@ function sleep(ms) {
 }
 
 function getTestResourcePath(name) {
-    return path.relative(process.cwd(), `azure-kusto-ingest/test/e2eTests/e2eData/${name}`);
+    return `/home/runner/work/azure-kusto-node/azure-kusto-node/azure-kusto-ingest/test/e2eTests/e2eData/${name}`;
 }
 
 async function assertRowsCount(testItem) {
