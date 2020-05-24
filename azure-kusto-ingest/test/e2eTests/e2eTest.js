@@ -138,6 +138,7 @@ function sleep(ms) {
 }
 
 function getTestResourcePath(name) {
+    // For pipeline
     return `/home/runner/work/azure-kusto-node/azure-kusto-node/azure-kusto-ingest/test/e2eTests/e2eData/${name}`;
 }
 
