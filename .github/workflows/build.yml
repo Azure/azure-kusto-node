@@ -20,16 +20,12 @@ jobs:
           npm i
           npm run lint
           npm test
-          npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
       - working-directory: ./azure-kusto-ingest
         run: |
           npm i
           npm run lint
           npm test
           npm run e2etest
-          npm publish
         env:
           TEST_DATABASE : "e2e"
           APP_ID: "b699d721-4f6f-4320-bc9a-88d578dfe68f"
