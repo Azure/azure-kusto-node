@@ -20,7 +20,7 @@
     "example": "node example.js",
     "test": "mocha",
     "lint": "eslint source --quiet",
-    "e2etest": "mocha --recursive"
+    "e2etest": "mocha --timeout 240000 --recursive"
   },
   "author": "",
   "license": "ISC",
