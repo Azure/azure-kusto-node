@@ -30,8 +30,8 @@ class testDataItem {
     }
 }
 
-const tableName = "NodeTest"
-const mappingName = "mappingRef"
+const tableName = "NodeTest" + Date.now();
+const mappingName = "mappingRef";
 const tableColumns = "(rownumber:int, rowguid:string, xdouble:real, xfloat:real, xbool:bool, xint16:int, xint32:int, xint64:long, xuint8:long, xuint16:long, xuint32:long, xuint64:long, xdate:datetime, xsmalltext:string, xtext:string, xnumberAsText:string, xtime:timespan, xtextWithNulls:string, xdynamicWithNulls:dynamic)";
 
 const mapping = fs.readFileSync(getTestResourcePath("dataset_mapping.json"), { encoding: 'utf8' });
@@ -51,15 +51,12 @@ const testItems = [
 
 var currentCount = 0;
 
-describe('E2E Tests', function () {
-    describe('SetUp', function () {
-        it('Drop table if exists', function (done) {
-            queryClient.execute(databaseName, `.drop table ${tableName} ifexists`, (err, results) => {
-                if (err) assert.fail("Failed to drop table");
-                done();
-            });
-        });
+describe(`E2E Tests - ${tableName}` , function () {
+    after(function() {         
+        queryClient.execute(databaseName, `.drop table ${tableName} ifexists`, (err, results) => {});
+    });
 
+    describe('SetUp', function () {
         it('Create table', function (done) {
             queryClient.execute(databaseName, `.create table ${tableName} ${tableColumns}`, (err, results) => {
                 if (err) assert.fail("Failed to create table");
@@ -68,8 +65,6 @@ describe('E2E Tests', function () {
         });
 
         it('Create table ingestion mapping', function (done) {
-
-
             queryClient.execute(databaseName, `.create-or-alter table ${tableName} ingestion json mapping '${mappingName}' '${mapping}'`, (err, results) => {
                 if (err) assert.fail("Failed to create table ingestion mapping");
                 done();
@@ -143,7 +138,8 @@ function sleep(ms) {
 }
 
 function getTestResourcePath(name) {
-    return path.relative(process.cwd(), `azure-kusto-ingest/test/e2eTests/e2eData/${name}`);
+    // For pipeline
+    return `/home/runner/work/azure-kusto-node/azure-kusto-node/azure-kusto-ingest/test/e2eTests/e2eData/${name}`;
 }
 
 async function assertRowsCount(testItem) {
