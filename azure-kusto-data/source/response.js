@@ -42,7 +42,7 @@ class KustoResponseDataSet {
                 }
             }
         }
-        if (this.dataSetCompletion["HasErrors"]) {
+        if (this.dataSetCompletion && this.dataSetCompletion["HasErrors"]) {
             errors += 1;
         }
 
