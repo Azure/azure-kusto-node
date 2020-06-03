@@ -25,35 +25,46 @@ class KustoResponseDataSet {
     }
 
     getErrorsCount() {
-        if (!this.statusTable || this.statusTable.length == 0) return 0;
-
-        let minLevel = 4;
         let errors = 0;
-        const errorColumn = this.constructor.getErrorColumn();
-        for (let row of this.statusTable.rows()) {
-            if (row[errorColumn] < 4) {
-                if (row[errorColumn] < minLevel) {
-                    minLevel = row[errorColumn];
-                    errors = 1;
-                } else if (row[errorColumn] == minLevel) {
-                    errors += 1;
+
+        if (this.statusTable && this.statusTable._rows.length != 0) {
+            let minLevel = 4;
+
+            const errorColumn = this.constructor.getErrorColumn();
+            for (let row of this.statusTable.rows()) {
+                if (row[errorColumn] < 4) {
+                    if (row[errorColumn] < minLevel) {
+                        minLevel = row[errorColumn];
+                        errors = 1;
+                    } else if (row[errorColumn] == minLevel) {
+                        errors += 1;
+                    }
                 }
             }
+        }
+        if (this.dataSetCompletion["HasErrors"]) {
+            errors += 1;
         }
 
         return errors;
     }
 
     getExceptions() {
-        if (this.statusTable.length == 0) return [];
-
         const result = [];
-        const errorColumn = this.constructor.getErrorColumn();
-        const cridColumn = this.constructor.getCridColumn();
-        const statusColumn = this.constructor.getStatusColumn();
-        for (let row of this.statusTable.rows()) {
-            if (row[errorColumn] < 4) {
-                result.push(`Please provide the following data to Kusto: CRID=${row[cridColumn]} Description: ${row[statusColumn]}`);
+        if (this.statusTable && this.statusTable._rows.length != 0) {
+
+            const errorColumn = this.constructor.getErrorColumn();
+            const cridColumn = this.constructor.getCridColumn();
+            const statusColumn = this.constructor.getStatusColumn();
+            for (let row of this.statusTable.rows()) {
+                if (row[errorColumn] < 4) {
+                    result.push(`Please provide the following data to Kusto: CRID=${row[cridColumn]} Description: ${row[statusColumn]}`);
+                }
+            }
+        }
+        if (this.dataSetCompletion && this.dataSetCompletion["HasErrors"]) {
+            for (let row of this.dataSetCompletion["OneApiErrors"]) {
+                result.push( row["error"]["@message"]);
             }
         }
         return result;
@@ -111,8 +122,26 @@ module.exports.KustoResponseDataSetV2 = class KustoResponseDataSetV2 extends Kus
     static getCridColumn() { return "ClientRequestId"; }
 
     constructor(data) {
-        super(data.filter(t => t.FrameType === "DataTable"));
+        let dataTables = [];
+        let dataSetHeader;
+        let dataSetCompletion;
+        data.forEach(frame => {
+            switch (frame.FrameType) {
+                case "DataTable":
+                    dataTables.push(frame);
+                    break;
+                case "DataSetHeader":
+                    dataSetHeader = frame;
+                    break;
+                case "DataSetCompletion":
+                    dataSetCompletion = frame;
+                    break;
+            }
+        });
 
+        super(dataTables);
+        this.dataSetHeader = dataSetHeader;
+        this.dataSetCompletion = dataSetCompletion;
         this.version = "2.0";
     }
 };

@@ -131,6 +131,33 @@ describe(`E2E Tests - ${tableName}` , function () {
             }
         });
     });
+
+        
+    describe('QueryClient', function () {
+        it('General BadRequest', async function () {
+            await new Promise((resolve) => {
+                response = queryClient.executeQuery(databaseName, "invalidSyntax ", async (err, results) => {
+                    if (!err){
+                        assert.fail(`Didn't throw PartialQueryFailure ${item.description}`);
+                    }
+                    resolve();
+                });
+            });
+        });
+
+        it('PartialQueryFailure', async function () {
+            await new Promise((resolve) => {
+                response = queryClient.executeQuery(databaseName, `set max_memory_consumption_per_query_per_node=1; ${tableName}`, async (err, results) => {
+                    if (!err){
+                        assert.fail(`Didn't throw PartialQueryFailure ${item.description}`);
+                    }
+                    assert.equal(err, "Kusto request had errors. Query execution has resulted in error (0x80DA0007): Partial query failure: Low memory condition (E_LOW_MEMORY_CONDITION). (message: 'bad allocation', details: '').")
+                    resolve();
+                });
+            });
+        });
+    });
+
 });
 
 function sleep(ms) {
@@ -164,4 +191,3 @@ async function assertRowsCount(testItem) {
     currentCount += count;
     assert.equal(count, expected, `Failed to ingest ${testItem.description}`);
 }
-
