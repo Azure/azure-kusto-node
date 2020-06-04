@@ -24,10 +24,9 @@ jobs:
         run: |
           npm i
           npm run lint
-          npm test
           npm uninstall azure-kusto-data
           npm link ../azure-kusto-data
-          npm run e2etest
+          npm run allTests
         env:
           TEST_DATABASE : "e2e"
           APP_ID: "b699d721-4f6f-4320-bc9a-88d578dfe68f"
