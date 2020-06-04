@@ -22,10 +22,10 @@ jobs:
           npm test
       - working-directory: ./azure-kusto-ingest
         run: |
+          npm link ../azure-kusto-data
           npm i
           npm run lint
           npm test
-          npm link ../azure-kusto-data
           npm run e2etest
         env:
           TEST_DATABASE : "e2e"
