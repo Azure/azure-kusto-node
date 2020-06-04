@@ -22,10 +22,13 @@ jobs:
           npm test
       - working-directory: ./azure-kusto-ingest
         run: |
-          npm link ../azure-kusto-data
           npm i
           npm run lint
           npm test
+        # Use local azure-kusto-data package for e2e
+          npm uninstall azure-kusto-data
+          npm link ../azure-kusto-data
+        # run e2e
           npm run e2etest
         env:
           TEST_DATABASE : "e2e"
