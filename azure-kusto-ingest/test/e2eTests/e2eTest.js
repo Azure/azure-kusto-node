@@ -138,7 +138,7 @@ describe(`E2E Tests - ${tableName}` , function () {
             await new Promise((resolve) => {
                 response = queryClient.executeQuery(databaseName, "invalidSyntax ", async (err, results) => {
                     if (!err){
-                        assert.fail(`Didn't throw PartialQueryFailure ${item.description}`);
+                        assert.fail(`General BadRequest ${item.description}`);
                     }
                     resolve();
                 });
@@ -151,7 +151,6 @@ describe(`E2E Tests - ${tableName}` , function () {
                     if (!err){
                         assert.fail(`Didn't throw PartialQueryFailure ${item.description}`);
                     }
-                    assert.equal(err, "Kusto request had errors. Query execution has resulted in error (0x80DA0007): Partial query failure: Low memory condition (E_LOW_MEMORY_CONDITION). (message: 'bad allocation', details: '').")
                     resolve();
                 });
             });
