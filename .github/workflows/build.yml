@@ -25,6 +25,7 @@ jobs:
           npm i
           npm run lint
           npm test
+          npm link ../azure-kusto-data
           npm run e2etest
         env:
           TEST_DATABASE : "e2e"
