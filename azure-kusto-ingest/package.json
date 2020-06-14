@@ -25,7 +25,7 @@
   "license": "ISC",
   "dependencies": {
     "adal-node": "^0.1.28",
-    "azure-kusto-data": "^0.3.9",
+    "azure-kusto-data": "latest",
     "azure-storage": "^2.10.2",
     "moment": "^2.22.2",
     "request": "^2.88.0",
