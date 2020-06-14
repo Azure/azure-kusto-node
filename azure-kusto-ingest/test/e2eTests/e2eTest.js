@@ -131,6 +131,32 @@ describe(`E2E Tests - ${tableName}` , function () {
             }
         });
     });
+
+        
+    describe('QueryClient', function () {
+        it('General BadRequest', async function () {
+            await new Promise((resolve) => {
+                response = queryClient.executeQuery(databaseName, "invalidSyntax ", async (err, results) => {
+                    if (!err){
+                        assert.fail(`General BadRequest ${item.description}`);
+                    }
+                    resolve();
+                });
+            });
+        });
+
+        it('PartialQueryFailure', async function () {
+            await new Promise((resolve) => {
+                response = queryClient.executeQuery(databaseName, `set max_memory_consumption_per_query_per_node=1; ${tableName}`, async (err, results) => {
+                    if (!err){
+                        assert.fail(`Didn't throw PartialQueryFailure ${item.description}`);
+                    }
+                    resolve();
+                });
+            });
+        });
+    });
+
 });
 
 function sleep(ms) {
@@ -138,8 +164,7 @@ function sleep(ms) {
 }
 
 function getTestResourcePath(name) {
-    // For pipeline
-    return `/home/runner/work/azure-kusto-node/azure-kusto-node/azure-kusto-ingest/test/e2eTests/e2eData/${name}`;
+    return __dirname + `/e2eData/${name}`;
 }
 
 async function assertRowsCount(testItem) {
@@ -164,4 +189,3 @@ async function assertRowsCount(testItem) {
     currentCount += count;
     assert.equal(count, expected, `Failed to ingest ${testItem.description}`);
 }
-

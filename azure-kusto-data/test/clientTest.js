@@ -164,7 +164,7 @@ describe("KustoClient", function () {
 
             let reqCb = client._getRequestCallback(null, (err, response) => {
                 assert.equal(response, null);
-                assert.equal(err, "Failed to parse response ({200}) with the following error [TypeError: data.filter is not a function].");
+                assert.equal(err, "Failed to parse response ({200}) with the following error [TypeError: data.forEach is not a function].");
                 done();
             });
 
