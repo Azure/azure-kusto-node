@@ -17,6 +17,8 @@ jobs:
         run: |
           npm i 
           npm test
+          npm version patch -m "Bumping azure-kusto-data to %s"
+          git push origin master
           npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
@@ -25,6 +27,8 @@ jobs:
           npm i 
           npm test
           npm run e2etest
+          npm version patch -m "Bumping azure-kusto-ingest to %s"
+          git push origin master
           npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
