@@ -24,7 +24,7 @@ jobs:
         run: |
           npm i 
           npm test
-          npm run e2etest
+          npm run allTest
           npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
