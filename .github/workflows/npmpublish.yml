@@ -24,19 +24,18 @@ jobs:
         run: |
           npm version patch
       
-      - name: Setup GIT
+      - name: Setup GIT and commit version bump
         run: |
           git switch -c master
           git config user.email "amshalev@microsoft.com"
           git config user.name "$GITHUB_ACTOR"
-      
-      - name: Push version bump
-        run: |
           git add *
           git commit -m 'Auto bump version'
-          git push "https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY"
-        env:
-          GITHUB_TOKEN: ${{secrets.PUBLISH_GIT_TOKEN}}
+          
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish new version azure-kusto-data
         working-directory: ./azure-kusto-data
