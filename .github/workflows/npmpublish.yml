@@ -43,8 +43,8 @@ jobs:
           git config user.name "$GITHUB_ACTOR"
       
       - name: Push version bump
-        working-directory: ./azure-kusto-data
         run: |
+          git add *
           git commit -m 'Auto bump version'
           git push "https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY"
         env:
