@@ -13,18 +13,6 @@ jobs:
         with:
           node-version: 8
           registry-url: https://registry.npmjs.org/
-      
-      - name: Test azure-kusto-data
-        working-directory: ./azure-kusto-data
-        run: |
-          npm i 
-          npm test
-      
-      - name: Test azure-kusto-ingest
-        working-directory: ./azure-kusto-ingest
-        run: |
-          npm i
-          npm test
         
       - name: Bump version azure-kusto-data
         working-directory: ./azure-kusto-data
