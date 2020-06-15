@@ -36,7 +36,7 @@ jobs:
           git commit -m 'Auto bump version'
           git push "https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY"
         env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          GITHUB_TOKEN: ${{secrets.PUBLISH_GIT_TOKEN}}
 
       - name: Publish new version azure-kusto-data
         working-directory: ./azure-kusto-data
