@@ -16,7 +16,7 @@ These including testing related packages as well as styling ([eslint](https://es
 ## Testing
 
 This project uses [mocha](https://mochajs.org/) for testing.
-You can tun UT by:
+In order to run UT execute:
 
 ```bash
 npm test 
