@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 const KeywordMapping = Object.freeze({
     dataSource: {
         propName: "dataSource",

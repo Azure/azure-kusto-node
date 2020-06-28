@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 module.exports = class ClientRequestProperties {
     constructor(options, parameters) {
         this._options = options || {};

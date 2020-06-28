@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 
 const { AuthenticationContext } = require("adal-node");
 const acquireManagedIdentityToken = require("./managedIdentitiesClient");

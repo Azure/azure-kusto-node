@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 const request = require("request");
 
 const MSI_API_VERSION = "2018-02-01";
