@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 const KustoClient = require("azure-kusto-data").Client;
 const { FileDescriptor, StreamDescriptor, CompressionType } = require("./descriptors");
 const DataFormat = require("./resourceManager"); 

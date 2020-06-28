@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 const {AzureCliCredentials} = require("@azure/ms-rest-nodeauth");
 
 module.exports = function acquireToken(connectionString, callback) {

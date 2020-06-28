@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 const azureStorage = require("azure-storage");
 
 class QueueDetails {

@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 const assert = require("assert");
 const v2Response = require("./data/response/v2");
 const v2ResponseError = require("./data/response/v2error");

@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 const uuidv4 = require("uuid/v4");
 const moment = require("moment");
 

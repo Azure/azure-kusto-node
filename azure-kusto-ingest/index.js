@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 const client = require("./source/ingestClient");
 const streamingIngestClient = require("./source/streamingIngestClient");
 const KustoIngestStatusQueues = require("./source/status");

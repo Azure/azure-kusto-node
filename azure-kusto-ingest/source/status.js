@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 const StatusQueue = require("./statusQ");
 class StatusMessage {
     constructor(raw, obj, extraProps) {

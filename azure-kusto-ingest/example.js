@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 const IngestClient = require("azure-kusto-ingest").IngestClient;
 const IngestStatusQueues = require("azure-kusto-ingest").IngestStatusQueues;
 const IngestionProps = require("azure-kusto-ingest").IngestionProperties;

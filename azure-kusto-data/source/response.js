@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 const { KustoResultTable, WellKnownDataSet } = require("./models");
 
 class KustoResponseDataSet {

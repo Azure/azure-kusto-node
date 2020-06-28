@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 const assert = require("assert");
 const moment = require("moment");
 const sinon = require("sinon");
