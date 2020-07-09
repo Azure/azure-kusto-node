@@ -2,9 +2,10 @@
 // Licensed under the MIT License.
 
 module.exports = class ClientRequestProperties {
-    constructor(options, parameters) {
+    constructor(options, parameters, clientRequestId) {
         this._options = options || {};
         this._parameters = parameters || {};
+        this.clientRequestId = clientRequestId || null;
     }
 
     setOption(name, value) {

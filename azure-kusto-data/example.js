@@ -4,6 +4,7 @@
 const KustoClient = require("azure-kusto-data").Client;
 const KustoConnectionStringBuilder = require("azure-kusto-data").KustoConnectionStringBuilder;
 const ClientRequestProperties = require("azure-kusto-data").ClientRequestProperties;
+const uuidv4 = require("uuid/v4");
 
 let clusterName = "";
 let username = "username";
@@ -24,6 +25,12 @@ kustoClient.execute("db", "TableName | limit 1", (err, results) => {
 let clientRequestProps = new ClientRequestProperties();
 const ONE_MINUTE = 1000 * 60;
 clientRequestProps.setOption("servertimeout", ONE_MINUTE);
+
+// having client code provide its own clientRequestId is
+// highly recommended. It not only allows the caller to
+// cancel the query, but also makes it possible for the Kusto
+// team to investigate query failures end-to-end:
+clientRequestProps.clientRequestId = `MyApp.MyActivity;${uuidv4()}`;
 
 kustoClient.execute(
     "db", 

@@ -60,6 +60,8 @@ module.exports = class KustoClient {
         
         let payload;
         let clientRequestPrefix = "";
+        let clientRequestId;
+
         if (query != null) {
             payload = {
                 "db": db,
@@ -68,6 +70,7 @@ module.exports = class KustoClient {
 
             if (properties != null && properties instanceof ClientRequestProperties) {
                 payload.properties = properties.toJson();
+                clientRequestId = properties.clientRequestId;
             }
         
             payload = JSON.stringify(payload);
@@ -80,8 +83,8 @@ module.exports = class KustoClient {
             headers["Content-Encoding"] = "gzip";     
         }
 
-        headers["x-ms-client-request-id"] = clientRequestPrefix + `${uuidv4()}`;
-
+        headers["x-ms-client-request-id"] = clientRequestId || clientRequestPrefix + `${uuidv4()}`;
+        
         let timeout = this._getTimeout(endpoint, properties);
 
         return this.aadHelper.getAuthHeader((err, authHeader) => {
