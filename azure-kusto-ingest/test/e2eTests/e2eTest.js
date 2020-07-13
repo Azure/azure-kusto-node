@@ -12,7 +12,12 @@ const { IngestionProperties, DataFormat } = require("../../source/ingestionPrope
 const databaseName = process.env.TEST_DATABASE;
 const appId = process.env.APP_ID;
 const appKey = process.env.APP_KEY;
-const tenantId = process.env.TENANT_ID;
+const tenantId = process.env.TENANT_Is;
+
+if(!databaseName || !appId || !appKey || !tenantId){
+    process.stdout.write("Skip E2E test - Missing env variables");
+    return;
+}
 
 const engineKcsb = ConnectionStringBuilder.withAadApplicationKeyAuthentication(process.env.ENGINE_CONNECTION_STRING, appId, appKey, tenantId);
 const queryClient = new Client(engineKcsb);

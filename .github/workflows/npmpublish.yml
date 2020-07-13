@@ -14,30 +14,6 @@ jobs:
           node-version: 8
           registry-url: https://registry.npmjs.org/
         
-      - name: Bump version azure-kusto-data
-        working-directory: ./azure-kusto-data
-        run: |
-          npm version patch
-      
-      - name: Bump version azure-kusto-ingest
-        working-directory: ./azure-kusto-ingest
-        run: |
-          npm version patch
-      
-      - name: Setup GIT
-        run: |
-          git switch -c master
-          git config user.email "amshalev@microsoft.com"
-          git config user.name "$GITHUB_ACTOR"
-      
-      - name: Push version bump
-        run: |
-          git add *
-          git commit -m 'Auto bump version'
-          git push "https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY"
-        env:
-          GITHUB\_TOKEN: ${{secrets.PUBLISH_GIT_TOKEN}}
-
       - name: Publish new version azure-kusto-data
         working-directory: ./azure-kusto-data
         run: |
