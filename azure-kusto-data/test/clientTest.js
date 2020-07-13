@@ -6,7 +6,7 @@ const v2Response = require("./data/response/v2");
 const v2ResponseError = require("./data/response/v2error");
 const v1Response = require("./data/response/v1");
 const v1_2Response = require("./data/response/v1_2");
-
+const uuidv4 = require("uuid/v4");
 
 const KustoClient = require("../source/client");
 const KustoClientRequestProperties = require("../source/clientRequestProperties");
@@ -172,6 +172,22 @@ describe("KustoClient", function () {
             });
 
             reqCb(null, { statusCode: 200, request: { path: "/v2/query/" } }, JSON.stringify({}));
+        });
+
+        it("set clientRequestId for request", function () {
+            let url = "https://cluster.kusto.windows.net";
+            let client = new KustoClient(url);
+            const clientRequestId = `MyApp.MyActivity;${uuidv4()}`;
+
+            let clientRequestProps = new KustoClientRequestProperties();
+            clientRequestProps.clientRequestId = clientRequestId;
+            client.aadHelper.getAuthHeader = (callback) => callback(null, "MockToken");
+            client._doRequest = (endpoint, payload, timeout, properties, callback) => {
+                assert.equal(properties.clientRequestId, clientRequestId);
+                callback(v2Response);                
+            };
+
+            client.execute("Database", "Table | count" , () => {}, clientRequestProps);
         });
     });
 });
