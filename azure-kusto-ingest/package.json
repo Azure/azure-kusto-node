@@ -1,6 +1,6 @@
 {
   "name": "azure-kusto-ingest",
-  "version": "0.3.10",
+  "version": "0.3.11",
   "description": "Azure Data Explorer Ingestion SDK",
   "main": "index.js",
   "engines": {
