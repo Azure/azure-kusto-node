@@ -95,11 +95,11 @@ module.exports = class KustoClient {
 
             headers["Authorization"] = authHeader;
 
-            return this._doRequest(endpoint, headers, payload, timeout, callback);
+            return this._doRequest(endpoint, headers, payload, timeout, properties, callback);
         });
     }
 
-    _doRequest(endpoint, headers, payload, timeout, callback){
+    _doRequest(endpoint, headers, payload, timeout, properties, callback){
         return request({
             method: "POST",
             url: endpoint,

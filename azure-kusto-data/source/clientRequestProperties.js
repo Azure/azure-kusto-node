@@ -53,7 +53,7 @@ module.exports = class ClientRequestProperties {
         if (Object.keys(this._options).length !== 0) {
             json.Options = this._options;
             if(json.Options.servertimeout){
-                json.Options.servertimeout = this._msToTimespan(json.Options.servertimeout)
+                json.Options.servertimeout = this._msToTimespan(json.Options.servertimeout);
             }
         }
 

@@ -87,7 +87,7 @@ describe("KustoClient", function () {
             let timeoutMs = moment.duration(2.51, "minutes").asMilliseconds() ;
             clientRequestProps.setTimeout(timeoutMs);
             client.aadHelper.getAuthHeader = (callback) => callback(null, "MockToken");
-            client._doRequest = (endpoint, headers, payload, timeout, callback) => {
+            client._doRequest = (endpoint, headers, payload, timeout, properties, callback) => {
                 let payloadObj = JSON.parse(payload);
                 assert.equal(payloadObj.properties.Options.servertimeout, "00:02:30.6");
                 assert.equal(timeout, timeoutMs + moment.duration(0.5, "minutes").asMilliseconds());
@@ -102,7 +102,7 @@ describe("KustoClient", function () {
             let client = new KustoClient(url);
             
             client.aadHelper.getAuthHeader = (callback) => callback(null, "MockToken");
-            client._doRequest = (endpoint, headers, payload, timeout, callback) => {
+            client._doRequest = (endpoint, headers, payload, timeout, properties, callback) => {
                 assert.equal(timeout, moment.duration(4.5, "minutes").asMilliseconds());
                 done();                
             };
@@ -115,7 +115,7 @@ describe("KustoClient", function () {
             let client = new KustoClient(url);
             
             client.aadHelper.getAuthHeader = (callback) => callback(null, "MockToken");
-            client._doRequest = (endpoint, headers, payload, timeout, callback) => {
+            client._doRequest = (endpoint, headers, payload, timeout, properties, callback) => {
                 assert.equal(timeout, moment.duration(10.5, "minutes").asMilliseconds());
                 done();                
             };
@@ -186,7 +186,7 @@ describe("KustoClient", function () {
             let clientRequestProps = new KustoClientRequestProperties();
             clientRequestProps.clientRequestId = clientRequestId;
             client.aadHelper.getAuthHeader = (callback) => callback(null, "MockToken");
-            client._doRequest = (endpoint, headers, payload, timeout, callback) => {
+            client._doRequest = (endpoint, headers, payload, timeout, properties, callback) => {
                 assert.equal(headers["x-ms-client-request-id"], clientRequestId);
                 done();                
             };
