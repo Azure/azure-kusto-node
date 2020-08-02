@@ -24,7 +24,7 @@ kustoClient.execute("db", "TableName | limit 1", (err, results) => {
 // go to https://docs.microsoft.com/en-us/azure/kusto/api/netfx/request-properties#list-of-clientrequestproperties
 let clientRequestProps = new ClientRequestProperties();
 const ONE_MINUTE = 1000 * 60;
-clientRequestProps.setOption("servertimeout", ONE_MINUTE);
+clientRequestProps.setTimeout(ONE_MINUTE);
 
 // having client code provide its own clientRequestId is
 // highly recommended. It not only allows the caller to
