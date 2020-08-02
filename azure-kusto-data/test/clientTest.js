@@ -84,43 +84,43 @@ describe("KustoClient", function () {
             let client = new KustoClient(url);
 
             let clientRequestProps = new KustoClientRequestProperties();
-            let timeoutMs = moment.duration(2.51, "minutes").asMilliseconds() ;
+            let timeoutMs = moment.duration(2.51, "minutes").asMilliseconds();
             clientRequestProps.setTimeout(timeoutMs);
             client.aadHelper.getAuthHeader = (callback) => callback(null, "MockToken");
             client._doRequest = (endpoint, headers, payload, timeout, properties, callback) => {
                 let payloadObj = JSON.parse(payload);
                 assert.equal(payloadObj.properties.Options.servertimeout, "00:02:30.6");
                 assert.equal(timeout, timeoutMs + moment.duration(0.5, "minutes").asMilliseconds());
-                done();               
+                done();
             };
 
-            client.execute("Database", "Table | count" , () => {}, clientRequestProps);
+            client.execute("Database", "Table | count", () => { }, clientRequestProps);
         });
 
         it("default timeout for query", function (done) {
             let url = "https://cluster.kusto.windows.net";
             let client = new KustoClient(url);
-            
+
             client.aadHelper.getAuthHeader = (callback) => callback(null, "MockToken");
             client._doRequest = (endpoint, headers, payload, timeout, properties, callback) => {
                 assert.equal(timeout, moment.duration(4.5, "minutes").asMilliseconds());
-                done();                
+                done();
             };
 
-            client.execute("Database", "Table | count" , () => {});
+            client.execute("Database", "Table | count", () => { });
         });
 
         it("default timeout for admin", function (done) {
             let url = "https://cluster.kusto.windows.net";
             let client = new KustoClient(url);
-            
+
             client.aadHelper.getAuthHeader = (callback) => callback(null, "MockToken");
             client._doRequest = (endpoint, headers, payload, timeout, properties, callback) => {
                 assert.equal(timeout, moment.duration(10.5, "minutes").asMilliseconds());
-                done();                
+                done();
             };
 
-            client.execute("Database", ".show database DataBase schema" , () => {});
+            client.execute("Database", ".show database DataBase schema", () => { });
         });
 
         it("erred v2 not partial", function (done) {
@@ -188,10 +188,10 @@ describe("KustoClient", function () {
             client.aadHelper.getAuthHeader = (callback) => callback(null, "MockToken");
             client._doRequest = (endpoint, headers, payload, timeout, properties, callback) => {
                 assert.equal(headers["x-ms-client-request-id"], clientRequestId);
-                done();                
+                done();
             };
 
-            client.execute("Database", "Table | count" , () => {}, clientRequestProps);
+            client.execute("Database", "Table | count", () => { }, clientRequestProps);
         });
     });
 });

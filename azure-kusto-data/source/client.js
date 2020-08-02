@@ -60,13 +60,13 @@ module.exports = class KustoClient {
     _execute(endpoint, db, query, stream, callback, properties) {
         let headers = {};
         Object.assign(headers, this.headers);
-        
+
         let payload;
         let clientRequestPrefix = "";
         let clientRequestId;
 
         let timeout = this._getClientTimeout(endpoint, properties);
-        
+
         if (query != null) {
             payload = {
                 "db": db,
@@ -77,7 +77,7 @@ module.exports = class KustoClient {
                 payload.properties = properties.toJson();
                 clientRequestId = properties.clientRequestId;
             }
-        
+
             payload = JSON.stringify(payload);
 
             headers["Content-Type"] = "application/json; charset=utf-8";
@@ -85,7 +85,7 @@ module.exports = class KustoClient {
         } else if (stream != null) {
             payload = stream;
             clientRequestPrefix = "KNC.executeStreamingIngest;";
-            headers["Content-Encoding"] = "gzip";     
+            headers["Content-Encoding"] = "gzip";
         }
 
         headers["x-ms-client-request-id"] = clientRequestId || clientRequestPrefix + `${uuidv4()}`;
@@ -99,7 +99,7 @@ module.exports = class KustoClient {
         });
     }
 
-    _doRequest(endpoint, headers, payload, timeout, properties, callback){
+    _doRequest(endpoint, headers, payload, timeout, properties, callback) {
         return request({
             method: "POST",
             url: endpoint,
@@ -107,7 +107,7 @@ module.exports = class KustoClient {
             body: payload,
             gzip: true,
             timeout
-        },  this._getRequestCallback(properties, callback)
+        }, this._getRequestCallback(properties, callback)
         );
     }
 
@@ -148,11 +148,11 @@ module.exports = class KustoClient {
         let timeout = null;
         if (properties != null) {
             var serverTimeout = properties instanceof ClientRequestProperties ? properties.getTimeout() : properties.timeout;
-            if(serverTimeout != null){
+            if (serverTimeout != null) {
                 return serverTimeout + CLIENT_SERVER_DELTA_IN_MILLISECS;
             }
         }
-        
+
         timeout = endpoint == this.endpoints.query ? QUERY_TIMEOUT_IN_MILLISECS : COMMAND_TIMEOUT_IN_MILLISECS;
         return timeout;
     }
