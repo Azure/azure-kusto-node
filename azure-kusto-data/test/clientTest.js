@@ -7,6 +7,7 @@ const v2ResponseError = require("./data/response/v2error");
 const v1Response = require("./data/response/v1");
 const v1_2Response = require("./data/response/v1_2");
 const uuidv4 = require("uuid/v4");
+const moment = require("moment");
 
 const KustoClient = require("../source/client");
 const KustoClientRequestProperties = require("../source/clientRequestProperties");
@@ -78,42 +79,45 @@ describe("KustoClient", function () {
             reqCb(null, { statusCode: 200, request: { path: "/v2/query/" } }, v2Response);
         });
 
-        it("setTimout for request", function () {
+        it("setTimout for request", function (done) {
             let url = "https://cluster.kusto.windows.net";
             let client = new KustoClient(url);
 
             let clientRequestProps = new KustoClientRequestProperties();
-            clientRequestProps.setTimeout(10);
+            let timeoutMs = moment.duration(2.51, "minutes").asMilliseconds() ;
+            clientRequestProps.setTimeout(timeoutMs);
             client.aadHelper.getAuthHeader = (callback) => callback(null, "MockToken");
-            client._doRequest = (endpoint, payload, timeout, properties, callback) => {
-                assert.equal(properties.toString(), JSON.stringify({ "Options": { "servertimeout": 10 } }));
-                callback(v2Response);                
+            client._doRequest = (endpoint, headers, payload, timeout, callback) => {
+                let payloadObj = JSON.parse(payload);
+                assert.equal(payloadObj.properties.Options.servertimeout, "00:02:30.6");
+                assert.equal(timeout, timeoutMs + moment.duration(0.5, "minutes").asMilliseconds());
+                done();               
             };
 
             client.execute("Database", "Table | count" , () => {}, clientRequestProps);
         });
 
-        it("default timeout for query", function () {
+        it("default timeout for query", function (done) {
             let url = "https://cluster.kusto.windows.net";
             let client = new KustoClient(url);
             
             client.aadHelper.getAuthHeader = (callback) => callback(null, "MockToken");
-            client._doRequest = (endpoint, payload, timeout, properties, callback) => {
-                assert.equal(timeout, client._getDefaultQueryTimeout());
-                callback(v2Response);                
+            client._doRequest = (endpoint, headers, payload, timeout, callback) => {
+                assert.equal(timeout, moment.duration(4.5, "minutes").asMilliseconds());
+                done();                
             };
 
             client.execute("Database", "Table | count" , () => {});
         });
 
-        it("default timeout for admin", function () {
+        it("default timeout for admin", function (done) {
             let url = "https://cluster.kusto.windows.net";
             let client = new KustoClient(url);
             
             client.aadHelper.getAuthHeader = (callback) => callback(null, "MockToken");
-            client._doRequest = (endpoint, payload, timeout, properties, callback) => {
-                assert.equal(timeout, client._getDefaultCommandTimeout());
-                callback(v2Response);                
+            client._doRequest = (endpoint, headers, payload, timeout, callback) => {
+                assert.equal(timeout, moment.duration(10.5, "minutes").asMilliseconds());
+                done();                
             };
 
             client.execute("Database", ".show database DataBase schema" , () => {});
@@ -174,7 +178,7 @@ describe("KustoClient", function () {
             reqCb(null, { statusCode: 200, request: { path: "/v2/query/" } }, JSON.stringify({}));
         });
 
-        it("set clientRequestId for request", function () {
+        it("set clientRequestId for request", function (done) {
             let url = "https://cluster.kusto.windows.net";
             let client = new KustoClient(url);
             const clientRequestId = `MyApp.MyActivity;${uuidv4()}`;
@@ -182,9 +186,9 @@ describe("KustoClient", function () {
             let clientRequestProps = new KustoClientRequestProperties();
             clientRequestProps.clientRequestId = clientRequestId;
             client.aadHelper.getAuthHeader = (callback) => callback(null, "MockToken");
-            client._doRequest = (endpoint, payload, timeout, properties, callback) => {
-                assert.equal(properties.clientRequestId, clientRequestId);
-                callback(v2Response);                
+            client._doRequest = (endpoint, headers, payload, timeout, callback) => {
+                assert.equal(headers["x-ms-client-request-id"], clientRequestId);
+                done();                
             };
 
             client.execute("Database", "Table | count" , () => {}, clientRequestProps);

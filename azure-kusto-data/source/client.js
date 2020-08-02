@@ -10,6 +10,9 @@ const ConnectionStringBuilder = require("./connectionBuilder");
 const ClientRequestProperties = require("./clientRequestProperties");
 const pkg = require("../package.json");
 
+const COMMAND_TIMEOUT_IN_MILLISECS = moment.duration(10.5, "minutes").asMilliseconds();
+const QUERY_TIMEOUT_IN_MILLISECS = moment.duration(4.5, "minutes").asMilliseconds();
+const CLIENT_SERVER_DELTA_IN_MILLISECS = moment.duration(0.5, "minutes").asMilliseconds();
 
 module.exports = class KustoClient {
     constructor(kcsb) {
@@ -62,6 +65,8 @@ module.exports = class KustoClient {
         let clientRequestPrefix = "";
         let clientRequestId;
 
+        let timeout = this._getClientTimeout(endpoint, properties);
+        
         if (query != null) {
             payload = {
                 "db": db,
@@ -84,38 +89,26 @@ module.exports = class KustoClient {
         }
 
         headers["x-ms-client-request-id"] = clientRequestId || clientRequestPrefix + `${uuidv4()}`;
-        
-        let timeout = this._getTimeout(endpoint, properties);
 
         return this.aadHelper.getAuthHeader((err, authHeader) => {
             if (err) return callback(err);
 
             headers["Authorization"] = authHeader;
 
-            return request({
-                method: "POST",
-                url: endpoint,
-                headers,
-                body: payload,
-                gzip: true,
-                timeout
-            }, this._getRequestCallback(properties, callback)
-            );
+            return this._doRequest(endpoint, headers, payload, timeout, callback);
         });
     }
 
-    _getTimeout(endpoint, properties) {
-        let timeout = null;
-        if (properties != null) {
-            timeout = properties instanceof ClientRequestProperties ? properties.getTimeout() 
-                : properties.timeout;
-        }
-
-        if (timeout == null) {
-            let timeoutInMinutes = endpoint == this.endpoints.mgmt ? 10.5 : 4.5;       
-            timeout = moment.duration(timeoutInMinutes, "minutes").asMilliseconds();
-        }
-        return timeout;
+    _doRequest(endpoint, headers, payload, timeout, callback){
+        return request({
+            method: "POST",
+            url: endpoint,
+            headers,
+            body: payload,
+            gzip: true,
+            timeout
+        },  this._getRequestCallback(properties, callback)
+        );
     }
 
     _getRequestCallback(properties, callback) {
@@ -149,5 +142,18 @@ module.exports = class KustoClient {
                 return callback(`Kusto request erred (${response.statusCode}). ${body}.`);
             }
         };
+    }
+
+    _getClientTimeout(endpoint, properties) {
+        let timeout = null;
+        if (properties != null) {
+            var serverTimeout = properties instanceof ClientRequestProperties ? properties.getTimeout() : properties.timeout;
+            if(serverTimeout != null){
+                return serverTimeout + CLIENT_SERVER_DELTA_IN_MILLISECS;
+            }
+        }
+        
+        timeout = endpoint == this.endpoints.query ? QUERY_TIMEOUT_IN_MILLISECS : COMMAND_TIMEOUT_IN_MILLISECS;
+        return timeout;
     }
 };
