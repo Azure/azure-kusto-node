@@ -28,7 +28,7 @@ module.exports = class KustoStreamingIngestClient {
         return this.defaultProps.merge(newProperties);
     }
     
-    ingestFromStream(stream, ingestionProperties, callback) {
+    async ingestFromStream(stream, ingestionProperties) {
         const props = this._mergeProps(ingestionProperties);
 
         try {
@@ -42,7 +42,7 @@ module.exports = class KustoStreamingIngestClient {
             descriptor.compressionType == CompressionType.None ? descriptor._stream.pipe(zlib.createGzip()) : descriptor._stream;
 
         if (props.ingestionMappingReference == null && this._mapping_required_formats.includes(props.format)) {
-            return callback(`Mapping referrence required for format ${props.foramt}.`);
+            throw new Error(`Mapping referrence required for format ${props.foramt}.`);
         }
 
         return this.kustoClient.executeStreamingIngest(
@@ -51,11 +51,10 @@ module.exports = class KustoStreamingIngestClient {
             compressedStream, 
             props.format, 
             callback, 
-            null, 
             props.ingestionMappingReference);
     }
 
-    ingestFromFile(file, ingestionProperties, callback) {
+    async ingestFromFile(file, ingestionProperties) {
         const props = this._mergeProps(ingestionProperties);
 
         try {
@@ -71,6 +70,6 @@ module.exports = class KustoStreamingIngestClient {
         const compressionType = fileDescriptor.zipped ? CompressionType.GZIP : CompressionType.None;
         const streamDescriptor = new StreamDescriptor(stream, fileDescriptor.sourceId, compressionType);
 
-        return this.ingestFromStream(streamDescriptor, ingestionProperties, callback);
+        return this.ingestFromStream(streamDescriptor, ingestionProperties);
     }
 };

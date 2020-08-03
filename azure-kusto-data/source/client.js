@@ -2,13 +2,13 @@
 // Licensed under the MIT License.
 
 const moment = require("moment");
-const request = require("request");
 const uuidv4 = require("uuid/v4");
 const AadHelper = require("./security");
 const { KustoResponseDataSetV1, KustoResponseDataSetV2 } = require("./response");
 const ConnectionStringBuilder = require("./connectionBuilder");
 const ClientRequestProperties = require("./clientRequestProperties");
 const pkg = require("../package.json");
+const axios = require('axios');
 
 const COMMAND_TIMEOUT_IN_MILLISECS = moment.duration(10.5, "minutes").asMilliseconds();
 const QUERY_TIMEOUT_IN_MILLISECS = moment.duration(4.5, "minutes").asMilliseconds();
@@ -31,33 +31,33 @@ module.exports = class KustoClient {
         };
     }
 
-    execute(db, query, callback, properties) {
+    async execute(db, query, properties) {
         query = query.trim();
         if (query.startsWith(".")) {
-            return this.executeMgmt(db, query, callback, properties);
+            return await this.executeMgmt(db, query, properties);
         }
 
-        return this.executeQuery(db, query, callback, properties);
+        return this.executeQuery(db, query, properties);
     }
 
-    executeQuery(db, query, callback, properties) {
-        return this._execute(this.endpoints.query, db, query, null, callback, properties);
+    async executeQuery(db, query, properties) {
+        return this._execute(this.endpoints.query, db, query, null, properties);
     }
 
-    executeMgmt(db, query, callback, properties) {
-        return this._execute(this.endpoints.mgmt, db, query, null, callback, properties);
+    async executeMgmt(db, query, callback, properties) {
+        return this._execute(this.endpoints.mgmt, db, query, null, properties);
     }
 
-    executeStreamingIngest(db, table, stream, streamFormat, callback, properties, mappingName) {
+    async executeStreamingIngest(db, table, stream, streamFormat, properties, mappingName) {
         let endpoint = `${this.endpoints.ingest}/${db}/${table}?streamFormat=${streamFormat}`;
         if (mappingName != null) {
             endpoint += `&mappingName=${mappingName}`;
         }
 
-        return this._execute(endpoint, db, null, stream, callback, properties);
+        return this._execute(endpoint, db, null, stream, properties);
     }
 
-    _execute(endpoint, db, query, stream, callback, properties) {
+    async _execute(endpoint, db, query, stream, properties) {
         let headers = {};
         Object.assign(headers, this.headers);
 
@@ -87,61 +87,55 @@ module.exports = class KustoClient {
             clientRequestPrefix = "KNC.executeStreamingIngest;";
             headers["Content-Encoding"] = "gzip";
         }
-
         headers["x-ms-client-request-id"] = clientRequestId || clientRequestPrefix + `${uuidv4()}`;
 
-        return this.aadHelper.getAuthHeader((err, authHeader) => {
-            if (err) return callback(err);
+        headers["Authorization"] = await this.aadHelper.getAuthHeader();
 
-            headers["Authorization"] = authHeader;
-
-            return this._doRequest(endpoint, headers, payload, timeout, properties, callback);
-        });
+        return this._doRequest(endpoint, headers, payload, timeout, properties);
     }
 
-    _doRequest(endpoint, headers, payload, timeout, properties, callback) {
-        return request({
-            method: "POST",
-            url: endpoint,
-            headers,
-            body: payload,
+    async _doRequest(endpoint, headers, payload, timeout, properties) {
+        let axiosConfig = {
+            headers: headers,
             gzip: true,
-            timeout
-        }, this._getRequestCallback(properties, callback)
-        );
+            timeout: timeout
+        };
+
+        let axiosResponse;
+        try {
+            axiosResponse = await axios.post(endpoint, payload, axiosConfig);
+        }
+        catch (error) {
+            if(error.response){
+                error = error.response.data.error;
+            }
+            throw error;
+        }
+
+        return this._ParseResponse(axiosResponse, properties);
     }
 
-    _getRequestCallback(properties, callback) {
+    _ParseResponse(response, properties) {
+
         const { raw } = properties || {};
+        if (raw === true || response.request.path.toLowerCase().startsWith("/v1/rest/ingest")) {
+            return response;
+        }
 
-        return (error, response, body) => {
-            if (error) return callback(error);
-
-            if (response.statusCode >= 200 && response.statusCode < 400) {
-                if (raw === true || response.request.path.toLowerCase().startsWith("/v1/rest/ingest")) {
-                    return callback(null, body);
-                }
-
-                let kustoResponse = null;
-
-                try {
-                    if (response.request.path.toLowerCase().startsWith("/v2/")) {
-                        kustoResponse = new KustoResponseDataSetV2(JSON.parse(body));
-                    } else if (response.request.path.toLowerCase().startsWith("/v1/")) {
-                        kustoResponse = new KustoResponseDataSetV1(JSON.parse(body));
-                    }
-
-                    if (kustoResponse.getErrorsCount() > 0) {
-                        return callback(`Kusto request had errors. ${kustoResponse.getExceptions()}`);
-                    }
-                } catch (ex) {
-                    return callback(`Failed to parse response ({${response.statusCode}}) with the following error [${ex}].`);
-                }
-                return callback(null, kustoResponse);
-            } else {
-                return callback(`Kusto request erred (${response.statusCode}). ${body}.`);
+        let kustoResponse = null;
+        try {
+            if (response.request.path.toLowerCase().startsWith("/v2/")) {
+                kustoResponse = new KustoResponseDataSetV2(response.data);
+            } else if (response.request.path.toLowerCase().startsWith("/v1/")) {
+                kustoResponse = new KustoResponseDataSetV1(response.data);
             }
-        };
+        } catch (ex) {
+            throw `Failed to parse response ({${response.status}}) with the following error [${ex}].`;
+        }
+        if (kustoResponse.getErrorsCount() > 0) {
+            throw `Kusto request had errors. ${kustoResponse.getExceptions()}`;
+        }
+        return kustoResponse;
     }
 
     _getClientTimeout(endpoint, properties) {
