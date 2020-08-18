@@ -18,7 +18,7 @@
   ],
   "scripts": {
     "example": "node example.js",
-    "test": "mocha test/clientTest.js --timeout 240000",
+    "test": "mocha",
     "lint": "eslint source --quiet"
   },
   "author": "",

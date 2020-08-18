@@ -24,21 +24,6 @@ function getSourceId(sourceId){
     return uuidv4();
 }
 
-class BytesCounter extends Transform {
-    constructor() {
-        super();
-        this.bytes = 0;
-    }
-
-    _transform(chunk, encoding, cb) {
-        this.bytes += chunk.length;
-        this.push(chunk);
-
-        this.emit("progress", this.bytes);
-        cb();
-    }
-}
-
 class FileDescriptor {
     constructor(filePath, sourceId = null, size = null) {
         this.filePath = filePath;
@@ -49,29 +34,22 @@ class FileDescriptor {
         this.sourceId = getSourceId(sourceId);
     }
 
-    _gzip(callback) {
-        let zipper = zlib.createGzip();
+    _gzip() {
+        let gzip = zlib.createGzip();
         let input = fs.createReadStream(this.filePath, { autoClose: true });
         let output = fs.createWriteStream(this.filePath + ".gz");
-
-        input.pipe(zipper).pipe(output);
-
-        output.once("close", () => {
-            return callback(null, this.filePath + ".gz");
-        });
+        input.pipe(gzip).pipe(output);
+        return this.filePath + ".gz";
     }
 
-    prepare(callback) {
+    prepare() {
         if (this.size != null && this.size > 0) {
-            return !this.zipped ? this._gzip(callback) : callback(null, this.filePath);
+            return !this.zipped ? this._gzip() : this.filePath;
         }
 
-        return fs.stat(this.filePath, (err, stats) => {
-            if (err) return callback(err);
-
-            this.size = this.zipped ? stats.size * 11 : stats.size;
-            return !this.zipped ? this._gzip(callback) : callback(null, this.filePath);
-        });
+        const stats = fs.statSync(this.filePath);
+        this.size = this.zipped ? stats.size * 11 : stats.size;
+        return !this.zipped ? this._gzip() : this.filePath;
     }
 }
 
@@ -85,16 +63,6 @@ class StreamDescriptor {
         this.size = null;
         this.compressionType = compressionType;
         this.sourceId = getSourceId(sourceId);
-    }
-
-    pipe(dest, callback) {
-        let bytesCounter = new BytesCounter();
-
-        bytesCounter.once("progress", (sizeInBytes) => this.size = sizeInBytes);
-
-        dest.on("error", (e) => callback(e));
-
-        this.stream = this._stream.pipe(bytesCounter).pipe(dest);
     }
 }
 

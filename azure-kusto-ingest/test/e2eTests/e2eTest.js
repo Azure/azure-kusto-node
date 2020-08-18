@@ -17,7 +17,7 @@ const appId = process.env.APP_ID;
 const appKey = process.env.APP_KEY;
 const tenantId = process.env.TENANT_ID;
 
-if(!databaseName || !appId || !appKey || !tenantId){
+if (!databaseName || !appId || !appKey || !tenantId) {
     process.stdout.write("Skip E2E test - Missing env variables");
     return;
 }
@@ -59,112 +59,123 @@ const testItems = [
 
 var currentCount = 0;
 
-describe(`E2E Tests - ${tableName}` , function () {
-    after(function() {         
-        queryClient.execute(databaseName, `.drop table ${tableName} ifexists`, (err, results) => {});
+describe(`E2E Tests - ${tableName}`, function () {
+    after(async function () {
+        try {
+            //await queryClient.execute(databaseName, `.drop table ${tableName} ifexists`);
+        }
+        catch (err) {
+            assert.fail("Failed to create table" + err);
+        }
     });
 
     describe('SetUp', function () {
-        it('Create table', function (done) {
-            queryClient.execute(databaseName, `.create table ${tableName} ${tableColumns}`, (err, results) => {
-                if (err) assert.fail("Failed to create table");
-                done();
-            });
+        it('Create table', async function () {
+            try {
+                const s = await queryClient.execute(databaseName, `.create table ${tableName} ${tableColumns}`);
+                console.log(s);
+            }
+            catch (err) {
+                assert.fail("Failed to create table" + err);
+            }
         });
 
-        it('Create table ingestion mapping', function (done) {
-            queryClient.execute(databaseName, `.create-or-alter table ${tableName} ingestion json mapping '${mappingName}' '${mapping}'`, (err, results) => {
-                if (err) assert.fail("Failed to create table ingestion mapping");
-                done();
-            });
+        it('Create table ingestion mapping', async function () {
+            try {
+                await queryClient.execute(databaseName, `.create-or-alter table ${tableName} ingestion json mapping '${mappingName}' '${mapping}'`);
+            }
+            catch (err) {
+                assert.fail("Failed to create table ingestion mapping" + err);
+            }
         });
     });
 
     describe('ingestClient', function () {
         it('ingestFromFile', async function () {
             for (let item of testItems) {
-                await new Promise((resolve) => {
-                    ingestClient.ingestFromFile(item.path, item.ingestionProperties, async (err, results) => {
-                        if (err) assert.fail(`Failed to ingest ${item.description}`);
-                        resolve();
-                    });
-                });
-                await assertRowsCount(item);
-            }
-        });
-
-        it('ingestFromStream', async function () {
-            for (let item of testItems) {
-                let stream = fs.createReadStream(item.path);
-                if (item.path.endsWith('gz')) {
-                    stream = new StreamDescriptor(stream, null, CompressionType.GZIP);
+                try {
+                    await ingestClient.ingestFromFile(item.path, item.ingestionProperties);
                 }
-                await new Promise((resolve) => {
-                    ingestClient.ingestFromStream(stream, item.ingestionProperties, async (err, results) => {
-                        if (err) assert.fail(`Failed to ingest ${item.description}`);
-                        resolve();
-                    });
-                });
-                await assertRowsCount(item);
-            }
-        });
-    });
-
-    describe('StreamingIngestClient', function () {
-        it('ingestFromFile', async function () {
-            for (let item of testItems.filter(item => item.testOnstreamingIngestion)) {
-                await new Promise((resolve) => {
-                    streamingIngestClient.ingestFromFile(item.path, item.ingestionProperties, async (err, results) => {
-                        if (err) assert.fail(`Failed to ingest ${item.description}`);
-                        resolve();
-                    });
-                });
-                await assertRowsCount(item);
-            }
-        });
-
-        it('ingestFromStream', async function () {
-            for (let item of testItems.filter(item => item.testOnstreamingIngestion)) {
-                let stream = fs.createReadStream(item.path);
-                if (item.path.endsWith('gz')) {
-                    stream = new StreamDescriptor(stream, null, CompressionType.GZIP);
+                catch (err) {
+                    console.error(err);
+                    assert.fail(`Failed to ingest ${item.description}`);
                 }
-                await new Promise((resolve) => {
-                    streamingIngestClient.ingestFromStream(stream, item.ingestionProperties, async (err, results) => {
-                        if (err) assert.fail(`Failed to ingest ${item.description}`);
-                        resolve();
-                    });
-                });
                 await assertRowsCount(item);
             }
         });
+
+        // it('ingestFromStream', async function () {
+        //     for (let item of testItems) {
+        //         let stream = fs.createReadStream(item.path);
+        //         if (item.path.endsWith('gz')) {
+        //             stream = new StreamDescriptor(stream, null, CompressionType.GZIP);
+        //         }
+        //         try {
+        //             await ingestClient.ingestFromStream(stream, item.ingestionProperties);
+        //         }
+        //         catch (err) {
+        //             console.error(err);
+        //             assert.fail(`Failed to ingest ${item.description}`);
+        //         }
+        //         await assertRowsCount(item);
+        //     }
+        // });
     });
 
-        
-    describe('QueryClient', function () {
-        it('General BadRequest', async function () {
-            await new Promise((resolve) => {
-                response = queryClient.executeQuery(databaseName, "invalidSyntax ", async (err, results) => {
-                    if (!err){
-                        assert.fail(`General BadRequest ${item.description}`);
-                    }
-                    resolve();
-                });
-            });
-        });
+    // describe('StreamingIngestClient', function () {
+    //     it('ingestFromFile', async function () {
+    //         for (let item of testItems.filter(item => item.testOnstreamingIngestion)) {
+    //             try {
+    //                 await streamingIngestClient.ingestFromFile(item.path, item.ingestionProperties);
+    //             }
+    //             catch (err) {
+    //                 assert.fail(`Failed to ingest ${item.description}`);
+    //             }
+    //             await assertRowsCount(item);
+    //         }
+    //     });
 
-        it('PartialQueryFailure', async function () {
-            await new Promise((resolve) => {
-                response = queryClient.executeQuery(databaseName, `set max_memory_consumption_per_query_per_node=1; ${tableName}`, async (err, results) => {
-                    if (!err){
-                        assert.fail(`Didn't throw PartialQueryFailure ${item.description}`);
-                    }
-                    resolve();
-                });
-            });
-        });
-    });
+    //     it('ingestFromStream', async function () {
+    //         for (let item of testItems.filter(item => item.testOnstreamingIngestion)) {
+    //             let stream = fs.createReadStream(item.path);
+    //             if (item.path.endsWith('gz')) {
+    //                 stream = new StreamDescriptor(stream, null, CompressionType.GZIP);
+    //             }
+    //             try {
+    //                 await streamingIngestClient.ingestFromStream(stream, item.ingestionProperties);
+    //             }
+    //             catch (err) {
+    //                 assert.fail(`Failed to ingest ${item.description}`);
+    //             }
+    //             await assertRowsCount(item);
+    //         }
+    //     });
+    // });
 
+
+    // describe('QueryClient', function () {
+    //     it('General BadRequest', async function () {
+    //         try {
+    //             response = await queryClient.executeQuery(databaseName, "invalidSyntax ");
+
+    //         }
+    //         catch (ex) {
+    //             return;
+    //         }
+    //         assert.fail(`General BadRequest ${item.description}`);
+    //     });
+
+    //     it('PartialQueryFailure', async function () {
+    //         try {
+    //             response = await queryClient.executeQuery(databaseName, "invalidSyntax ");
+
+    //         }
+    //         catch (ex) {
+    //             return;
+    //         }
+    //         assert.fail(`Didn't throw PartialQueryFailure ${item.description}`);
+    //     });
+    // });
 });
 
 function sleep(ms) {
@@ -181,15 +192,15 @@ async function assertRowsCount(testItem) {
     // Timeout = 3 min
     for (var i = 0; i < 18; i++) {
         await sleep(10000);
-        await new Promise((resolve) => {
-            queryClient.execute(databaseName, `${tableName} | count `, (err, results) => {
-                if (results) {
-                    count = results.primaryResults[0][0].Count - currentCount;
-                }
-                resolve();
-            });
-        });
+        let results;
+        try {
+            results = await queryClient.execute(databaseName, `${tableName} | count `);
+        }
+        catch (ex) {
+            continue;
+        }
 
+        count = results.primaryResults[0][0].Count - currentCount;
         if (count >= expected) {
             break;
         }

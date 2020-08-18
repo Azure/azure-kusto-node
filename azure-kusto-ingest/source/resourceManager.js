@@ -19,20 +19,12 @@ class ResourceURI {
         return new ResourceURI(match[1], match[2], match[3], match[4]);
     }
 
-    toURI(options) {
-        if (options) {
-            let baseURI = `https://${this.storageAccountName}.${this.objectType}.core.windows.net/`;
-
-            if (options.withObjectName !== false) {
-                baseURI += this.objectName;
-            }
-            if (options.withSas !== false) {
-                baseURI += this.sas;
-            }
-
-            return baseURI;
-        } else {
-            return `https://${this.storageAccountName}.${this.objectType}.core.windows.net/${this.objectName}?${this.sas}`;
+    getSASConnectionString() {
+        if(this.objectType == "queue"){
+            return `QueueEndpoint=https://${this.storageAccountName}.queue.core.windows.net/;SharedAccessSignature=${this.sas}`
+        }
+        if(this.objectType == "blob"){
+            return `BlobEndpoint=https://${this.storageAccountName}.blob.core.windows.net/;SharedAccessSignature=${this.sas}`
         }
     }
 }
@@ -78,20 +70,26 @@ module.exports.ResourceManager = class ResourceManager {
 
     }
 
-    refreshIngestClientResources(callback) {
+    async refreshIngestClientResources() {
         let now = moment.now();
         if (!this.ingestClientResources ||
-            (this.ingestClientResourcesLastUpdate + this.refreshPeriod) <= now || !this.ingestClientResources.valid()
-        ) {
-            this.getIngestClientResourcesFromService((err, data) => {
-                this.ingestClientResources = data;
-                this.ingestClientResourcesLastUpdate = now;
-
-                callback(err);
-            });
-        } else {
-            callback();
+            (this.ingestClientResourcesLastUpdate + this.refreshPeriod) <= now || !this.ingestClientResources.valid()) {
+            this.ingestClientResources = await this.getIngestClientResourcesFromService();
+            this.ingestClientResourcesLastUpdate = now;
         }
+    }
+
+    async getIngestClientResourcesFromService() {
+        let response = await this.kustoClient.execute("NetDefaultDB", ".get ingestion resources");
+        const table = response.primaryResults[0];
+
+        const resources = new IngestClientResources(
+            this.getResourceByName(table, "SecuredReadyForAggregationQueue"),
+            this.getResourceByName(table, "FailedIngestionsQueue"),
+            this.getResourceByName(table, "SuccessfulIngestionsQueue"),
+            this.getResourceByName(table, "TempStorage")
+        );
+        return resources;
     }
 
     getResourceByName(table, resourceName) {
@@ -104,84 +102,43 @@ module.exports.ResourceManager = class ResourceManager {
         return result;
     }
 
-    getIngestClientResourcesFromService(callback) {
-        return this.kustoClient.execute("NetDefaultDB", ".get ingestion resources", (err, resp) => {
-            if (err) return callback(err);
-
-            const table = resp.primaryResults[0];
-
-            const resources = new IngestClientResources(
-                this.getResourceByName(table, "SecuredReadyForAggregationQueue"),
-                this.getResourceByName(table, "FailedIngestionsQueue"),
-                this.getResourceByName(table, "SuccessfulIngestionsQueue"),
-                this.getResourceByName(table, "TempStorage")
-            );
-
-            return callback(null, resources);
-        });
-    }
-
-    refreshAuthorizationContext(callback) {
+    async refreshAuthorizationContext() {
         let now = moment.utc();
         if (!this.authorizationContext || this.authorizationContext.trim() ||
             (this.authorizationContextLastUpdate + this.refreshPeriod) <= now) {
-            return this.getAuthorizationContextFromService((err, data) => {
-                this.authorizationContext = data;
-                this.authorizationContextLastUpdate = now;
-
-                return callback(err);
-            });
+            this.authorizationContext = await this.getAuthorizationContextFromService();
+            this.authorizationContextLastUpdate = now;
         }
-
-        return callback();
-
     }
 
-    getAuthorizationContextFromService(callback) {
-        return this.kustoClient.execute("NetDefaultDB", ".get kusto identity token", (err, resp) => {
-            if (err) return callback(err);
-
-            const authContext = resp.primaryResults[0].rows().next().value.AuthorizationContext;
-
-            return callback(err, authContext);
-        });
+    async getAuthorizationContextFromService() {
+        let response = await this.kustoClient.execute("NetDefaultDB", ".get kusto identity token");
+        const authContext = response.primaryResults[0].rows().next().value.AuthorizationContext;
+        return authContext;
     }
 
-    getIngestionQueues(callback) {
-        return this.refreshIngestClientResources((err) => {
-            if (err) return callback(err);
-
-            return callback(null, this.ingestClientResources.securedReadyForAggregationQueues);
-        });
+    async getIngestionQueues() {
+        await this.refreshIngestClientResources();
+        return this.ingestClientResources.securedReadyForAggregationQueues;
     }
 
-    getFailedIngestionsQueues(callback) {
-        return this.refreshIngestClientResources((err) => {
-            if (err) return callback(err);
-
-            return callback(null, this.ingestClientResources.failedIngestionsQueues);
-        });
-    }
-    getSuccessfulIngestionsQueues(callback) {
-        return this.refreshIngestClientResources((err) => {
-            if (err) return callback(err);
-
-            return callback(null, this.ingestClientResources.successfulIngestionsQueues);
-        });
-    }
-    getContainers(callback) {
-        return this.refreshIngestClientResources((err) => {
-            if (err) return callback(err);
-
-            return callback(null, this.ingestClientResources.containers);
-        });
+    async getFailedIngestionsQueues() {
+        await this.refreshIngestClientResources();
+        return this.ingestClientResources.failedIngestionsQueues;
     }
 
-    getAuthorizationContext(callback) {
-        return this.refreshAuthorizationContext((err) => {
-            if (err) return callback(err);
+    async getSuccessfulIngestionsQueues() {
+        await this.refreshIngestClientResources();
+        return this.ingestClientResources.successfulIngestionsQueues;
+    }
 
-            return callback(null, this.authorizationContext);
-        });
+    async getContainers() {
+        await this.refreshIngestClientResources();
+        return this.ingestClientResources.containers;
+    }
+
+    async getAuthorizationContext() {
+        await this.refreshAuthorizationContext();
+        return this.authorizationContext;
     }
 };

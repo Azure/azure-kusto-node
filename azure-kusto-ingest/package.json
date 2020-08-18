@@ -19,14 +19,16 @@
   "scripts": {
     "example": "node example.js",
     "lint": "eslint source --quiet",
+    "test": "mocha",
     "allTests": "mocha --timeout 240000 --recursive"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@azure/storage-blob": "^12.1.2",
+    "@azure/storage-queue": "^12.0.5",
     "adal-node": "^0.1.28",
     "azure-kusto-data": "latest",
-    "azure-storage": "^2.10.2",
     "moment": "^2.22.2",
     "request": "^2.88.0",
     "uuid": "^3.3.2",
@@ -34,7 +36,7 @@
   },
   "devDependencies": {
     "eslint": "^6.8.0",
-    "mocha": "^7.1.2",
+    "mocha": "^7.2.0",
     "sinon": "^7.2.3"
   }
 }

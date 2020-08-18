@@ -34,7 +34,7 @@ module.exports = class KustoClient {
     async execute(db, query, properties) {
         query = query.trim();
         if (query.startsWith(".")) {
-            return await this.executeMgmt(db, query, properties);
+            return this.executeMgmt(db, query, properties);
         }
 
         return this.executeQuery(db, query, properties);
@@ -44,7 +44,7 @@ module.exports = class KustoClient {
         return this._execute(this.endpoints.query, db, query, null, properties);
     }
 
-    async executeMgmt(db, query, callback, properties) {
+    async executeMgmt(db, query, properties) {
         return this._execute(this.endpoints.mgmt, db, query, null, properties);
     }
 
@@ -112,14 +112,14 @@ module.exports = class KustoClient {
             throw error;
         }
 
-        return this._ParseResponse(axiosResponse, properties);
+        return this._parseResponse(axiosResponse, properties);
     }
 
-    _ParseResponse(response, properties) {
+    _parseResponse(response, properties) {
 
         const { raw } = properties || {};
         if (raw === true || response.request.path.toLowerCase().startsWith("/v1/rest/ingest")) {
-            return response;
+            return response.data;
         }
 
         let kustoResponse = null;

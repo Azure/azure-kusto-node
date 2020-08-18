@@ -30,12 +30,7 @@ module.exports = class KustoStreamingIngestClient {
     
     async ingestFromStream(stream, ingestionProperties) {
         const props = this._mergeProps(ingestionProperties);
-
-        try {
-            props.validate();
-        } catch (e) {
-            return callback(e);
-        }
+        props.validate();
 
         const descriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
         const compressedStream  = 
@@ -49,19 +44,13 @@ module.exports = class KustoStreamingIngestClient {
             props.database, 
             props.table, 
             compressedStream, 
-            props.format, 
-            callback, 
+            props.format,
             props.ingestionMappingReference);
     }
 
     async ingestFromFile(file, ingestionProperties) {
         const props = this._mergeProps(ingestionProperties);
-
-        try {
-            props.validate();
-        } catch (e) {
-            return callback(e);
-        }
+        props.validate();
 
         const fileDescriptor = file instanceof FileDescriptor ? file : new FileDescriptor(file);
 
