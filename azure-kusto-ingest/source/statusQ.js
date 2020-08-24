@@ -82,14 +82,14 @@ module.exports = class StatusQueue {
         const perQ = qServices.length > 1 ? Math.floor(n / qServices.length) : qServices.length;
 
         // first, iterate evenly and randomly on status queues
-        const partial = await this._peek(qServices, perQ, options)
+        const partial = await this._peek(qServices, perQ, options);
 
         if (partial.done) return partial.result;
 
         let messagesLeftToPeek = n - partial.result.length;
 
         // incase queues are uneven, iterate again, this time, request entire n messages, and trim
-        return await this._peek(partial.result.nonEmptyQs, messagesLeftToPeek, options)
+        return await this._peek(partial.result.nonEmptyQs, messagesLeftToPeek, options);
     }
 
     async _pop(qs, n, options) {
@@ -132,7 +132,7 @@ module.exports = class StatusQueue {
         let messagesLeftToPop = n - partial.result.length;
 
         // incase queues are uneven, iterate again, this time, request entire n messages, and trim
-        const final = await this._pop(partial.result.nonEmptyQs, messagesLeftToPop, options)
+        const final = await this._pop(partial.result.nonEmptyQs, messagesLeftToPop, options);
         return partial.result.concat(final.result);
     }
-}
+};

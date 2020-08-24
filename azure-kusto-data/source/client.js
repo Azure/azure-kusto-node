@@ -8,7 +8,7 @@ const { KustoResponseDataSetV1, KustoResponseDataSetV2 } = require("./response")
 const ConnectionStringBuilder = require("./connectionBuilder");
 const ClientRequestProperties = require("./clientRequestProperties");
 const pkg = require("../package.json");
-const axios = require('axios');
+const axios = require("axios");
 
 const COMMAND_TIMEOUT_IN_MILLISECS = moment.duration(10.5, "minutes").asMilliseconds();
 const QUERY_TIMEOUT_IN_MILLISECS = moment.duration(4.5, "minutes").asMilliseconds();
@@ -108,7 +108,7 @@ module.exports = class KustoClient {
         }
         catch (error) {
             if(error.response){
-                error = error.response.data.error;
+                throw error.response.data.error;
             }
             throw error;
         }

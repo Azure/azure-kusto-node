@@ -4,7 +4,6 @@
 const fs = require("fs");
 const path = require("path");
 const zlib = require("zlib");
-const Transform = require("stream").Transform;
 const uuidValidate = require("uuid-validate");
 const uuidv4 = require("uuid/v4");
 
@@ -41,9 +40,9 @@ class FileDescriptor {
 
         await new Promise((resolve, reject) => {
             input.pipe(zipper).pipe(output)
-            .on("error", (err) => {
-                reject(err);
-            });
+                .on("error", (err) => {
+                    reject(err);
+                });
             output.once("close", function() {
                 resolve();
             });

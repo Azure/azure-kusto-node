@@ -74,11 +74,11 @@ module.exports = class AadHelper {
     getAuthHeader() {
         return new Promise((resolve, reject) => {
             this._getAuthHeader((error, authHeader) => {
-              if (error) {
-                reject(error);
-              } else {
-                resolve(authHeader);
-              }
+                if (error) {
+                    reject(error);
+                } else {
+                    resolve(authHeader);
+                }
             });
         });
     }
