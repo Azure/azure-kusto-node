@@ -2,12 +2,12 @@
 // Licensed under the MIT License.
 
 const IngestClient = require("azure-kusto-ingest").IngestClient;
-const IngestStatusQueues = require("azure-kusto-ingest").IngestStatusQueues;
+const IngestStatusQueues = require("azure-kusto-ingest").KustoIngestStatusQueues;
 const IngestionProps = require("azure-kusto-ingest").IngestionProperties;
 const { ReportLevel, ReportMethod } = require("azure-kusto-ingest").IngestionPropertiesEnums;
 const KustoConnectionStringBuilder = require("azure-kusto-data").KustoConnectionStringBuilder;
-const { DataFormat, JsonColumnMapping , IngestionMappingType, CompressionType} = require("azure-kusto-ingest").IngestionPropertiesEnums;
-const { BlobDescriptor, StreamDescriptor} = require("azure-kusto-ingest").IngestionDescriptors;
+const { DataFormat, JsonColumnMapping, IngestionMappingType, CompressionType } = require("azure-kusto-ingest").IngestionPropertiesEnums;
+const { BlobDescriptor, StreamDescriptor } = require("azure-kusto-ingest").IngestionDescriptors;
 const StreamingIngestClient = require("azure-kusto-ingest").StreamingIngestClient;
 const fs = require('fs');
 
@@ -20,7 +20,7 @@ const props = new IngestionProps({
     database: "Database",
     table: "Table",
     format: DataFormat.JSON,
-    ingestionMapping : [
+    ingestionMapping: [
         new JsonColumnMapping("TargetColumn1", "$.sourceProp1"),
         new JsonColumnMapping("TargetColumn2", "$.sourceProp2"),
         new JsonColumnMapping("TargetColumn3", "$.sourceProp3")
@@ -40,83 +40,9 @@ const ingestClient = new IngestClient(
 
 const statusQueues = new IngestStatusQueues(ingestClient);
 
-function waitForFailures() {
-    statusQueues.failure.isEmpty((err, empty) => {
-        if (err) throw new Error(err);
-
-        if (empty) {
-            console.log("no errors...");
-            return setTimeout(waitForFailures, 1000);
-        }
-        else {
-            statusQueues.failure.pop((err, failures) => {
-                if (err) throw new Error(err);
-
-                for (let failure of failures) {
-                    console.log(JSON.stringify(failure));
-                }
-
-                return setTimeout(waitForFailures, 1000);
-            });
-        }
-    });
-}
-
-function waitForSuccess() {
-    statusQueues.success.isEmpty((err, empty) => {
-        if (err) throw new Error(err);
-
-        if (empty) {
-            console.log("no successes...");
-            return setTimeout(waitForSuccess, 1000);
-        }
-        else {
-            statusQueues.success.pop((err, successes) => {
-                if (err) throw new Error(err);
-
-                for (let success of successes) {
-                    console.log(JSON.stringify(success));
-                }
-
-                return setTimeout(waitForSuccess, 1000);
-            })
-        }
-    });
-}
-
-console.log("Ingest from file");
-
-ingestClient.ingestFromFile("file.json", null, (err) => {
-    if (err) {
-        console.log(err);
-    }
-
-    console.log("Ingestion done?");
-
-
-    setTimeout(waitForFailures, 0);
-    setTimeout(waitForSuccess, 0);
-});
-
-ingestClient.ingestFromBlob(
-    new BlobDescriptor("https://<account>.blob.core.windows.net/<container>/file.json.gz", 1024 * 50 /* 50MB file */),
-    null,
-    (err) => {
-        if (err) {
-            console.log(err);
-        }
-
-        console.log("Ingestion done?");
-
-
-        setTimeout(waitForFailures, 0);
-        setTimeout(waitForSuccess, 0);
-    }
-);
-
+startIngestion();
 
 // Streaming ingest client 
-
 const props2 = new IngestionProps({
     database: "Database",
     table: "Table",
@@ -132,34 +58,80 @@ const streamingIngestClient = new StreamingIngestClient(
     props2
 );
 
-// Ingest from file with either file path or FileDescriptor
-streamingIngestClient.ingestFromFile("file.json", null, (err) => {
-    if (err) {
+startStreamingIngestion();
+
+async function startIngestion() {
+    console.log("Ingest from file");
+    try {
+        await ingestClient.ingestFromFile("file.json");
+        console.log("Ingestion done?");
+
+        await waitForStatus();
+    }
+    catch (err) {
         console.log(err);
     }
 
-    console.log("Ingestion done");
-});
+    try {
+        await ingestClient.ingestFromBlob(new BlobDescriptor("https://<account>.blob.core.windows.net/<container>/file.json.gz", 1024 * 50 /* 50MB file */));
+        console.log("Ingestion done?");
 
-// Ingest from stream with either ReadStream or StreamDescriptor
-const stream = fs.createReadStream("file.json");
+        await waitForStatus();
+    }
+    catch (err) {
+        console.log(err);
+    }
+}
 
-streamingIngestClient.ingestFromStream(stream, null, (err) => {
-    if (err) {
+async function waitForStatus(numberOFIngestions = 1) {
+    while (await statusQueues.failure.isEmpty() && await statusQueues.success.isEmpty()) {
+        console.log("Waiting for status...");
+        await sleep(1000);
+    }
+
+    const failures = await statusQueues.failure.pop(numberOFIngestions);
+    for (let failure of failures) {
+        console.log(`Failed: ${JSON.stringify(failure)}`);
+    }
+    const successes = await statusQueues.success.pop(numberOFIngestions);
+    for (let success of successes) {
+        console.log(`Succeeded: ${JSON.stringify(success)}`);
+    }
+}
+
+function sleep(ms) {
+    return new Promise((resolve) => { setTimeout(resolve, ms); });
+}
+
+async function startStreamingIngestion() {
+
+    // Ingest from file with either file path or FileDescriptor
+    try {
+        await streamingIngestClient.ingestFromFile("file.json", props2);
+        console.log("Ingestion done");
+    }
+    catch (err) {
         console.log(err);
     }
 
-    console.log("Ingestion done");
-});
-
-// For gzip data set StreamDescriptor.compressionType to CompressionType.GZIP
-const stream = fs.createReadStream("file.json.gz");
-const streamDescriptor = new StreamDescriptor(stream, "id", CompressionType.GZIP);
-
-streamingIngestClient.ingestFromStream(streamDescriptor, null, (err) => {
-    if (err) {
+    // Ingest from stream with either ReadStream or StreamDescriptor
+    const stream = fs.createReadStream("file.json");
+    try {
+        await streamingIngestClient.ingestFromStream("file.json", props2);
+        console.log("Ingestion done");
+    }
+    catch (err) {
         console.log(err);
     }
 
-    console.log("Ingestion done");
-});
+    // For gzip data set StreamDescriptor.compressionType to CompressionType.GZIP
+    const stream = fs.createReadStream("file.json.gz");
+    const streamDescriptor = new StreamDescriptor(stream, "id", CompressionType.GZIP);
+    try {
+        await streamingIngestClient.ingestFromStream(streamDescriptor, props2);
+        console.log("Ingestion done");
+    }
+    catch (err) {
+        console.log(err);
+    }
+}

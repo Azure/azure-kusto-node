@@ -48,11 +48,11 @@ class FailureMessage extends StatusMessage {
 module.exports = class KustoIngestStatusQueues {
     constructor(kustoIngestClient) {
         this.success = new StatusQueue(
-            kustoIngestClient.resourceManager.getSuccessfulIngestionsQueues(cb),
+            () => kustoIngestClient.resourceManager.getSuccessfulIngestionsQueues(),
             SuccessMessage
         );
         this.failure = new StatusQueue(
-            kustoIngestClient.resourceManager.getFailedIngestionsQueues(cb),
+            () => kustoIngestClient.resourceManager.getFailedIngestionsQueues(),
             FailureMessage
         );
     }

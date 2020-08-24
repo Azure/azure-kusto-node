@@ -34,7 +34,7 @@ module.exports = class KustoIngestClient {
     }
 
     async _getBlockBlobClient(blobName){
-        const containers = await this.resourceManager.getRandomContainer();
+        const containers = await this.resourceManager.getContainers();
         const container = containers[Math.floor(Math.random() * containers.length)];
         const containerClient = new ContainerClient(container.getSASConnectionString(), container.objectName);
         const blockBlobClient = containerClient.getBlockBlobClient(blobName);
@@ -50,7 +50,7 @@ module.exports = class KustoIngestClient {
         const blobName = `${props.database}__${props.table}__${descriptor.sourceId}` +
             `${this._getBlobNameSuffix(props.format, descriptor.compressionType)}`;
 
-        const blockBlobClient = await _getBlockBlobClient(blobName);
+        const blockBlobClient = await this._getBlockBlobClient(blobName);
         await blockBlobClient.uploadStream(descriptor.stream);
 
         return this.ingestFromBlob(new BlobDescriptor(blockBlobClient.url), props); // descriptor.size?
@@ -62,11 +62,11 @@ module.exports = class KustoIngestClient {
 
         const descriptor = file instanceof FileDescriptor ? file : new FileDescriptor(file);
 
-        const fileToUpload = descriptor.prepare();
+        const fileToUpload = await descriptor.prepare();
         const blobName = `${props.database}__${props.table}__${descriptor.sourceId}__${fileToUpload}`;
 
-        const blockBlobClient = await _getBlockBlobClient(blobName);
-        await blockBlobClient.uploadFile(fileToUpload, descriptor.size);
+        const blockBlobClient = await this._getBlockBlobClient(blobName);
+        await blockBlobClient.uploadFile(fileToUpload);
 
         return this.ingestFromBlob(new BlobDescriptor(blockBlobClient.url, descriptor.size, descriptor.sourceId), props);
     }

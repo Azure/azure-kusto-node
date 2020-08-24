@@ -52,7 +52,8 @@ module.exports = class StatusQueue {
 
         for (let i = 0; i < qs.length; i++) {
             let q = qs[i];
-            let messages = await q.service.peekMessages();
+            let response = await q.service.peekMessages();
+            let messages = response.peekedMessageItems;
 
             if (messages && messages.length > 0) {
                 nonEmptyQs.push(q);
@@ -97,7 +98,8 @@ module.exports = class StatusQueue {
 
         for (let i = 0; i < qs.length; i++) {
             let q = qs[i];
-            const messages = await q.service.receiveMessages({ numOfMessages: n });
+            const response = await q.service.receiveMessages({ numOfMessages: n });
+            let messages = response.receivedMessageItems;
             for (let m of messages) {
                 if (m && Object.keys(m).length > 0) {
                     result.push(options && options.raw ? m : this.deserializeMessage(m));
@@ -118,7 +120,7 @@ module.exports = class StatusQueue {
     }
 
 
-    pop(n = 1, options = null) {
+    async pop(n = 1, options = null) {
         const queues = await this.getQueuesFunc();
         const qServices = shuffle(this._getQServices(queues));
         const perQ = qServices.length > 1 ? Math.floor(n / qServices.length) : qServices.length;

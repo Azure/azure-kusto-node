@@ -34,31 +34,44 @@ class FileDescriptor {
         this.sourceId = getSourceId(sourceId);
     }
 
-    _gzip() {
-        let gzip = zlib.createGzip();
+    async _gzip() {
+        let zipper = zlib.createGzip();
         let input = fs.createReadStream(this.filePath, { autoClose: true });
         let output = fs.createWriteStream(this.filePath + ".gz");
-        input.pipe(gzip).pipe(output);
+
+        await new Promise((resolve, reject) => {
+            input.pipe(zipper).pipe(output)
+            .on("error", (err) => {
+                reject(err);
+            });
+            output.once("close", function() {
+                resolve();
+            });
+        });
+        
         return this.filePath + ".gz";
     }
 
-    prepare() {
-        if (this.size != null && this.size > 0) {
-            return !this.zipped ? this._gzip() : this.filePath;
+    async prepare() {
+        if(this.zipped){
+            if (this.size == null || this.size <= 0) {
+                this.size = fs.statSync(this.filePath).size * 11;
+            } 
+            return this.filePath;
         }
-
-        const stats = fs.statSync(this.filePath);
-        this.size = this.zipped ? stats.size * 11 : stats.size;
-        return !this.zipped ? this._gzip() : this.filePath;
+        else{
+            await this._gzip();
+            if (this.size == null || this.size <= 0) {
+                this.size = fs.statSync(this.filePath).size;
+            } 
+            return this.filePath + ".gz";
+        }
     }
 }
 
-
 class StreamDescriptor {
     constructor(stream, sourceId = null, compressionType = CompressionType.None) {
-        this._stream = stream;
-
-        this.stream = null;
+        this.stream = stream;
         this.name = "stream";
         this.size = null;
         this.compressionType = compressionType;

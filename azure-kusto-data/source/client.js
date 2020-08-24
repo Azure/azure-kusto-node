@@ -48,13 +48,13 @@ module.exports = class KustoClient {
         return this._execute(this.endpoints.mgmt, db, query, null, properties);
     }
 
-    async executeStreamingIngest(db, table, stream, streamFormat, properties, mappingName) {
+    async executeStreamingIngest(db, table, stream, streamFormat, mappingName) {
         let endpoint = `${this.endpoints.ingest}/${db}/${table}?streamFormat=${streamFormat}`;
         if (mappingName != null) {
             endpoint += `&mappingName=${mappingName}`;
         }
 
-        return this._execute(endpoint, db, null, stream, properties);
+        return this._execute(endpoint, db, null, stream, null);
     }
 
     async _execute(endpoint, db, query, stream, properties) {
@@ -86,6 +86,7 @@ module.exports = class KustoClient {
             payload = stream;
             clientRequestPrefix = "KNC.executeStreamingIngest;";
             headers["Content-Encoding"] = "gzip";
+            headers["Content-Type"] = "multipart/form-data";
         }
         headers["x-ms-client-request-id"] = clientRequestId || clientRequestPrefix + `${uuidv4()}`;
 
