@@ -161,8 +161,8 @@ describe(`E2E Tests - ${tableName}`, function () {
             try {
                 await ingestClient.ingestFromFile(item.path, item.ingestionProperties);
                 const status = await waitForStatus();
-                assert.equal(status.SuccessesCount, 1);
-                assert.equal(status.FailuresCount, 0);
+                assert.equal(status.SuccessCount, 1);
+                assert.equal(status.FailureCount, 0);
             }
             catch (err) {
                 console.error(err);
@@ -177,8 +177,8 @@ describe(`E2E Tests - ${tableName}`, function () {
             try {
                 await ingestClient.ingestFromFile(item.path, item.ingestionProperties);
                 const status = await waitForStatus();
-                assert.equal(status.SuccessesCount, 0);
-                assert.equal(status.FailuresCount, 1);
+                assert.equal(status.SuccessCount, 0);
+                assert.equal(status.FailureCount, 1);
             }
             catch (err) {
                 console.error(err);
@@ -219,7 +219,7 @@ async function waitForStatus() {
     const failures = await statusQueues.failure.pop();
     const successes = await statusQueues.success.pop();
 
-    return { "SuccessesCount": successes.length, "FailuresCount": failures.length }
+    return { "SuccessCount": successes.length, "FailureCount": failures.length }
 }
 
 function sleep(ms) {
