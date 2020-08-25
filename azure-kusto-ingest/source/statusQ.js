@@ -63,17 +63,13 @@ module.exports = class StatusQueue {
                 if (m && Object.keys(m).length > 0) {
                     result.push(options && options.raw ? m : this.deserializeMessage(m));
 
-
                     if (result.length == n) {
                         return { done: true, nonEmptyQs, result };
                     }
                 }
             }
-
-            if (i == qs.length - 1) {
-                return { done: nonEmptyQs.length === 0, nonEmptyQs, result };
-            }
         }
+        return { done: nonEmptyQs.length === 0, nonEmptyQs, result };
     }
 
     async peek(n = 1, options = null) {
@@ -112,11 +108,8 @@ module.exports = class StatusQueue {
                     }
                 }
             }
-
-            if (i == qs.length - 1) {
-                return { done: nonEmptyQs.length === 0, nonEmptyQs, result };
-            }
         }
+        return { done: nonEmptyQs.length === 0, nonEmptyQs, result };
     }
 
 
