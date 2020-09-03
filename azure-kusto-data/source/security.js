@@ -71,9 +71,9 @@ module.exports = class AadHelper {
         }
     }
 
-    getAuthHeader() {
+    _getAuthHeader() {
         return new Promise((resolve, reject) => {
-            this._getAuthHeader((error, authHeader) => {
+            this._getAuthHeaderWithCallback((error, authHeader) => {
                 if (error) {
                     reject(error);
                 } else {
@@ -83,7 +83,7 @@ module.exports = class AadHelper {
         });
     }
 
-    _getAuthHeader(cb) {
+    _getAuthHeaderWithCallback(cb) {
         let resource = this.kustoCluster;
         let formatHeader = ({ tokenType, accessToken }) => `${tokenType} ${accessToken}`;
 

@@ -7,8 +7,8 @@ const ClientRequestProperties = require("azure-kusto-data").ClientRequestPropert
 const uuidv4 = require("uuid/v4");
 
 const clusterConectionString = "https://<cluster>.<region>.kusto.windows.net";
-const database = "";
-const table = "";
+const database = "<databaseName>";
+const table = "<tableName>";
 
 const kcs = KustoConnectionStringBuilder.withAadDeviceAuthentication(clusterConectionString);
 const kustoClient = new KustoClient(kcs);
@@ -16,7 +16,7 @@ start();
 
 async function start() {
     try {
-        const results = await kustoClient.execute(database, `${table} | limit 1`);
+        const results = await kustoClient.execute(database, `['${table}'] | limit 1`);
         console.log(JSON.stringify(results));
         console.log(results.primaryResults[0].toString());
     }
@@ -38,7 +38,7 @@ async function start() {
     clientRequestProps.clientRequestId = `MyApp.MyActivity;${uuidv4()}`;
 
     try {
-        const results = await kustoClient.execute(database, `${table} | limit 1`, clientRequestProps);
+        const results = await kustoClient.execute(database, `['${table}'] | limit 1`, clientRequestProps);
         console.log(JSON.stringify(results));
         console.log(results.primaryResults[0].toString());
     }

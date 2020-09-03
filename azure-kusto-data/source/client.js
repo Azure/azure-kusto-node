@@ -90,7 +90,7 @@ module.exports = class KustoClient {
         }
         headers["x-ms-client-request-id"] = clientRequestId || clientRequestPrefix + `${uuidv4()}`;
 
-        headers["Authorization"] = await this.aadHelper.getAuthHeader();
+        headers["Authorization"] = await this.aadHelper._getAuthHeader();
 
         return this._doRequest(endpoint, headers, payload, timeout, properties);
     }
