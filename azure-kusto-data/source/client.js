@@ -13,6 +13,7 @@ const axios = require("axios");
 const COMMAND_TIMEOUT_IN_MILLISECS = moment.duration(10.5, "minutes").asMilliseconds();
 const QUERY_TIMEOUT_IN_MILLISECS = moment.duration(4.5, "minutes").asMilliseconds();
 const CLIENT_SERVER_DELTA_IN_MILLISECS = moment.duration(0.5, "minutes").asMilliseconds();
+const MGMT_PREFIX = ".";
 
 module.exports = class KustoClient {
     constructor(kcsb) {
@@ -33,7 +34,7 @@ module.exports = class KustoClient {
 
     async execute(db, query, properties) {
         query = query.trim();
-        if (query.startsWith(".")) {
+        if (query.startsWith(MGMT_PREFIX)) {
             return this.executeMgmt(db, query, properties);
         }
 
@@ -58,7 +59,7 @@ module.exports = class KustoClient {
     }
 
     async _execute(endpoint, db, query, stream, properties) {
-        let headers = {};
+        const headers = {};
         Object.assign(headers, this.headers);
 
         let payload;
@@ -107,7 +108,7 @@ module.exports = class KustoClient {
             axiosResponse = await axios.post(endpoint, payload, axiosConfig);
         }
         catch (error) {
-            if(error.response){
+            if (error.response) {
                 throw error.response.data.error;
             }
             throw error;
@@ -119,15 +120,16 @@ module.exports = class KustoClient {
     _parseResponse(response, properties) {
 
         const { raw } = properties || {};
-        if (raw === true || response.request.path.toLowerCase().startsWith("/v1/rest/ingest")) {
+        const path = response.request.path.toLowerCase();
+        if (raw === true || path.startsWith("/v1/rest/ingest")) {
             return response.data;
         }
 
         let kustoResponse = null;
         try {
-            if (response.request.path.toLowerCase().startsWith("/v2/")) {
+            if (path.startsWith("/v2/")) {
                 kustoResponse = new KustoResponseDataSetV2(response.data);
-            } else if (response.request.path.toLowerCase().startsWith("/v1/")) {
+            } else if (path.startsWith("/v1/")) {
                 kustoResponse = new KustoResponseDataSetV1(response.data);
             }
         } catch (ex) {

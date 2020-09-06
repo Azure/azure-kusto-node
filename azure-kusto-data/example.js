@@ -28,8 +28,8 @@ async function start() {
     // for a complete list of ClientRequestProperties
     // go to https://docs.microsoft.com/en-us/azure/kusto/api/netfx/request-properties#list-of-clientrequestproperties
     let clientRequestProps = new ClientRequestProperties();
-    const ONE_MINUTE = 1000 * 60;
-    clientRequestProps.setTimeout(ONE_MINUTE);
+    const oneMinute = 1000 * 60;
+    clientRequestProps.setTimeout(oneMinute);
 
     // having client code provide its own clientRequestId is
     // highly recommended. It not only allows the caller to
