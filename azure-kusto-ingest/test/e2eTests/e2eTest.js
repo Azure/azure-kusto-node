@@ -155,6 +155,16 @@ describe(`E2E Tests - ${tableName}`, function () {
     });
 
     describe('KustoIngestStatusQueues', function () {
+        it('CleanStatusQueues', async function () {
+            try {
+               await cleanStatusQueues();
+            }
+            catch (err) {
+                console.error(err);
+                assert.fail(`Failed to Clean status queues`);
+            }
+        }).timeout(240000);
+
         it('CheckSucceededIngestion', async function () {
             item = testItems[0];
             item.ingestionProperties.reportLevel = ReportLevel.FailuresAndSuccesses;
@@ -210,6 +220,16 @@ describe(`E2E Tests - ${tableName}`, function () {
         });
     });
 });
+
+async function cleanStatusQueues() {
+    while (!await statusQueues.failure.isEmpty()) {
+        await statusQueues.failure.pop();
+    }
+
+    while (!await statusQueues.success.isEmpty()) {
+        await statusQueues.success.pop();
+    }
+}
 
 async function waitForStatus() {
     while (await statusQueues.failure.isEmpty() && await statusQueues.success.isEmpty()) {
