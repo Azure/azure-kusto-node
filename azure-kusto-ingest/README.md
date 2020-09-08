@@ -34,14 +34,18 @@ const ingestClient = new IngestClient(
     
 console.log("Ingest from file");
 
-ingestClient.ingestFromFile("file.json", null, (err) => {
-    if (err) {
+Ingest();
+
+async function Ingest() {
+    try{
+        await ingestClient.ingestFromFile("file.json", null);
+    }
+    catch(err){
         console.log(err);
     }
-
-    console.log("Ingestion done");
-});
-
+    console.log("Wait for ingestion status...");
+    await waitForStatus();
+}
 ```
 
 ## Authentication
@@ -125,11 +129,13 @@ There are several methods of ingesting data into Kusto (Azure Data Explorer) usi
 This is useful for cases you already have streams available (http respinse, file stream, etc..)
 
 ```javascript
-ingestClient.ingestFromStream(readable, null, (err) => {
-        if (err) console.log(err);
-        else console.log("Ingestion from stream DONE");
-});
-```
+try{
+    await ingestClient.ingestFromStream(readable, null);
+}
+catch(err){
+    console.log(err);
+}
+console.log("Ingestion from stream DONE");
 
 
 #### From File
@@ -137,17 +143,13 @@ ingestClient.ingestFromStream(readable, null, (err) => {
 Ingesting a file first makes sure it's zipped (if not, it zips it locally) and then send it for ingestion
 
 ```javascript
-ingestClient.ingestFromFile(filePath, null, (err) => {
-        if (err) {
-            console.log(err);
-        }
-
-        console.log("Ingestion from file DONE");
-
-
-        setTimeout(waitForFailures, 0);
-        setTimeout(waitForSuccess, 0);
-    });
+let blob = new BlobDescriptor(blobUri, size);
+try{
+    await ingestClient.ingestFromFile("file.json", null);
+}
+catch(err){
+    console.log(err);
+}
 ```
 
 #### From Azure Storage Blob
@@ -157,17 +159,12 @@ Probably the easiest way would be to provide a uri (with [SAS](https://docs.micr
 ```javascript
 
 let blob = new BlobDescriptor(blobUri, size);
-ingestClient.ingestFromBlob(blob, null, (err) => {
-        if (err) {
-            console.log(err);
-        }
-
-        console.log("Ingestion from file DONE");
-
-
-        setTimeout(waitForFailures, 0);
-        setTimeout(waitForSuccess, 0);
-    });
+try{
+    await ingestClient.ingestFromBlob(blob, null);
+}
+catch(err){
+    console.log(err);
+}
 ```
 
 ### Ingestion Status
@@ -211,59 +208,30 @@ const ingestClient = new IngestClient(
 
 const statusQueues = new IngestStatusQueues(ingestClient);
 
-function waitForFailures() {
-    statusQueues.failure.isEmpty((err, empty) => {
-        if (err) throw new Error(err);
-
-        if (empty) {
-            console.log("no errors...");
-            return setTimeout(waitForFailures, 1000);
-        }
-        else {
-            statusQueues.failure.pop((err, failures) => {
-                if (err) throw new Error(err);
-
-                for (let failure of failures) {
-                    console.log(JSON.stringify(failure));
-                }
-
-                return setTimeout(waitForFailures, 1000);
-            });
-        }
-    });
-}
-
-function waitForSuccess() {
-    statusQueues.success.isEmpty((err, empty) => {
-        if (err) throw new Error(err);
-
-        if (empty) {
-            console.log("no successes...");
-            return setTimeout(waitForSuccess, 1000);
-        }
-        else {
-            statusQueues.success.pop((err, successes) => {
-                if (err) throw new Error(err);
-
-                for (let success of successes) {
-                    console.log(JSON.stringify(success));
-                }
-
-                return setTimeout(waitForSuccess, 1000);
-            })
-        }
-    });
-}
-
-ingestClient.ingestFromFile("file.json", null, (err) => {
-    if (err) {
-        console.log(err);
+async function waitForStatus() {
+    while (await statusQueues.failure.isEmpty() && await statusQueues.success.isEmpty()) {
+        await new Promise((resolve) => { setTimeout(resolve, 1000); });
     }
 
-    console.log("Ingestion done?");
+    const successes = statusQueues.success.pop();
+    for (let success of successes) {
+        console.log(JSON.stringify(success));
+    }
 
+    const failures = statusQueues.failure.pop()
+    for (let failure of failures) {
+        console.log(JSON.stringify(failure));
+    }
+}
 
-    setTimeout(waitForFailures, 0);
-    setTimeout(waitForSuccess, 0);
-});
-```
+async function ingestFromFile() {
+    try{
+        await ingestClient.ingestFromFile("file.json", null);
+    }
+    catch(err){
+        console.log(err);
+    }
+    console.log("Wait for ingestion status...");
+    await waitForStatus();
+}
+
