@@ -13,11 +13,9 @@ const KustoConnectionStringBuilder = require("azure-kusto-data").KustoConnection
 const kcsb = KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(`https://${clusterName}.kusto.windows.net`,'appid','appkey','authorityId');
 const client = new KustoClient(kcsb);
 
-client.execute("db", "TableName | limit 1", (err, results) => {
-    if (err) throw new Error(err);
-    console.log(JSON.stringify(results));
-    console.log(results.primaryResults[0].toString());
-});
+const results = await client.execute("db", "TableName | limit 1");
+console.log(JSON.stringify(results));
+console.log(results.primaryResults[0].toString());
 
 ```
 
@@ -93,7 +91,7 @@ T | where amountColumn == amount
 const clientRequestProps = new ClientRequestProperties();
 clientRequestProps.setOption("servertimeout", 1000 * 60);
 clientRequestProps.setParameter("amount", 100);
-client.executeQuery("db", query, (err, results) => { console.log(results); }, clientRequestProps);
+const results = await client.executeQuery("db", query, clientRequestProps);
 ```
 
 A full list of those properties can be found at https://docs.microsoft.com/en-us/azure/kusto/api/netfx/request-properties
