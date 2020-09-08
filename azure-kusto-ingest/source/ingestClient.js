@@ -5,7 +5,8 @@ const KustoClient = require("azure-kusto-data").Client;
 const { FileDescriptor, BlobDescriptor, StreamDescriptor } = require("./descriptors");
 const { ResourceManager } = require("./resourceManager");
 const IngestionBlobInfo = require("./ingestionBlobInfo");
-const azureStorage = require("azure-storage");
+const { QueueClient } = require("@azure/storage-queue");
+const { ContainerClient } = require("@azure/storage-blob");
 
 module.exports = class KustoIngestClient {
     constructor(kcsb, defaultProps) {
@@ -32,104 +33,60 @@ module.exports = class KustoIngestClient {
         return `${formatSuffix}${compressionType}`;
     }
 
-    ingestFromStream(stream, ingestionProperties, callback) {
-        const props = this._mergeProps(ingestionProperties);
+    async _getBlockBlobClient(blobName){
+        const containers = await this.resourceManager.getContainers();
+        const container = containers[Math.floor(Math.random() * containers.length)];
+        const containerClient = new ContainerClient(container.getSASConnectionString(), container.objectName);
+        const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+        return blockBlobClient;
+    }
 
-        try {
-            props.validate();
-        } catch (e) {
-            return callback(e);
-        }
+    async ingestFromStream(stream, ingestionProperties) {
+        const props = this._mergeProps(ingestionProperties);
+        props.validate();
 
         const descriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
 
-        return this.resourceManager.getContainers((err, containers) => {
-            if (err) return callback(err);
+        const blobName = `${props.database}__${props.table}__${descriptor.sourceId}` +
+            `${this._getBlobNameSuffix(props.format, descriptor.compressionType)}`;
 
-            const containerDetails = containers[Math.floor(Math.random() * containers.length)];
-            const blobService = azureStorage.createBlobServiceWithSas(
-                containerDetails.toURI({ withSas: false, withObjectName: false }),
-                containerDetails.sas
-            );
+        const blockBlobClient = await this._getBlockBlobClient(blobName);
+        await blockBlobClient.uploadStream(descriptor.stream);
 
-            const blobName = `${props.database}__${props.table}__${descriptor.sourceId}` +
-                                `${this._getBlobNameSuffix(props.format, descriptor.compressionType)}`;
-
-            const writeStream = blobService.createWriteStreamToBlockBlob(containerDetails.objectName, blobName, (err) => {
-                if (err) return callback(err);
-
-                const blobUri = `${containerDetails.toURI({ withSas: false })}/${blobName}?${containerDetails.sas}`;
-                return this.ingestFromBlob(new BlobDescriptor(blobUri, descriptor.size), props, callback);
-            });
-
-            descriptor.pipe(writeStream, callback);
-        });
+        return this.ingestFromBlob(new BlobDescriptor(blockBlobClient.url), props); // descriptor.size?
     }
 
-    ingestFromFile(file, ingestionProperties, callback) {
+    async ingestFromFile(file, ingestionProperties) {
         const props = this._mergeProps(ingestionProperties);
-
-        try {
-            props.validate();
-        } catch (e) {
-            return callback(e);
-        }
+        props.validate();
 
         const descriptor = file instanceof FileDescriptor ? file : new FileDescriptor(file);
 
-        return descriptor.prepare((err, fileToUpload) => {
-            if (err) return callback(err);
+        const fileToUpload = await descriptor.prepare();
+        const blobName = `${props.database}__${props.table}__${descriptor.sourceId}__${fileToUpload}`;
 
-            const blobName = `${props.database}__${props.table}__${descriptor.sourceId}__${fileToUpload}`;
+        const blockBlobClient = await this._getBlockBlobClient(blobName);
+        await blockBlobClient.uploadFile(fileToUpload);
 
-            this.resourceManager.getContainers((err, containers) => {
-                if (err) return callback(err);
-                const containerDetails = containers[Math.floor(Math.random() * containers.length)];
-                const blobService = azureStorage.createBlobServiceWithSas(containerDetails.toURI({
-                    withObjectName: false,
-                    withSas: false
-                }), containerDetails.sas);
-
-                blobService.createBlockBlobFromLocalFile(containerDetails.objectName, blobName, fileToUpload, (err) => {
-                    if (err) return callback(err);
-                    const blobUri = `${containerDetails.toURI({ withSas: false })}/${blobName}?${containerDetails.sas}`;
-                    return this.ingestFromBlob(new BlobDescriptor(blobUri, descriptor.size, descriptor.sourceId), props, callback);
-                });
-            });
-
-        });
+        return this.ingestFromBlob(new BlobDescriptor(blockBlobClient.url, descriptor.size, descriptor.sourceId), props);
     }
 
-    ingestFromBlob(blob, ingestionProperties, callback) {
+    async ingestFromBlob(blob, ingestionProperties) {
         const props = this._mergeProps(ingestionProperties);
-
-        try {
-            props.validate();
-        } catch (e) {
-            return callback(e);
-        }
+        props.validate();
 
         const descriptor = blob instanceof BlobDescriptor ? blob : new BlobDescriptor(blob);
+        let queues = await this.resourceManager.getIngestionQueues();
+        let authorizationContext = await this.resourceManager.getAuthorizationContext();
 
-        return this.resourceManager.getIngestionQueues((err, queues) => {
-            if (err) return callback(err);
+        const queueDetails = queues[Math.floor(Math.random() * queues.length)];
 
-            return this.resourceManager.getAuthorizationContext((err, authorizationContext) => {
-                if (err) return callback(err);
+        const queueClient = new QueueClient(queueDetails.getSASConnectionString(), queueDetails.objectName);
 
-                const queueDetails = queues[Math.floor(Math.random() * queues.length)];
-                const queueService = azureStorage.createQueueServiceWithSas(queueDetails.toURI({
-                    withSas: false,
-                    withObjectName: false
-                }), queueDetails.sas);
-                const ingestionBlobInfo = new IngestionBlobInfo(descriptor, props, authorizationContext);
-                const ingestionBlobInfoJson = JSON.stringify(ingestionBlobInfo);
-                const encoded = Buffer.from(ingestionBlobInfoJson).toString("base64");
+        const ingestionBlobInfo = new IngestionBlobInfo(descriptor, props, authorizationContext);
+        const ingestionBlobInfoJson = JSON.stringify(ingestionBlobInfo);
+        const encoded = Buffer.from(ingestionBlobInfoJson).toString("base64");
 
-                queueService.createMessage(queueDetails.objectName, encoded, (err) => {
-                    return callback(err);
-                });
-            });
-        });
+        return queueClient.sendMessage(encoded);
     }
 };

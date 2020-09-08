@@ -4,7 +4,6 @@
 const fs = require("fs");
 const path = require("path");
 const zlib = require("zlib");
-const Transform = require("stream").Transform;
 const uuidValidate = require("uuid-validate");
 const uuidv4 = require("uuid/v4");
 
@@ -24,21 +23,6 @@ function getSourceId(sourceId){
     return uuidv4();
 }
 
-class BytesCounter extends Transform {
-    constructor() {
-        super();
-        this.bytes = 0;
-    }
-
-    _transform(chunk, encoding, cb) {
-        this.bytes += chunk.length;
-        this.push(chunk);
-
-        this.emit("progress", this.bytes);
-        cb();
-    }
-}
-
 class FileDescriptor {
     constructor(filePath, sourceId = null, size = null) {
         this.filePath = filePath;
@@ -49,52 +33,48 @@ class FileDescriptor {
         this.sourceId = getSourceId(sourceId);
     }
 
-    _gzip(callback) {
+    async _gzip() {
         let zipper = zlib.createGzip();
         let input = fs.createReadStream(this.filePath, { autoClose: true });
         let output = fs.createWriteStream(this.filePath + ".gz");
 
-        input.pipe(zipper).pipe(output);
-
-        output.once("close", () => {
-            return callback(null, this.filePath + ".gz");
+        await new Promise((resolve, reject) => {
+            input.pipe(zipper).pipe(output)
+                .on("error", (err) => {
+                    reject(err);
+                });
+            output.once("close", function() {
+                resolve();
+            });
         });
+        
+        return this.filePath + ".gz";
     }
 
-    prepare(callback) {
-        if (this.size != null && this.size > 0) {
-            return !this.zipped ? this._gzip(callback) : callback(null, this.filePath);
+    async prepare() {
+        if(this.zipped){
+            if (this.size == null || this.size <= 0) {
+                this.size = fs.statSync(this.filePath).size * 11;
+            } 
+            return this.filePath;
         }
-
-        return fs.stat(this.filePath, (err, stats) => {
-            if (err) return callback(err);
-
-            this.size = this.zipped ? stats.size * 11 : stats.size;
-            return !this.zipped ? this._gzip(callback) : callback(null, this.filePath);
-        });
+        else{
+            await this._gzip();
+            if (this.size == null || this.size <= 0) {
+                this.size = fs.statSync(this.filePath).size;
+            } 
+            return this.filePath + ".gz";
+        }
     }
 }
 
-
 class StreamDescriptor {
     constructor(stream, sourceId = null, compressionType = CompressionType.None) {
-        this._stream = stream;
-
-        this.stream = null;
+        this.stream = stream;
         this.name = "stream";
         this.size = null;
         this.compressionType = compressionType;
         this.sourceId = getSourceId(sourceId);
-    }
-
-    pipe(dest, callback) {
-        let bytesCounter = new BytesCounter();
-
-        bytesCounter.once("progress", (sizeInBytes) => this.size = sizeInBytes);
-
-        dest.on("error", (e) => callback(e));
-
-        this.stream = this._stream.pipe(bytesCounter).pipe(dest);
     }
 }
 

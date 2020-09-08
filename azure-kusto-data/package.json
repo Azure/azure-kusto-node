@@ -4,7 +4,7 @@
   "description": "Azure Data Explorer Query SDK",
   "main": "index.js",
   "engines": {
-    "node": ">= 6.14.0"
+    "node": ">= 8.0.0"
   },
   "tags": [
     "azure",
@@ -26,8 +26,8 @@
   "dependencies": {
     "@azure/ms-rest-nodeauth": "^3.0.3",
     "adal-node": "^0.1.28",
+    "axios": "^0.19.2",
     "moment": "^2.25.3",
-    "request": "^2.88.2",
     "uuid": "^3.4.0"
   },
   "devDependencies": {

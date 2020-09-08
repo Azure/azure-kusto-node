@@ -28,41 +28,29 @@ module.exports = class KustoStreamingIngestClient {
         return this.defaultProps.merge(newProperties);
     }
     
-    ingestFromStream(stream, ingestionProperties, callback) {
+    async ingestFromStream(stream, ingestionProperties) {
         const props = this._mergeProps(ingestionProperties);
-
-        try {
-            props.validate();
-        } catch (e) {
-            return callback(e);
-        }
+        props.validate();
 
         const descriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
         const compressedStream  = 
-            descriptor.compressionType == CompressionType.None ? descriptor._stream.pipe(zlib.createGzip()) : descriptor._stream;
+            descriptor.compressionType == CompressionType.None ? descriptor.stream.pipe(zlib.createGzip()) : descriptor.stream;
 
         if (props.ingestionMappingReference == null && this._mapping_required_formats.includes(props.format)) {
-            return callback(`Mapping referrence required for format ${props.foramt}.`);
+            throw new Error(`Mapping reference required for format ${props.foramt}.`);
         }
 
         return this.kustoClient.executeStreamingIngest(
             props.database, 
             props.table, 
             compressedStream, 
-            props.format, 
-            callback, 
-            null, 
+            props.format,
             props.ingestionMappingReference);
     }
 
-    ingestFromFile(file, ingestionProperties, callback) {
+    async ingestFromFile(file, ingestionProperties) {
         const props = this._mergeProps(ingestionProperties);
-
-        try {
-            props.validate();
-        } catch (e) {
-            return callback(e);
-        }
+        props.validate();
 
         const fileDescriptor = file instanceof FileDescriptor ? file : new FileDescriptor(file);
 
@@ -71,6 +59,6 @@ module.exports = class KustoStreamingIngestClient {
         const compressionType = fileDescriptor.zipped ? CompressionType.GZIP : CompressionType.None;
         const streamDescriptor = new StreamDescriptor(stream, fileDescriptor.sourceId, compressionType);
 
-        return this.ingestFromStream(streamDescriptor, ingestionProperties, callback);
+        return this.ingestFromStream(streamDescriptor, ingestionProperties);
     }
 };
