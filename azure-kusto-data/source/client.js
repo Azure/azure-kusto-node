@@ -144,6 +144,10 @@ module.exports = class KustoClient {
     _getClientTimeout(endpoint, properties) {
         let timeout = null;
         if (properties != null) {
+            if (properties instanceof ClientRequestProperties && properties.getClientTimeout()){
+                return properties.getClientTimeout();
+            }
+
             var serverTimeout = properties instanceof ClientRequestProperties ? properties.getTimeout() : properties.timeout;
             if (serverTimeout != null) {
                 return serverTimeout + CLIENT_SERVER_DELTA_IN_MILLISECS;
