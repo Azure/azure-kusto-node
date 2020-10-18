@@ -106,6 +106,22 @@ describe("KustoClient", function () {
             await client.execute("Database", "Table | count", clientRequestProps);
         });
 
+        it("setClientTimout for request", async function () {
+            let url = "https://cluster.kusto.windows.net";
+            let client = new KustoClient(url);
+
+            let clientRequestProps = new KustoClientRequestProperties();
+            let timeoutMs = moment.duration(2.51, "minutes").asMilliseconds();
+            clientRequestProps.setClientTimeout(timeoutMs);
+            client.aadHelper._getAuthHeader = () => { return "MockToken" };
+            client._doRequest = (endpoint, headers, payload, timeout, properties) => {
+                let payloadObj = JSON.parse(payload);
+                assert.equal(timeout, timeoutMs);
+            };
+
+            await client.execute("Database", "Table | count", clientRequestProps);
+        });
+
         it("default timeout for query", async function () {
             let url = "https://cluster.kusto.windows.net";
             let client = new KustoClient(url);

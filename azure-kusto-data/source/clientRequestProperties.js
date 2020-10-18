@@ -43,6 +43,14 @@ module.exports = class ClientRequestProperties {
         return this.getOption("servertimeout");
     }
 
+    setClientTimeout(timeoutMillis) {
+        this._clientTimeOut = timeoutMillis;
+    }
+
+    getClientTimeout() {
+        return this._clientTimeOut;
+    }
+
     clearOptions() {
         this._options = {};
     }
