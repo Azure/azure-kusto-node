@@ -142,19 +142,19 @@ module.exports = class KustoClient {
     }
 
     _getClientTimeout(endpoint, properties) {
-        let timeout = null;
-        if (properties != null) {
-            if (properties instanceof ClientRequestProperties && properties.getClientTimeout()){
-                return properties.getClientTimeout();
+        if (properties != null && properties instanceof ClientRequestProperties) {
+            const clientTimeout = properties.getClientTimeout();
+            if(clientTimeout){
+                return clientTimeout;
             }
 
-            var serverTimeout = properties instanceof ClientRequestProperties ? properties.getTimeout() : properties.timeout;
-            if (serverTimeout != null) {
+            const serverTimeout = properties.getTimeout();
+            if(serverTimeout){
                 return serverTimeout + CLIENT_SERVER_DELTA_IN_MILLISECS;
             }
         }
 
-        timeout = endpoint == this.endpoints.query ? QUERY_TIMEOUT_IN_MILLISECS : COMMAND_TIMEOUT_IN_MILLISECS;
-        return timeout;
+        const defaultTimeout = endpoint == this.endpoints.query ? QUERY_TIMEOUT_IN_MILLISECS : COMMAND_TIMEOUT_IN_MILLISECS;
+        return defaultTimeout;
     }
 };
