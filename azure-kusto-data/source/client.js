@@ -121,15 +121,15 @@ module.exports = class KustoClient {
 
         const { raw } = properties || {};
         const path = response.request.path.toLowerCase();
-        if (raw === true || path.startsWith("/v1/rest/ingest")) {
+        if (raw === true || path.includes("/v1/rest/ingest")) {
             return response.data;
         }
 
         let kustoResponse = null;
         try {
-            if (path.startsWith("/v2/")) {
+            if (path.includes("/v2/")) {
                 kustoResponse = new KustoResponseDataSetV2(response.data);
-            } else if (path.startsWith("/v1/")) {
+            } else if (path.includes("/v1/")) {
                 kustoResponse = new KustoResponseDataSetV1(response.data);
             }
         } catch (ex) {
