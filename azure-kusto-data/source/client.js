@@ -15,6 +15,12 @@ const QUERY_TIMEOUT_IN_MILLISECS = moment.duration(4.5, "minutes").asMillisecond
 const CLIENT_SERVER_DELTA_IN_MILLISECS = moment.duration(0.5, "minutes").asMilliseconds();
 const MGMT_PREFIX = ".";
 
+const ExecutionType = Object.freeze({
+    Mgmt: 0,
+    Query: 1,
+    Ingest: 2
+});
+
 module.exports = class KustoClient {
     constructor(kcsb) {
         this.connectionString = typeof (kcsb) === "string" ? new ConnectionStringBuilder(kcsb) : kcsb;
@@ -42,11 +48,11 @@ module.exports = class KustoClient {
     }
 
     async executeQuery(db, query, properties) {
-        return this._execute(this.endpoints.query, db, query, null, properties);
+        return this._execute(this.endpoints.query, ExecutionType.Query, db, query, null, properties);
     }
 
     async executeMgmt(db, query, properties) {
-        return this._execute(this.endpoints.mgmt, db, query, null, properties);
+        return this._execute(this.endpoints.mgmt, ExecutionType.Mgmt, db, query, null, properties);
     }
 
     async executeStreamingIngest(db, table, stream, streamFormat, mappingName) {
@@ -55,10 +61,10 @@ module.exports = class KustoClient {
             endpoint += `&mappingName=${mappingName}`;
         }
 
-        return this._execute(endpoint, db, null, stream, null);
+        return this._execute(endpoint, ExecutionType.Ingest, db, null, stream, null);
     }
 
-    async _execute(endpoint, db, query, stream, properties) {
+    async _execute(endpoint, executionType, db, query, stream, properties) {
         const headers = {};
         Object.assign(headers, this.headers);
 
@@ -66,7 +72,7 @@ module.exports = class KustoClient {
         let clientRequestPrefix = "";
         let clientRequestId;
 
-        let timeout = this._getClientTimeout(endpoint, properties);
+        let timeout = this._getClientTimeout(executionType, properties);
 
         if (query != null) {
             payload = {
@@ -93,10 +99,10 @@ module.exports = class KustoClient {
 
         headers["Authorization"] = await this.aadHelper._getAuthHeader();
 
-        return this._doRequest(endpoint, headers, payload, timeout, properties);
+        return this._doRequest(endpoint, executionType, headers, payload, timeout, properties);
     }
 
-    async _doRequest(endpoint, headers, payload, timeout, properties) {
+    async _doRequest(endpoint, executionType, headers, payload, timeout, properties) {
         let axiosConfig = {
             headers: headers,
             gzip: true,
@@ -114,23 +120,22 @@ module.exports = class KustoClient {
             throw error;
         }
 
-        return this._parseResponse(axiosResponse, properties);
+        return this._parseResponse(axiosResponse.data, executionType, properties);
     }
 
-    _parseResponse(response, properties) {
+    _parseResponse(response, executionType, properties) {
 
         const { raw } = properties || {};
-        const path = response.request.path.toLowerCase();
-        if (raw === true || path.startsWith("/v1/rest/ingest")) {
-            return response.data;
+        if (raw === true || executionType == ExecutionType.Ingest) {
+            return response;
         }
 
         let kustoResponse = null;
         try {
-            if (path.startsWith("/v2/")) {
-                kustoResponse = new KustoResponseDataSetV2(response.data);
-            } else if (path.startsWith("/v1/")) {
-                kustoResponse = new KustoResponseDataSetV1(response.data);
+            if (executionType == ExecutionType.Query) {
+                kustoResponse = new KustoResponseDataSetV2(response);
+            } else {
+                kustoResponse = new KustoResponseDataSetV1(response);
             }
         } catch (ex) {
             throw `Failed to parse response ({${response.status}}) with the following error [${ex}].`;
@@ -141,20 +146,20 @@ module.exports = class KustoClient {
         return kustoResponse;
     }
 
-    _getClientTimeout(endpoint, properties) {
+    _getClientTimeout(executionType, properties) {
         if (properties != null && properties instanceof ClientRequestProperties) {
             const clientTimeout = properties.getClientTimeout();
-            if(clientTimeout){
+            if (clientTimeout) {
                 return clientTimeout;
             }
 
             const serverTimeout = properties.getTimeout();
-            if(serverTimeout){
+            if (serverTimeout) {
                 return serverTimeout + CLIENT_SERVER_DELTA_IN_MILLISECS;
             }
         }
 
-        const defaultTimeout = endpoint == this.endpoints.query ? QUERY_TIMEOUT_IN_MILLISECS : COMMAND_TIMEOUT_IN_MILLISECS;
+        const defaultTimeout = executionType == ExecutionType.Query ? QUERY_TIMEOUT_IN_MILLISECS : COMMAND_TIMEOUT_IN_MILLISECS;
         return defaultTimeout;
     }
 };
