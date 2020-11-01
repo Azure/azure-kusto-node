@@ -16,7 +16,7 @@ const KustoClientRequestProperties = require("../source/clientRequestProperties"
 const ExecutionType = Object.freeze({
     Mgmt: 0,
     Query: 1,
-    ingest: 2
+    Ingest: 2
 });
 
 describe("KustoClient", function () {

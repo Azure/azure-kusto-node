@@ -18,7 +18,7 @@ const MGMT_PREFIX = ".";
 const ExecutionType = Object.freeze({
     Mgmt: 0,
     Query: 1,
-    ingest: 2
+    Ingest: 2
 });
 
 module.exports = class KustoClient {
