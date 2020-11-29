@@ -133,7 +133,11 @@ module.exports = class KustoClient {
         let kustoResponse = null;
         try {
             if (executionType == ExecutionType.Query) {
-                kustoResponse = new KustoResponseDataSetV2(response);
+                if(this.endpoints.query.includes("v1")){
+                    kustoResponse = new KustoResponseDataSetV1(response);
+                }else{
+                    kustoResponse = new KustoResponseDataSetV2(response);
+                }
             } else {
                 kustoResponse = new KustoResponseDataSetV1(response);
             }
