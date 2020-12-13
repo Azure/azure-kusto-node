@@ -1,11 +1,26 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-const uuidv4 = require("uuid/v4");
-const moment = require("moment");
+import uuid from "uuid";
+import moment from "moment";
+import {BlobDescriptor} from "./descriptors";
+import IngestionProperties, {ReportLevel, ReportMethod} from "./ingestionProperties";
 
-module.exports = class IngestionBlobInfo {
-    constructor(blobDescriptor, ingestionProperties, authContext) {
+export class IngestionBlobInfo {
+    BlobPath: string;
+    RawDataSize: number | null;
+    DatabaseName: string | null;
+    TableName: string | null;
+    RetainBlobOnSuccess: boolean;
+    FlushImmediately: boolean;
+    IgnoreSizeLimit: boolean;
+    ReportLevel: ReportLevel | null;
+    ReportMethod: ReportMethod | null;
+    SourceMessageCreationTime: moment.Moment;
+    Id: string;
+    AdditionalProperties: { [any: string]: any; };
+
+    constructor(blobDescriptor: BlobDescriptor, ingestionProperties: IngestionProperties, authContext: string) {
         this.BlobPath = blobDescriptor.path;
         this.RawDataSize = blobDescriptor.size;
         this.DatabaseName = ingestionProperties.database;
@@ -16,12 +31,12 @@ module.exports = class IngestionBlobInfo {
         this.ReportLevel = ingestionProperties.reportLevel;
         this.ReportMethod = ingestionProperties.reportMethod;
         this.SourceMessageCreationTime = moment.utc();
-        this.Id = blobDescriptor.sourceId || uuidv4();
+        this.Id = blobDescriptor.sourceId || uuid.v4();
 
         let additionalProperties = ingestionProperties.additionalProperties || {};
         additionalProperties.authorizationContext = authContext;
 
-        let tags = [];
+        let tags: string[] = [];
         if (ingestionProperties.additionalTags) {
             tags.concat(ingestionProperties.additionalTags);
         }
@@ -59,4 +74,6 @@ module.exports = class IngestionBlobInfo {
 
         this.AdditionalProperties = additionalProperties;
     }
-};
+}
+
+export default IngestionBlobInfo;

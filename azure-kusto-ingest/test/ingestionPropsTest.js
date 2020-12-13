@@ -5,7 +5,7 @@ const assert = require("assert");
 
 const IngestionProperties = require("../source/ingestionProperties").IngestionProperties;
 const JsonColumnMapping = require("../source/ingestionProperties").JsonColumnMapping;
-const IngestionBlobInfo = require("../source/ingestionBlobInfo");
+const IngestionBlobInfo = require("../source/ingestionBlobInfo").IngestionBlobInfo;
 const { DataFormat } = require("../source/ingestionProperties");
 
 describe("IngestionProperties", function () {

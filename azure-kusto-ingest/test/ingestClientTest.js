@@ -3,7 +3,7 @@
 
 const assert = require("assert");
 
-const KustoIngestClient = require("../source/ingestClient");
+const KustoIngestClient = require("../source/ingestClient").KustoIngestClient;
 const { IngestionProperties , DataFormat } = require("../source/ingestionProperties");
 
 describe("KustoIngestClient", function () {

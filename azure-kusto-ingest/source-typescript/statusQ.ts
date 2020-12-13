@@ -1,17 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-const { QueueClient } = require("@azure/storage-queue");
+import {PeekedMessageItem, QueueClient} from "@azure/storage-queue";
+import {ResourceURI} from "./resourceManager"
+import {StatusMessage} from "./status";
 
 class QueueDetails {
-    constructor(name, service) {
-        this.name = name;
-        this.service = service;
+    constructor(readonly name: string, readonly service: QueueClient) {
     }
 }
 
 
-function shuffle(a) {
+function shuffle<T>(a: T[]): T[] {
     for (let i = a.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         let temp = a[j];
@@ -22,33 +22,42 @@ function shuffle(a) {
     return a;
 }
 
-module.exports = class StatusQueue {
-    constructor(getQueuesFunc, messageCls) {
-        this.getQueuesFunc = getQueuesFunc;
-        this.messageCls = messageCls;
+interface PeekParams {
+    raw: boolean;
+}
+
+interface PopParams {
+    raw: boolean;
+    remove: boolean;
+}
+
+type Message = PeekedMessageItem | StatusMessage;
+
+export class StatusQueue {
+    constructor(readonly getQueuesFunc: () => Promise<ResourceURI[]>, readonly messageCls: typeof StatusMessage ) {
     }
 
-    _getQServices(queuesDetails) {
+    _getQServices(queuesDetails: ResourceURI[]) {
         return queuesDetails.map(q => new QueueDetails(q.objectName,
-            new QueueClient(q.getSASConnectionString(), q.objectName)));
+            new QueueClient(q.getSASConnectionString() ?? "", q.objectName)));
     }
 
     async isEmpty() {
-        const result = await this.peek(1, { raw: true });
+        const result = await this.peek(1, {raw: true});
         return !result || result.length === 0;
     }
 
-    decodeContent(content) {
+    decodeContent(content: string) {
         return Buffer.from(content, "base64").toString("ascii");
     }
 
-    deserializeMessage(m) {
-        return new this.messageCls(this.decodeContent(m.messageText));
+    deserializeMessage(m: PeekedMessageItem): StatusMessage {
+        return new this.messageCls(this.decodeContent(m.messageText), null, null);
     }
 
-    async _peek(qs, n, options) {
-        const result = [];
-        const nonEmptyQs = [];
+    async _peek(qs: QueueDetails[], n: number, options: PeekParams | null): Promise<{ result: Message[]; nonEmptyQs: QueueDetails[]; done: boolean }> {
+        const result: Message[] = [];
+        const nonEmptyQs: QueueDetails[] = [];
 
         for (let i = 0; i < qs.length; i++) {
             let q = qs[i];
@@ -64,17 +73,17 @@ module.exports = class StatusQueue {
                     result.push(options && options.raw ? m : this.deserializeMessage(m));
 
                     if (result.length == n) {
-                        return { done: true, nonEmptyQs, result };
+                        return {done: true, nonEmptyQs, result};
                     }
                 }
             }
         }
-        return { done: nonEmptyQs.length === 0, nonEmptyQs, result };
+        return {done: nonEmptyQs.length === 0, nonEmptyQs, result};
     }
 
-    async peek(n = 1, options = null) {
+    async peek(n = 1, options : PeekParams | null = null): Promise<Message[]> {
         const queues = await this.getQueuesFunc();
-        const qServices = shuffle(this._getQServices(queues));
+        const qServices: QueueDetails[] = shuffle(this._getQServices(queues));
         const perQ = qServices.length > 1 ? Math.floor(n / qServices.length) : qServices.length;
 
         // First, iterate evenly and randomly on status queues
@@ -86,35 +95,35 @@ module.exports = class StatusQueue {
         let messagesLeftToPeek = n - partial.result.length;
 
         // In case queues are uneven, iterate again. This time, request for all n messages and trim
-        return await this._peek(partial.result.nonEmptyQs, messagesLeftToPeek, options);
+        return (await this._peek(partial.nonEmptyQs, messagesLeftToPeek, options)).result;
     }
 
-    async _pop(qs, n, options) {
-        const nonEmptyQs = [];
+    async _pop(qs: QueueDetails[], n: number, options: PopParams | null): Promise<{ result: Message[]; nonEmptyQs: any[]; done: boolean }> {
+        const nonEmptyQs: any[] = [];
         const result = [];
 
         for (let i = 0; i < qs.length; i++) {
             let q = qs[i];
-            const response = await q.service.receiveMessages({ numOfMessages: n });
+            const response = await q.service.receiveMessages({numOfMessages: n});
             let messages = response.receivedMessageItems;
             for (let m of messages) {
                 if (m && Object.keys(m).length > 0) {
                     result.push(options && options.raw ? m : this.deserializeMessage(m));
 
-                    if (!(options && options.remove === false)) {
+                    if (!(options && !options.remove)) {
                         q.service.deleteMessage(m.messageId, m.popReceipt);
                     }
                     if (result.length == n) {
-                        return { done: true, nonEmptyQs, result };
+                        return {done: true, nonEmptyQs, result};
                     }
                 }
             }
         }
-        return { done: nonEmptyQs.length === 0, nonEmptyQs, result };
+        return {done: nonEmptyQs.length === 0, nonEmptyQs, result};
     }
 
 
-    async pop(n = 1, options = null) {
+    async pop(n = 1, options: PopParams | null = null): Promise<Message[]> {
         const queues = await this.getQueuesFunc();
         const qServices = shuffle(this._getQServices(queues));
         const perQ = qServices.length > 1 ? Math.floor(n / qServices.length) : qServices.length;
@@ -128,7 +137,7 @@ module.exports = class StatusQueue {
         let messagesLeftToPop = n - partial.result.length;
 
         // In case queues are uneven, iterate again. This time, request for all n messages and trim
-        const final = await this._pop(partial.result.nonEmptyQs, messagesLeftToPop, options);
+        const final = await this._pop(partial.nonEmptyQs, messagesLeftToPop, options);
         return partial.result.concat(final.result);
     }
-};
+}

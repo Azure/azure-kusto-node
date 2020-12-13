@@ -1,10 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-const StatusQueue = require("./statusQ");
-class StatusMessage {
-    constructor(raw, obj, extraProps) {
-        let props = [
+import {StatusQueue} from "./statusQ";
+
+export class StatusMessage {
+    OperationId?: string;
+    Database?: string;
+    Table?: string;
+    IngestionSourceId?: string;
+    IngestionSourcePath?: string;
+    RootActivityId?: string;
+
+    [other: string] : any;
+    constructor(raw: any, obj: any, extraProps: string[] | null) {
+        let props : string[] = [
             "OperationId", "Database", "Table",
             "IngestionSourceId", "IngestionSourcePath", "RootActivityId"
         ];
@@ -23,7 +32,9 @@ class StatusMessage {
 
 
 class SuccessMessage extends StatusMessage {
-    constructor(raw, obj) {
+    SucceededOn?: string;
+
+    constructor(raw: any, obj: any) {
         super(raw, obj, [
             "SucceededOn"
         ]);
@@ -32,7 +43,13 @@ class SuccessMessage extends StatusMessage {
 
 
 class FailureMessage extends StatusMessage {
-    constructor(raw, obj) {
+    FailedOn? : string;
+    Details? : string;
+    ErrorCode? : string;
+    FailureStatus? : string;
+    OriginatesFromUpdatePolicy? : string;
+    ShouldRetry? : string;
+    constructor(raw: any, obj: any) {
         super(raw, obj, [
             "FailedOn",
             "Details",
@@ -45,8 +62,10 @@ class FailureMessage extends StatusMessage {
 }
 
 
-module.exports = class KustoIngestStatusQueues {
-    constructor(kustoIngestClient) {
+export class KustoIngestStatusQueues {
+    success: StatusQueue;
+    failure: StatusQueue;
+    constructor(kustoIngestClient: any) { //todo ts
         this.success = new StatusQueue(
             () => kustoIngestClient.resourceManager.getSuccessfulIngestionsQueues(),
             SuccessMessage
@@ -56,4 +75,6 @@ module.exports = class KustoIngestStatusQueues {
             FailureMessage
         );
     }
-};
+}
+
+export default KustoIngestStatusQueues;

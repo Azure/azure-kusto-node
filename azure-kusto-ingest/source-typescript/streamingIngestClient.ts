@@ -1,39 +1,43 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-const KustoClient = require("azure-kusto-data").Client;
-const { FileDescriptor, StreamDescriptor, CompressionType } = require("./descriptors");
-const DataFormat = require("./resourceManager"); 
-const zlib = require("zlib");
-const fs = require("fs");
+import IngestionProperties, {DataFormat} from "./ingestionProperties";
 
-module.exports = class KustoStreamingIngestClient {
-    constructor(kcsb, defaultProps) {
+// @ts-ignore todo ts
+import {Client as KustoClient} from "azure-kusto-data";
+import {CompressionType, FileDescriptor, StreamDescriptor} from "./descriptors";
+import zlib from "zlib";
+import fs from "fs";
+
+class KustoStreamingIngestClient {
+    private kustoClient: any;
+    private _mapping_required_formats: readonly any[];
+
+    constructor(kcsb: string, public defaultProps: IngestionProperties) {
         this.kustoClient = new KustoClient(kcsb);
-        this.defaultProps = defaultProps;
-        this._mapping_required_formats = Object.freeze([ DataFormat.JSON, DataFormat.SINGLEJSON, DataFormat.AVRO, DataFormat.ORC ]);
+        this._mapping_required_formats = Object.freeze([DataFormat.JSON, DataFormat.SINGLEJSON, DataFormat.AVRO, DataFormat.ORC]);
     }
 
-    _mergeProps(newProperties) {
+    _mergeProps(newProperties: IngestionProperties) {
         // no default props
         if (newProperties == null || Object.keys(newProperties).length == 0) {
             return this.defaultProps;
         }
 
         // no new props
-        if (this.defaultProps == null || Object.keys(this.defaultProps) == 0) {
-            return newProperties;    
+        if (this.defaultProps == null || Object.keys(this.defaultProps).length == 0) {
+            return newProperties;
         }
         // both exist - merge
         return this.defaultProps.merge(newProperties);
     }
-    
-    async ingestFromStream(stream, ingestionProperties) {
+
+    async ingestFromStream(stream: StreamDescriptor | fs.ReadStream, ingestionProperties: IngestionProperties) {
         const props = this._mergeProps(ingestionProperties);
         props.validate();
 
         const descriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
-        const compressedStream  = 
+        const compressedStream =
             descriptor.compressionType == CompressionType.None ? descriptor.stream.pipe(zlib.createGzip()) : descriptor.stream;
 
         if (props.ingestionMappingReference == null && this._mapping_required_formats.includes(props.format)) {
@@ -41,14 +45,14 @@ module.exports = class KustoStreamingIngestClient {
         }
 
         return this.kustoClient.executeStreamingIngest(
-            props.database, 
-            props.table, 
-            compressedStream, 
+            props.database,
+            props.table,
+            compressedStream,
             props.format,
             props.ingestionMappingReference);
     }
 
-    async ingestFromFile(file, ingestionProperties) {
+    async ingestFromFile(file: FileDescriptor | string, ingestionProperties: IngestionProperties) {
         const props = this._mergeProps(ingestionProperties);
         props.validate();
 
@@ -61,4 +65,6 @@ module.exports = class KustoStreamingIngestClient {
 
         return this.ingestFromStream(streamDescriptor, ingestionProperties);
     }
-};
+}
+
+export default KustoStreamingIngestClient;
