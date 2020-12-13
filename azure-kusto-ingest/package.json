@@ -17,7 +17,7 @@
     "kusto"
   ],
   "scripts": {
-    "build": "tsc --project tsconfig.json",
+    "build": "tsc -b",
     "example": "npm run build && node example.js",
     "lint": "npm run build && eslint source --quiet",
     "test": "npm run build && mocha --require source-map-support/register",
