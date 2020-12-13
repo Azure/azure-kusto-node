@@ -50,11 +50,11 @@ export class IngestClientResources {
 }
 
 export class ResourceManager {
-    private readonly refreshPeriod: moment.Duration;
-    private ingestClientResources: IngestClientResources | null;
-    private ingestClientResourcesLastUpdate: moment.Moment | null;
-    private authorizationContext: string | null;
-    private authorizationContextLastUpdate: moment.Moment | null;
+    public readonly refreshPeriod: moment.Duration;
+    public ingestClientResources: IngestClientResources | null;
+    public ingestClientResourcesLastUpdate: moment.Moment | null;
+    public authorizationContext: string | null;
+    public authorizationContextLastUpdate: moment.Moment | null;
 
     constructor(readonly kustoClient: any) { //todo ts
         this.refreshPeriod = moment.duration(1, "h");

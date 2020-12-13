@@ -25,7 +25,7 @@ The SDK team publishes the SDKs as [npm](https://npmjs.org) packages:
 
 In the repository, you will find a set of simple samples that will help you get started:
 - [Data SDK samples](./azure-kusto-data/example.js)
-- [Ingestion SDK samples](./azure-kusto-ingest/example.js)
+- [Ingestion SDK samples](azure-kusto-ingest/example.js)
 
 ## Platforms compatibility
 

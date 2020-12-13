@@ -20,16 +20,16 @@ export class IngestionBlobInfo {
     Id: string;
     AdditionalProperties: { [any: string]: any; };
 
-    constructor(blobDescriptor: BlobDescriptor, ingestionProperties: IngestionProperties, authContext: string) {
+    constructor(blobDescriptor: BlobDescriptor, ingestionProperties: IngestionProperties, authContext: string | null = null) {
         this.BlobPath = blobDescriptor.path;
         this.RawDataSize = blobDescriptor.size;
-        this.DatabaseName = ingestionProperties.database;
-        this.TableName = ingestionProperties.table;
+        this.DatabaseName = ingestionProperties.database ?? null;
+        this.TableName = ingestionProperties.table ?? null;
         this.RetainBlobOnSuccess = true;
         this.FlushImmediately = !!ingestionProperties.flushImmediately;
         this.IgnoreSizeLimit = false;
-        this.ReportLevel = ingestionProperties.reportLevel;
-        this.ReportMethod = ingestionProperties.reportMethod;
+        this.ReportLevel = ingestionProperties.reportLevel ?? null;
+        this.ReportMethod = ingestionProperties.reportMethod ?? null;
         this.SourceMessageCreationTime = moment.utc();
         this.Id = blobDescriptor.sourceId || uuid.v4();
 

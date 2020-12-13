@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "strict": true,
+    "incremental": true,
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "allowJs": true
+  },
+  "include": ["source/**/*", "test/**/*"]
+}

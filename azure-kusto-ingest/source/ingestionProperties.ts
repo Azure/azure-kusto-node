@@ -68,25 +68,24 @@ export class JsonColumnMapping extends ColumnMapping {
 }
 
 class IngestionPropertiesFields {
-    database: string | null = null;
-    table: string | null = null;
-    format: string | null = null;
-    ingestionMapping: string | null = null;
-    ingestionMappingReference: string | null = null;
-    ingestionMappingType: string | null = null;
-    additionalTags: string | null = null;
-    ingestIfNotExists: string | null = null;
-    ingestByTags: string[] | null = null;
-    dropByTags: string[] | null = null;
-    flushImmediately: boolean | null = null;
-    reportLevel: ReportLevel | null = null;
-    reportMethod: ReportMethod | null = null;
-    validationPolicy: string | null = null;
-    additionalProperties: {[any:string] : any} | null = null;
+    database?: string | null = null;
+    table?: string | null = null;
+    format?: string | null = null;
+    ingestionMapping?: ColumnMapping[] | null = null;
+    ingestionMappingReference?: string | null = null;
+    ingestionMappingType?: string | null = null;
+    additionalTags?: string | null = null;
+    ingestIfNotExists?: string | null = null;
+    ingestByTags?: string[] | null = null;
+    dropByTags?: string[] | null = null;
+    flushImmediately?: boolean | null = null;
+    reportLevel?: ReportLevel | null = null;
+    reportMethod?: ReportMethod | null = null;
+    validationPolicy?: string | null = null;
+    additionalProperties?: {[any:string] : any} | null = null;
 }
 
 export class IngestionProperties extends IngestionPropertiesFields {
-
     constructor({
                     database = null,
                     table = null,
