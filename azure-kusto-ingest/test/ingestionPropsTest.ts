@@ -1,11 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-const assert = require("assert");
+import assert from "assert";
+import {IngestionProperties, JsonColumnMapping} from "../source/ingestionProperties";
 
-const IngestionProperties = require("../source/ingestionProperties").IngestionProperties;
-const JsonColumnMapping = require("../source/ingestionProperties").JsonColumnMapping;
-const IngestionBlobInfo = require("../source/ingestionBlobInfo").IngestionBlobInfo;
+import {IngestionBlobInfo} from "../source/ingestionBlobInfo";
+import {BlobDescriptor} from "../source/descriptors";
+
 const { DataFormat } = require("../source/ingestionProperties");
 
 describe("IngestionProperties", function () {
@@ -13,9 +14,9 @@ describe("IngestionProperties", function () {
         it("valid input", function () {
             let props = new IngestionProperties({database: "db", table: "table", format: DataFormat.CSV});
 
-            assert.equal(props.database, "db");
-            assert.equal(props.table, "table");
-            assert.equal(props.format, DataFormat.CSV);
+            assert.strictEqual(props.database, "db");
+            assert.strictEqual(props.table, "table");
+            assert.strictEqual(props.format, DataFormat.CSV);
         });
     });
 
@@ -27,10 +28,10 @@ describe("IngestionProperties", function () {
 
             let merged = props.merge(otherProps);
 
-            assert.equal(merged.database, "db");
-            assert.equal(merged.table, "table");
-            assert.equal(merged.format, DataFormat.CSV);
-            assert.equal(merged.ingestionMappingReference, "CsvMappingRef");
+            assert.strictEqual(merged.database, "db");
+            assert.strictEqual(merged.table, "table");
+            assert.strictEqual(merged.format, DataFormat.CSV);
+            assert.strictEqual(merged.ingestionMappingReference, "CsvMappingRef");
         });
     });
 
@@ -51,7 +52,7 @@ describe("IngestionProperties", function () {
             try {
                 props.validate();
             } catch (ex) {
-                assert.equal(ex.message, "Must define a target database");
+                assert.strictEqual(ex.message, "Must define a target database");
             }
         });
 
@@ -61,16 +62,16 @@ describe("IngestionProperties", function () {
             try {
                 props.validate();
             } catch (ex) {
-                assert.equal(ex.message, "Json must have a mapping defined");
+                assert.strictEqual(ex.message, "Json must have a mapping defined");
             }
         });
 
         it("json mapping as additional props on ingestion blob info", function () {
             let columns = [new JsonColumnMapping('Id', '$.Id', 'int'), new JsonColumnMapping('Value', '$.value', 'dynamic')];
             let props = new IngestionProperties({database: "db", table: "table", format: DataFormat.CSV, ingestionMapping: columns});
-            let ingestionBlobInfo = new IngestionBlobInfo('https://account.blob.core.windows.net/blobcontainer/blobfile.json', props);
-            
-            assert.deepEqual(JSON.parse(ingestionBlobInfo.AdditionalProperties.ingestionMapping), props.ingestionMapping);
+            let ingestionBlobInfo = new IngestionBlobInfo(new BlobDescriptor('https://account.blob.core.windows.net/blobcontainer/blobfile.json'), props);
+            const reParsed = JSON.parse(JSON.stringify(props.ingestionMapping)); // Stringify and pass to make the object identical to a json one
+            assert.deepStrictEqual(JSON.parse(ingestionBlobInfo.AdditionalProperties.ingestionMapping), reParsed);
         });
     });
 });
