@@ -23,6 +23,7 @@ jobs:
       - working-directory: ./azure-kusto-ingest
         run: |
           npm i
+          npm build
           npm link ../azure-kusto-data
           npm run lint
           npm run allTests
