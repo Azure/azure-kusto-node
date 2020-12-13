@@ -14,7 +14,7 @@ class QueueDetails {
 function shuffle(a) {
     for (let i = a.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        let temp = a[j];
+        const temp = a[j];
         a[j] = a[i];
         a[i] = temp;
     }
@@ -30,7 +30,7 @@ module.exports = class StatusQueue {
 
     _getQServices(queuesDetails) {
         return queuesDetails.map(q => new QueueDetails(q.objectName,
-            new QueueClient(q.getSASConnectionString(), q.objectName)));
+            new QueueClient(q.getSASConnectionString()?? "", q.objectName)));
     }
 
     async isEmpty() {
@@ -50,16 +50,15 @@ module.exports = class StatusQueue {
         const result = [];
         const nonEmptyQs = [];
 
-        for (let i = 0; i < qs.length; i++) {
-            let q = qs[i];
-            let response = await q.service.peekMessages();
-            let messages = response.peekedMessageItems;
+        for (const q of qs) {
+            const response = await q.service.peekMessages();
+            const messages = response.peekedMessageItems;
 
             if (messages && messages.length > 0) {
                 nonEmptyQs.push(q);
             }
 
-            for (let m of messages) {
+            for (const m of messages) {
                 if (m && Object.keys(m).length > 0) {
                     result.push(options && options.raw ? m : this.deserializeMessage(m));
 
@@ -83,21 +82,20 @@ module.exports = class StatusQueue {
         if (partial.done) {
             return partial.result;
         }
-        let messagesLeftToPeek = n - partial.result.length;
+        const messagesLeftToPeek = n - partial.result.length;
 
         // In case queues are uneven, iterate again. This time, request for all n messages and trim
-        return await this._peek(partial.result.nonEmptyQs, messagesLeftToPeek, options);
+        return await this._peek(partial.nonEmptyQs, messagesLeftToPeek, options);
     }
 
     async _pop(qs, n, options) {
         const nonEmptyQs = [];
         const result = [];
 
-        for (let i = 0; i < qs.length; i++) {
-            let q = qs[i];
+        for (const q of qs) {
             const response = await q.service.receiveMessages({ numOfMessages: n });
-            let messages = response.receivedMessageItems;
-            for (let m of messages) {
+            const messages = response.receivedMessageItems;
+            for (const m of messages) {
                 if (m && Object.keys(m).length > 0) {
                     result.push(options && options.raw ? m : this.deserializeMessage(m));
 
@@ -125,10 +123,10 @@ module.exports = class StatusQueue {
             return partial.result;
         }
 
-        let messagesLeftToPop = n - partial.result.length;
+        const messagesLeftToPop = n - partial.result.length;
 
         // In case queues are uneven, iterate again. This time, request for all n messages and trim
-        const final = await this._pop(partial.result.nonEmptyQs, messagesLeftToPop, options);
+        const final = await this._pop(partial.nonEmptyQs, messagesLeftToPop, options);
         return partial.result.concat(final.result);
     }
 };

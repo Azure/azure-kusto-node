@@ -16,6 +16,9 @@ class ResourceURI {
 
     static fromURI(uri) {
         const match = URI_FORMAT.exec(uri);
+        if (match == null || match.length < 5) {
+            throw Error("Failed to create ResourceManager from URI - invalid uri");
+        }
         return new ResourceURI(match[1], match[2], match[3], match[4]);
     }
 
@@ -26,6 +29,8 @@ class ResourceURI {
         if(this.objectType == "blob"){
             return `BlobEndpoint=https://${this.storageAccountName}.blob.core.windows.net/;SharedAccessSignature=${this.sas}`;
         }
+
+        throw new Error(`Can't make the current object type (${this.objectType}) to connection string`);
     }
 }
 
@@ -45,7 +50,7 @@ class IngestClientResources {
     }
 
     valid() {
-        let resources = [
+        const resources = [
             this.securedReadyForAggregationQueues,
             this.failedIngestionsQueues,
             this.failedIngestionsQueues,
@@ -71,16 +76,18 @@ module.exports.ResourceManager = class ResourceManager {
     }
 
     async refreshIngestClientResources() {
-        let now = moment.now();
+        const now = moment();
         if (!this.ingestClientResources ||
-            (this.ingestClientResourcesLastUpdate + this.refreshPeriod) <= now || !this.ingestClientResources.valid()) {
+            !this.ingestClientResourcesLastUpdate ||
+            (this.ingestClientResourcesLastUpdate.add(this.refreshPeriod) <= now) ||
+            !this.ingestClientResources.valid()) {
             this.ingestClientResources = await this.getIngestClientResourcesFromService();
             this.ingestClientResourcesLastUpdate = now;
         }
     }
 
     async getIngestClientResourcesFromService() {
-        let response = await this.kustoClient.execute("NetDefaultDB", ".get ingestion resources");
+        const response = await this.kustoClient.execute("NetDefaultDB", ".get ingestion resources");
         const table = response.primaryResults[0];
 
         const resources = new IngestClientResources(
@@ -93,8 +100,8 @@ module.exports.ResourceManager = class ResourceManager {
     }
 
     getResourceByName(table, resourceName) {
-        let result = [];
-        for (let row of table.rows()) {
+        const result = [];
+        for (const row of table.rows()) {
             if (row.ResourceTypeName == resourceName) {
                 result.push(ResourceURI.fromURI(row.StorageRoot));
             }
@@ -103,42 +110,42 @@ module.exports.ResourceManager = class ResourceManager {
     }
 
     async refreshAuthorizationContext() {
-        let now = moment.utc();
+        const now = moment.utc();
         if (!this.authorizationContext || this.authorizationContext.trim() ||
             (this.authorizationContextLastUpdate + this.refreshPeriod) <= now) {
             this.authorizationContext = await this.getAuthorizationContextFromService();
             this.authorizationContextLastUpdate = now;
+
+            if (this.authorizationContext == null) {
+                throw new Error("Authorization context can't be null");
+            }
         }
+
+        return this.authorizationContext;
     }
 
     async getAuthorizationContextFromService() {
-        let response = await this.kustoClient.execute("NetDefaultDB", ".get kusto identity token");
-        const authContext = response.primaryResults[0].rows().next().value.AuthorizationContext;
-        return authContext;
+        const response = await this.kustoClient.execute("NetDefaultDB", ".get kusto identity token");
+        return response.primaryResults[0].rows().next().value.AuthorizationContext;
     }
 
     async getIngestionQueues() {
-        await this.refreshIngestClientResources();
-        return this.ingestClientResources.securedReadyForAggregationQueues;
+        return (await this.refreshIngestClientResources()).securedReadyForAggregationQueues;
     }
 
     async getFailedIngestionsQueues() {
-        await this.refreshIngestClientResources();
-        return this.ingestClientResources.failedIngestionsQueues;
+        return (await this.refreshIngestClientResources()).failedIngestionsQueues;
     }
 
     async getSuccessfulIngestionsQueues() {
-        await this.refreshIngestClientResources();
-        return this.ingestClientResources.successfulIngestionsQueues;
+        return (await this.refreshIngestClientResources()).successfulIngestionsQueues;
     }
 
     async getContainers() {
-        await this.refreshIngestClientResources();
-        return this.ingestClientResources.containers;
+        return (await this.refreshIngestClientResources()).containers;
     }
 
     async getAuthorizationContext() {
-        await this.refreshAuthorizationContext();
-        return this.authorizationContext;
+        return this.refreshAuthorizationContext();
     }
 };

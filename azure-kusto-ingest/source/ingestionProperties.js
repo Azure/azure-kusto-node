@@ -37,7 +37,7 @@ const ValidationOptions = Object.freeze({
 
 module.exports.ValidationOptions = ValidationOptions;
 
-let ValidationImplications = Object.freeze({
+const ValidationImplications = Object.freeze({
     Fail: 0,
     BestEffort: 1
 });
@@ -140,7 +140,7 @@ module.exports.IngestionProperties = class IngestionProperties {
     merge(extraProps) {
         const merged = new IngestionProperties(this);
         
-        for (let key of Object.keys(extraProps)) {
+        for (const key of Object.keys(extraProps)) {
             if (extraProps[key] != null) {
                 merged[key] = extraProps[key];
             }

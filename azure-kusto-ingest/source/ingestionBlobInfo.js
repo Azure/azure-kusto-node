@@ -18,10 +18,10 @@ module.exports = class IngestionBlobInfo {
         this.SourceMessageCreationTime = moment.utc();
         this.Id = blobDescriptor.sourceId || uuidv4();
 
-        let additionalProperties = ingestionProperties.additionalProperties || {};
+        const additionalProperties = ingestionProperties.additionalProperties || {};
         additionalProperties.authorizationContext = authContext;
 
-        let tags = [];
+        const tags = [];
         if (ingestionProperties.additionalTags) {
             tags.concat(ingestionProperties.additionalTags);
         }

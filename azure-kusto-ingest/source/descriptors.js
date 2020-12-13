@@ -34,9 +34,9 @@ class FileDescriptor {
     }
 
     async _gzip() {
-        let zipper = zlib.createGzip();
-        let input = fs.createReadStream(this.filePath, { autoClose: true });
-        let output = fs.createWriteStream(this.filePath + ".gz");
+        const zipper = zlib.createGzip();
+        const input = fs.createReadStream(this.filePath, { autoClose: true });
+        const output = fs.createWriteStream(this.filePath + ".gz");
 
         await new Promise((resolve, reject) => {
             input.pipe(zipper).pipe(output)
@@ -44,7 +44,7 @@ class FileDescriptor {
                     reject(err);
                 });
             output.once("close", function() {
-                resolve();
+                resolve(null);
             });
         });
         
@@ -58,13 +58,12 @@ class FileDescriptor {
             } 
             return this.filePath;
         }
-        else{
-            await this._gzip();
-            if (this.size == null || this.size <= 0) {
-                this.size = fs.statSync(this.filePath).size;
-            } 
-            return this.filePath + ".gz";
+
+        await this._gzip();
+        if (this.size == null || this.size <= 0) {
+            this.size = fs.statSync(this.filePath).size;
         }
+        return this.filePath + ".gz";
     }
 }
 
