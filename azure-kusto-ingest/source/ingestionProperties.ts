@@ -82,7 +82,7 @@ class IngestionPropertiesFields {
     reportLevel?: ReportLevel | null = null;
     reportMethod?: ReportMethod | null = null;
     validationPolicy?: string | null = null;
-    additionalProperties?: {[any:string] : any} | null = null;
+    additionalProperties?: {[additional:string] : any} | null = null;
 }
 
 export class IngestionProperties extends IngestionPropertiesFields {
@@ -143,7 +143,7 @@ export class IngestionProperties extends IngestionPropertiesFields {
     merge(extraProps: any) {
         const merged = new IngestionProperties(this);
 
-        for (let key of Object.keys(extraProps)) {
+        for (const key of Object.keys(extraProps)) {
             if (extraProps[key] != null) {
                 merged[key] = extraProps[key];
             }

@@ -76,8 +76,8 @@ export class KustoIngestClient extends AbstractStreamingClient{
         props.validate();
 
         const descriptor = blob instanceof BlobDescriptor ? blob : new BlobDescriptor(blob);
-        let queues = await this.resourceManager.getIngestionQueues();
-        let authorizationContext = await this.resourceManager.getAuthorizationContext();
+        const queues = await this.resourceManager.getIngestionQueues();
+        const authorizationContext = await this.resourceManager.getAuthorizationContext();
 
         if (queues == null)
         {

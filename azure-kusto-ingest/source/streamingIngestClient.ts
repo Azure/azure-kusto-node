@@ -12,6 +12,7 @@ import {AbstractStreamingClient} from "./abstractStreamingClient";
 
 class KustoStreamingIngestClient extends AbstractStreamingClient {
     private kustoClient: any;
+    // tslint:disable-next-line:variable-name
     private _mapping_required_formats: readonly any[];
 
     constructor(kcsb: string, defaultProps: IngestionProperties | null = null) {

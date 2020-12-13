@@ -12,7 +12,7 @@ const { DataFormat } = require("../source/ingestionProperties");
 describe("IngestionProperties", function () {
     describe("#constructor()", function () {
         it("valid input", function () {
-            let props = new IngestionProperties({database: "db", table: "table", format: DataFormat.CSV});
+            const props = new IngestionProperties({database: "db", table: "table", format: DataFormat.CSV});
 
             assert.strictEqual(props.database, "db");
             assert.strictEqual(props.table, "table");
@@ -22,11 +22,11 @@ describe("IngestionProperties", function () {
 
     describe("#merge()", function () {
         it("valid input", function () {
-            let props = new IngestionProperties({database: "db", table: "table", format: DataFormat.CSV});
+            const props = new IngestionProperties({database: "db", table: "table", format: DataFormat.CSV});
 
-            let otherProps = new IngestionProperties({ingestionMappingReference: "CsvMappingRef"});
+            const otherProps = new IngestionProperties({ingestionMappingReference: "CsvMappingRef"});
 
-            let merged = props.merge(otherProps);
+            const merged = props.merge(otherProps);
 
             assert.strictEqual(merged.database, "db");
             assert.strictEqual(merged.table, "table");
@@ -37,7 +37,7 @@ describe("IngestionProperties", function () {
 
     describe("#validate()", function () {
         it("valid input", function () {
-            let props = new IngestionProperties({database: "db", table: "table", format: DataFormat.CSV, ingestionMappingReference: "CsvMappingRef"});
+            const props = new IngestionProperties({database: "db", table: "table", format: DataFormat.CSV, ingestionMappingReference: "CsvMappingRef"});
 
             try {
                 props.validate();
@@ -47,7 +47,7 @@ describe("IngestionProperties", function () {
         });
 
         it("invalid input", function () {
-            let props = new IngestionProperties({});
+            const props = new IngestionProperties({});
 
             try {
                 props.validate();
@@ -57,7 +57,7 @@ describe("IngestionProperties", function () {
         });
 
         it("invalid input json", function () {
-            let props = new IngestionProperties({database: "db", table: "table", format: DataFormat.JSON});
+            const props = new IngestionProperties({database: "db", table: "table", format: DataFormat.JSON});
 
             try {
                 props.validate();
@@ -67,9 +67,9 @@ describe("IngestionProperties", function () {
         });
 
         it("json mapping as additional props on ingestion blob info", function () {
-            let columns = [new JsonColumnMapping('Id', '$.Id', 'int'), new JsonColumnMapping('Value', '$.value', 'dynamic')];
-            let props = new IngestionProperties({database: "db", table: "table", format: DataFormat.CSV, ingestionMapping: columns});
-            let ingestionBlobInfo = new IngestionBlobInfo(new BlobDescriptor('https://account.blob.core.windows.net/blobcontainer/blobfile.json'), props);
+            const columns = [new JsonColumnMapping('Id', '$.Id', 'int'), new JsonColumnMapping('Value', '$.value', 'dynamic')];
+            const props = new IngestionProperties({database: "db", table: "table", format: DataFormat.CSV, ingestionMapping: columns});
+            const ingestionBlobInfo = new IngestionBlobInfo(new BlobDescriptor('https://account.blob.core.windows.net/blobcontainer/blobfile.json'), props);
             const reParsed = JSON.parse(JSON.stringify(props.ingestionMapping)); // Stringify and pass to make the object identical to a json one
             assert.deepStrictEqual(JSON.parse(ingestionBlobInfo.AdditionalProperties.ingestionMapping), reParsed);
         });

@@ -75,7 +75,7 @@ function main(): void {
         new testDataItem("json.gz with mapping", getTestResourcePath("dataset_gzip.json.gz"), 2, ingestionPropertiesWithColumnMapping, false)
     ];
 
-    var currentCount = 0;
+    let currentCount = 0;
 
     describe(`E2E Tests - ${tableName}`, function () {
         after(async function () {
@@ -106,7 +106,7 @@ function main(): void {
 
         describe('ingestClient', function () {
             it('ingestFromFile', async function () {
-                for (let item of testItems) {
+                for (const item of testItems) {
                     try {
                         await ingestClient.ingestFromFile(item.path, item.ingestionProperties);
                     } catch (err) {
@@ -118,7 +118,7 @@ function main(): void {
             }).timeout(240000);
 
             it('ingestFromStream', async function () {
-                for (let item of testItems) {
+                for (const item of testItems) {
                     let stream: ReadStream | StreamDescriptor = fs.createReadStream(item.path);
                     if (item.path.endsWith('gz')) {
                         stream = new StreamDescriptor(stream, null, CompressionType.GZIP);
@@ -135,7 +135,7 @@ function main(): void {
 
         describe('StreamingIngestClient', function () {
             it('ingestFromFile', async function () {
-                for (let item of testItems.filter(item => item.testOnstreamingIngestion)) {
+                for (const item of testItems.filter(item => item.testOnstreamingIngestion)) {
                     try {
                         await streamingIngestClient.ingestFromFile(item.path, item.ingestionProperties);
                     } catch (err) {
@@ -147,7 +147,7 @@ function main(): void {
             }).timeout(240000);
 
             it('ingestFromStream', async function () {
-                for (let item of testItems.filter(item => item.testOnstreamingIngestion)) {
+                for (const item of testItems.filter(item => item.testOnstreamingIngestion)) {
                     let stream: ReadStream | StreamDescriptor = fs.createReadStream(item.path);
                     if (item.path.endsWith('gz')) {
                         stream = new StreamDescriptor(stream, null, CompressionType.GZIP);
@@ -214,7 +214,7 @@ function main(): void {
 
             it('PartialQueryFailure', async function () {
                 try {
-                    let response = await queryClient.executeQuery(databaseName, "invalidSyntax ");
+                    const response = await queryClient.executeQuery(databaseName, "invalidSyntax ");
 
                 } catch (ex) {
                     return;
@@ -256,10 +256,10 @@ function main(): void {
     }
 
     async function assertRowsCount(testItem: testDataItem) {
-        var count = 0;
-        var expected = testItem.rows;
+        let count = 0;
+        const expected = testItem.rows;
         // Timeout = 3 min
-        for (var i = 0; i < 18; i++) {
+        for (let i = 0; i < 18; i++) {
             await sleep(10000);
             let results;
             try {

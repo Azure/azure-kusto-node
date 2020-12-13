@@ -9,11 +9,11 @@ import {DataFormat, IngestionProperties} from "../source/ingestionProperties";
 describe("KustoIngestClient", function () {
     describe("#constructor()", function () {
         it("valid input", function () {
-            let ingestClient = new KustoIngestClient("https://cluster.kusto.windows.net", <IngestionProperties>{
+            const ingestClient = new KustoIngestClient("https://cluster.kusto.windows.net", {
                 database: "db",
                 table: "table",
                 format: "csv"
-            });
+            } as IngestionProperties);
 
             assert.notStrictEqual(ingestClient.defaultProps, null);
             assert.strictEqual(ingestClient.resourceManager.kustoClient.cluster, "https://cluster.kusto.windows.net");
@@ -25,14 +25,14 @@ describe("KustoIngestClient", function () {
 
     describe("#_resolveProperties()", function () {
         it("empty default props", function () {
-            let newProps = new IngestionProperties({
+            const newProps = new IngestionProperties({
                 database: "db",
                 table: "table",
                 format: DataFormat.CSV
             });
             // TODO: not sure a unit test will be useful here
-            let client = new KustoIngestClient('https://cluster.region.kusto.windows.net');
-            let actual = client._mergeProps(newProps);
+            const client = new KustoIngestClient('https://cluster.region.kusto.windows.net');
+            const actual = client._mergeProps(newProps);
 
             assert.strictEqual(actual.database, "db");
             assert.strictEqual(actual.table, "table");
@@ -41,14 +41,14 @@ describe("KustoIngestClient", function () {
 
         it("empty new props", function () {
             // TODO: not sure a unit test will be useful here
-            let defaultProps = new IngestionProperties({
+            const defaultProps = new IngestionProperties({
                 database: "db",
                 table: "table",
                 format: DataFormat.CSV
             });
             // TODO: not sure a unit test will be useful here
-            let client = new KustoIngestClient('https://cluster.region.kusto.windows.net', defaultProps);
-            let actual = client._mergeProps(null);
+            const client = new KustoIngestClient('https://cluster.region.kusto.windows.net', defaultProps);
+            const actual = client._mergeProps(null);
 
             assert.strictEqual(actual.database, "db");
             assert.strictEqual(actual.table, "table");
@@ -56,17 +56,17 @@ describe("KustoIngestClient", function () {
         });
 
         it("both exist props", function () {
-            let defaultProps = new IngestionProperties({
+            const defaultProps = new IngestionProperties({
                 database: "db",
                 table: "table",
                 format: DataFormat.CSV
             });
-            let newProps = new IngestionProperties({});
+            const newProps = new IngestionProperties({});
             newProps.database = "db2";
             newProps.ingestionMappingReference = "MappingRef";
 
-            let client = new KustoIngestClient('https://cluster.region.kusto.windows.net', defaultProps);
-            let actual = client._mergeProps(newProps);
+            const client = new KustoIngestClient('https://cluster.region.kusto.windows.net', defaultProps);
+            const actual = client._mergeProps(newProps);
 
             assert.strictEqual(actual.database, "db2");
             assert.strictEqual(actual.table, "table");
@@ -75,9 +75,9 @@ describe("KustoIngestClient", function () {
         });
 
         it("empty both", function () {
-            let client = new KustoIngestClient('https://cluster.region.kusto.windows.net');
+            const client = new KustoIngestClient('https://cluster.region.kusto.windows.net');
 
-            let actual = client._mergeProps();
+            const actual = client._mergeProps();
             assert.deepStrictEqual(actual, new IngestionProperties({}));
         });
     });

@@ -20,7 +20,7 @@ export abstract class AbstractStreamingClient {
         return this.defaultProps.merge(newProperties) || new IngestionProperties({});
     }
 
-    //todo ts
+    // todo ts
     abstract ingestFromStream(stream: StreamDescriptor | fs.ReadStream, ingestionProperties: IngestionProperties): Promise<any>;
 
     abstract ingestFromFile(file: FileDescriptor | string, ingestionProperties: IngestionProperties): Promise<any>;

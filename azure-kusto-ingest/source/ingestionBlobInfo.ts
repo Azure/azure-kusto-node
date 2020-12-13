@@ -18,7 +18,7 @@ export class IngestionBlobInfo {
     ReportMethod: ReportMethod | null;
     SourceMessageCreationTime: moment.Moment;
     Id: string;
-    AdditionalProperties: { [any: string]: any; };
+    AdditionalProperties: { [additional: string]: any; };
 
     constructor(blobDescriptor: BlobDescriptor, ingestionProperties: IngestionProperties, authContext: string | null = null) {
         this.BlobPath = blobDescriptor.path;
@@ -33,10 +33,10 @@ export class IngestionBlobInfo {
         this.SourceMessageCreationTime = moment.utc();
         this.Id = blobDescriptor.sourceId || uuid.v4();
 
-        let additionalProperties = ingestionProperties.additionalProperties || {};
+        const additionalProperties = ingestionProperties.additionalProperties || {};
         additionalProperties.authorizationContext = authContext;
 
-        let tags: string[] = [];
+        const tags: string[] = [];
         if (ingestionProperties.additionalTags) {
             tags.concat(ingestionProperties.additionalTags);
         }
@@ -57,11 +57,11 @@ export class IngestionBlobInfo {
 
         if (ingestionProperties.ingestionMapping && ingestionProperties.ingestionMapping.length > 0) {
             // server expects a string
-            additionalProperties["ingestionMapping"] = JSON.stringify(ingestionProperties.ingestionMapping);
+            additionalProperties.ingestionMapping = JSON.stringify(ingestionProperties.ingestionMapping);
         }
 
         if (ingestionProperties.ingestionMappingReference) {
-            additionalProperties["ingestionMappingReference"] = ingestionProperties.ingestionMappingReference;
+            additionalProperties.ingestionMappingReference = ingestionProperties.ingestionMappingReference;
         }
 
         if (ingestionProperties.validationPolicy) {

@@ -24,7 +24,7 @@ export class StatusMessage {
 
         const _obj = obj || JSON.parse(raw || JSON.stringify(raw));
 
-        for (let prop of props) {
+        for (const prop of props) {
             this[prop] = _obj[prop];
         }
     }
@@ -65,7 +65,7 @@ class FailureMessage extends StatusMessage {
 export class KustoIngestStatusQueues {
     success: StatusQueue;
     failure: StatusQueue;
-    constructor(kustoIngestClient: any) { //todo ts
+    constructor(kustoIngestClient: any) { // todo ts
         this.success = new StatusQueue(
             () => kustoIngestClient.resourceManager.getSuccessfulIngestionsQueues(),
             SuccessMessage

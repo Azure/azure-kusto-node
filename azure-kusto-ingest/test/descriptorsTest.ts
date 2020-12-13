@@ -7,7 +7,7 @@ import {FileDescriptor} from "../source/descriptors";
 describe("FileDescriptor", function () {
     describe("#constructor()", function () {
         it("valid input zipped", function () {
-            let desc = new FileDescriptor("./data/events.json.gz");
+            const desc = new FileDescriptor("./data/events.json.gz");
 
             assert.strictEqual(desc.name, "events.json.gz");
             assert.strictEqual(desc.extension, ".gz");
@@ -16,7 +16,7 @@ describe("FileDescriptor", function () {
         });
 
         it("valid input json", function () {
-            let desc = new FileDescriptor("./data/events.json");
+            const desc = new FileDescriptor("./data/events.json");
 
             assert.strictEqual(desc.name, "events.json");
             assert.strictEqual(desc.extension, ".json");

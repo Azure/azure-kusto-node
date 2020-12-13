@@ -39,7 +39,7 @@ export class IngestClientResources {
     }
 
     valid() {
-        let resources = [
+        const resources = [
             this.securedReadyForAggregationQueues,
             this.failedIngestionsQueues,
             this.failedIngestionsQueues,
@@ -56,7 +56,7 @@ export class ResourceManager {
     public authorizationContext: string | null;
     public authorizationContextLastUpdate: moment.Moment | null;
 
-    constructor(readonly kustoClient: any) { //todo ts
+    constructor(readonly kustoClient: any) { // todo ts
         this.refreshPeriod = moment.duration(1, "h");
 
         this.ingestClientResources = null;
@@ -67,7 +67,7 @@ export class ResourceManager {
     }
 
     async refreshIngestClientResources(): Promise<IngestClientResources> {
-        let now = moment();
+        const now = moment();
         if (!this.ingestClientResources ||
             !this.ingestClientResourcesLastUpdate ||
             (this.ingestClientResourcesLastUpdate.add(this.refreshPeriod) <= now) ||
@@ -80,7 +80,7 @@ export class ResourceManager {
     }
 
     async getIngestClientResourcesFromService(): Promise<IngestClientResources> {
-        let response = await this.kustoClient.execute("NetDefaultDB", ".get ingestion resources");
+        const response = await this.kustoClient.execute("NetDefaultDB", ".get ingestion resources");
         const table = response.primaryResults[0];
 
         return new IngestClientResources(
@@ -91,9 +91,9 @@ export class ResourceManager {
         );
     }
 
-    getResourceByName(table: { rows: () => any; }, resourceName: string): ResourceURI[] { //todo ts
-        let result = [];
-        for (let row of table.rows()) {
+    getResourceByName(table: { rows: () => any; }, resourceName: string): ResourceURI[] { // todo ts
+        const result = [];
+        for (const row of table.rows()) {
             if (row.ResourceTypeName == resourceName) {
                 result.push(ResourceURI.fromURI(row.StorageRoot));
             }
@@ -102,7 +102,7 @@ export class ResourceManager {
     }
 
     async refreshAuthorizationContext(): Promise<string> {
-        let now = moment.utc();
+        const now = moment.utc();
         if (!this.authorizationContext?.trim() ||
             !this.authorizationContextLastUpdate ||
             (this.authorizationContextLastUpdate.add(this.refreshPeriod)) <= now) {
@@ -118,7 +118,7 @@ export class ResourceManager {
     }
 
     async getAuthorizationContextFromService() {
-        let response = await this.kustoClient.execute("NetDefaultDB", ".get kusto identity token");
+        const response = await this.kustoClient.execute("NetDefaultDB", ".get kusto identity token");
         return response.primaryResults[0].rows().next().value.AuthorizationContext;
     }
 

@@ -4,7 +4,7 @@
 import uuid from "uuid";
 import uuidValidate from "uuid-validate";
 import zlib from "zlib";
-import path from "path";
+import pathlib from "path";
 import fs, {ReadStream} from "fs";
 
 export enum CompressionType {
@@ -31,17 +31,17 @@ export class FileDescriptor {
     zipped: boolean;
 
     constructor(readonly filePath: string, sourceId: string | null = null, size: number | null = null) {
-        this.name = path.basename(this.filePath);
-        this.extension = path.extname(this.filePath).toLowerCase();
+        this.name = pathlib.basename(this.filePath);
+        this.extension = pathlib.extname(this.filePath).toLowerCase();
         this.size = size;
         this.zipped = this.extension === ".gz" || this.extension === ".zip";
         this.sourceId = getSourceId(sourceId);
     }
 
     async _gzip(): Promise<string> {
-        let zipper = zlib.createGzip();
-        let input = fs.createReadStream(this.filePath, {autoClose: true});
-        let output = fs.createWriteStream(this.filePath + ".gz");
+        const zipper = zlib.createGzip();
+        const input = fs.createReadStream(this.filePath, {autoClose: true});
+        const output = fs.createWriteStream(this.filePath + ".gz");
 
         await new Promise((resolve, reject) => {
             input.pipe(zipper).pipe(output)
