@@ -84,6 +84,8 @@ module.exports.ResourceManager = class ResourceManager {
             this.ingestClientResources = await this.getIngestClientResourcesFromService();
             this.ingestClientResourcesLastUpdate = now;
         }
+
+        return this.ingestClientResources;
     }
 
     async getIngestClientResourcesFromService() {
