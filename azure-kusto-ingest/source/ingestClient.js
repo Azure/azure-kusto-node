@@ -48,7 +48,7 @@ module.exports = class KustoIngestClient {
         const descriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
 
         const blobName = `${props.database}__${props.table}__${descriptor.sourceId}` +
-            `${this._getBlobNameSuffix(props.format ?? "", descriptor.compressionType)}`;
+            `${this._getBlobNameSuffix(props.format || "", descriptor.compressionType)}`;
 
         const blockBlobClient = await this._getBlockBlobClient(blobName);
         await blockBlobClient.uploadStream(descriptor.stream);
@@ -77,12 +77,14 @@ module.exports = class KustoIngestClient {
 
         const descriptor = blob instanceof BlobDescriptor ? blob : new BlobDescriptor(blob);
         const queues = await this.resourceManager.getIngestionQueues();
-        const authorizationContext = await this.resourceManager.getAuthorizationContext();
 
         if (queues == null)
         {
             throw new Error("Failed to get queues");
         }
+
+        const authorizationContext = await this.resourceManager.getAuthorizationContext();
+
 
         const queueDetails = queues[Math.floor(Math.random() * queues.length)];
 
