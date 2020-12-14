@@ -44,7 +44,7 @@ export class StatusQueue {
                 throw new Error("Empty or null connection string");
             }
             return new QueueDetails(q.objectName,
-                new QueueClient(sasConnectionString ?? "", q.objectName));
+                new QueueClient(sasConnectionString, q.objectName));
         });
     }
 

@@ -17,7 +17,7 @@
     "kusto"
   ],
   "scripts": {
-    "build": "tsc -b",
+    "build": "npm link ../azure-kusto-data && tsc -b",
     "prepublish": "npm run build",
     "example": "npm run build && node example.js",
     "lint": "npm run build && tslint --project tsconfig.json --quiet",
