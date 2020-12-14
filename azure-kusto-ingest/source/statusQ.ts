@@ -38,8 +38,14 @@ export class StatusQueue {
     }
 
     _getQServices(queuesDetails: ResourceURI[]) {
-        return queuesDetails.map(q => new QueueDetails(q.objectName,
-            new QueueClient(q.getSASConnectionString() ?? "", q.objectName)));
+        return queuesDetails.map(function (q) {
+            const sasConnectionString = q.getSASConnectionString();
+            if (!sasConnectionString) {
+                throw new Error("Empty or null connection string");
+            }
+            return new QueueDetails(q.objectName,
+                new QueueClient(sasConnectionString ?? "", q.objectName));
+        });
     }
 
     async isEmpty() {

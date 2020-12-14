@@ -13,7 +13,7 @@ export class ResourceURI {
     static fromURI(uri: string) {
         const match = URI_FORMAT.exec(uri);
         if (match == null || match.length < 5) {
-            throw Error("Failed to create ResourceManager from URI - invalid uri");
+            throw Error(`Failed to create ResourceManager from URI - invalid uri (${uri})`);
         }
         return new ResourceURI(match[1], match[2], match[3], match[4]);
     }
