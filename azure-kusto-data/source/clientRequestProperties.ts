@@ -1,29 +1,35 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-module.exports = class ClientRequestProperties {
-    constructor(options, parameters, clientRequestId) {
+export class ClientRequestProperties {
+    private _options: { [option: string]: any };
+    private _parameters: { [option: string]: any };
+    private _clientTimeOut?: number;
+    public clientRequestId: string | null;
+    public raw?: boolean;
+
+    constructor(options?: {}, parameters?: {}, clientRequestId?: null) {
         this._options = options || {};
         this._parameters = parameters || {};
         this.clientRequestId = clientRequestId || null;
     }
 
-    setOption(name, value) {
+    setOption(name: string, value: any) {
         this._options[name] = value;
     }
 
-    getOption(name, defaultValue) {
+    getOption(name: string, defaultValue?: any) {
         if (!this._options || this._options[name] === undefined)
             return defaultValue;
 
         return this._options[name];
     }
 
-    setParameter(name, value) {
+    setParameter(name: string, value: any) {
         this._parameters[name] = value;
     }
 
-    getParameter(name, defaultValue) {
+    getParameter(name: string, defaultValue?: any) {
         if (!this._parameters || this._parameters[name] === undefined) {
             return defaultValue;
         }
@@ -35,7 +41,7 @@ module.exports = class ClientRequestProperties {
         this._parameters = {};
     }
 
-    setTimeout(timeoutMillis) {
+    setTimeout(timeoutMillis: number) {
         this.setOption("servertimeout", timeoutMillis);
     }
 
@@ -43,7 +49,7 @@ module.exports = class ClientRequestProperties {
         return this.getOption("servertimeout");
     }
 
-    setClientTimeout(timeoutMillis) {
+    setClientTimeout(timeoutMillis: number) {
         this._clientTimeOut = timeoutMillis;
     }
 
@@ -56,7 +62,7 @@ module.exports = class ClientRequestProperties {
     }
 
     toJson() {
-        let json = {};
+        const json: { Options?: { [option: string]: any }, Parameters?: { [option: string]: any } } = {};
 
         if (Object.keys(this._options).length !== 0) {
             json.Options = this._options;
@@ -76,16 +82,18 @@ module.exports = class ClientRequestProperties {
         return JSON.stringify(this.toJson());
     }
 
-    _msToTimespan(duration) {
-        var milliseconds = parseInt((duration % 1000) / 100)
-            , seconds = parseInt((duration / 1000) % 60)
-            , minutes = parseInt((duration / (1000 * 60)) % 60)
-            , hours = parseInt((duration / (1000 * 60 * 60)) % 24);
+    _msToTimespan(duration: number): string {
+        const milliseconds = Math.floor((duration % 1000) / 100);
+        const seconds = Math.floor((duration / 1000) % 60);
+        const minutes = Math.floor((duration / (1000 * 60)) % 60);
+        const hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
 
-        hours = (hours < 10) ? "0" + hours : hours;
-        minutes = (minutes < 10) ? "0" + minutes : minutes;
-        seconds = (seconds < 10) ? "0" + seconds : seconds;
+        const hoursStr = (hours < 10) ? "0" + hours : String(hours);
+        const minutesStr = (minutes < 10) ? "0" + minutes : String(minutes);
+        const secondsStr = (seconds < 10) ? "0" + seconds : String(seconds);
 
-        return hours + ":" + minutes + ":" + seconds + "." + milliseconds;
+        return hoursStr + ":" + minutesStr + ":" + secondsStr + "." + milliseconds;
     }
-};
+}
+
+export default ClientRequestProperties;

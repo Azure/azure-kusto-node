@@ -7,7 +7,8 @@
     "incremental": true,
     "sourceMap": true,
     "resolveJsonModule": true,
-    "allowJs": true
+    "allowJs": true,
+    "declaration": true
   },
-  "include": ["source/**/*", "test/**/*"]
+  "include": ["source/**/*.ts", "test/**/*.ts", "index.ts"]
 }

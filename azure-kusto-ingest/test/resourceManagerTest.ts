@@ -7,10 +7,10 @@ import moment from "moment";
 
 import sinon from "sinon";
 
-// @ts-ignore
 import {Client as KustoClient} from "azure-kusto-data";
 
 import {IngestClientResources, ResourceManager, ResourceURI} from "../source/resourceManager";
+import {KustoResponseDataSet} from "azure-kusto-data/source/response";
 
 describe("ResourceURI", function () {
     describe("#fromUri()", function () {
@@ -78,7 +78,7 @@ describe("ResourceManager", function () {
     describe("#getIngestClientResourcesFromService()", function () {
         it("valid input", async function () {
             const client = new KustoClient("https://cluster.kusto.windows.net")
-            sinon.stub(client, "execute").returns(mockedResourcesResponse);
+            sinon.stub(client, "execute").returns(Promise.resolve(mockedResourcesResponse as KustoResponseDataSet));
 
             const resourceManager = new ResourceManager(client);
 

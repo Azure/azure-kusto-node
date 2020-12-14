@@ -2,7 +2,7 @@ import IngestionProperties from "./ingestionProperties";
 import {FileDescriptor, StreamDescriptor} from "./descriptors";
 import fs from "fs";
 
-export abstract class AbstractStreamingClient {
+export abstract class AbstractKustoClient {
     protected constructor(public defaultProps: IngestionProperties | null = null) {
     }
 
@@ -20,7 +20,6 @@ export abstract class AbstractStreamingClient {
         return this.defaultProps.merge(newProperties) || new IngestionProperties({});
     }
 
-    // todo ts
     abstract ingestFromStream(stream: StreamDescriptor | fs.ReadStream, ingestionProperties: IngestionProperties): Promise<any>;
 
     abstract ingestFromFile(file: FileDescriptor | string, ingestionProperties: IngestionProperties): Promise<any>;

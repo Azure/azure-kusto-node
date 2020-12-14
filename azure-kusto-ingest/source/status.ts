@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 import {StatusQueue} from "./statusQ";
+import KustoIngestClient from "./ingestClient";
+import {ResourceURI} from "./resourceManager";
 
 export class StatusMessage {
     OperationId?: string;
@@ -65,13 +67,13 @@ class FailureMessage extends StatusMessage {
 export class KustoIngestStatusQueues {
     success: StatusQueue;
     failure: StatusQueue;
-    constructor(kustoIngestClient: any) { // todo ts
+    constructor(kustoIngestClient: KustoIngestClient) {
         this.success = new StatusQueue(
-            () => kustoIngestClient.resourceManager.getSuccessfulIngestionsQueues(),
+            () => kustoIngestClient.resourceManager.getSuccessfulIngestionsQueues().then(r => r as ResourceURI[]),
             SuccessMessage
         );
         this.failure = new StatusQueue(
-            () => kustoIngestClient.resourceManager.getFailedIngestionsQueues(),
+            () => kustoIngestClient.resourceManager.getFailedIngestionsQueues().then(r => r as ResourceURI[]),
             FailureMessage
         );
     }

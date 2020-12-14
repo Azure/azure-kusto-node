@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import {Client} from "azure-kusto-data";
 import moment from "moment";
 
 const URI_FORMAT = /https:\/\/(\w+).(queue|blob|table).core.windows.net\/([\w,-]+)\?(.*)/;
@@ -56,7 +57,7 @@ export class ResourceManager {
     public authorizationContext: string | null;
     public authorizationContextLastUpdate: moment.Moment | null;
 
-    constructor(readonly kustoClient: any) { // todo ts
+    constructor(readonly kustoClient: Client) {
         this.refreshPeriod = moment.duration(1, "h");
 
         this.ingestClientResources = null;
@@ -91,7 +92,7 @@ export class ResourceManager {
         );
     }
 
-    getResourceByName(table: { rows: () => any; }, resourceName: string): ResourceURI[] { // todo ts
+    getResourceByName(table: { rows: () => any; }, resourceName: string): ResourceURI[] {
         const result = [];
         for (const row of table.rows()) {
             if (row.ResourceTypeName == resourceName) {
@@ -119,7 +120,7 @@ export class ResourceManager {
 
     async getAuthorizationContextFromService() {
         const response = await this.kustoClient.execute("NetDefaultDB", ".get kusto identity token");
-        return response.primaryResults[0].rows().next().value.AuthorizationContext;
+        return (response.primaryResults[0].rows().next().value as any).AuthorizationContext;
     }
 
     async getIngestionQueues() {

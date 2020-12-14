@@ -3,24 +3,24 @@
 
 import IngestionProperties, {DataFormat} from "./ingestionProperties";
 
-// @ts-ignore todo ts
-import {Client as KustoClient} from "azure-kusto-data";
 import {CompressionType, FileDescriptor, StreamDescriptor} from "./descriptors";
 import zlib from "zlib";
 import fs from "fs";
-import {AbstractStreamingClient} from "./abstractStreamingClient";
+import {AbstractKustoClient} from "./abstractKustoClient";
+import {Client as KustoClient, KustoConnectionStringBuilder} from "azure-kusto-data";
+import {KustoResponseDataSet} from "azure-kusto-data/source/response";
 
-class KustoStreamingIngestClient extends AbstractStreamingClient {
-    private kustoClient: any;
+class KustoStreamingIngestClient extends AbstractKustoClient {
+    private kustoClient: KustoClient;
     // tslint:disable-next-line:variable-name
     private _mapping_required_formats: readonly any[];
 
-    constructor(kcsb: string, defaultProps: IngestionProperties | null = null) {
+    constructor(kcsb: string | KustoConnectionStringBuilder, defaultProps: IngestionProperties | null = null) {
         super(defaultProps);
         this.kustoClient = new KustoClient(kcsb);
         this._mapping_required_formats = Object.freeze([DataFormat.JSON, DataFormat.SINGLEJSON, DataFormat.AVRO, DataFormat.ORC]);
     }
-    async ingestFromStream(stream: StreamDescriptor | fs.ReadStream, ingestionProperties: IngestionProperties) {
+    async ingestFromStream(stream: StreamDescriptor | fs.ReadStream, ingestionProperties: IngestionProperties): Promise<KustoResponseDataSet> {
         const props = this._mergeProps(ingestionProperties);
         props.validate();
         const descriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
@@ -30,13 +30,13 @@ class KustoStreamingIngestClient extends AbstractStreamingClient {
             throw new Error(`Mapping reference required for format ${props.foramt}.`);
         }
         return this.kustoClient.executeStreamingIngest(
-            props.database,
-            props.table,
+            props.database as string,
+            props.table as string,
             compressedStream,
             props.format,
-            props.ingestionMappingReference);
+            props.ingestionMappingReference ?? null);
     }
-    async ingestFromFile(file: FileDescriptor | string, ingestionProperties: IngestionProperties) {
+    async ingestFromFile(file: FileDescriptor | string, ingestionProperties: IngestionProperties): Promise<KustoResponseDataSet> {
         const props = this._mergeProps(ingestionProperties);
         props.validate();
         const fileDescriptor = file instanceof FileDescriptor ? file : new FileDescriptor(file);

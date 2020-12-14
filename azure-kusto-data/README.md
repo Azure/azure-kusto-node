@@ -80,8 +80,8 @@ Query language docs can be found at https://docs.microsoft.com/en-us/azure/data-
 For more fine grained control, we expose `ClientRequestProperties`.
 
 ```javascript
-const ClientRequestProperties = require("azure-kusto-data").ClientRequestProperties;
-const Client = require("azure-kusto-data").Client;
+const ClientRequestProperties = require("azure-kusto-data/index").ClientRequestProperties;
+const Client = require("azure-kusto-data/index").Client;
 
 const client = new Client("http://cluster.region.kusto.windows.net");
 const query = `

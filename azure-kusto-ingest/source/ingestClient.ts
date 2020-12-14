@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 // @ts-ignore
-import {Client as KustoClient} from "azure-kusto-data";
+import {Client as KustoClient, KustoConnectionStringBuilder} from "azure-kusto-data";
 
 import {BlobDescriptor, CompressionType, FileDescriptor, StreamDescriptor} from "./descriptors";
 
@@ -10,18 +10,18 @@ import ResourceManager from "./resourceManager";
 
 import IngestionBlobInfo from "./ingestionBlobInfo";
 
-import {QueueClient} from "@azure/storage-queue";
+import {QueueClient, QueueSendMessageResponse} from "@azure/storage-queue";
 
 import {ContainerClient} from "@azure/storage-blob";
 import IngestionProperties from "./ingestionProperties";
 import {ReadStream} from "fs";
-import {AbstractStreamingClient} from "./abstractStreamingClient";
+import {AbstractKustoClient} from "./abstractKustoClient";
 
 
-export class KustoIngestClient extends AbstractStreamingClient{
+export class KustoIngestClient extends AbstractKustoClient{
     resourceManager: ResourceManager;
 
-    constructor(kcsb: string, public defaultProps: IngestionProperties | null = null) {
+    constructor(kcsb: string | KustoConnectionStringBuilder, public defaultProps: IngestionProperties | null = null) {
         super(defaultProps);
         this.resourceManager = new ResourceManager(new KustoClient(kcsb));
     }
@@ -41,7 +41,7 @@ export class KustoIngestClient extends AbstractStreamingClient{
         return containerClient.getBlockBlobClient(blobName);
     }
 
-    async ingestFromStream(stream: ReadStream | StreamDescriptor, ingestionProperties: IngestionProperties) {
+    async ingestFromStream(stream: ReadStream | StreamDescriptor, ingestionProperties: IngestionProperties): Promise<QueueSendMessageResponse> {
         const props = this._mergeProps(ingestionProperties);
         props.validate();
 
@@ -56,7 +56,7 @@ export class KustoIngestClient extends AbstractStreamingClient{
         return this.ingestFromBlob(new BlobDescriptor(blockBlobClient.url), props); // descriptor.size?
     }
 
-    async ingestFromFile(file: string | FileDescriptor, ingestionProperties: IngestionProperties | null = null) {
+    async ingestFromFile(file: string | FileDescriptor, ingestionProperties: IngestionProperties | null = null): Promise<QueueSendMessageResponse> {
         const props = this._mergeProps(ingestionProperties);
         props.validate();
 
@@ -71,7 +71,7 @@ export class KustoIngestClient extends AbstractStreamingClient{
         return this.ingestFromBlob(new BlobDescriptor(blockBlobClient.url, descriptor.size, descriptor.sourceId), props);
     }
 
-    async ingestFromBlob(blob: string | BlobDescriptor, ingestionProperties: IngestionProperties | null = null) {
+    async ingestFromBlob(blob: string | BlobDescriptor, ingestionProperties: IngestionProperties | null = null) : Promise<QueueSendMessageResponse> {
         const props = this._mergeProps(ingestionProperties);
         props.validate();
 
