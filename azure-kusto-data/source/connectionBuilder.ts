@@ -90,8 +90,8 @@ export class KustoConnectionStringBuilder {
         this[KeywordMapping.authorityId.propName] = "common";
 
         const params = connectionString.split(";");
-        for (let i = 0; i < params.length; i++) {
-            const kvp = params[i].split("=");
+        for (const item of params) {
+            const kvp = item.split("=");
             this[getPropName(kvp[0])] = kvp[1].trim();
         }
     }
