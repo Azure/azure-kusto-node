@@ -26,8 +26,7 @@ import {
     StreamDescriptor
 } from "./source/descriptors";
 
-
-module.exports = {
+const out = {
     IngestClient: client,
     StreamingIngestClient: streamingIngestClient,
     IngestStatusQueues: KustoIngestStatusQueues,
@@ -50,3 +49,5 @@ module.exports = {
         CompressionType
     }
 };
+
+export default out;
