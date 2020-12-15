@@ -132,7 +132,7 @@ module.exports = class StatusQueue {
         const messagesLeftToPop = n - partial.result.length;
 
         // In case queues are uneven, iterate again. This time, request for all n messages and trim
-        const final = await this._pop(partial.nonEmptyQs, messagesLeftToPop, options);
+        const final = await this._pop(partial.result.nonEmptyQs, messagesLeftToPop, options);
         return partial.result.concat(final.result);
     }
 };
