@@ -34,7 +34,7 @@ interface PopParams {
 type Message = PeekedMessageItem | StatusMessage;
 
 export class StatusQueue {
-    constructor(readonly getQueuesFunc: () => Promise<ResourceURI[]>, readonly messageCls: typeof StatusMessage ) {
+    constructor(readonly getQueuesFunc: () => Promise<ResourceURI[]>, readonly messageCls: typeof StatusMessage) {
     }
 
     _getQServices(queuesDetails: ResourceURI[]) {
@@ -86,7 +86,7 @@ export class StatusQueue {
         return {done: nonEmptyQs.length === 0, nonEmptyQs, result};
     }
 
-    async peek(n = 1, options : PeekParams | null = null): Promise<Message[]> {
+    async peek(n = 1, options: PeekParams | null = null): Promise<Message[]> {
         const queues = await this.getQueuesFunc();
         const qServices: QueueDetails[] = shuffle(this._getQServices(queues));
         const perQ = qServices.length > 1 ? Math.floor(n / qServices.length) : qServices.length;
@@ -103,7 +103,8 @@ export class StatusQueue {
         return (await this._peek(partial.nonEmptyQs, messagesLeftToPeek, options)).result;
     }
 
-    async _pop(qs: QueueDetails[], n: number, options: PopParams | null): Promise<{ result: Message[]; nonEmptyQs: any[]; done: boolean }> {
+    async _pop(qs: QueueDetails[], n: number, options: PopParams | null):
+        Promise<{ result: Message[] & {nonEmptyQs?: QueueDetails[]}; nonEmptyQs: any[]; done: boolean }> {
         const nonEmptyQs: any[] = [];
         const result = [];
 
@@ -142,7 +143,7 @@ export class StatusQueue {
         const messagesLeftToPop = n - partial.result.length;
 
         // In case queues are uneven, iterate again. This time, request for all n messages and trim
-        const final = await this._pop(partial.nonEmptyQs, messagesLeftToPop, options);
+        const final = await this._pop(partial.result.nonEmptyQs ?? [], messagesLeftToPop, options);
         return partial.result.concat(final.result);
     }
 }
