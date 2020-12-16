@@ -26,28 +26,24 @@ import {
     StreamDescriptor
 } from "./source/descriptors";
 
-const out = {
-    IngestClient: client,
-    StreamingIngestClient: streamingIngestClient,
-    IngestStatusQueues: KustoIngestStatusQueues,
-    IngestionProperties,
-    IngestionDescriptors: {
-        BlobDescriptor,
-        FileDescriptor,
-        StreamDescriptor
-    },
-    IngestionPropertiesEnums: {
-        JsonColumnMapping,
-        CsvColumnMapping,
-        ValidationPolicy,
-        ReportLevel,
-        ReportMethod,
-        ValidationImplications,
-        ValidationOptions,
-        DataFormat,
-        IngestionMappingType,
-        CompressionType
-    }
+export const IngestClient = client;
+export const StreamingIngestClient = streamingIngestClient;
+export const IngestStatusQueues = KustoIngestStatusQueues;
+export {IngestionProperties} from "./source/ingestionProperties"
+export const IngestionDescriptors = {
+    BlobDescriptor,
+    FileDescriptor,
+    StreamDescriptor
 };
-
-export default out;
+export const IngestionPropertiesEnums = {
+    JsonColumnMapping,
+    CsvColumnMapping,
+    ValidationPolicy,
+    ReportLevel,
+    ReportMethod,
+    ValidationImplications,
+    ValidationOptions,
+    DataFormat,
+    IngestionMappingType,
+    CompressionType
+};
