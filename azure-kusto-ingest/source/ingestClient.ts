@@ -1,54 +1,54 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-const KustoClient = require("azure-kusto-data").Client;
-const { FileDescriptor, BlobDescriptor, StreamDescriptor } = require("./descriptors");
-const { ResourceManager } = require("./resourceManager");
-const IngestionBlobInfo = require("./ingestionBlobInfo");
-const { QueueClient } = require("@azure/storage-queue");
-const { ContainerClient } = require("@azure/storage-blob");
+// @ts-ignore
+import {Client as KustoClient, KustoConnectionStringBuilder} from "azure-kusto-data";
 
-module.exports = class KustoIngestClient {
-    constructor(kcsb, defaultProps) {
+import {BlobDescriptor, CompressionType, FileDescriptor, StreamDescriptor} from "./descriptors";
+
+import ResourceManager from "./resourceManager";
+
+import IngestionBlobInfo from "./ingestionBlobInfo";
+
+import {QueueClient, QueueSendMessageResponse} from "@azure/storage-queue";
+
+import {ContainerClient} from "@azure/storage-blob";
+import IngestionProperties from "./ingestionProperties";
+import {ReadStream} from "fs";
+import {AbstractKustoClient} from "./abstractKustoClient";
+
+
+export class KustoIngestClient extends AbstractKustoClient{
+    resourceManager: ResourceManager;
+
+    constructor(kcsb: string | KustoConnectionStringBuilder, public defaultProps: IngestionProperties | null = null) {
+        super(defaultProps);
         this.resourceManager = new ResourceManager(new KustoClient(kcsb));
-        this.defaultProps = defaultProps;
     }
 
-    _mergeProps(newProperties) {
-        // no default props
-        if (newProperties == null || Object.keys(newProperties).length == 0) {
-            return this.defaultProps;
-        }
-
-        // no new props
-        if (this.defaultProps == null || Object.keys(this.defaultProps) == 0) {
-            return newProperties;
-        }
-        // both exist - merge
-        return this.defaultProps.merge(newProperties);
-    }
-
-    _getBlobNameSuffix(format, compressionType) {
+    _getBlobNameSuffix(format : string | null, compressionType: CompressionType) {
         const formatSuffix = format ? `.${format}` : "";
         return `${formatSuffix}${compressionType}`;
     }
 
-    async _getBlockBlobClient(blobName){
+    async _getBlockBlobClient(blobName: string) {
         const containers = await this.resourceManager.getContainers();
+        if (containers == null) {
+            throw new Error("Failed to get containers");
+        }
         const container = containers[Math.floor(Math.random() * containers.length)];
         const containerClient = new ContainerClient(container.getSASConnectionString(), container.objectName);
-        const blockBlobClient = containerClient.getBlockBlobClient(blobName);
-        return blockBlobClient;
+        return containerClient.getBlockBlobClient(blobName);
     }
 
-    async ingestFromStream(stream, ingestionProperties) {
+    async ingestFromStream(stream: ReadStream | StreamDescriptor, ingestionProperties: IngestionProperties): Promise<QueueSendMessageResponse> {
         const props = this._mergeProps(ingestionProperties);
         props.validate();
 
         const descriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
 
         const blobName = `${props.database}__${props.table}__${descriptor.sourceId}` +
-            `${this._getBlobNameSuffix(props.format, descriptor.compressionType)}`;
+            `${this._getBlobNameSuffix(props.format ?? "", descriptor.compressionType)}`;
 
         const blockBlobClient = await this._getBlockBlobClient(blobName);
         await blockBlobClient.uploadStream(descriptor.stream);
@@ -56,7 +56,7 @@ module.exports = class KustoIngestClient {
         return this.ingestFromBlob(new BlobDescriptor(blockBlobClient.url), props); // descriptor.size?
     }
 
-    async ingestFromFile(file, ingestionProperties) {
+    async ingestFromFile(file: string | FileDescriptor, ingestionProperties: IngestionProperties | null = null): Promise<QueueSendMessageResponse> {
         const props = this._mergeProps(ingestionProperties);
         props.validate();
 
@@ -71,13 +71,18 @@ module.exports = class KustoIngestClient {
         return this.ingestFromBlob(new BlobDescriptor(blockBlobClient.url, descriptor.size, descriptor.sourceId), props);
     }
 
-    async ingestFromBlob(blob, ingestionProperties) {
+    async ingestFromBlob(blob: string | BlobDescriptor, ingestionProperties: IngestionProperties | null = null) : Promise<QueueSendMessageResponse> {
         const props = this._mergeProps(ingestionProperties);
         props.validate();
 
         const descriptor = blob instanceof BlobDescriptor ? blob : new BlobDescriptor(blob);
-        let queues = await this.resourceManager.getIngestionQueues();
-        let authorizationContext = await this.resourceManager.getAuthorizationContext();
+        const queues = await this.resourceManager.getIngestionQueues();
+        if (queues == null)
+        {
+            throw new Error("Failed to get queues");
+        }
+
+        const authorizationContext = await this.resourceManager.getAuthorizationContext();
 
         const queueDetails = queues[Math.floor(Math.random() * queues.length)];
 
@@ -89,4 +94,6 @@ module.exports = class KustoIngestClient {
 
         return queueClient.sendMessage(encoded);
     }
-};
+}
+
+export default KustoIngestClient;

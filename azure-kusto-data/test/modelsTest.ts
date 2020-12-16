@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-const assert = require("assert");
-const moment = require("moment");
+import assert from "assert";
+import moment from "moment";
+import {KustoResultColumn, KustoResultRow, KustoResultTable} from "../source/models";
 
-const { KustoResultTable, KustoResultColumn, KustoResultRow } = require("../source/models");
-
+// tslint:disable-next-line:no-var-requires
 const v2Response = require("./data/response/v2.json");
 
 describe("KustoResultRow", function () {
@@ -64,31 +64,31 @@ describe("KustoResultRow", function () {
                 3493235670000
             ];
 
-            const reverseOrderColumns = rawColumns.slice().reverse();            
+            const reverseOrderColumns = rawColumns.slice().reverse();
             const actual = new KustoResultRow(
                 reverseOrderColumns.map((c, i) => new KustoResultColumn(c, rawColumns.length - i - 1)),
                 inputValues
             );
 
-            let asJson = actual.toJson();
-            let expectedValues = [
-                moment(inputValues[0]),
+            const asJson = actual.toJson();
+            const expectedValues = [
+                moment(inputValues[0] as string),
                 inputValues[1],
                 inputValues[2],
                 inputValues[3],
                 inputValues[4],
-                moment(inputValues[5]),
+                moment(inputValues[5] as number),
             ];
 
-            for (let index = 0; index < inputColumns.length; index++) {        
-                let actual = asJson[inputColumns[index].name];
+            for (let index = 0; index < inputColumns.length; index++) {
+                const currentActual = asJson[inputColumns[index].name as string];
                 if (inputColumns[index].type === "timespan") {
-                    assert.equal(Number(actual), expectedValues[index]);
+                    assert.equal(Number(currentActual), expectedValues[index]);
                 }
-                else if (typeof(actual) == "object") {
-                    assert.equal(actual.toString(), expectedValues[index].toString());
+                else if (typeof(currentActual) == "object") {
+                    assert.equal(currentActual.toString(), expectedValues[index].toString());
                 } else {
-                    assert.equal(actual, expectedValues[index]);
+                    assert.equal(currentActual, expectedValues[index]);
                 }
             }
 
@@ -156,7 +156,7 @@ describe("KustoResultRow", function () {
 
             let i = 0;
 
-            for (let v of actual.values()) {
+            for (const v of actual.values()) {
                 assert.equal(v, inputValues[i]);
                 values.push(v);
                 i++;
@@ -284,8 +284,8 @@ describe("KustoResultTable", function () {
         it("iterate over rows", function () {
             const actual = new KustoResultTable(v2Response[2]);
 
-            let rows = [];
-            for (let row of actual.rows()) {
+            const rows = [];
+            for (const row of actual.rows()) {
                 rows.push(row);
                 assert.equal(
                     JSON.stringify(row),

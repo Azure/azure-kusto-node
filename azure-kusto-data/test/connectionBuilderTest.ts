@@ -1,14 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-const assert = require("assert");
-const uuidv4 = require("uuid/v4");
+import assert from "assert";
 
-const KustoConnectionStringBuilder = require("../source/connectionBuilder");
+import uuid from "uuid";
+
+import {KustoConnectionStringBuilder} from "../source/connectionBuilder";
+
 describe("KustoConnectionStringBuilder", function () {
     describe("#constructor(connectionString)", function () {
         it("from string with no creds", function () {
-            let kcsbs = [
+            const kcsbs = [
                 new KustoConnectionStringBuilder("localhost"),
                 new KustoConnectionStringBuilder("data Source=localhost"),
                 new KustoConnectionStringBuilder("Addr=localhost"),
@@ -16,11 +18,11 @@ describe("KustoConnectionStringBuilder", function () {
                 KustoConnectionStringBuilder.withAadDeviceAuthentication("localhost", "common"),
             ];
 
-            for (let kcsb of kcsbs) {
+            for (const kcsb of kcsbs) {
                 assert.equal(kcsb.dataSource, "localhost");
                 assert.equal(kcsb.authorityId, "common");
-                let emptyFields = ["aadUserId", "password", "applicationClientId", "applicationKey"];
-                for (let field of emptyFields) {
+                const emptyFields = ["aadUserId", "password", "applicationClientId", "applicationKey"];
+                for (const field of emptyFields) {
                     assert.equal(kcsb[field], null);
                 }
             }
@@ -41,13 +43,13 @@ describe("KustoConnectionStringBuilder", function () {
             kcsb1.password = expectedPassword;
             kcsbs.push(kcsb1);
 
-            for (let kcsb of kcsbs) {
+            for (const kcsb of kcsbs) {
                 assert.equal(kcsb.dataSource, "localhost");
                 assert.equal(kcsb.aadUserId, expectedUser);
                 assert.equal(kcsb.password, expectedPassword);
                 assert.equal(kcsb.authorityId, "common");
-                let emptyFields = ["applicationClientId", "applicationKey"];
-                for (let field of emptyFields) {
+                const emptyFields = ["applicationClientId", "applicationKey"];
+                for (const field of emptyFields) {
                     assert.equal(kcsb[field], null);
                 }
             }
@@ -55,35 +57,35 @@ describe("KustoConnectionStringBuilder", function () {
 
         it("from string with app auth", function () {
 
-            const uuid = uuidv4();
+            const uuidv4 = uuid.v4();
             const key = "key of application";
 
-            let kcsbs = [
-                new KustoConnectionStringBuilder(`localhost;Application client Id=${uuid};application Key=${key}`),
-                new KustoConnectionStringBuilder(`Data Source=localhost ; Application Client Id=${uuid}; Appkey =${key}`),
-                new KustoConnectionStringBuilder(` Addr = localhost ; AppClientId = ${uuid} ; AppKey =${key}`),
-                new KustoConnectionStringBuilder(`Network Address = localhost; AppClientId = ${uuid} ; AppKey =${key}`),
-                KustoConnectionStringBuilder.withAadApplicationKeyAuthentication("localhost", uuid, key)
+            const kcsbs = [
+                new KustoConnectionStringBuilder(`localhost;Application client Id=${uuidv4};application Key=${key}`),
+                new KustoConnectionStringBuilder(`Data Source=localhost ; Application Client Id=${uuidv4}; Appkey =${key}`),
+                new KustoConnectionStringBuilder(` Addr = localhost ; AppClientId = ${uuidv4} ; AppKey =${key}`),
+                new KustoConnectionStringBuilder(`Network Address = localhost; AppClientId = ${uuidv4} ; AppKey =${key}`),
+                KustoConnectionStringBuilder.withAadApplicationKeyAuthentication("localhost", uuidv4, key)
             ];
 
-            let kcsb1 = new KustoConnectionStringBuilder("server=localhost");
-            kcsb1.applicationClientId = uuid;
+            const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
+            kcsb1.applicationClientId = uuidv4;
             kcsb1.applicationKey = key;
             kcsbs.push(kcsb1);
 
-            for (let kcsb of kcsbs) {
+            for (const kcsb of kcsbs) {
                 assert.equal(kcsb.dataSource, "localhost");
-                assert.equal(kcsb.applicationClientId, uuid);
+                assert.equal(kcsb.applicationClientId, uuidv4);
                 assert.equal(kcsb.applicationKey, key);
                 assert.equal(kcsb.authorityId, "common");
-                let emptyFields = ["aadUserId", "password"];
-                for (let field of emptyFields) {
+                const emptyFields = ["aadUserId", "password"];
+                for (const field of emptyFields) {
                     assert.equal(kcsb[field], null);
                 }
             }
         });
 
-        it("from string with managed identity", function () {    
+        it("from string with managed identity", function () {
             const kcsb1 = KustoConnectionStringBuilder.withAadManagedIdentities("https://dadubovs1.westus.kusto.windows.net");
 
             assert.equal(kcsb1.msiEndpoint, "http://169.254.169.254/metadata/identity/oauth2/token");

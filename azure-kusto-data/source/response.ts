@@ -1,10 +1,53 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-const { KustoResultTable, WellKnownDataSet } = require("./models");
+import {KustoResultTable, Table, WellKnownDataSet} from "./models";
 
-class KustoResponseDataSet {
-    constructor(tables) {
+interface V2DataSetHeaderFrame {
+    FrameType: "DataSetHeader"
+    IsProgressive: boolean
+    Version: string
+}
+
+interface V2DataSetTableFrame extends Table {
+    FrameType: "DataTable"
+    TableId: number
+    TableName: string
+    TableKind: string
+    Columns: Column[]
+    Rows: any[][]
+}
+
+interface V2DataSetCompletionFrame {
+    FrameType: "DataSetCompletion"
+    HasErrors: boolean
+    Cancelled: boolean
+}
+
+type V2Frames = (V2DataSetHeaderFrame | V2DataSetTableFrame | V2DataSetCompletionFrame)[];
+
+type V1 = { Tables: Table[] };
+
+interface Column {
+    ColumnName: string
+    ColumnType: string
+}
+
+
+export abstract class KustoResponseDataSet {
+    tables: KustoResultTable[];
+    tableNames: string[];
+    primaryResults: KustoResultTable[];
+    statusTable?: KustoResultTable;
+    abstract dataSetCompletion: { HasErrors: boolean, OneApiErrors?: any[] } | null;
+
+    abstract getStatusColumn(): string;
+
+    abstract getErrorColumn(): string;
+
+    abstract getCridColumn(): string;
+
+    protected constructor(tables: Table[]) {
         let _tables = tables;
 
         if (!Array.isArray(tables)) {
@@ -14,8 +57,8 @@ class KustoResponseDataSet {
         this.tables = [];
         this.tableNames = [];
         this.primaryResults = [];
-        for (let table of _tables) {
-            let resultTable = new KustoResultTable(table);
+        for (const table of _tables) {
+            const resultTable = new KustoResultTable(table);
             this.tables.push(resultTable);
             this.tableNames.push(resultTable.name);
 
@@ -33,8 +76,8 @@ class KustoResponseDataSet {
         if (this.statusTable && this.statusTable._rows.length != 0) {
             let minLevel = 4;
 
-            const errorColumn = this.constructor.getErrorColumn();
-            for (let row of this.statusTable.rows()) {
+            const errorColumn = this.getErrorColumn();
+            for (const row of this.statusTable.rows()) {
                 if (row[errorColumn] < 4) {
                     if (row[errorColumn] < minLevel) {
                         minLevel = row[errorColumn];
@@ -45,7 +88,7 @@ class KustoResponseDataSet {
                 }
             }
         }
-        if (this.dataSetCompletion && this.dataSetCompletion["HasErrors"]) {
+        if (this.dataSetCompletion && this.dataSetCompletion.HasErrors) {
             errors += 1;
         }
 
@@ -56,18 +99,18 @@ class KustoResponseDataSet {
         const result = [];
         if (this.statusTable && this.statusTable._rows.length != 0) {
 
-            const errorColumn = this.constructor.getErrorColumn();
-            const cridColumn = this.constructor.getCridColumn();
-            const statusColumn = this.constructor.getStatusColumn();
-            for (let row of this.statusTable.rows()) {
+            const errorColumn = this.getErrorColumn();
+            const cridColumn = this.getCridColumn();
+            const statusColumn = this.getStatusColumn();
+            for (const row of this.statusTable.rows()) {
                 if (row[errorColumn] < 4) {
                     result.push(`Please provide the following data to Kusto: CRID=${row[cridColumn]} Description: ${row[statusColumn]}`);
                 }
             }
         }
-        if (this.dataSetCompletion && this.dataSetCompletion["HasErrors"]) {
-            for (let row of this.dataSetCompletion["OneApiErrors"]) {
-                result.push( row["error"]["@message"]);
+        if (this.dataSetCompletion && this.dataSetCompletion.HasErrors && this.dataSetCompletion.OneApiErrors) {
+            for (const row of this.dataSetCompletion.OneApiErrors) {
+                result.push(row.error["@message"]);
             }
         }
         return result;
@@ -75,12 +118,23 @@ class KustoResponseDataSet {
 }
 
 // TODO: should only expose 1 response type, versioning should be handled internally
-module.exports.KustoResponseDataSetV1 = class KustoResponseDataSetV1 extends KustoResponseDataSet {
-    static getStatusColumn() { return "StatusDescription"; }
-    static getCridColumn() { return "ClientActivityId"; }
-    static getErrorColumn() { return "Severity"; }
+export class KustoResponseDataSetV1 extends KustoResponseDataSet {
+    version: string;
+    dataSetCompletion: null = null;
 
-    static getTablesKinds() {
+    getStatusColumn() {
+        return "StatusDescription";
+    }
+
+    getCridColumn() {
+        return "ClientActivityId";
+    }
+
+    getErrorColumn() {
+        return "Severity";
+    }
+
+    static getTablesKinds(): { [name: string]: WellKnownDataSet } {
         return {
             "QueryResult": WellKnownDataSet.PrimaryResult,
             "QueryProperties": WellKnownDataSet.QueryProperties,
@@ -88,7 +142,7 @@ module.exports.KustoResponseDataSetV1 = class KustoResponseDataSetV1 extends Kus
         };
     }
 
-    constructor(data) {
+    constructor(data: V1) {
         super(data.Tables);
 
         if (this.tables.length <= 2) {
@@ -108,26 +162,38 @@ module.exports.KustoResponseDataSetV1 = class KustoResponseDataSetV1 extends Kus
             toc.kind = WellKnownDataSet.TableOfContents;
             toc.id = this.tables.length - 1;
             for (let i = 0; i < this.tables.length - 1; i++) {
-                this.tables[i].name = toc[i]["Name"];
-                this.tables[i].id = toc[i]["Id"];
-                this.tables[i].kind = KustoResponseDataSetV1.getTablesKinds()[toc[i]["Kind"]];
+                this.tables[i].name = toc[i].Name;
+                this.tables[i].id = toc[i].Id;
+                this.tables[i].kind = KustoResponseDataSetV1.getTablesKinds()[toc[i].Kind];
             }
         }
 
         this.version = "1.0";
     }
-};
+}
 
 // TODO: should only expose 1 response type, versioning should be handled internally
-module.exports.KustoResponseDataSetV2 = class KustoResponseDataSetV2 extends KustoResponseDataSet {
-    static getStatusColumn() { return "Payload"; }
-    static getErrorColumn() { return "Level"; }
-    static getCridColumn() { return "ClientRequestId"; }
+export class KustoResponseDataSetV2 extends KustoResponseDataSet {
+    dataSetHeader: V2DataSetHeaderFrame | null;
+    dataSetCompletion: V2DataSetCompletionFrame | null;
+    version: string;
 
-    constructor(data) {
-        let dataTables = [];
-        let dataSetHeader;
-        let dataSetCompletion;
+    getStatusColumn() {
+        return "Payload";
+    }
+
+    getErrorColumn() {
+        return "Level";
+    }
+
+    getCridColumn() {
+        return "ClientRequestId";
+    }
+
+    constructor(data: V2Frames) {
+        const dataTables: V2DataSetTableFrame[] = [];
+        let dataSetHeader: V2DataSetHeaderFrame | null = null;
+        let dataSetCompletion: V2DataSetCompletionFrame | null = null;
         data.forEach(frame => {
             switch (frame.FrameType) {
                 case "DataTable":

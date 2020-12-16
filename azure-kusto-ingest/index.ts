@@ -1,30 +1,32 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-const client = require("./source/ingestClient");
-const streamingIngestClient = require("./source/streamingIngestClient");
-const KustoIngestStatusQueues = require("./source/status");
-const {
+import client from "./source/ingestClient";
+
+import streamingIngestClient from "./source/streamingIngestClient";
+
+import KustoIngestStatusQueues from "./source/status";
+
+import {
+    CsvColumnMapping, DataFormat, IngestionMappingType,
     IngestionProperties,
     JsonColumnMapping,
-    CsvColumnMapping,
-    ValidationPolicy,
     ReportLevel,
     ReportMethod,
     ValidationImplications,
     ValidationOptions,
-    DataFormat,
-    IngestionMappingType
-} = require("./source/ingestionProperties");
+    ValidationPolicy
+} from "./source/ingestionProperties";
 
-const {
+
+import {
     BlobDescriptor,
+    CompressionType,
     FileDescriptor,
-    StreamDescriptor,
-    CompressionType
-} = require("./source/descriptors");
+    StreamDescriptor
+} from "./source/descriptors";
 
-module.exports = {
+const out = {
     IngestClient: client,
     StreamingIngestClient: streamingIngestClient,
     IngestStatusQueues: KustoIngestStatusQueues,
@@ -47,3 +49,5 @@ module.exports = {
         CompressionType
     }
 };
+
+export default out;

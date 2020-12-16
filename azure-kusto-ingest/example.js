@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 const IngestClient = require("azure-kusto-ingest").IngestClient;
-const IngestStatusQueues = require("azure-kusto-ingest").KustoIngestStatusQueues;
+const IngestStatusQueues = require("azure-kusto-ingest").IngestStatusQueues;
 const IngestionProps = require("azure-kusto-ingest").IngestionProperties;
 const { ReportLevel, ReportMethod } = require("azure-kusto-ingest").IngestionPropertiesEnums;
 const KustoConnectionStringBuilder = require("azure-kusto-data").KustoConnectionStringBuilder;
@@ -115,7 +115,7 @@ async function startStreamingIngestion() {
     }
 
     // Ingest from stream with either ReadStream or StreamDescriptor
-    const stream = fs.createReadStream("file.json");
+    let stream = fs.createReadStream("file.json");
     try {
         await streamingIngestClient.ingestFromStream("file.json", props2);
         console.log("Ingestion done");
@@ -125,7 +125,7 @@ async function startStreamingIngestion() {
     }
 
     // For gzip data set StreamDescriptor.compressionType to CompressionType.GZIP
-    const stream = fs.createReadStream("file.json.gz");
+    stream = fs.createReadStream("file.json.gz");
     const streamDescriptor = new StreamDescriptor(stream, "id", CompressionType.GZIP);
     try {
         await streamingIngestClient.ingestFromStream(streamDescriptor, props2);

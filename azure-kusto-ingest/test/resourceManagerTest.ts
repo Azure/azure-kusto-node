@@ -1,15 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-const assert = require("assert");
-const moment = require("moment");
-const sinon = require("sinon");
+import assert from "assert";
 
-const KustoClient = require("azure-kusto-data").Client;
+import moment from "moment";
 
-const ResourceManager = require("../source/resourceManager").ResourceManager;
-const IngestClientResources = require("../source/resourceManager").IngestClientResources;
-const ResourceURI = require("../source/resourceManager").ResourceURI;
+import sinon from "sinon";
+
+import {Client as KustoClient} from "azure-kusto-data";
+
+import {IngestClientResources, ResourceManager, ResourceURI} from "../source/resourceManager";
+import {KustoResponseDataSet} from "azure-kusto-data/source/response";
 
 describe("ResourceURI", function () {
     describe("#fromUri()", function () {
@@ -19,13 +20,13 @@ describe("ResourceURI", function () {
             const objectName = "container";
             const sas = "sas";
 
-            let uri = `https://${accountName}.${objectType}.core.windows.net/${objectName}?${sas}`;
+            const uri = `https://${accountName}.${objectType}.core.windows.net/${objectName}?${sas}`;
             const storageUrl = ResourceURI.fromURI(uri);
 
-            assert.equal(storageUrl.storageAccountName, accountName);
-            assert.equal(storageUrl.objectType, objectType);
-            assert.equal(storageUrl.objectName, objectName);
-            assert.equal(storageUrl.sas, sas);
+            assert.strictEqual(storageUrl.storageAccountName, accountName);
+            assert.strictEqual(storageUrl.objectType, objectType);
+            assert.strictEqual(storageUrl.objectName, objectName);
+            assert.strictEqual(storageUrl.sas, sas);
         });
     });
 
@@ -39,7 +40,7 @@ describe("ResourceURI", function () {
 
             const storageUrl = new ResourceURI(accountName, objectType, objectName, sas);
 
-            assert.equal(storageUrl.getSASConnectionString(), `BlobEndpoint=https://${accountName}.blob.core.windows.net/;SharedAccessSignature=${sas}`);
+            assert.strictEqual(storageUrl.getSASConnectionString(), `BlobEndpoint=https://${accountName}.blob.core.windows.net/;SharedAccessSignature=${sas}`);
         });
     });
 });
@@ -57,8 +58,8 @@ describe("ResourceManager", function () {
 
     const mockedResourcesResponse = {
         primaryResults: [{
-            rows: function* () {
-                for (let row of rows) {
+            *rows () {
+                for (const row of rows) {
                     yield row;
                 }
             }
@@ -67,38 +68,38 @@ describe("ResourceManager", function () {
 
     describe("#constructor()", function () {
         it("valid input", function () {
-            let resourceManager = new ResourceManager(new KustoClient("https://cluster.kusto.windows.net"));
+            const resourceManager = new ResourceManager(new KustoClient("https://cluster.kusto.windows.net"));
 
-            assert.equal(resourceManager.ingestClientResources, null);
-            assert.equal(resourceManager.authorizationContext, null);
+            assert.strictEqual(resourceManager.ingestClientResources, null);
+            assert.strictEqual(resourceManager.authorizationContext, null);
         });
     });
 
     describe("#getIngestClientResourcesFromService()", function () {
         it("valid input", async function () {
             const client = new KustoClient("https://cluster.kusto.windows.net")
-            sinon.stub(client, "execute").returns(mockedResourcesResponse);
+            sinon.stub(client, "execute").returns(Promise.resolve(mockedResourcesResponse as KustoResponseDataSet));
 
-            let resourceManager = new ResourceManager(client);
+            const resourceManager = new ResourceManager(client);
 
             const resources = await resourceManager.getIngestClientResourcesFromService();
-            assert.equal(resources.containers.length, 2);
-            assert.equal(resources.successfulIngestionsQueues.length, 1);
-            assert.equal(resources.failedIngestionsQueues.length, 1);
-            assert.equal(resources.securedReadyForAggregationQueues.length, 2);
+            assert.strictEqual(resources.containers!!.length, 2);
+            assert.strictEqual(resources.successfulIngestionsQueues!!.length, 1);
+            assert.strictEqual(resources.failedIngestionsQueues!!.length, 1);
+            assert.strictEqual(resources.securedReadyForAggregationQueues!!.length, 2);
         });
 
 
         it("error response", async function () {
             const client = new KustoClient("https://cluster.kusto.windows.net");
-            sinon.stub(client, "execute").throwsException("Kusto request erred (403)");
+            sinon.stub(client, "execute").throwsException(new Error("Kusto request erred (403)"));
 
             const resourceManager = new ResourceManager(client);
             try{
                 await resourceManager.getIngestClientResourcesFromService();
             }
             catch(ex){
-                assert.equal(ex, "Kusto request erred (403)");
+                assert(ex.message.startsWith( "Kusto request erred (403)"));
                 return;
             }
             assert.fail();
@@ -107,32 +108,32 @@ describe("ResourceManager", function () {
 
     describe("#getResourceByName()", function () {
         it("valid input", function () {
-            let resourceManager = new ResourceManager(new KustoClient("https://cluster.kusto.windows.net"));
+            const resourceManager = new ResourceManager(new KustoClient("https://cluster.kusto.windows.net"));
 
-            let resources = resourceManager.getResourceByName(mockedResourcesResponse.primaryResults[0], "TempStorage");
-            assert.equal(resources.length, 2);
+            const resources = resourceManager.getResourceByName(mockedResourcesResponse.primaryResults[0], "TempStorage");
+            assert.strictEqual(resources.length, 2);
         });
     });
 
     describe("#refreshIngestClientResources()", function () {
         it("should refresh", async function () {
-            let resourceManager = new ResourceManager(new KustoClient("https://cluster.kusto.windows.net"));
+            const resourceManager = new ResourceManager(new KustoClient("https://cluster.kusto.windows.net"));
 
-            let call = sinon.stub(resourceManager, "getIngestClientResourcesFromService");
+            const call = sinon.stub(resourceManager, "getIngestClientResourcesFromService");
 
             await resourceManager.refreshIngestClientResources();
-            assert.equal(call.calledOnce, true);
+            assert.strictEqual(call.calledOnce, true);
         });
 
         it("shouldn't refresh", async function () {
-            let resourceManager = new ResourceManager(new KustoClient("https://cluster.kusto.windows.net"));
+            const resourceManager = new ResourceManager(new KustoClient("https://cluster.kusto.windows.net"));
 
-            let call = sinon.stub(resourceManager, "getIngestClientResourcesFromService");
-            resourceManager.ingestClientResourcesLastUpdate = moment.now();
-            resourceManager.ingestClientResources = new IngestClientResources({}, {}, {}, {});
+            const call = sinon.stub(resourceManager, "getIngestClientResourcesFromService");
+            resourceManager.ingestClientResourcesLastUpdate = moment();
+            resourceManager.ingestClientResources = new IngestClientResources([], [], [], []);
 
             await resourceManager.refreshIngestClientResources();
-            assert.equal(call.calledOnce, false);
+            assert.strictEqual(call.calledOnce, false);
         });
     });
 });

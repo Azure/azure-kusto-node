@@ -1,7 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-const KeywordMapping = Object.freeze({
+import {UserCodeInfo} from "adal-node";
+
+interface MappingType {
+    propName: string,
+    mappedTo: string,
+    validNames: string[]
+}
+
+const KeywordMapping: { [name: string]: MappingType } = Object.freeze({
     dataSource: {
         propName: "dataSource",
         mappedTo: "Data Source",
@@ -44,11 +52,11 @@ const KeywordMapping = Object.freeze({
     }
 });
 
-const getPropName = (key) => {
-    let _key = key.trim().toLowerCase();
+const getPropName = (key: string): string => {
+    const _key = key.trim().toLowerCase();
 
-    for (let keyword of Object.keys(KeywordMapping)) {
-        let k = KeywordMapping[keyword];
+    for (const keyword of Object.keys(KeywordMapping)) {
+        const k = KeywordMapping[keyword];
         if (k.validNames.indexOf(_key) >= 0) {
             return k.propName;
         }
@@ -56,8 +64,19 @@ const getPropName = (key) => {
     throw new Error(key);
 };
 
-module.exports = class KustoConnectionStringBuilder {
-    constructor(connectionString) {
+export class KustoConnectionStringBuilder {
+    [prop: string]: string | boolean | ((info: UserCodeInfo) => void) |  undefined;
+    dataSource?: string;
+    aadUserId?: string;
+    password?: string;
+    applicationClientId?: string;
+    applicationKey?: string;
+    applicationCertificate?: string;
+    applicationCertificateThumbprint?: string;
+    authorityId?: string;
+    AuthorizationCallback?: (info: UserCodeInfo) => void;
+
+    constructor(connectionString: string) {
         if (!connectionString || connectionString.trim().length === 0) throw new Error("Missing connection string");
 
         if (connectionString.endsWith("/") || connectionString.endsWith("\\")) {
@@ -70,14 +89,14 @@ module.exports = class KustoConnectionStringBuilder {
 
         this[KeywordMapping.authorityId.propName] = "common";
 
-        let params = connectionString.split(";");
-        for (let i = 0; i < params.length; i++) {
-            let kvp = params[i].split("=");
+        const params = connectionString.split(";");
+        for (const item of params) {
+            const kvp = item.split("=");
             this[getPropName(kvp[0])] = kvp[1].trim();
         }
     }
 
-    static withAadUserPasswordAuthentication(connectionString, userId, password, authorityId) {
+    static withAadUserPasswordAuthentication(connectionString: string, userId: string, password: string, authorityId?: string) {
         if (!userId || userId.trim().length == 0) throw new Error("Invalid user");
         if (!password || password.trim().length == 0) throw new Error("Invalid password");
 
@@ -89,7 +108,7 @@ module.exports = class KustoConnectionStringBuilder {
         return kcsb;
     }
 
-    static withAadApplicationKeyAuthentication(connectionString, aadAppId, appKey, authorityId) {
+    static withAadApplicationKeyAuthentication(connectionString: string, aadAppId: string, appKey: string, authorityId?: string) {
         if (!aadAppId || aadAppId.trim().length == 0) throw new Error("Invalid app id");
         if (!appKey || appKey.trim().length == 0) throw new Error("Invalid app key");
 
@@ -101,7 +120,7 @@ module.exports = class KustoConnectionStringBuilder {
         return kcsb;
     }
 
-    static withAadApplicationCertificateAuthentication(connectionString, aadAppId, certificate, thumbprint, authorityId) {
+    static withAadApplicationCertificateAuthentication(connectionString: string, aadAppId: string, certificate: string, thumbprint: string, authorityId: string) {
         if (!aadAppId || aadAppId.trim().length == 0) throw new Error("Invalid app id");
         if (!certificate || certificate.trim().length == 0) throw new Error("Invalid certificate");
         if (!thumbprint || thumbprint.trim().length == 0) throw new Error("Invalid thumbprint");
@@ -116,7 +135,7 @@ module.exports = class KustoConnectionStringBuilder {
     }
 
 
-    static withAadDeviceAuthentication(connectionString, authorityId, authCallback) {
+    static withAadDeviceAuthentication(connectionString: string, authorityId: string, authCallback?: (info: UserCodeInfo) => void) {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         kcsb[KeywordMapping.authorityId.propName] = authorityId;
         kcsb.AuthorizationCallback = authCallback;
@@ -124,8 +143,8 @@ module.exports = class KustoConnectionStringBuilder {
         return kcsb;
     }
 
-    // Notice: you can leave `msiEndpoint` and `clientId` 
-    static withAadManagedIdentities(connectionString, msiEndpoint, clientId) {
+    // Notice: you can leave `msiEndpoint` and `clientId`
+    static withAadManagedIdentities(connectionString: string, msiEndpoint?: string, clientId?: string) {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         kcsb.msiEndpoint = msiEndpoint;
 
@@ -144,7 +163,7 @@ module.exports = class KustoConnectionStringBuilder {
         return kcsb;
     }
 
-    static withAzLoginIdentity(connectionString) {
+    static withAzLoginIdentity(connectionString: string) {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
 
         kcsb.azLoginIdentity = true;
@@ -152,11 +171,13 @@ module.exports = class KustoConnectionStringBuilder {
         return kcsb;
     }
 
-    static withAccessToken(connectionString, accessToken) {
+    static withAccessToken(connectionString: string, accessToken?: string) {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
 
         kcsb.accessToken = accessToken;
 
         return kcsb;
     }
-};
+}
+
+export default KustoConnectionStringBuilder;
