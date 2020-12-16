@@ -22,8 +22,8 @@
     "example": "npm run build && node example.js",
     "lint": "npm run build && tslint --project tsconfig.json --quiet",
     "test": "npm run build && mocha --require ts-node/register",
-    "e2e": "npm run build && ts-mocha --require ts-node/register test/e2eTests/e2eTest.ts",
-    "allTests": "npm run build && ts-mocha --timeout 240000 --recursive --require ts-node/register"
+    "e2e": "npm run build && mocha --require ts-node/register test/e2eTests/e2eTest.ts",
+    "allTests": "npm run build && mocha --timeout 240000 --recursive --require ts-node/register"
   },
   "author": "",
   "license": "ISC",
