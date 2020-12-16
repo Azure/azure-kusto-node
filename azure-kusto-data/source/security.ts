@@ -59,22 +59,34 @@ interface DeviceLoginMethod {
     authCallback: (info: UserCodeInfo) => void;
 }
 
-type Method = UsernameMethod |AppKeyMethod | AppCertificateMethod | AppManagedIdentityMethod | AzLoginMethod | AccessTokenMethod | DeviceLoginMethod;
+type Method =
+    UsernameMethod
+    | AppKeyMethod
+    | AppCertificateMethod
+    | AppManagedIdentityMethod
+    | AzLoginMethod
+    | AccessTokenMethod
+    | DeviceLoginMethod;
 
-export class AadHelper{
+export class AadHelper {
     token: {};
     kustoCluster: string;
     adalContext: AuthenticationContext;
     method: Method;
+
     constructor(kcsb: KustoConnectionStringBuilder) {
         this.token = {};
 
         const authority = kcsb.authorityId || "common";
         let url;
 
+        if (!kcsb.dataSource) {
+            throw new Error("Invalid string builder - missing dataSource");
+        }
+
         // support node compatibility
         try {
-            url = new URL(kcsb.dataSource ?? "");
+            url = new URL(kcsb.dataSource); // CHANGE
         } catch (e) {
             const URL = require("url").URL;
             url = new URL(kcsb.dataSource);
@@ -89,44 +101,44 @@ export class AadHelper{
         this.adalContext = new AuthenticationContext(fullAuthorityUri);
         if (!!kcsb.aadUserId && !!kcsb.password) {
             this.method = {
-                authMethod : AuthenticationMethod.username,
-            clientId : "db662dc1-0cfe-4e1c-a843-19a68e65be58",
-            username : kcsb.aadUserId,
-            password : kcsb.password,
+                authMethod: AuthenticationMethod.username,
+                clientId: "db662dc1-0cfe-4e1c-a843-19a68e65be58",
+                username: kcsb.aadUserId,
+                password: kcsb.password,
             }
         } else if (!!kcsb.applicationClientId && !!kcsb.applicationKey) {
             this.method = {
-                authMethod : AuthenticationMethod.appKey,
-            clientId : kcsb.applicationClientId,
-            clientSecret : kcsb.applicationKey
+                authMethod: AuthenticationMethod.appKey,
+                clientId: kcsb.applicationClientId,
+                clientSecret: kcsb.applicationKey,
             }
         } else if (!!kcsb.applicationClientId &&
             !!kcsb.applicationCertificate && !!kcsb.applicationCertificateThumbprint) {
             this.method = {
-                authMethod : AuthenticationMethod.appCertificate,
-            clientId : kcsb.applicationClientId,
-            certificate : kcsb.applicationCertificate,
-            thumbprint : kcsb.applicationCertificateThumbprint
+                authMethod: AuthenticationMethod.appCertificate,
+                clientId: kcsb.applicationClientId,
+                certificate: kcsb.applicationCertificate,
+                thumbprint: kcsb.applicationCertificateThumbprint
             }
         } else if (kcsb.managedIdentity) {
             this.method = {
-                authMethod : AuthenticationMethod.managedIdentities,
-            msiEndpoint : kcsb.msiEndpoint as string,
-            msiSecret : kcsb.msiSecret as string,
-            msiClientId : kcsb.msiClientId as string
+                authMethod: AuthenticationMethod.managedIdentities,
+                msiEndpoint: kcsb.msiEndpoint as string,
+                msiSecret: kcsb.msiSecret as string,
+                msiClientId: kcsb.msiClientId as string
             }
         } else if (kcsb.azLoginIdentity) {
-            this.method = {authMethod : AuthenticationMethod.azLogin}
+            this.method = {authMethod: AuthenticationMethod.azLogin}
         } else if (kcsb.accessToken) {
             this.method = {
-                authMethod : AuthenticationMethod.accessToken,
-            accessToken : kcsb.accessToken as string
+                authMethod: AuthenticationMethod.accessToken,
+                accessToken: kcsb.accessToken as string
             }
         } else {
             this.method = {
-                authMethod : AuthenticationMethod.deviceLogin,
-            clientId : "db662dc1-0cfe-4e1c-a843-19a68e65be58",
-            authCallback : kcsb.AuthorizationCallback as (info: UserCodeInfo) => void
+                authMethod: AuthenticationMethod.deviceLogin,
+                clientId: "db662dc1-0cfe-4e1c-a843-19a68e65be58",
+                authCallback: kcsb.AuthorizationCallback as (info: UserCodeInfo) => void
             }
         }
     }
@@ -145,7 +157,10 @@ export class AadHelper{
 
     _getAuthHeaderWithCallback(cb: (e: string | Error | null | undefined, token?: string) => any) {
         const resource = this.kustoCluster;
-        const formatHeader = ({ tokenType, accessToken }: TokenResponse) => `${tokenType} ${accessToken}`;
+        const formatHeader = ({
+                                  tokenType,
+                                  accessToken
+                              }: TokenResponse) => `${tokenType} ${accessToken}`;
 
         switch (this.method.authMethod) {
             case AuthenticationMethod.username:
@@ -201,7 +216,7 @@ export class AadHelper{
                 );
             case AuthenticationMethod.azLogin:
                 return azLoginIdentityToken(resource, (err, tokenResponse) => {
-                    if(err) {
+                    if (err) {
                         return cb(err);
                     }
 
