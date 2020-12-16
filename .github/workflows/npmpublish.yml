@@ -17,6 +17,8 @@ jobs:
       - name: Publish new version azure-kusto-data
         working-directory: ./azure-kusto-data
         run: |
+          npm install
+          npm run build
           npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
@@ -24,6 +26,8 @@ jobs:
       - name: Publish new version azure-kusto-ingest
         working-directory: ./azure-kusto-ingest
         run: |
+          npm install
+          npm run build
           npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
