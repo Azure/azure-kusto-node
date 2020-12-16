@@ -7,7 +7,7 @@
     "incremental": true,
     "sourceMap": true,
     "resolveJsonModule": true,
-    "allowJs": true,
+    "allowJs": false,
     "allowSyntheticDefaultImports": true,
     "declaration": true
   },
