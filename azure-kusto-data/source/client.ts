@@ -155,7 +155,7 @@ export class KustoClient {
         } catch (ex) {
             throw new Error(`Failed to parse response ({${status}}) with the following error [${ex}].`);
         }
-        if (kustoResponse.getErrorsCount() > 0) {
+        if (kustoResponse.getErrorsCount().errors > 0) {
             throw new Error(`Kusto request had errors. ${kustoResponse.getExceptions()}`);
         }
         return kustoResponse;

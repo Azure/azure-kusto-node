@@ -33,6 +33,10 @@ interface Column {
     ColumnType: string
 }
 
+enum ErrorLevels {
+    Warning = 3,
+    Error = 2
+}
 
 export abstract class KustoResponseDataSet {
     tables: KustoResultTable[];
@@ -70,21 +74,23 @@ export abstract class KustoResponseDataSet {
         }
     }
 
-    getErrorsCount() {
+    getErrorsCount(): { warnings: number, errors: number } {
         let errors = 0;
+        let warnings = 0;
 
         if (this.statusTable && this.statusTable._rows.length != 0) {
-            let minLevel = 4;
-
+            let minLevel = ErrorLevels.Error;
             const errorColumn = this.getErrorColumn();
             for (const row of this.statusTable.rows()) {
-                if (row[errorColumn] < 4) {
+                if (row[errorColumn] <= minLevel) {
                     if (row[errorColumn] < minLevel) {
                         minLevel = row[errorColumn];
                         errors = 1;
                     } else if (row[errorColumn] == minLevel) {
                         errors += 1;
                     }
+                } else if (row[errorColumn] == warnings) {
+                    warnings += 1;
                 }
             }
         }
@@ -92,28 +98,36 @@ export abstract class KustoResponseDataSet {
             errors += 1;
         }
 
-        return errors;
+        return {warnings, errors};
     }
 
-    getExceptions() {
+    private getErrorsByLevel(errorLevel: ErrorLevels) {
         const result = [];
         if (this.statusTable && this.statusTable._rows.length != 0) {
-
             const errorColumn = this.getErrorColumn();
             const cridColumn = this.getCridColumn();
             const statusColumn = this.getStatusColumn();
             for (const row of this.statusTable.rows()) {
-                if (row[errorColumn] < 4) {
+                if (row[errorColumn] <= errorLevel) {
                     result.push(`Please provide the following data to Kusto: CRID=${row[cridColumn]} Description: ${row[statusColumn]}`);
                 }
             }
         }
+        return result;
+    }
+
+    getExceptions(): string[] {
+        const result = this.getErrorsByLevel(ErrorLevels.Error);
         if (this.dataSetCompletion && this.dataSetCompletion.HasErrors && this.dataSetCompletion.OneApiErrors) {
             for (const row of this.dataSetCompletion.OneApiErrors) {
                 result.push(row.error["@message"]);
             }
         }
         return result;
+    }
+
+    getWarnings(): string[] {
+        return this.getErrorsByLevel(ErrorLevels.Warning);
     }
 }
 
