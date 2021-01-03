@@ -9,13 +9,15 @@ const MSI_API_VERSION = "2018-02-01";
 const MSI_FUNCTION_API_VERSION = "2017-09-01";
 
 export default function acquireToken<T>(resource: string, msiEndpoint: string, msiClientId: string, msiSecret: string, callback: (error: string | null, token?: { tokenType: string; accessToken: string }) => T) {
-    let msiUri = `${msiEndpoint}/?resource=${resource}&api-version=${msiSecret ? MSI_FUNCTION_API_VERSION : MSI_API_VERSION}`;
+    let msiUri = `${msiEndpoint}?resource=${resource}&api-version=${msiSecret ? MSI_FUNCTION_API_VERSION : MSI_API_VERSION}`;
 
     if (msiClientId) {
         msiUri += `&client_id=${msiClientId}`;
     }
 
-    const headers: any = {};
+    const headers: any = {
+        Metadata: true
+    };
 
     if (msiSecret) {
         headers.Secret = msiSecret;

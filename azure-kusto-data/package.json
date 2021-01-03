@@ -26,6 +26,7 @@
   },
   "author": "",
   "license": "ISC",
+  "homepage": "https://github.com/Azure/azure-kusto-node/blob/master/azure-kusto-data/README.md",
   "dependencies": {
     "@azure/ms-rest-nodeauth": "^3.0.3",
     "adal-node": "^0.1.28",
