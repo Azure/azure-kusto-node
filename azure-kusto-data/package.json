@@ -1,6 +1,6 @@
 {
   "name": "azure-kusto-data",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Azure Data Explorer Query SDK",
   "main": "index.js",
   "types": "index.d.ts",
@@ -26,6 +26,7 @@
   },
   "author": "",
   "license": "ISC",
+  "homepage": "https://github.com/Azure/azure-kusto-node/blob/master/azure-kusto-data/README.md",
   "dependencies": {
     "@azure/ms-rest-nodeauth": "^3.0.3",
     "adal-node": "^0.1.28",
