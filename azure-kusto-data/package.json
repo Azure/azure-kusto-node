@@ -30,7 +30,7 @@
   "dependencies": {
     "@azure/ms-rest-nodeauth": "^3.0.3",
     "adal-node": "^0.1.28",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "moment": "^2.25.3",
     "uuid": "^3.4.0"
   },
