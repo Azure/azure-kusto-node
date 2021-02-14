@@ -18,13 +18,14 @@ const MGMT_PREFIX = ".";
 enum ExecutionType {
     Mgmt = 0,
     Query = 1,
-    Ingest = 2
+    Ingest = 2,
+    QueryV1 = 3,
 }
 
 export class KustoClient {
     connectionString: ConnectionStringBuilder;
     cluster: string;
-    endpoints: { mgmt: string; query: string; ingest: string; };
+    endpoints: { [key in ExecutionType] : string; };
     aadHelper: AadHelper;
     headers: { [name: string]: string };
 
@@ -32,9 +33,10 @@ export class KustoClient {
         this.connectionString = typeof (kcsb) === "string" ? new ConnectionStringBuilder(kcsb) : kcsb;
         this.cluster = (this.connectionString.dataSource as string);
         this.endpoints = {
-            mgmt: `${this.cluster}/v1/rest/mgmt`,
-            query: `${this.cluster}/v2/rest/query`,
-            ingest: `${this.cluster}/v1/rest/ingest`,
+            [ExecutionType.Mgmt]: `${this.cluster}/v1/rest/mgmt`,
+            [ExecutionType.Query]: `${this.cluster}/v2/rest/query`,
+            [ExecutionType.Ingest]: `${this.cluster}/v1/rest/ingest`,
+            [ExecutionType.QueryV1]: `${this.cluster}/v1/rest/query`,
         };
         this.aadHelper = new AadHelper(this.connectionString);
         this.headers = {
@@ -54,15 +56,19 @@ export class KustoClient {
     }
 
     async executeQuery(db: string, query: string, properties?: ClientRequestProperties) {
-        return this._execute(this.endpoints.query, ExecutionType.Query, db, query, null, properties);
+        return this._execute(this.endpoints[ExecutionType.Query], ExecutionType.Query, db, query, null, properties);
+    }
+
+    async executeQueryV1(db: string, query: string, properties?: ClientRequestProperties) {
+        return this._execute(this.endpoints[ExecutionType.QueryV1], ExecutionType.Query, db, query, null, properties);
     }
 
     async executeMgmt(db: string, query: string, properties?: ClientRequestProperties) {
-        return this._execute(this.endpoints.mgmt, ExecutionType.Mgmt, db, query, null, properties);
+        return this._execute(this.endpoints[ExecutionType.Mgmt], ExecutionType.Mgmt, db, query, null, properties);
     }
 
     async executeStreamingIngest(db: string, table: string, stream: any, streamFormat: any, mappingName: string | null): Promise<KustoResponseDataSet> {
-        let endpoint = `${this.endpoints.ingest}/${db}/${table}?streamFormat=${streamFormat}`;
+        let endpoint = `${this.endpoints[ExecutionType.Ingest]}/${db}/${table}?streamFormat=${streamFormat}`;
         if (mappingName != null) {
             endpoint += `&mappingName=${mappingName}`;
         }
@@ -174,7 +180,7 @@ export class KustoClient {
             }
         }
 
-        return executionType == ExecutionType.Query ? QUERY_TIMEOUT_IN_MILLISECS : COMMAND_TIMEOUT_IN_MILLISECS;
+        return executionType == ExecutionType.Query ||  executionType == ExecutionType.QueryV1 ? QUERY_TIMEOUT_IN_MILLISECS : COMMAND_TIMEOUT_IN_MILLISECS;
     }
 }
 
