@@ -60,7 +60,7 @@ export class KustoClient {
     }
 
     async executeQueryV1(db: string, query: string, properties?: ClientRequestProperties) {
-        return this._execute(this.endpoints[ExecutionType.QueryV1], ExecutionType.Query, db, query, null, properties);
+        return this._execute(this.endpoints[ExecutionType.QueryV1], ExecutionType.QueryV1, db, query, null, properties);
     }
 
     async executeMgmt(db: string, query: string, properties?: ClientRequestProperties) {
