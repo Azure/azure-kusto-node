@@ -16,10 +16,10 @@ const CLIENT_SERVER_DELTA_IN_MILLISECS = moment.duration(0.5, "minutes").asMilli
 const MGMT_PREFIX = ".";
 
 enum ExecutionType {
-    Mgmt = 0,
-    Query = 1,
-    Ingest = 2,
-    QueryV1 = 3,
+    Mgmt = "mgmt",
+    Query = "query",
+    Ingest = "ingest",
+    QueryV1 = "queryv1",
 }
 
 export class KustoClient {
@@ -180,7 +180,7 @@ export class KustoClient {
             }
         }
 
-        return executionType == ExecutionType.Query ||  executionType == ExecutionType.QueryV1 ? QUERY_TIMEOUT_IN_MILLISECS : COMMAND_TIMEOUT_IN_MILLISECS;
+        return (executionType == ExecutionType.Query ||  executionType == ExecutionType.QueryV1) ? QUERY_TIMEOUT_IN_MILLISECS : COMMAND_TIMEOUT_IN_MILLISECS;
     }
 }
 

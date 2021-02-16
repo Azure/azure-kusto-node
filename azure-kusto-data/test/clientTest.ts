@@ -25,11 +25,12 @@ const v1Response = require("./data/response/v1");
 // tslint:disable-next-line:no-var-requires variable-name
 const v1_2Response = require("./data/response/v1_2");
 
-const ExecutionType = Object.freeze({
-    Mgmt: 0,
-    Query: 1,
-    Ingest: 2
-});
+enum ExecutionType {
+    Mgmt = "mgmt",
+    Query = "query",
+    Ingest = "ingest",
+    QueryV1 = "queryv1",
+}
 
 describe("KustoClient", function () {
     describe("#constructor", function () {
@@ -58,7 +59,7 @@ describe("KustoClient", function () {
             const url = "https://cluster.kusto.windows.net";
             const client = new KustoClient(url);
 
-            const response = client._parseResponse(v1_2Response, ExecutionType.Mgmt);
+            const response = client._parseResponse(v1_2Response, ExecutionType.QueryV1);
             assert.equal((response as KustoResponseDataSetV1).version, "1.0");
         });
 
@@ -180,6 +181,20 @@ describe("KustoClient", function () {
             };
 
             await client.execute("Database", "Table | count", clientRequestProps);
+        });
+
+        it("executeQueryV1", async function () {
+            const url = "https://cluster.kusto.windows.net";
+            const client = new KustoClient(url);
+
+            client.aadHelper._getAuthHeader = () => { return Promise.resolve("MockToken") };
+            client._doRequest = (endpoint, executionType, headers, payload, timeout, properties) => {
+                assert.equal(endpoint, `${url}/v1/rest/query`);
+                assert.equal(executionType, ExecutionType.QueryV1);
+                return Promise.resolve(new KustoResponseDataSetV2([]));
+            };
+
+            await client.executeQueryV1("Database", "Table | count");
         });
     });
 });
