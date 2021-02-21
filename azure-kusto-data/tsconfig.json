@@ -9,7 +9,9 @@
     "resolveJsonModule": true,
     "allowJs": false,
     "allowSyntheticDefaultImports": true,
-    "declaration": true
+    "declaration": true,
+    "noUnusedParameters": true,
+    "noUnusedLocals": true
   },
   "include": ["source/**/*.ts", "test/**/*.ts", "index.ts"]
 }

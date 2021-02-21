@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 import {AzureCliCredentials} from "@azure/ms-rest-nodeauth";
-import {TokenResponse} from "adal-node";
 
 export default function acquireToken<T>(connectionString: string, callback: (err: Error | null, data?: { tokenType: string; accessToken: string }) => T) {
 

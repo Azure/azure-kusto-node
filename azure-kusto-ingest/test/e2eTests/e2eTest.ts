@@ -205,7 +205,7 @@ function main(): void {
         describe('QueryClient', function () {
             it('General BadRequest', async function () {
                 try {
-                    const response = await queryClient.executeQuery(databaseName, "invalidSyntax ");
+                    await queryClient.executeQuery(databaseName, "invalidSyntax ");
                 } catch (ex) {
                     return;
                 }
@@ -214,7 +214,7 @@ function main(): void {
 
             it('PartialQueryFailure', async function () {
                 try {
-                    const response = await queryClient.executeQuery(databaseName, "invalidSyntax ");
+                    await queryClient.executeQuery(databaseName, "invalidSyntax ");
 
                 } catch (ex) {
                     return;
