@@ -9,7 +9,6 @@ import KustoIngestStatusQueues from "./source/status";
 
 import {
     CsvColumnMapping, DataFormat, IngestionMappingType,
-    IngestionProperties,
     JsonColumnMapping,
     ReportLevel,
     ReportMethod,

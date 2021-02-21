@@ -8,7 +8,9 @@
     "sourceMap": true,
     "resolveJsonModule": true,
     "allowJs": false,
-    "declaration": true
+    "declaration": true,
+    "noUnusedParameters": true,
+    "noUnusedLocals": true
   },
   "include": ["source/**/*.ts", "test/**/*.ts", "index.ts"]
 }
