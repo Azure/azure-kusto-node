@@ -35,7 +35,7 @@ Option 2: Authenticating using AAD application id and corresponding certificate.
 const kcsb = KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(`https://${clusterName}.kusto.windows.net`, 'appid', 'certificate', 'thumbprint', 'authorityId');
 ```
 
-Option 3: Authenticating using (AAD Managed Identities)[https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/overview].
+Option 3: Authenticating using [AAD Managed Identities](https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/overview).
 
 ```javascript
 const kcsb = KustoConnectionStringBuilder.withAadManagedIdentities(`https://${clusterName}.kusto.windows.net`, '(Optional)msiEndpoint', '(Optional)clientId');
