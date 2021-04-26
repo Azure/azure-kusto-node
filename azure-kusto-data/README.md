@@ -24,6 +24,7 @@ There are several authentication methods
 
 ### AAD application
 There are three ways to authenticate using AAD application:
+
 Option 1: Authenticating using AAD application id and corresponding key.
 ```javascript
 const kcsb = KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(`https://${clusterName}.kusto.windows.net`,'appid','appkey','authorityId');
@@ -35,7 +36,7 @@ Option 2: Authenticating using AAD application id and corresponding certificate.
 const kcsb = KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(`https://${clusterName}.kusto.windows.net`, 'appid', 'certificate', 'thumbprint', 'authorityId');
 ```
 
-Option 3: Authenticating using (AAD Managed Identities)[https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/overview].
+Option 3: Authenticating using [AAD Managed Identities](https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/overview).
 
 ```javascript
 const kcsb = KustoConnectionStringBuilder.withAadManagedIdentities(`https://${clusterName}.kusto.windows.net`, '(Optional)msiEndpoint', '(Optional)clientId');
@@ -64,7 +65,7 @@ KustoConnectionStringBuilder.withAadDeviceAuthentication(`https://${clusterName}
 
 // in case you want to do your own thing with the response, you can pass a callback
 // NOTICE: code will still block until device is authenticated
-KustoConnectionStringBuilder.withAadDeviceAuthentication(`https://${clusterName}.kusto.windows.net`, authId, (toeknResponse) => {
+KustoConnectionStringBuilder.withAadDeviceAuthentication(`https://${clusterName}.kusto.windows.net`, authId, (tokenResponse) => {
     // your code, for example copy to clipboard or open url in browser
     console.log("Open " + tokenResponse.verificationUrl + " and use " + tokenResponse.userCode + " code to authorize.");
 });
