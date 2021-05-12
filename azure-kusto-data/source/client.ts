@@ -43,6 +43,7 @@ export class KustoClient {
             "Accept": "application/json",
             "Accept-Encoding": "gzip,deflate",
             "x-ms-client-version": `Kusto.Node.Client:${pkg.version}`,
+            "Connection": "Keep-Alive",
         };
     }
 
