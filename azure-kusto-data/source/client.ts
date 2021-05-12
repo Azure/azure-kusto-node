@@ -143,6 +143,11 @@ export class KustoClient {
             throw error;
         }
 
+        // TODO: temp - axios shoud have thrown error in this case, need to understand why it didn't for some customers
+        if(axiosResponse.status != 200){
+            throw axiosResponse.data;
+        }
+
         return this._parseResponse(axiosResponse.data, executionType, properties, axiosResponse.status);
     }
 
