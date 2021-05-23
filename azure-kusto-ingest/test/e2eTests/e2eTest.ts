@@ -7,7 +7,8 @@ import IngestClient from "../../source/ingestClient";
 import KustoIngestStatusQueues from "../../source/status";
 import {
     Client,
-    KustoConnectionStringBuilder as ConnectionStringBuilder
+    KustoConnectionStringBuilder as ConnectionStringBuilder,
+    ClientRequestProperties,
     // @ts-ignore
 } from "../.././node_modules/azure-kusto-data";
 import StreamingIngestClient from "../../source/streamingIngestClient";
@@ -20,7 +21,7 @@ const appKey = process.env.APP_KEY;
 const tenantId = process.env.TENANT_ID;
 
 function main(): void {
-
+    
     if (!databaseName || !appId || !appKey || !tenantId) {
         process.stdout.write("Skip E2E test - Missing env variables");
         return;
@@ -220,6 +221,19 @@ function main(): void {
                     return;
                 }
                 assert.fail(`Didn't throw PartialQueryFailure`);
+            });
+
+            it('executionTimeout', async function () {
+                try {
+                    var properties = new ClientRequestProperties();
+                    properties.setTimeout(10);
+                    await queryClient.executeQuery(databaseName, `${tableName}`, properties);
+
+                } catch (ex) {
+                    assert.equal(ex.code, 'Request execution timeout');
+                    return;
+                }
+                assert.fail(`Didn't throw executionTimeout`);
             });
         });
     });

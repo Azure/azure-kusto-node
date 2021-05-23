@@ -8,7 +8,9 @@ import {KustoResponseDataSet, KustoResponseDataSetV1, KustoResponseDataSetV2} fr
 import ConnectionStringBuilder from "./connectionBuilder";
 import ClientRequestProperties from "./clientRequestProperties";
 import pkg from "../package.json";
-import axios from "axios";
+import axios, { AxiosInstance } from "axios";
+import http from "http";
+import https from "https";
 
 const COMMAND_TIMEOUT_IN_MILLISECS = moment.duration(10.5, "minutes").asMilliseconds();
 const QUERY_TIMEOUT_IN_MILLISECS = moment.duration(4.5, "minutes").asMilliseconds();
@@ -27,7 +29,7 @@ export class KustoClient {
     cluster: string;
     endpoints: { [key in ExecutionType] : string; };
     aadHelper: AadHelper;
-    headers: { [name: string]: string };
+    axiosInstance: AxiosInstance;
 
     constructor(kcsb: string | ConnectionStringBuilder) {
         this.connectionString = typeof (kcsb) === "string" ? new ConnectionStringBuilder(kcsb) : kcsb;
@@ -39,11 +41,20 @@ export class KustoClient {
             [ExecutionType.QueryV1]: `${this.cluster}/v1/rest/query`,
         };
         this.aadHelper = new AadHelper(this.connectionString);
-        this.headers = {
+        const headers = {
             "Accept": "application/json",
             "Accept-Encoding": "gzip,deflate",
             "x-ms-client-version": `Kusto.Node.Client:${pkg.version}`,
+            "Connection": "Keep-Alive",
         };
+        this.axiosInstance = axios.create({
+            headers,
+            validateStatus: (status: number) => status == 200,
+
+            // keepAlive pools and reuses TCP connections, so it's faster
+            httpAgent: new http.Agent({ keepAlive: true }),
+            httpsAgent: new https.Agent({ keepAlive: true }),
+        })
     }
 
     async execute(db: string, query: string, properties?: ClientRequestProperties) {
@@ -84,7 +95,6 @@ export class KustoClient {
         stream: string | null,
         properties?: ClientRequestProperties | null): Promise<KustoResponseDataSet> {
         const headers: { [header: string]: string } = {};
-        Object.assign(headers, this.headers);
 
         let payload: { db: string, csl: string, properties?: any };
         let clientRequestPrefix = "";
@@ -128,13 +138,12 @@ export class KustoClient {
                      properties?: ClientRequestProperties | null): Promise<KustoResponseDataSet> {
         const axiosConfig = {
             headers,
-            gzip: true,
-            timeout
+            timeout,
         };
 
         let axiosResponse;
         try {
-            axiosResponse = await axios.post(endpoint, payload, axiosConfig);
+            axiosResponse = await this.axiosInstance.post(endpoint, payload, axiosConfig);
         } catch (error) {
             if (error.response) {
                 throw error.response.data.error;
