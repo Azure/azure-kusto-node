@@ -137,10 +137,8 @@ export class KustoClient {
                      timeout: number,
                      properties?: ClientRequestProperties | null): Promise<KustoResponseDataSet> {
         const axiosConfig = {
-            headers: headers,
-            gzip: true,
-            timeout: timeout,
-            validateStatus: (status: number) => status == 200,
+            headers,
+            timeout,
         };
 
         let axiosResponse;
