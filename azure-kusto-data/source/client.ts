@@ -48,10 +48,10 @@ export class KustoClient {
             "Connection": "Keep-Alive",
         };
         this.axiosInstance = axios.create({
-            headers: headers,
+            headers,
             validateStatus: (status: number) => status == 200,
-            
-              //keepAlive pools and reuses TCP connections, so it's faster
+
+            // keepAlive pools and reuses TCP connections, so it's faster
             httpAgent: new http.Agent({ keepAlive: true }),
             httpsAgent: new https.Agent({ keepAlive: true }),
         })
