@@ -231,6 +231,7 @@ function main(): void {
 
                 } catch (ex) {
                     assert.equal(ex.code, 'Request execution timeout');
+                    return;
                 }
                 assert.fail(`Didn't throw executionTimeout`);
             });
