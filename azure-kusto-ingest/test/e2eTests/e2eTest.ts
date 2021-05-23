@@ -227,12 +227,12 @@ function main(): void {
                 try {
                     var properties = new ClientRequestProperties();
                     properties.setTimeout(10);
-                    await queryClient.executeQuery(databaseName, `${tableName}`);
+                    await queryClient.executeQuery(databaseName, `${tableName}`, properties);
 
                 } catch (ex) {
                     assert.equal(ex.code, 'Request execution timeout');
                 }
-                assert.fail(`Didn't throw PartialQueryFailure`);
+                assert.fail(`Didn't throw executionTimeout`);
             });
         });
     });
