@@ -8,7 +8,7 @@ import KustoIngestStatusQueues from "../../source/status";
 import {
     Client,
     KustoConnectionStringBuilder as ConnectionStringBuilder,
-    KustoClientRequestProperties,
+    ClientRequestProperties,
     // @ts-ignore
 } from "../.././node_modules/azure-kusto-data";
 import StreamingIngestClient from "../../source/streamingIngestClient";
@@ -225,7 +225,7 @@ function main(): void {
 
             it('executionTimeout', async function () {
                 try {
-                    var properties = new KustoClientRequestProperties();
+                    var properties = new ClientRequestProperties();
                     properties.setTimeout(10);
                     await queryClient.executeQuery(databaseName, `${tableName}`);
 
