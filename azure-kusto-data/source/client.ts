@@ -111,6 +111,14 @@ export class KustoClient {
             if (properties != null) {
                 payload.properties = properties.toJson();
                 clientRequestId = properties.clientRequestId;
+
+                if(properties.application != null){
+                    headers["x-ms-app"] = properties.application;
+                }
+                
+                if(properties.user != null){
+                    headers["x-ms-user"] = properties.user;
+                }
             }
 
             payloadStr = JSON.stringify(payload);
@@ -123,6 +131,7 @@ export class KustoClient {
             headers["Content-Encoding"] = "gzip";
             headers["Content-Type"] = "multipart/form-data";
         }
+
         headers["x-ms-client-request-id"] = clientRequestId || clientRequestPrefix + `${uuid.v4()}`;
 
         headers.Authorization = await this.aadHelper._getAuthHeader();
