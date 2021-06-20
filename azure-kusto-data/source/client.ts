@@ -115,7 +115,7 @@ export class KustoClient {
                 if(properties.application != null){
                     headers["x-ms-app"] = properties.application;
                 }
-                
+
                 if(properties.user != null){
                     headers["x-ms-user"] = properties.user;
                 }
