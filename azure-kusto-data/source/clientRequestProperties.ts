@@ -6,12 +6,16 @@ export class ClientRequestProperties {
     private _parameters: { [option: string]: any };
     private _clientTimeOut?: number;
     public clientRequestId: string | null;
+    public user: string | null;
+    public application: string | null;
     public raw?: boolean;
 
-    constructor(options?: {}, parameters?: {}, clientRequestId?: null) {
+    constructor(options?: {}, parameters?: {}, clientRequestId?: string, user?: string, application?: string) {
         this._options = options || {};
         this._parameters = parameters || {};
         this.clientRequestId = clientRequestId || null;
+        this.user = user || null;
+        this.application = application || null;
     }
 
     setOption(name: string, value: any) {
