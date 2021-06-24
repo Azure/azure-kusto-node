@@ -16,7 +16,7 @@ export class AadHelper {
         if (!!kcsb.aadUserId && !!kcsb.password) {
             this.tokeProvider = new TokenProvider.UserPassTokenProvider(kcsb.dataSource, kcsb.aadUserId, kcsb.password, kcsb.authorityId);
         } else if (!!kcsb.applicationClientId && !!kcsb.applicationKey) {
-            this.tokeProvider = new TokenProvider.UserPassTokenProvider(kcsb.dataSource, kcsb.applicationClientId, kcsb.applicationKey, kcsb.authorityId);
+            this.tokeProvider = new TokenProvider.ApplicationKeyTokenProvider(kcsb.dataSource, kcsb.applicationClientId, kcsb.applicationKey, kcsb.authorityId);
         } else if (!!kcsb.applicationClientId &&
             !!kcsb.applicationCertificate && !!kcsb.applicationCertificateThumbprint) {
             this.tokeProvider = new TokenProvider.ApplicationCertificateTokenProvider(kcsb.dataSource, kcsb.applicationClientId, kcsb.applicationCertificateThumbprint, kcsb.applicationCertificate, kcsb.authorityId);
