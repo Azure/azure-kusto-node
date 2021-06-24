@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import * as msal from "@azure/msal-node";
+import {AuthenticationResult, ClientApplication, PublicClientApplication, ConfidentialClientApplication} from "@azure/msal-node";
 import { DeviceCodeResponse } from "@azure/msal-common";
 import { AzureCliCredentials } from "@azure/ms-rest-nodeauth";
 import { ManagedIdentityCredential } from "@azure/identity";
@@ -124,12 +124,12 @@ export class AzCliTokenProvider extends TokenProviderBase {
  * Acquire a token from MSAL using cache
  */
 abstract class MsalTokenProvider extends TokenProviderBase {
-    msalClient!: msal.ClientApplication;
+    msalClient!: ClientApplication;
     cloudInfo!: CloudInfo;
     authorityId?: string;
     initialized: boolean;
     abstract initClient(): void;
-    abstract acquireMsalToken(): Promise<msal.AuthenticationResult | null>;
+    abstract acquireMsalToken(): Promise<AuthenticationResult | null>;
 
     constructor(kustoUri: string, authorityId?: string) {
         super(kustoUri);
@@ -155,7 +155,7 @@ abstract class MsalTokenProvider extends TokenProviderBase {
         const tokenCache = this.msalClient.getTokenCache();
         if (tokenCache != null) {
             const accounts = await tokenCache.getAllAccounts();
-            if (accounts.length > 0) {
+            if (accounts?.length > 0) {
                 token = await this.msalClient.acquireTokenSilent({ scopes: this.scopes, account: accounts[0] });
             }
         }
@@ -174,7 +174,6 @@ abstract class MsalTokenProvider extends TokenProviderBase {
  */
 export class UserPassTokenProvider extends MsalTokenProvider {
     name = "UserPassTokenProvider";
-    msalClient!: msal.PublicClientApplication;
     userName: string;
     password: string;
 
@@ -191,11 +190,11 @@ export class UserPassTokenProvider extends MsalTokenProvider {
                 authority: CloudSettings.getAuthorityUri(this.cloudInfo, this.authorityId),
             }
         };
-        this.msalClient = new msal.PublicClientApplication(clientConfig);
+        this.msalClient = new PublicClientApplication(clientConfig);
     }
 
-    acquireMsalToken(): Promise<msal.AuthenticationResult | null> {
-        return this.msalClient.acquireTokenByUsernamePassword({ scopes: this.scopes, username: this.userName, password: this.password });
+    acquireMsalToken(): Promise<AuthenticationResult | null> {
+        return (this.msalClient as  PublicClientApplication).acquireTokenByUsernamePassword({ scopes: this.scopes, username: this.userName, password: this.password });
     }
 }
 
@@ -204,7 +203,6 @@ export class UserPassTokenProvider extends MsalTokenProvider {
  */
 export class DeviceLoginTokenProvider extends MsalTokenProvider {
     name = "DeviceLoginTokenProvider";
-    msalClient!: msal.PublicClientApplication;
     deviceCodeCallback: (response: DeviceCodeResponse) => void;
 
     constructor(kustoUri: string, deviceCodeCallback: (response: DeviceCodeResponse) => void, authorityId?: string) {
@@ -219,11 +217,11 @@ export class DeviceLoginTokenProvider extends MsalTokenProvider {
                 authority: CloudSettings.getAuthorityUri(this.cloudInfo, this.authorityId),
             }
         };
-        this.msalClient = new msal.PublicClientApplication(clientConfig);
+        this.msalClient = new PublicClientApplication(clientConfig);
     }
 
-    acquireMsalToken(): Promise<msal.AuthenticationResult | null> {
-        return this.msalClient.acquireTokenByDeviceCode({ scopes: this.scopes, deviceCodeCallback: this.deviceCodeCallback });
+    acquireMsalToken(): Promise<AuthenticationResult | null> {
+        return (this.msalClient as PublicClientApplication).acquireTokenByDeviceCode({ scopes: this.scopes, deviceCodeCallback: this.deviceCodeCallback });
 
     }
 }
@@ -233,7 +231,6 @@ export class DeviceLoginTokenProvider extends MsalTokenProvider {
  */
 export class ApplicationKeyTokenProvider extends MsalTokenProvider {
     name = "ApplicationKeyTokenProvider";
-    msalClient!: msal.ConfidentialClientApplication;
     appClientId: string;
     appKey: string;
 
@@ -251,11 +248,11 @@ export class ApplicationKeyTokenProvider extends MsalTokenProvider {
                 authority: CloudSettings.getAuthorityUri(this.cloudInfo, this.authorityId),
             }
         };
-        this.msalClient = new msal.ConfidentialClientApplication(clientConfig);
+        this.msalClient = new ConfidentialClientApplication(clientConfig);
     }
 
-    acquireMsalToken(): Promise<msal.AuthenticationResult | null> {
-        return this.msalClient.acquireTokenByClientCredential({ scopes: this.scopes });
+    acquireMsalToken(): Promise<AuthenticationResult | null> {
+        return (this.msalClient as ConfidentialClientApplication).acquireTokenByClientCredential({ scopes: this.scopes });
     }
 }
 
@@ -268,7 +265,6 @@ export class ApplicationCertificateTokenProvider extends MsalTokenProvider {
     appClientId: string;
     certThumbprint: string;
     certPrivateKey: string;
-    msalClient!: msal.ConfidentialClientApplication;
 
     constructor(kustoUri: string, appClientId: string, certThumbprint: string, certPrivateKey: string, authorityId?: string) {
         super(kustoUri, authorityId);
@@ -288,10 +284,10 @@ export class ApplicationCertificateTokenProvider extends MsalTokenProvider {
                 }
             }
         };
-        this.msalClient = new msal.ConfidentialClientApplication(clientConfig);
+        this.msalClient = new ConfidentialClientApplication(clientConfig);
     }
 
-    acquireMsalToken(): Promise<msal.AuthenticationResult | null> {
-        return this.msalClient.acquireTokenByClientCredential({ scopes: this.scopes });
+    acquireMsalToken(): Promise<AuthenticationResult | null> {
+        return (this.msalClient as ConfidentialClientApplication).acquireTokenByClientCredential({ scopes: this.scopes });
     }
 }
