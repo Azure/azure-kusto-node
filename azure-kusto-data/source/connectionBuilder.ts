@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import {UserCodeInfo} from "adal-node";
+import { DeviceCodeResponse } from "@azure/msal-common";
 
 interface MappingType {
     propName: string,
@@ -65,7 +65,7 @@ const getPropName = (key: string): string => {
 };
 
 export class KustoConnectionStringBuilder {
-    [prop: string]: string | boolean | ((info: UserCodeInfo) => void) |  undefined;
+    [prop: string]: string | boolean | ((info: DeviceCodeResponse) => void) |  undefined;
     dataSource?: string;
     aadUserId?: string;
     password?: string;
@@ -74,7 +74,7 @@ export class KustoConnectionStringBuilder {
     applicationCertificate?: string;
     applicationCertificateThumbprint?: string;
     authorityId?: string;
-    AuthorizationCallback?: (info: UserCodeInfo) => void;
+    deviceCodeCallback?: (response: DeviceCodeResponse) => void;
 
     constructor(connectionString: string) {
         if (!connectionString || connectionString.trim().length === 0) throw new Error("Missing connection string");
@@ -135,10 +135,10 @@ export class KustoConnectionStringBuilder {
     }
 
 
-    static withAadDeviceAuthentication(connectionString: string, authorityId: string, authCallback?: (info: UserCodeInfo) => void) {
+    static withAadDeviceAuthentication(connectionString: string, authorityId: string, deviceCodeCallback?: (response: DeviceCodeResponse) => void) {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         kcsb[KeywordMapping.authorityId.propName] = authorityId;
-        kcsb.AuthorizationCallback = authCallback;
+        kcsb.deviceCodeCallback = deviceCodeCallback;
 
         return kcsb;
     }
