@@ -148,14 +148,16 @@ abstract class MsalTokenProvider extends TokenProviderBase {
                 this.scopes = [resourceUri + "/.default"]
                 this.initClient();
             }
-
             this.initialized = true;
         }
 
-        const accounts = await this.msalClient.getTokenCache().getAllAccounts();
         let token;
-        if (accounts.length > 0) {
-            token = await this.msalClient.acquireTokenSilent({ scopes: this.scopes, account: accounts[0] });
+        const tokenCache = this.msalClient.getTokenCache();
+        if (tokenCache != null) {
+            const accounts = await tokenCache.getAllAccounts();
+            if (accounts.length > 0) {
+                token = await this.msalClient.acquireTokenSilent({ scopes: this.scopes, account: accounts[0] });
+            }
         }
         if (token == null) {
             token = await this.acquireMsalToken();
@@ -163,7 +165,7 @@ abstract class MsalTokenProvider extends TokenProviderBase {
         if (token != null) {
             return { tokenType: token.tokenType, accessToken: token.accessToken }
         }
-        throw new Error();
+        throw new Error("Failed to get token from msal");
     }
 }
 
