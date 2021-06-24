@@ -4,7 +4,7 @@ import * as msal from "@azure/msal-node";
 import { DeviceCodeResponse } from "@azure/msal-common";
 import { AzureCliCredentials } from "@azure/ms-rest-nodeauth";
 import { ManagedIdentityCredential } from "@azure/identity";
-import { CloudSettings } from "./cloudSettings"
+import { CloudSettings, CloudInfo } from "./cloudSettings"
 
 export declare type TokenResponse = {
     tokenType: string;
@@ -19,8 +19,7 @@ const BEARER_TYPE = "Bearer";
  */
 export abstract class TokenProviderBase {
     kustoUri: string;
-    //cloud_info: string;
-    scopes!: Array<string>;
+    scopes!: string[];
 
     abstract name: string;
     abstract acquireToken(): Promise<TokenResponse>;
@@ -28,7 +27,7 @@ export abstract class TokenProviderBase {
     constructor(kustoUri: string) {
         this.kustoUri = kustoUri;
         if (kustoUri != null) {
-            var suffix = this.kustoUri.endsWith("/") ? ".default" : "/.default";
+            const suffix = this.kustoUri.endsWith("/") ? ".default" : "/.default";
             this.scopes = [kustoUri + suffix];
         }
     }
@@ -90,11 +89,11 @@ export class MsiTokenProvider extends TokenProviderBase {
     }
 
     async acquireToken(): Promise<TokenResponse> {
-        if(this.managedIdentityCredential == null){
+        if (this.managedIdentityCredential == null) {
             this.managedIdentityCredential = new ManagedIdentityCredential(this.clientId);
         }
         const msiToken = await this.managedIdentityCredential.getToken(this.kustoUri);
-        if(msiToken?.token != null){
+        if (msiToken?.token != null) {
             return { tokenType: BEARER_TYPE, accessToken: msiToken.token };
         }
         throw new Error(`"Failed to obtain MSI token for '${this.kustoUri}' with '${this.clientId}'`)
@@ -126,7 +125,7 @@ export class AzCliTokenProvider extends TokenProviderBase {
  */
 abstract class MsalTokenProvider extends TokenProviderBase {
     msalClient!: msal.ClientApplication;
-    cloudInfo!: CloudSettings.CloudInfo;
+    cloudInfo!: CloudInfo;
     authorityId?: string;
     initialized: boolean;
     abstract initClient(): void;
@@ -140,10 +139,10 @@ abstract class MsalTokenProvider extends TokenProviderBase {
 
     async acquireToken(): Promise<TokenResponse> {
         if (!this.initialized) {
-            if(this.cloudInfo != null){
-                this.cloudInfo = await CloudSettings.getCloudInfoForCluster(this.kustoUri);
+            if (this.cloudInfo != null) {
+                this.cloudInfo = await CloudSettings.getInstance().getCloudInfoForCluster(this.kustoUri);
                 let resourceUri = this.cloudInfo.kustoServiceResourceId;
-                if(this.cloudInfo.loginMfaRequired){
+                if (this.cloudInfo.loginMfaRequired) {
                     resourceUri = resourceUri.replace(".kusto.", ".kustomfa.")
                 }
                 this.scopes = [resourceUri + "/.default"]
@@ -233,9 +232,8 @@ export class DeviceLoginTokenProvider extends MsalTokenProvider {
 export class ApplicationKeyTokenProvider extends MsalTokenProvider {
     name = "ApplicationKeyTokenProvider";
     msalClient!: msal.ConfidentialClientApplication;
-    appClientId : string;
-    appKey : string;
-    
+    appClientId: string;
+    appKey: string;
 
     constructor(kustoUri: string, appClientId: string, appKey: string, authorityId?: string) {
         super(kustoUri, authorityId);
