@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import {AuthenticationResult, ClientApplication, PublicClientApplication, ConfidentialClientApplication} from "@azure/msal-node";
+import { AuthenticationResult, ClientApplication, PublicClientApplication, ConfidentialClientApplication } from "@azure/msal-node";
 import { DeviceCodeResponse } from "@azure/msal-common";
 import { AzureCliCredentials } from "@azure/ms-rest-nodeauth";
 import { ManagedIdentityCredential } from "@azure/identity";
@@ -138,6 +138,7 @@ abstract class MsalTokenProvider extends TokenProviderBase {
     }
 
     async acquireToken(): Promise<TokenResponse> {
+        let token;
         if (!this.initialized) {
             if (this.cloudInfo != null) {
                 this.cloudInfo = await CloudSettings.getInstance().getCloudInfoForCluster(this.kustoUri);
@@ -148,20 +149,19 @@ abstract class MsalTokenProvider extends TokenProviderBase {
                 this.scopes = [resourceUri + "/.default"]
                 this.initClient();
             }
+            token = await this.acquireMsalToken();
             this.initialized = true;
         }
-
-        let token;
-        const tokenCache = this.msalClient.getTokenCache();
-        if (tokenCache != null) {
-            const accounts = await tokenCache.getAllAccounts();
+        else {
+            const accounts = await this.msalClient?.getTokenCache()?.getAllAccounts();
             if (accounts?.length > 0) {
                 token = await this.msalClient.acquireTokenSilent({ scopes: this.scopes, account: accounts[0] });
             }
+            if (token == null) {
+                token = await this.acquireMsalToken();
+            }
         }
-        if (token == null) {
-            token = await this.acquireMsalToken();
-        }
+
         if (token != null) {
             return { tokenType: token.tokenType, accessToken: token.accessToken }
         }
@@ -194,7 +194,7 @@ export class UserPassTokenProvider extends MsalTokenProvider {
     }
 
     acquireMsalToken(): Promise<AuthenticationResult | null> {
-        return (this.msalClient as  PublicClientApplication).acquireTokenByUsernamePassword({ scopes: this.scopes, username: this.userName, password: this.password });
+        return (this.msalClient as PublicClientApplication).acquireTokenByUsernamePassword({ scopes: this.scopes, username: this.userName, password: this.password });
     }
 }
 
