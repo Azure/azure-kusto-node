@@ -206,7 +206,7 @@ function main(): void {
         describe('QueryClient', function () {
             it('General BadRequest', async function () {
                 try {
-                    await queryClient.executery(databaseName, "invalidSyntax ");
+                    await queryClient.executeQuery(databaseName, "invalidSyntax ");
                 } catch (ex) {
                     return;
                 }
