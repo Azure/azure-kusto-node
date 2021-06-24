@@ -4,7 +4,7 @@ import * as msal from "@azure/msal-node";
 import { DeviceCodeResponse } from "@azure/msal-common";
 import { AzureCliCredentials } from "@azure/ms-rest-nodeauth";
 import { ManagedIdentityCredential } from "@azure/identity";
-import { CloudSettings } from "./CloudSettings"
+import { CloudSettings } from "./cloudSettings"
 
 export declare type TokenResponse = {
     tokenType: string;
