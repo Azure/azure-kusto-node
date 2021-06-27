@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 import axios from "axios";
 
-
 export declare type CloudInfo = {
     LoginEndpoint: string,
     LoginMfaRequired: boolean,
