@@ -62,7 +62,7 @@ export class CloudSettings {
         }
 
     }
-    
+
     static getAuthorityUri(cloudInfo: CloudInfo, authorityId?: string): string {
         return cloudInfo.LoginEndpoint + "/" + (authorityId || "organizations")
     }
