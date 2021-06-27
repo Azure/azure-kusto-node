@@ -140,10 +140,10 @@ abstract class MsalTokenProvider extends TokenProviderBase {
     async acquireToken(): Promise<TokenResponse> {
         let token;
         if (!this.initialized) {
-            if (this.cloudInfo != null) {
+            if (this.cloudInfo == null) {
                 this.cloudInfo = await CloudSettings.getInstance().getCloudInfoForCluster(this.kustoUri);
-                let resourceUri = this.cloudInfo.kustoServiceResourceId;
-                if (this.cloudInfo.loginMfaRequired) {
+                let resourceUri = this.cloudInfo.KustoServiceResourceId;
+                if (this.cloudInfo.LoginMfaRequired) {
                     resourceUri = resourceUri.replace(".kusto.", ".kustomfa.")
                 }
                 this.scopes = [resourceUri + "/.default"]
@@ -186,7 +186,7 @@ export class UserPassTokenProvider extends MsalTokenProvider {
     initClient(): void {
         const clientConfig = {
             auth: {
-                clientId: this.cloudInfo.kustoClientAppId,
+                clientId: this.cloudInfo.KustoClientAppId,
                 authority: CloudSettings.getAuthorityUri(this.cloudInfo, this.authorityId),
             }
         };
@@ -213,9 +213,9 @@ export class DeviceLoginTokenProvider extends MsalTokenProvider {
     initClient(): void {
         const clientConfig = {
             auth: {
-                clientId: this.cloudInfo.kustoClientAppId,
+                clientId: this.cloudInfo.KustoClientAppId,
                 authority: CloudSettings.getAuthorityUri(this.cloudInfo, this.authorityId),
-            }
+            },
         };
         this.msalClient = new PublicClientApplication(clientConfig);
     }
