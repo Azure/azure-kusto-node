@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 import axios from "axios";
 
-export declare type CloudInfo = {
+export type CloudInfo = {
     LoginEndpoint: string,
     LoginMfaRequired: boolean,
     KustoClientAppId: string,
@@ -57,7 +57,7 @@ export class CloudSettings {
             return this.cloudCache[kustoUri];
         }
         catch (ex){
-            throw new Error(`Failed to get cloud ingo for cluster ${kustoUri} - ${ex}`);
+            throw new Error(`Failed to get cloud info for cluster ${kustoUri} - ${ex}`);
         }
 
     }

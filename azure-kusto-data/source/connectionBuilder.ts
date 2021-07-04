@@ -35,15 +35,20 @@ const KeywordMapping: { [name: string]: MappingType } = Object.freeze({
         mappedTo: "Application Key",
         validNames: ["application key", "appkey"]
     },
-    applicationCertificate: {
-        propName: "applicationCertificate",
-        mappedTo: "Application Certificate",
-        validNames: ["application certificate"]
+    applicationCertificatePrivateKey: {
+        propName: "applicationCertificatePrivateKey",
+        mappedTo: "application Certificate PrivateKey",
+        validNames: ["application Certificate PrivateKey"]
     },
     applicationCertificateThumbprint: {
         propName: "applicationCertificateThumbprint",
         mappedTo: "Application Certificate Thumbprint",
         validNames: ["application certificate thumbprint"]
+    },
+    applicationCertificateX5c: {
+        propName: "applicationCertificateX5c",
+        mappedTo: "Application Certificate x5c",
+        validNames: ["application certificate x5c"]
     },
     authorityId: {
         propName: "authorityId",
@@ -71,7 +76,7 @@ export class KustoConnectionStringBuilder {
     password?: string;
     applicationClientId?: string;
     applicationKey?: string;
-    applicationCertificate?: string;
+    applicationCertificatePrivateKey?: string;
     applicationCertificateThumbprint?: string;
     authorityId?: string;
     deviceCodeCallback?: (response: DeviceCodeResponse) => void;
@@ -120,15 +125,16 @@ export class KustoConnectionStringBuilder {
         return kcsb;
     }
 
-    static withAadApplicationCertificateAuthentication(connectionString: string, aadAppId: string, certificate: string, thumbprint: string, authorityId: string) {
+    static withAadApplicationCertificateAuthentication(connectionString: string, aadAppId: string, applicationCertificatePrivateKey: string, applicationCertificateThumbprint: string,  applicationCertificateX5c?: string, authorityId?: string) {
         if (!aadAppId || aadAppId.trim().length == 0) throw new Error("Invalid app id");
-        if (!certificate || certificate.trim().length == 0) throw new Error("Invalid certificate");
-        if (!thumbprint || thumbprint.trim().length == 0) throw new Error("Invalid thumbprint");
+        if (!applicationCertificatePrivateKey || applicationCertificatePrivateKey.trim().length == 0) throw new Error("Invalid certificate");
+        if (!applicationCertificateThumbprint || applicationCertificateThumbprint.trim().length == 0) throw new Error("Invalid thumbprint");
 
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         kcsb[KeywordMapping.applicationClientId.propName] = aadAppId;
-        kcsb[KeywordMapping.applicationCertificate.propName] = certificate;
-        kcsb[KeywordMapping.applicationCertificateThumbprint.propName] = thumbprint;
+        kcsb[KeywordMapping.applicationCertificatePrivateKey.propName] = applicationCertificatePrivateKey;
+        kcsb[KeywordMapping.applicationCertificateThumbprint.propName] = applicationCertificateThumbprint;
+        kcsb[KeywordMapping.applicationCertificateX5c.propName] = applicationCertificateX5c;
         kcsb[KeywordMapping.authorityId.propName] = authorityId || "common";
 
         return kcsb;
@@ -143,21 +149,9 @@ export class KustoConnectionStringBuilder {
         return kcsb;
     }
 
-    // Notice: you can leave `msiEndpoint` and `clientId`
-    static withAadManagedIdentities(connectionString: string, msiEndpoint?: string, clientId?: string) {
+    static withAadManagedIdentities(connectionString: string, msiClientId?: string) {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
-        kcsb.msiEndpoint = msiEndpoint;
-
-        if (msiEndpoint == undefined) {
-            if (process && process.env && process.env.MSI_ENDPOINT) {
-                kcsb.msiEndpoint = process.env.MSI_ENDPOINT;
-                kcsb.msiSecret = process.env.MSI_SECRET;
-            } else {
-                kcsb.msiEndpoint = "http://169.254.169.254/metadata/identity/oauth2/token";
-            }
-        }
-
-        kcsb.msiClientId = clientId;
+        kcsb.msiClientId = msiClientId;
         kcsb.managedIdentity = true;
 
         return kcsb;

@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 import KustoConnectionStringBuilder from "./connectionBuilder";
 import "./tokenProvider";
-import { DeviceCodeResponse } from "@azure/msal-common";
 import * as TokenProvider from "./tokenProvider";
 
 export class AadHelper {
@@ -18,16 +17,21 @@ export class AadHelper {
         } else if (!!kcsb.applicationClientId && !!kcsb.applicationKey) {
             this.tokeProvider = new TokenProvider.ApplicationKeyTokenProvider(kcsb.dataSource, kcsb.applicationClientId, kcsb.applicationKey, kcsb.authorityId);
         } else if (!!kcsb.applicationClientId &&
-            !!kcsb.applicationCertificate && !!kcsb.applicationCertificateThumbprint) {
-            this.tokeProvider = new TokenProvider.ApplicationCertificateTokenProvider(kcsb.dataSource, kcsb.applicationClientId, kcsb.applicationCertificateThumbprint, kcsb.applicationCertificate, kcsb.authorityId);
-        } else if (kcsb.managedIdentity) {
+            !!kcsb.applicationCertificateThumbprint && !!kcsb.applicationCertificatePrivateKey) {
+            this.tokeProvider = new TokenProvider.ApplicationCertificateTokenProvider(kcsb.dataSource, kcsb.applicationClientId, kcsb.applicationCertificateThumbprint, kcsb.applicationCertificatePrivateKey, kcsb.applicationCertificateX5c, kcsb.authorityId);
+        } else if (!!kcsb.msiClientId) {
             this.tokeProvider = new TokenProvider.MsiTokenProvider(kcsb.dataSource, kcsb.msiClientId as string);
         } else if (kcsb.azLoginIdentity) {
             this.tokeProvider = new TokenProvider.AzCliTokenProvider(kcsb.dataSource);
         } else if (kcsb.accessToken) {
             this.tokeProvider = new TokenProvider.BasicTokenProvider(kcsb.dataSource, kcsb.accessToken as string);
         } else {
-            this.tokeProvider = new TokenProvider.DeviceLoginTokenProvider(kcsb.dataSource, kcsb.deviceCodeCallback as  (response: DeviceCodeResponse) => void);
+            let callback = kcsb.deviceCodeCallback;
+            if (!callback) {
+                // tslint:disable-next-line:no-console
+                callback = (response) => console.log(response.message);
+            }
+            this.tokeProvider = new TokenProvider.DeviceLoginTokenProvider(kcsb.dataSource, callback);
         }
     }
 
