@@ -190,7 +190,7 @@ export class UserPassTokenProvider extends MsalTokenProvider {
         if (this.homeAccountId != null) {
             const account = await this.msalClient.getTokenCache().getAccountByHomeId(this.homeAccountId)
             if (account) {
-                token = await this.msalClient.acquireTokenSilent({ account: account, scopes: this.scopes });
+                token = await this.msalClient.acquireTokenSilent({ account, scopes: this.scopes });
             }
         }
         if (token == null) {
@@ -230,7 +230,7 @@ export class DeviceLoginTokenProvider extends MsalTokenProvider {
         if (this.homeAccountId != null) {
             const account = await this.msalClient.getTokenCache().getAccountByHomeId(this.homeAccountId)
             if (account) {
-                token = await this.msalClient.acquireTokenSilent({ account: account, scopes: this.scopes });
+                token = await this.msalClient.acquireTokenSilent({ account, scopes: this.scopes });
             }
         }
         if (token == null) {
