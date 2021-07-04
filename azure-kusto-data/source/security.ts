@@ -18,7 +18,7 @@ export class AadHelper {
             this.tokeProvider = new TokenProvider.ApplicationKeyTokenProvider(kcsb.dataSource, kcsb.applicationClientId, kcsb.applicationKey, kcsb.authorityId);
         } else if (!!kcsb.applicationClientId &&
             !!kcsb.applicationCertificateThumbprint && !!kcsb.applicationCertificatePrivateKey) {
-            this.tokeProvider = new TokenProvider.ApplicationCertificateTokenProvider(kcsb.dataSource, kcsb.applicationClientId, kcsb.applicationCertificateThumbprint, kcsb.applicationCertificatePrivateKey, kcsb.applicationCertificateX5c, kcsb.authorityId);
+            this.tokeProvider = new TokenProvider.ApplicationCertificateTokenProvider(kcsb.dataSource, kcsb.applicationClientId, kcsb.applicationCertificateThumbprint, kcsb.applicationCertificatePrivateKey, kcsb.applicationCertificateX5c as string | undefined, kcsb.authorityId);
         } else if (!!kcsb.msiClientId) {
             this.tokeProvider = new TokenProvider.MsiTokenProvider(kcsb.dataSource, kcsb.msiClientId as string);
         } else if (kcsb.azLoginIdentity) {
