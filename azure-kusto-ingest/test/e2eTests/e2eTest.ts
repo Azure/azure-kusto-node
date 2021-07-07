@@ -109,7 +109,7 @@ function main(): void {
         describe('cloud info', function () {
             it('Cached cloud info', async function () {
                 const cloudInfo = CloudSettings.getInstance().cloudCache[process.env.ENGINE_CONNECTION_STRING as string]; // it should be already in the cache at this point
-                assert.strictEqual(cloudInfo, CloudSettings.getInstance().defaultCloudInfo);
+                assert.strictEqual(cloudInfo.KustoClientAppId, CloudSettings.getInstance().defaultCloudInfo.KustoClientAppId);
             })
 
             it('cloud info 404', async function () {

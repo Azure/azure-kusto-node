@@ -47,16 +47,16 @@ export class CloudSettings {
             if (response.status == 200) {
                 this.cloudCache[kustoUri] = response.data.AzureAD || this.defaultCloudInfo;
             }
-            else if (response.status == 401) {
-                // For now as long not all proxies implement the metadata endpoint, if no endpoint exists return public cloud data
-                this.cloudCache[kustoUri] = this.defaultCloudInfo;
-            }
             else {
                 throw new Error(`Kusto returned an invalid cloud metadata response - ${response}`);
             }
             return this.cloudCache[kustoUri];
         }
         catch (ex) {
+            if (ex.response?.status == 404) {
+                // For now as long not all proxies implement the metadata endpoint, if no endpoint exists return public cloud data
+                this.cloudCache[kustoUri] = this.defaultCloudInfo;
+            }
             throw new Error(`Failed to get cloud info for cluster ${kustoUri} - ${ex}`);
         }
     }
