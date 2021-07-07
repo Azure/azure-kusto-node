@@ -125,7 +125,7 @@ export class KustoConnectionStringBuilder {
         return kcsb;
     }
 
-    static withAadApplicationCertificateAuthentication(connectionString: string, aadAppId: string, applicationCertificatePrivateKey: string, applicationCertificateThumbprint: string,  applicationCertificateX5c?: string, authorityId?: string) {
+    static withAadApplicationCertificateAuthentication(connectionString: string, aadAppId: string, applicationCertificatePrivateKey: string, applicationCertificateThumbprint: string,  authorityId?: string, applicationCertificateX5c?: string) {
         if (!aadAppId || aadAppId.trim().length == 0) throw new Error("Invalid app id");
         if (!applicationCertificatePrivateKey || applicationCertificatePrivateKey.trim().length == 0) throw new Error("Invalid certificate");
         if (!applicationCertificateThumbprint || applicationCertificateThumbprint.trim().length == 0) throw new Error("Invalid thumbprint");

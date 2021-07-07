@@ -19,8 +19,8 @@ export class AadHelper {
         } else if (!!kcsb.applicationClientId &&
             !!kcsb.applicationCertificateThumbprint && !!kcsb.applicationCertificatePrivateKey) {
             this.tokeProvider = new TokenProvider.ApplicationCertificateTokenProvider(kcsb.dataSource, kcsb.applicationClientId, kcsb.applicationCertificateThumbprint, kcsb.applicationCertificatePrivateKey, kcsb.applicationCertificateX5c as string | undefined, kcsb.authorityId);
-        } else if (!!kcsb.msiClientId) {
-            this.tokeProvider = new TokenProvider.MsiTokenProvider(kcsb.dataSource, kcsb.msiClientId as string);
+        } else if (kcsb.managedIdentity) {
+            this.tokeProvider = new TokenProvider.MsiTokenProvider(kcsb.dataSource, kcsb.msiClientId as string | undefined);
         } else if (kcsb.azLoginIdentity) {
             this.tokeProvider = new TokenProvider.AzCliTokenProvider(kcsb.dataSource);
         } else if (kcsb.accessToken) {

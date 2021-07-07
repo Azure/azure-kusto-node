@@ -76,21 +76,17 @@ export class CallbackTokenProvider extends TokenProviderBase {
 export class MsiTokenProvider extends TokenProviderBase {
     context = { "authority": this.name };
     name = "CallbackTokenProvider";
-    clientId: string;
+    clientId?: string;
     managedIdentityCredential!: ManagedIdentityCredential;
 
-    constructor(kustoUri: string, clientId: string) {
+    constructor(kustoUri: string, clientId?: string) {
         super(kustoUri);
         this.clientId = clientId;
     }
 
-    init(): void {
-        return;
-    }
-
     async acquireToken(): Promise<TokenResponse> {
         if (this.managedIdentityCredential == null) {
-            this.managedIdentityCredential = new ManagedIdentityCredential(this.clientId);
+            this.managedIdentityCredential = this.clientId  ? new ManagedIdentityCredential(this.clientId) : new ManagedIdentityCredential();
         }
         const msiToken = await this.managedIdentityCredential.getToken(this.kustoUri);
         if (msiToken?.token != null) {

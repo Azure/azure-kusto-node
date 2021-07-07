@@ -51,15 +51,14 @@ export class CloudSettings {
                 // For now as long not all proxies implement the metadata endpoint, if no endpoint exists return public cloud data
                 this.cloudCache[kustoUri] = this.defaultCloudInfo;
             }
-            else{
+            else {
                 throw new Error(`Kusto returned an invalid cloud metadata response - ${response}`);
             }
             return this.cloudCache[kustoUri];
         }
-        catch (ex){
+        catch (ex) {
             throw new Error(`Failed to get cloud info for cluster ${kustoUri} - ${ex}`);
         }
-
     }
 
     static getAuthorityUri(cloudInfo: CloudInfo, authorityId?: string): string {
