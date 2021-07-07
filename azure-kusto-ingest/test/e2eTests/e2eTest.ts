@@ -112,7 +112,7 @@ function main(): void {
             })
 
             it('cloud info 404', async function () {
-                const cloudInfo = CloudSettings.getInstance().getCloudInfoForCluster("https://www.microsoft.com");
+                const cloudInfo = await CloudSettings.getInstance().getCloudInfoForCluster("https://www.microsoft.com");
                 assert.strictEqual(cloudInfo, CloudSettings.getInstance().defaultCloudInfo);
             })
         });
