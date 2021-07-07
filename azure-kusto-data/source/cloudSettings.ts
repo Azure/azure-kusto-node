@@ -42,7 +42,7 @@ export class CloudSettings {
         if (kustoUri in this.cloudCache) {
             return this.cloudCache[kustoUri];
         }
-        
+
         try {
             const response = await axios.get(kustoUri + this.METADATA_ENDPOINT);
             if (response.status == 200) {
