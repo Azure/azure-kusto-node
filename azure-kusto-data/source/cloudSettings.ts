@@ -42,6 +42,7 @@ export class CloudSettings {
         if (kustoUri in this.cloudCache) {
             return this.cloudCache[kustoUri];
         }
+        
         try {
             const response = await axios.get(kustoUri + this.METADATA_ENDPOINT);
             if (response.status == 200) {
@@ -50,15 +51,17 @@ export class CloudSettings {
             else {
                 throw new Error(`Kusto returned an invalid cloud metadata response - ${response}`);
             }
-            return this.cloudCache[kustoUri];
         }
         catch (ex) {
             if (ex.response?.status == 404) {
                 // For now as long not all proxies implement the metadata endpoint, if no endpoint exists return public cloud data
                 this.cloudCache[kustoUri] = this.defaultCloudInfo;
             }
-            throw new Error(`Failed to get cloud info for cluster ${kustoUri} - ${ex}`);
+            else {
+                throw new Error(`Failed to get cloud info for cluster ${kustoUri} - ${ex}`);
+            }
         }
+        return this.cloudCache[kustoUri];
     }
 
     static getAuthorityUri(cloudInfo: CloudInfo, authorityId?: string): string {

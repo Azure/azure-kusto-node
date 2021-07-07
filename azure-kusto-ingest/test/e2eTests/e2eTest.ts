@@ -22,10 +22,6 @@ const appKey = process.env.APP_KEY;
 const tenantId = process.env.TENANT_ID;
 
 function main(): void {
-
-    CloudSettings.getInstance().getCloudInfoForCluster("https://www.microsoft.com");
-
-    
     if (!databaseName || !appId || !appKey || !tenantId) {
         process.stdout.write("Skip E2E test - Missing env variables");
         return;
