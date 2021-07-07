@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { CloudSettings } from "../source/cloudSettings";
-import { UserPassTokenProvider } from "../source/TokenProvider"
+import { UserPassTokenProvider } from "../source/tokenProvider"
 
 const assert = require("assert");
 
