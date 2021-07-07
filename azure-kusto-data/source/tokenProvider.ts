@@ -21,7 +21,6 @@ export abstract class TokenProviderBase {
     kustoUri: string;
     scopes!: string[];
 
-    abstract name: string;
     abstract acquireToken(): Promise<TokenResponse>;
 
     constructor(kustoUri: string) {
@@ -37,8 +36,6 @@ export abstract class TokenProviderBase {
  * Basic Token Provider keeps and returns a token received on construction
  */
 export class BasicTokenProvider extends TokenProviderBase {
-    context = { "authority": this.name };
-    name = "CallbackTokenProvider";
     token: string;
 
     constructor(kustoUri: string, token: string) {
@@ -55,8 +52,6 @@ export class BasicTokenProvider extends TokenProviderBase {
  * Callback Token Provider generates a token based on a callback function provided by the caller
  */
 export class CallbackTokenProvider extends TokenProviderBase {
-    context = { "authority": this.name };
-    name = "CallbackTokenProvider";
     callback: () => Promise<string>;
 
     constructor(kustoUri: string, callback: () => Promise<string>) {
@@ -74,8 +69,6 @@ export class CallbackTokenProvider extends TokenProviderBase {
 // MSI Token Provider obtains a token from the MSI endpoint
 // The args parameter is a dictionary conforming with the ManagedIdentityCredential initializer API arguments
 export class MsiTokenProvider extends TokenProviderBase {
-    context = { "authority": this.name };
-    name = "CallbackTokenProvider";
     clientId?: string;
     managedIdentityCredential!: ManagedIdentityCredential;
 
@@ -100,8 +93,6 @@ export class MsiTokenProvider extends TokenProviderBase {
  * AzCli Token Provider obtains a refresh token from the AzCli cache and uses it to authenticate with MSAL
  */
 export class AzCliTokenProvider extends TokenProviderBase {
-    context = { "authority": this.name };
-    name = "CallbackTokenProvider";
     azureCliCredentials!: AzureCliCredentials;
 
     constructor(kustoUri: string) {
@@ -159,7 +150,6 @@ abstract class MsalTokenProvider extends TokenProviderBase {
  * Acquire a token from MSAL with username and password
  */
 export class UserPassTokenProvider extends MsalTokenProvider {
-    name = "UserPassTokenProvider";
     userName: string;
     password: string;
     homeAccountId?: string;
@@ -201,7 +191,6 @@ export class UserPassTokenProvider extends MsalTokenProvider {
  * Acquire a token from MSAL with Device Login flow
  */
 export class DeviceLoginTokenProvider extends MsalTokenProvider {
-    name = "DeviceLoginTokenProvider";
     deviceCodeCallback: (response: DeviceCodeResponse) => void;
     homeAccountId?: string;
     msalClient!: PublicClientApplication;
@@ -241,7 +230,6 @@ export class DeviceLoginTokenProvider extends MsalTokenProvider {
  * Acquire a token from MSAL with application Id and Key
  */
 export class ApplicationKeyTokenProvider extends MsalTokenProvider {
-    name = "ApplicationKeyTokenProvider";
     appClientId: string;
     appKey: string;
     msalClient!: ConfidentialClientApplication;
@@ -273,7 +261,6 @@ export class ApplicationKeyTokenProvider extends MsalTokenProvider {
  * Passing the public certificate is optional and will result in Subject Name & Issuer Authentication
  */
 export class ApplicationCertificateTokenProvider extends MsalTokenProvider {
-    name = "ApplicationCertificateTokenProvider";
     appClientId: string;
     certThumbprint: string;
     certPrivateKey: string;
