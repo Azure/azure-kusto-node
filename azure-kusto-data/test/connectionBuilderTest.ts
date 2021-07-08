@@ -2,9 +2,7 @@
 // Licensed under the MIT License.
 
 import assert from "assert";
-
 import uuid from "uuid";
-
 import {KustoConnectionStringBuilder} from "../source/connectionBuilder";
 
 describe("KustoConnectionStringBuilder", function () {
