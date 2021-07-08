@@ -3,9 +3,7 @@
 
 import { CloudSettings } from "../source/cloudSettings";
 import { UserPassTokenProvider } from "../source/tokenProvider"
-
-const assert = require("assert");
-
+import assert from "assert";
 
 describe("CloudInfo", function () {
     describe("#CloudInfo", function () {
