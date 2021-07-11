@@ -14,6 +14,7 @@ import {
 import StreamingIngestClient from "../../source/streamingIngestClient";
 import {CompressionType, StreamDescriptor} from "../../source/descriptors";
 import {DataFormat, IngestionProperties, ReportLevel} from "../../source/ingestionProperties";
+import { CloudSettings } from "../.././node_modules/azure-kusto-data/source/cloudSettings";
 
 const databaseName = process.env.TEST_DATABASE;
 const appId = process.env.APP_ID;
@@ -21,7 +22,6 @@ const appKey = process.env.APP_KEY;
 const tenantId = process.env.TENANT_ID;
 
 function main(): void {
-    
     if (!databaseName || !appId || !appKey || !tenantId) {
         process.stdout.write("Skip E2E test - Missing env variables");
         return;
@@ -103,6 +103,18 @@ function main(): void {
                     assert.fail("Failed to create table ingestion mapping" + err);
                 }
             });
+        });
+        
+        describe('cloud info', function () {
+            it('Cached cloud info', async function () {
+                const cloudInfo = CloudSettings.getInstance().cloudCache[process.env.ENGINE_CONNECTION_STRING as string]; // it should be already in the cache at this point
+                assert.strictEqual(cloudInfo.KustoClientAppId, CloudSettings.getInstance().defaultCloudInfo.KustoClientAppId);
+            })
+
+            it('cloud info 404', async function () {
+                const cloudInfo = await CloudSettings.getInstance().getCloudInfoForCluster("https://www.microsoft.com");
+                assert.strictEqual(cloudInfo, CloudSettings.getInstance().defaultCloudInfo);
+            })
         });
 
         describe('ingestClient', function () {

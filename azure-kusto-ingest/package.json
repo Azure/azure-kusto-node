@@ -1,6 +1,6 @@
 {
   "name": "azure-kusto-ingest",
-  "version": "2.1.7",
+  "version": "2.2.0",
   "description": "Azure Data Explorer Ingestion SDK",
   "main": "index.js",
   "types": "index.d.ts",
@@ -25,6 +25,11 @@
     "test": "npm run build && mocha --require ts-node/register",
     "e2e": "npm run build && mocha --require ts-node/register test/e2eTests/e2eTest.ts",
     "allTests": "npm run build && mocha --timeout 240000 --recursive --require ts-node/register"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Azure/azure-kusto-node.git",
+    "directory": "azure-kusto-ingest"
   },
   "author": "",
   "license": "ISC",
