@@ -24,6 +24,11 @@
     "lint": "npm run build && tslint --project tsconfig.json --quiet",
     "test": "npm run build && mocha --require ts-node/register"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Azure/azure-kusto-node.git",
+    "directory": "azure-kusto-data"
+  },
   "author": "",
   "license": "ISC",
   "homepage": "https://github.com/Azure/azure-kusto-node/blob/master/azure-kusto-data/README.md",
