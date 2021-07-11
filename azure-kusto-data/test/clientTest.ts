@@ -39,9 +39,6 @@ describe("KustoClient", function () {
 
             assert.equal(client.connectionString.authorityId, "common");
             assert.equal(client.connectionString.dataSource, url);
-
-            assert.equal(client.aadHelper.method.authMethod, 3);
-            assert.equal(client.aadHelper.kustoCluster, url);
         });
     });
 
