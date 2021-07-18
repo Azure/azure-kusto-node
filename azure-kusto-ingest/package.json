@@ -36,7 +36,6 @@
   "dependencies": {
     "@azure/storage-blob": "12.1.2",
     "@azure/storage-queue": "12.0.5",
-    "adal-node": "^0.1.28",
     "azure-kusto-data": "latest",
     "moment": "^2.22.2",
     "request": "^2.88.0",
