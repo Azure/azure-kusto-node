@@ -103,7 +103,7 @@ export class AzCliTokenProvider extends TokenProviderBase {
             this.azureCliCredentials = new AzureCliCredential();
         }
         const response = await this.azureCliCredentials.getToken(this.scopes);
-        
+
         if(response){
             return { tokenType: BEARER_TYPE, accessToken: response.token };
         }
