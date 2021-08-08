@@ -2,8 +2,7 @@
 // Licensed under the MIT License.
 import { AuthenticationResult, PublicClientApplication, ConfidentialClientApplication } from "@azure/msal-node";
 import { DeviceCodeResponse } from "@azure/msal-common";
-import { AzureCliCredentials } from "@azure/ms-rest-nodeauth";
-import { ManagedIdentityCredential } from "@azure/identity";
+import { ManagedIdentityCredential, AzureCliCredential} from "@azure/identity";
 import { CloudSettings, CloudInfo } from "./cloudSettings"
 
 export declare type TokenResponse = {
@@ -93,7 +92,7 @@ export class MsiTokenProvider extends TokenProviderBase {
  * AzCli Token Provider obtains a refresh token from the AzCli cache and uses it to authenticate with MSAL
  */
 export class AzCliTokenProvider extends TokenProviderBase {
-    azureCliCredentials!: AzureCliCredentials;
+    azureCliCredentials!: AzureCliCredential;
 
     constructor(kustoUri: string) {
         super(kustoUri);
@@ -101,9 +100,14 @@ export class AzCliTokenProvider extends TokenProviderBase {
 
     async acquireToken(): Promise<TokenResponse> {
         if (this.azureCliCredentials == null) {
-            this.azureCliCredentials = await AzureCliCredentials.create({ resource: this.kustoUri });
+            this.azureCliCredentials = new AzureCliCredential();
         }
-        return this.azureCliCredentials.getToken();
+        const response = await this.azureCliCredentials.getToken(this.scopes);
+
+        if(response){
+            return { tokenType: BEARER_TYPE, accessToken: response.token };
+        }
+        throw new Error(`"Failed to obtain AzCli token for '${this.kustoUri}'`)
     }
 }
 
