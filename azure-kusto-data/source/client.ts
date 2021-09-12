@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import moment from "moment";
-import uuid from "uuid";
+import { v4 as uuidv4 } from 'uuid';
 import AadHelper from "./security";
 import {KustoResponseDataSet, KustoResponseDataSetV1, KustoResponseDataSetV2} from "./response";
 import ConnectionStringBuilder from "./connectionBuilder";
@@ -132,7 +132,7 @@ export class KustoClient {
             headers["Content-Type"] = "multipart/form-data";
         }
 
-        headers["x-ms-client-request-id"] = clientRequestId || clientRequestPrefix + `${uuid.v4()}`;
+        headers["x-ms-client-request-id"] = clientRequestId || clientRequestPrefix + `${uuidv4()}`;
 
         headers.Authorization = await this.aadHelper._getAuthHeader();
 

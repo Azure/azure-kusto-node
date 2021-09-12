@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import uuid from "uuid";
+import { v4 as uuidv4 } from 'uuid';
 import moment from "moment";
 import {BlobDescriptor} from "./descriptors";
 import IngestionProperties, {ReportLevel, ReportMethod} from "./ingestionProperties";
@@ -31,7 +31,7 @@ export class IngestionBlobInfo {
         this.ReportLevel = ingestionProperties.reportLevel ?? null;
         this.ReportMethod = ingestionProperties.reportMethod ?? null;
         this.SourceMessageCreationTime = moment.utc();
-        this.Id = blobDescriptor.sourceId || uuid.v4();
+        this.Id = blobDescriptor.sourceId || uuidv4();
 
         const additionalProperties = ingestionProperties.additionalProperties || {};
         additionalProperties.authorizationContext = authContext;

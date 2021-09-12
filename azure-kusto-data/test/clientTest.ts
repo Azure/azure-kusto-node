@@ -3,8 +3,7 @@
 
 import assert from "assert";
 
-// tslint:disable-next-line:no-var-requires
-import uuid from "uuid";
+import { v4 as uuidv4 } from 'uuid';
 import moment from "moment";
 
 import {KustoClient} from "../source/client";
@@ -166,7 +165,7 @@ describe("KustoClient", function () {
         it("set clientRequestId for request", async function () {
             const url = "https://cluster.kusto.windows.net";
             const client = new KustoClient(url);
-            const clientRequestId = `MyApp.MyActivity;${uuid.v4()}`;
+            const clientRequestId = `MyApp.MyActivity;${uuidv4()}`;
             const application = "app1";
             const user = "user1";
 

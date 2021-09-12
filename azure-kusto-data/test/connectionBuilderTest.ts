@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import assert from "assert";
-import uuid from "uuid";
+import { v4 as uuidv4 } from 'uuid';
 import {KustoConnectionStringBuilder} from "../source/connectionBuilder";
 
 describe("KustoConnectionStringBuilder", function () {
@@ -55,25 +55,25 @@ describe("KustoConnectionStringBuilder", function () {
 
         it("from string with app auth", function () {
 
-            const uuidv4 = uuid.v4();
+            const uuid = uuidv4();
             const key = "key of application";
 
             const kcsbs = [
-                new KustoConnectionStringBuilder(`localhost;Application client Id=${uuidv4};application Key=${key}`),
-                new KustoConnectionStringBuilder(`Data Source=localhost ; Application Client Id=${uuidv4}; Appkey =${key}`),
-                new KustoConnectionStringBuilder(` Addr = localhost ; AppClientId = ${uuidv4} ; AppKey =${key}`),
-                new KustoConnectionStringBuilder(`Network Address = localhost; AppClientId = ${uuidv4} ; AppKey =${key}`),
-                KustoConnectionStringBuilder.withAadApplicationKeyAuthentication("localhost", uuidv4, key)
+                new KustoConnectionStringBuilder(`localhost;Application client Id=${uuid};application Key=${key}`),
+                new KustoConnectionStringBuilder(`Data Source=localhost ; Application Client Id=${uuid}; Appkey =${key}`),
+                new KustoConnectionStringBuilder(` Addr = localhost ; AppClientId = ${uuid} ; AppKey =${key}`),
+                new KustoConnectionStringBuilder(`Network Address = localhost; AppClientId = ${uuid} ; AppKey =${key}`),
+                KustoConnectionStringBuilder.withAadApplicationKeyAuthentication("localhost", uuid, key)
             ];
 
             const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
-            kcsb1.applicationClientId = uuidv4;
+            kcsb1.applicationClientId = uuid;
             kcsb1.applicationKey = key;
             kcsbs.push(kcsb1);
 
             for (const kcsb of kcsbs) {
                 assert.equal(kcsb.dataSource, "localhost");
-                assert.equal(kcsb.applicationClientId, uuidv4);
+                assert.equal(kcsb.applicationClientId, uuid);
                 assert.equal(kcsb.applicationKey, key);
                 assert.equal(kcsb.authorityId, "common");
                 const emptyFields = ["aadUserId", "password"];
