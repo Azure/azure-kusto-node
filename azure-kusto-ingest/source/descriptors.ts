@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import uuid from "uuid";
+import { v4 as uuidv4 } from 'uuid';
 import uuidValidate from "uuid-validate";
 import zlib from "zlib";
 import pathlib from "path";
@@ -20,7 +20,7 @@ function getSourceId(sourceId: string | null): string {
         }
         return sourceId;
     }
-    return uuid.v4();
+    return uuidv4();
 }
 
 export class FileDescriptor {

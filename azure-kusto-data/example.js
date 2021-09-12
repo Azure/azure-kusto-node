@@ -4,7 +4,7 @@
 const KustoClient = require("azure-kusto-data").Client;
 const KustoConnectionStringBuilder = require("azure-kusto-data").KustoConnectionStringBuilder;
 const ClientRequestProperties = require("azure-kusto-data").ClientRequestProperties;
-const uuidv4 = require("uuid/v4");
+const { v4: uuidv4 } = require('uuid');
 
 const clusterConectionString = "https://<cluster>.<region>.kusto.windows.net";
 const database = "<databaseName>";
