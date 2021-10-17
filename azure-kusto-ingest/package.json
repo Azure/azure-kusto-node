@@ -44,7 +44,9 @@
     "moment": "^2.22.2",
     "request": "^2.88.0",
     "uuid": "^8.3.2",
-    "uuid-validate": "0.0.3"
+    "uuid-validate": "0.0.3",
+    "stream-to-array": "2.3.0",
+    "stream-array": "1.1.2"
   },
   "devDependencies": {
     "@types/mocha": "^8.2.0",

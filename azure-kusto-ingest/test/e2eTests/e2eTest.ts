@@ -12,6 +12,7 @@ import {
     // @ts-ignore
 } from "../.././node_modules/azure-kusto-data";
 import StreamingIngestClient from "../../source/streamingIngestClient";
+import ManagedStreamingIngestClient from "../../source/managedStreamingIngestClient";
 import {CompressionType, StreamDescriptor} from "../../source/descriptors";
 import {DataFormat, IngestionProperties, ReportLevel} from "../../source/ingestionProperties";
 import { CloudSettings } from "../.././node_modules/azure-kusto-data/source/cloudSettings";
@@ -31,6 +32,7 @@ function main(): void {
     const queryClient = new Client(engineKcsb);
     const streamingIngestClient = new StreamingIngestClient(engineKcsb);
     const dmKcsb = ConnectionStringBuilder.withAadApplicationKeyAuthentication(process.env.DM_CONNECTION_STRING ?? "", appId, appKey, tenantId);
+    const managedStreamingIngestClient = new ManagedStreamingIngestClient(engineKcsb, dmKcsb);
     const ingestClient = new IngestClient(dmKcsb);
     const statusQueues = new KustoIngestStatusQueues(ingestClient);
 
@@ -91,6 +93,7 @@ function main(): void {
             it('Create table', async function () {
                 try {
                     await queryClient.execute(databaseName, `.create table ${tableName} ${tableColumns}`);
+                    await queryClient.execute(databaseName!, ".clear database cache streamingingestion schema");
                 } catch (err) {
                     assert.fail("Failed to create table");
                 }
@@ -152,7 +155,6 @@ function main(): void {
                     try {
                         await streamingIngestClient.ingestFromFile(item.path, item.ingestionProperties);
                     } catch (err) {
-                        console.error(err);
                         assert.fail(`Failed to ingest ${item.description}`);
                     }
                     await assertRowsCount(item);
@@ -167,6 +169,35 @@ function main(): void {
                     }
                     try {
                         await streamingIngestClient.ingestFromStream(stream, item.ingestionProperties);
+                    } catch (err) {
+                        assert.fail(`Failed to ingest ${item.description}`);
+                    }
+                    await assertRowsCount(item);
+                }
+            }).timeout(240000);
+        });
+
+        describe('ManagedStreamingIngestClient', function () {
+            it('ingestFromFile', async function () {
+                for (const item of testItems.filter(item => item.testOnstreamingIngestion)) {
+                    try {
+                        await managedStreamingIngestClient.ingestFromFile(item.path, item.ingestionProperties);
+                    } catch (err) {
+                        console.error(err);
+                        assert.fail(`Failed to ingest ${item.description}`);
+                    }
+                    await assertRowsCount(item);
+                }
+            }).timeout(240000);
+
+            it('ingestFromStream', async function () {
+                for (const item of testItems.filter(item => item.testOnstreamingIngestion)) {
+                    let stream: ReadStream | StreamDescriptor = fs.createReadStream(item.path);
+                    if (item.path.endsWith('gz')) {
+                        stream = new StreamDescriptor(stream, null, CompressionType.GZIP);
+                    }
+                    try {
+                        await managedStreamingIngestClient.ingestFromStream(stream, item.ingestionProperties);
                     } catch (err) {
                         assert.fail(`Failed to ingest ${item.description}`);
                     }
