@@ -10,9 +10,8 @@ import {KustoConnectionStringBuilder} from "azure-kusto-data";
 import {KustoResponseDataSet, KustoResponseDataSetV1} from "azure-kusto-data/source/response";
 import StreamingIngestClient from "./streamingIngestClient";
 import IngestClient from "./ingestClient";
-const PassThrough = require('stream').PassThrough;
 const toArray = require('stream-to-array');
-var streamify = require('stream-array');
+const streamify = require('stream-array');
 
 const maxRetries = 3
 class KustoManagedStreamingIngestClient extends AbstractKustoClient {
@@ -30,24 +29,25 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
     async ingestFromStream(stream: StreamDescriptor | fs.ReadStream, ingestionProperties: IngestionProperties): Promise<KustoResponseDataSet> {
         const props = this._mergeProps(ingestionProperties);
         props.validate();
+        var descriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
         const buf = (stream as StreamDescriptor)?.stream || stream;
+
         if (props.ingestionMappingReference == null && this._mapping_required_formats.includes(props.format)) {
             throw new Error(`Mapping reference required for format ${props.foramt}.`);
         }
 
-        var tmp = new PassThrough();
-        const buffer = await toArray(tmp.pipe(buf));
+        const buffer = await toArray(buf);
 
         for (let i = 0; i < maxRetries; i++) {
             try {
-                 return await this.streamingIngestClient.ingestFromStream(streamify(buffer), ingestionProperties);
+                 return await this.streamingIngestClient.ingestFromStream({...descriptor, stream: streamify(buffer)}, ingestionProperties);
             } catch (err: any) {
                 if (err['@permanent']) {
                     throw err;
                 }
             }
         }
-        await this.queuedIngestClient.ingestFromStream(streamify(buffer), ingestionProperties);
+        await this.queuedIngestClient.ingestFromStream({...descriptor, stream: streamify(buffer)}, ingestionProperties);
         return new KustoResponseDataSetV1({Tables:[{TableName: "Table_0",Columns:[],Rows:[]}]});
     }
 

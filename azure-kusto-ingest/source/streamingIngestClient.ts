@@ -23,7 +23,7 @@ class KustoStreamingIngestClient extends AbstractKustoClient {
     async ingestFromStream(stream: StreamDescriptor | fs.ReadStream, ingestionProperties: IngestionProperties): Promise<KustoResponseDataSet> {
         const props = this._mergeProps(ingestionProperties);
         props.validate();
-        const descriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
+        const descriptor: StreamDescriptor = stream.hasOwnProperty('stream') ? stream as StreamDescriptor : new StreamDescriptor(stream as fs.ReadStream);
         const compressedStream =
             descriptor.compressionType == CompressionType.None ? descriptor.stream.pipe(zlib.createGzip()) : descriptor.stream;
         if (props.ingestionMappingReference == null && this._mapping_required_formats.includes(props.format)) {
