@@ -42,7 +42,7 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
                     throw err;
                 }
             }
-            
+
             buf = copyBuffer
         }
 
