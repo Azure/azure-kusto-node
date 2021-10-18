@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import IngestionProperties, {DataFormat} from "./ingestionProperties";
+import IngestionProperties, {DataFormat, MappingRequiredFormats} from "./ingestionProperties";
 
 import {CompressionType, FileDescriptor, StreamDescriptor} from "./descriptors";
 import zlib from "zlib";
@@ -13,12 +13,10 @@ import {KustoResponseDataSet} from "azure-kusto-data/source/response";
 class KustoStreamingIngestClient extends AbstractKustoClient {
     private kustoClient: KustoClient;
     // tslint:disable-next-line:variable-name
-    private _mapping_required_formats: readonly any[];
 
     constructor(kcsb: string | KustoConnectionStringBuilder, defaultProps: IngestionProperties | null = null) {
         super(defaultProps);
         this.kustoClient = new KustoClient(kcsb);
-        this._mapping_required_formats = Object.freeze([DataFormat.JSON, DataFormat.SINGLEJSON, DataFormat.AVRO, DataFormat.ORC]);
     }
     async ingestFromStream(stream: StreamDescriptor | fs.ReadStream, ingestionProperties: IngestionProperties): Promise<KustoResponseDataSet> {
         const props = this._mergeProps(ingestionProperties);
@@ -26,7 +24,7 @@ class KustoStreamingIngestClient extends AbstractKustoClient {
         const descriptor: StreamDescriptor = stream.hasOwnProperty('stream') ? stream as StreamDescriptor : new StreamDescriptor(stream as fs.ReadStream);
         const compressedStream =
             descriptor.compressionType == CompressionType.None ? descriptor.stream.pipe(zlib.createGzip()) : descriptor.stream;
-        if (props.ingestionMappingReference == null && this._mapping_required_formats.includes(props.format)) {
+        if (props.ingestionMappingReference == null && MappingRequiredFormats.includes(props.format as DataFormat)) {
             throw new Error(`Mapping reference required for format ${props.foramt}.`);
         }
         return this.kustoClient.executeStreamingIngest(

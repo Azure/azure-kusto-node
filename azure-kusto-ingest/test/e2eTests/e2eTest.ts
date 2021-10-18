@@ -16,26 +16,20 @@ import ManagedStreamingIngestClient from "../../source/managedStreamingIngestCli
 import {CompressionType, StreamDescriptor} from "../../source/descriptors";
 import {DataFormat, IngestionProperties, ReportLevel} from "../../source/ingestionProperties";
 import { CloudSettings } from "../.././node_modules/azure-kusto-data/source/cloudSettings";
-var databaseName = process.env.TEST_DATABASE;
-var appId = process.env.APP_ID;
-var appKey = process.env.APP_KEY;
-var tenantId = process.env.TENANT_ID;
-databaseName = "ohtst"
-    appKey = "-f90cR6sr-hFC3WBm5ANXtm521_W~ah~Ia" 
-    appId="d5e0a24c-3a09-40ce-a1d6-dc5ab58dae66"    
-    tenantId = "microsoft.com"
-    const eng = "https://ohadprod.westeurope.kusto.windows.net"
-    const dm = "https://ingest-ohadprod.westeurope.kusto.windows.net"
+const databaseName = process.env.TEST_DATABASE;
+const appId = process.env.APP_ID;
+const appKey = process.env.APP_KEY;
+const tenantId = process.env.TENANT_ID;
 function main(): void {
     if (!databaseName || !appId || !appKey || !tenantId) {
         process.stdout.write("Skip E2E test - Missing env variables");
         return;
     }
 
-    const engineKcsb = ConnectionStringBuilder.withAadApplicationKeyAuthentication(eng ?? "", appId, appKey, tenantId);
+    const engineKcsb = ConnectionStringBuilder.withAadApplicationKeyAuthentication(process.env.ENGINE_CONNECTION_STRING  ?? "", appId, appKey, tenantId);
     const queryClient = new Client(engineKcsb);
     const streamingIngestClient = new StreamingIngestClient(engineKcsb);
-    const dmKcsb = ConnectionStringBuilder.withAadApplicationKeyAuthentication(dm ?? "", appId, appKey, tenantId);
+    const dmKcsb = ConnectionStringBuilder.withAadApplicationKeyAuthentication(process.env.DM_CONNECTION_STRING  ?? "", appId, appKey, tenantId);
     const managedStreamingIngestClient = new ManagedStreamingIngestClient(engineKcsb, dmKcsb);
     const ingestClient = new IngestClient(dmKcsb);
     const statusQueues = new KustoIngestStatusQueues(ingestClient);
@@ -87,7 +81,7 @@ function main(): void {
     describe(`E2E Tests - ${tableName}`, function () {
         after(async function () {
             try {
-                await queryClient.execute(databaseName!, `.drop table ${tableName} ifexists`);
+                await queryClient.execute(databaseName, `.drop table ${tableName} ifexists`);
             } catch (err) {
                 assert.fail("Failed to drop table");
             }
@@ -96,8 +90,8 @@ function main(): void {
         describe('SetUp', function () {
             it('Create table', async function () {
                 try {
-                    await queryClient.execute(databaseName!, `.create table ${tableName} ${tableColumns}`);
-                    await queryClient.execute(databaseName!, ".clear database cache streamingingestion schema");
+                    await queryClient.execute(databaseName, `.create table ${tableName} ${tableColumns}`);
+                    await queryClient.execute(databaseName, ".clear database cache streamingingestion schema");
                 } catch (err) {
                     assert.fail("Failed to create table");
                 }
@@ -105,7 +99,7 @@ function main(): void {
 
             it('Create table ingestion mapping', async function () {
                 try {
-                    await queryClient.execute(databaseName!, `.create-or-alter table ${tableName} ingestion json mapping '${mappingName}' '${mapping}'`);
+                    await queryClient.execute(databaseName, `.create-or-alter table ${tableName} ingestion json mapping '${mappingName}' '${mapping}'`);
                 } catch (err) {
                     assert.fail("Failed to create table ingestion mapping" + err);
                 }
@@ -114,7 +108,7 @@ function main(): void {
         
         describe('cloud info', function () {
             it('Cached cloud info', async function () {
-                const cloudInfo = CloudSettings.getInstance().cloudCache[eng as string]; // it should be already in the cache at this point
+                const cloudInfo = CloudSettings.getInstance().cloudCache[process.env.ENGINE_CONNECTION_STRING as string]; // it should be already in the cache at this point
                 assert.strictEqual(cloudInfo.KustoClientAppId, CloudSettings.getInstance().defaultCloudInfo.KustoClientAppId);
             })
 
@@ -253,7 +247,7 @@ function main(): void {
         describe('QueryClient', function () {
             it('General BadRequest', async function () {
                 try {
-                    await queryClient.executeQuery(databaseName!, "invalidSyntax ");
+                    await queryClient.executeQuery(databaseName, "invalidSyntax ");
                 } catch (ex) {
                     return;
                 }
@@ -262,7 +256,7 @@ function main(): void {
 
             it('PartialQueryFailure', async function () {
                 try {
-                    await queryClient.executeQuery(databaseName!, "invalidSyntax ");
+                    await queryClient.executeQuery(databaseName, "invalidSyntax ");
 
                 } catch (ex) {
                     return;
@@ -274,7 +268,7 @@ function main(): void {
                 try {
                     var properties = new ClientRequestProperties();
                     properties.setTimeout(10);
-                    await queryClient.executeQuery(databaseName!, `${tableName}`, properties);
+                    await queryClient.executeQuery(databaseName, `${tableName}`, properties);
 
                 } catch (ex) {
                     assert.equal(ex.code, 'Request execution timeout');

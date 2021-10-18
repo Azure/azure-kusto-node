@@ -1,15 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import IngestionProperties, {DataFormat} from "./ingestionProperties";
+import IngestionProperties, {DataFormat, MappingRequiredFormats} from "./ingestionProperties";
 
 import {CompressionType, FileDescriptor, StreamDescriptor} from "./descriptors";
 import fs from "fs";
 import {AbstractKustoClient} from "./abstractKustoClient";
 import {KustoConnectionStringBuilder} from "azure-kusto-data";
-import {KustoResponseDataSet, KustoResponseDataSetV1} from "azure-kusto-data/source/response";
+import {KustoResponseDataSet} from "azure-kusto-data/source/response";
 import StreamingIngestClient from "./streamingIngestClient";
 import IngestClient from "./ingestClient";
+import { QueueSendMessageResponse } from "@azure/storage-queue";
 const toArray = require('stream-to-array');
 const streamify = require('stream-array');
 
@@ -18,21 +19,20 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
     private streamingIngestClient: StreamingIngestClient;
     private queuedIngestClient: IngestClient;
     // tslint:disable-next-line:variable-name
-    private _mapping_required_formats: readonly any[];
 
     constructor(engineKcsb: string | KustoConnectionStringBuilder, dmKcsb: string | KustoConnectionStringBuilder, defaultProps: IngestionProperties | null = null) {
         super(defaultProps);
         this.streamingIngestClient = new StreamingIngestClient(engineKcsb);
         this.queuedIngestClient = new IngestClient(dmKcsb);
-        this._mapping_required_formats = Object.freeze([DataFormat.JSON, DataFormat.SINGLEJSON, DataFormat.AVRO, DataFormat.ORC]);
     }
-    async ingestFromStream(stream: StreamDescriptor | fs.ReadStream, ingestionProperties: IngestionProperties): Promise<KustoResponseDataSet> {
+    
+    async ingestFromStream(stream: StreamDescriptor | fs.ReadStream, ingestionProperties: IngestionProperties): Promise<KustoResponseDataSet | QueueSendMessageResponse> {
         const props = this._mergeProps(ingestionProperties);
         props.validate();
         var descriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
         const buf = (stream as StreamDescriptor)?.stream || stream;
 
-        if (props.ingestionMappingReference == null && this._mapping_required_formats.includes(props.format)) {
+        if (props.ingestionMappingReference == null && MappingRequiredFormats.includes(props.format as DataFormat)) {
             throw new Error(`Mapping reference required for format ${props.foramt}.`);
         }
 
@@ -47,11 +47,10 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
                 }
             }
         }
-        await this.queuedIngestClient.ingestFromStream({...descriptor, stream: streamify(buffer)}, ingestionProperties);
-        return new KustoResponseDataSetV1({Tables:[{TableName: "Table_0",Columns:[],Rows:[]}]});
+        return await this.queuedIngestClient.ingestFromStream({...descriptor, stream: streamify(buffer)}, ingestionProperties);
     }
 
-    async ingestFromFile(file: FileDescriptor | string, ingestionProperties: IngestionProperties): Promise<KustoResponseDataSet> {
+    async ingestFromFile(file: FileDescriptor | string, ingestionProperties: IngestionProperties): Promise<KustoResponseDataSet | QueueSendMessageResponse> {
         const props = this._mergeProps(ingestionProperties);
         props.validate();
         const fileDescriptor = file instanceof FileDescriptor ? file : new FileDescriptor(file);

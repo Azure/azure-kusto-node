@@ -154,3 +154,5 @@ export class IngestionProperties extends IngestionPropertiesFields {
 }
 
 export default IngestionProperties;
+
+export const MappingRequiredFormats = Object.freeze([DataFormat.JSON, DataFormat.SINGLEJSON, DataFormat.AVRO, DataFormat.ORC])
