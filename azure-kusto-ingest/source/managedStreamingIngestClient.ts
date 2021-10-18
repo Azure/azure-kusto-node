@@ -41,8 +41,9 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
                 if (err['@permanent']) {
                     throw err;
                 }
-                buf = copyBuffer
             }
+            
+            buf = copyBuffer
         }
 
         return await this.queuedIngestClient.ingestFromStream({...descriptor, stream: buf}, ingestionProperties);
