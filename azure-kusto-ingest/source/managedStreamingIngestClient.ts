@@ -29,30 +29,20 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
         const props = this._mergeProps(ingestionProperties);
         props.validate();
         const descriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
-        const buf = (stream as StreamDescriptor)?.stream || stream;
+        let buf = (stream as StreamDescriptor)?.stream || stream;
 
         if (props.ingestionMappingReference == null && MappingRequiredFormats.includes(props.format as DataFormat)) {
             throw new Error(`Mapping reference required for format ${props.foramt}.`);
         }
 
-        let r1 = new PassThrough();
-        let r2: PassThrough
-        buf.pipe(r1)
-
         let i = 0;
         for (; i < maxRetries; i++) {
             try {
-                const currentIndex = i % 2 == 0
-                if (currentIndex) {
-                    r2 = new PassThrough()
-                } else {
-                    r1 = new PassThrough()
-                }
-
-                const cur = currentIndex ? r1 : r2!;
-                cur.pipe(currentIndex ? r2! : r1)
-                return await this.streamingIngestClient.ingestFromStream(
-                    {...descriptor, stream: cur}, ingestionProperties);
+                const copyBuffer = new PassThrough()
+                buf.pipe(copyBuffer)
+                await this.streamingIngestClient.ingestFromStream(
+                    {...descriptor, stream: buf}, ingestionProperties);
+                buf = copyBuffer
             } catch (err: any) {
                 if (err['@permanent']) {
                     throw err;
@@ -60,7 +50,7 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
             }
         }
 
-        return await this.queuedIngestClient.ingestFromStream({...descriptor, stream: i % 2 == 0 ? r1 : r2!}, ingestionProperties);
+        return await this.queuedIngestClient.ingestFromStream({...descriptor, stream: buf}, ingestionProperties);
     }
 
     async ingestFromFile(file: FileDescriptor | string, ingestionProperties: IngestionProperties): Promise<KustoResponseDataSet | QueueSendMessageResponse> {
