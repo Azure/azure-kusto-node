@@ -132,12 +132,11 @@ export class IngestionProperties extends IngestionPropertiesFields {
         if (!this.database) throw new Error("Must define a target database");
         if (!this.table) throw new Error("Must define a target table");
         if (!this.format) throw new Error("Must define a data format");
-        if (this.ingestionMapping && this.ingestionMappingReference)
+        if (this.ingestionMapping && this.ingestionMappingReference) {
             throw new Error("Both mapping and a mapping reference detected");
-        if (!this.ingestionMapping && !this.ingestionMappingReference && this.format === DataFormat.JSON)
-            throw new Error("Json must have a mapping defined");
-        if (this.ingestionMappingReference == null && MappingRequiredFormats.includes(this.format as DataFormat)) {
-            throw new Error(`Mapping reference required for format ${this.foramt}.`);
+        }
+        if (!this.ingestionMapping && !this.ingestionMappingReference && MappingRequiredFormats.includes(this.format as DataFormat)) {
+            throw new Error(`Mapping reference required for format ${this.format}.`);
         }
     }
 
