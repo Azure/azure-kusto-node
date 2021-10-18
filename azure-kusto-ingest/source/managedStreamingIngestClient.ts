@@ -37,16 +37,16 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
 
         let i = 0;
         for (; i < maxRetries; i++) {
+            const copyBuffer = new PassThrough()
             try {
-                const copyBuffer = new PassThrough()
                 buf.pipe(copyBuffer)
-                await this.streamingIngestClient.ingestFromStream(
+                return await this.streamingIngestClient.ingestFromStream(
                     {...descriptor, stream: buf}, ingestionProperties);
-                buf = copyBuffer
             } catch (err: any) {
                 if (err['@permanent']) {
                     throw err;
                 }
+                buf = copyBuffer
             }
         }
 
