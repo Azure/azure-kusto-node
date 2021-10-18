@@ -24,19 +24,19 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
         this.streamingIngestClient = new StreamingIngestClient(engineKcsb);
         this.queuedIngestClient = new IngestClient(dmKcsb);
     }
-    
+
     async ingestFromStream(stream: StreamDescriptor | fs.ReadStream, ingestionProperties: IngestionProperties): Promise<KustoResponseDataSet | QueueSendMessageResponse> {
         const props = this._mergeProps(ingestionProperties);
         props.validate();
-        var descriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
-        var buf = (stream as StreamDescriptor)?.stream || stream;
+        const descriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
+        const buf = (stream as StreamDescriptor)?.stream || stream;
 
         if (props.ingestionMappingReference == null && MappingRequiredFormats.includes(props.format as DataFormat)) {
             throw new Error(`Mapping reference required for format ${props.foramt}.`);
         }
 
-        var r1 = new PassThrough();
-        var r2: PassThrough
+        let r1 = new PassThrough();
+        let r2: PassThrough
         buf.pipe(r1)
 
         let i = 0;
@@ -44,9 +44,9 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
             try {
                 const currentIndex = i % 2 == 0
                 if (currentIndex) {
-                    r2 = new PassThrough() 
+                    r2 = new PassThrough()
                 } else {
-                    r1 = new PassThrough() 
+                    r1 = new PassThrough()
                 }
 
                 const cur = currentIndex ? r1 : r2!;
