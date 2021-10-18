@@ -45,7 +45,7 @@ export class KustoIngestClient extends AbstractKustoClient{
         const props = this._mergeProps(ingestionProperties);
         props.validate();
 
-        const descriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
+        const descriptor: StreamDescriptor = stream.hasOwnProperty('stream') ? stream as StreamDescriptor : new StreamDescriptor(stream as ReadStream);
 
         const blobName = `${props.database}__${props.table}__${descriptor.sourceId}` +
             `${this._getBlobNameSuffix(props.format ?? "", descriptor.compressionType)}`;

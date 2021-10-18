@@ -11,8 +11,7 @@ import {KustoResponseDataSet} from "azure-kusto-data/source/response";
 import StreamingIngestClient from "./streamingIngestClient";
 import IngestClient from "./ingestClient";
 import { QueueSendMessageResponse } from "@azure/storage-queue";
-const toArray = require('stream-to-array');
-const streamify = require('stream-array');
+import { PassThrough } from "stream";
 
 const maxRetries = 3
 class KustoManagedStreamingIngestClient extends AbstractKustoClient {
@@ -30,24 +29,38 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
         const props = this._mergeProps(ingestionProperties);
         props.validate();
         var descriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
-        const buf = (stream as StreamDescriptor)?.stream || stream;
+        var buf = (stream as StreamDescriptor)?.stream || stream;
 
         if (props.ingestionMappingReference == null && MappingRequiredFormats.includes(props.format as DataFormat)) {
             throw new Error(`Mapping reference required for format ${props.foramt}.`);
         }
 
-        const buffer = await toArray(buf);
+        var r1 = new PassThrough();
+        var r2: PassThrough
+        buf.pipe(r1)
 
-        for (let i = 0; i < maxRetries; i++) {
+        let i = 0;
+        for (; i < maxRetries; i++) {
             try {
-                 return await this.streamingIngestClient.ingestFromStream({...descriptor, stream: streamify(buffer)}, ingestionProperties);
+                const currentIndex = i % 2 == 0
+                if (currentIndex) {
+                    r2 = new PassThrough() 
+                } else {
+                    r1 = new PassThrough() 
+                }
+
+                const cur = currentIndex ? r1 : r2!;
+                cur.pipe(currentIndex ? r2! : r1)
+                return await this.streamingIngestClient.ingestFromStream(
+                    {...descriptor, stream: cur}, ingestionProperties);
             } catch (err: any) {
                 if (err['@permanent']) {
                     throw err;
                 }
             }
         }
-        return await this.queuedIngestClient.ingestFromStream({...descriptor, stream: streamify(buffer)}, ingestionProperties);
+
+        return await this.queuedIngestClient.ingestFromStream({...descriptor, stream: i % 2 == 0 ? r1 : r2!}, ingestionProperties);
     }
 
     async ingestFromFile(file: FileDescriptor | string, ingestionProperties: IngestionProperties): Promise<KustoResponseDataSet | QueueSendMessageResponse> {
