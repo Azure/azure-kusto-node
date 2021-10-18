@@ -136,6 +136,9 @@ export class IngestionProperties extends IngestionPropertiesFields {
             throw new Error("Both mapping and a mapping reference detected");
         if (!this.ingestionMapping && !this.ingestionMappingReference && this.format === DataFormat.JSON)
             throw new Error("Json must have a mapping defined");
+        if (this.ingestionMappingReference == null && MappingRequiredFormats.includes(this.format as DataFormat)) {
+            throw new Error(`Mapping reference required for format ${this.foramt}.`);
+        }
     }
 
     [extraProps: string] : any;

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import IngestionProperties, {DataFormat, MappingRequiredFormats} from "./ingestionProperties";
+import IngestionProperties from "./ingestionProperties";
 
 import {CompressionType, FileDescriptor, StreamDescriptor} from "./descriptors";
 import fs from "fs";
@@ -17,7 +17,6 @@ const maxRetries = 3
 class KustoManagedStreamingIngestClient extends AbstractKustoClient {
     private streamingIngestClient: StreamingIngestClient;
     private queuedIngestClient: IngestClient;
-    // tslint:disable-next-line:variable-name
 
     constructor(engineKcsb: string | KustoConnectionStringBuilder, dmKcsb: string | KustoConnectionStringBuilder, defaultProps: IngestionProperties | null = null) {
         super(defaultProps);
@@ -30,10 +29,6 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
         props.validate();
         const descriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
         let buf = (stream as StreamDescriptor)?.stream || stream;
-
-        if (props.ingestionMappingReference == null && MappingRequiredFormats.includes(props.format as DataFormat)) {
-            throw new Error(`Mapping reference required for format ${props.foramt}.`);
-        }
 
         let i = 0;
         for (; i < maxRetries; i++) {
