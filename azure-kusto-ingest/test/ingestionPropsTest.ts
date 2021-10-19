@@ -41,7 +41,7 @@ describe("IngestionProperties", function () {
 
             try {
                 props.validate();
-            } catch (ex) {
+            } catch (ex: any) {
                 assert.fail(ex);
             }
         });
@@ -51,7 +51,7 @@ describe("IngestionProperties", function () {
 
             try {
                 props.validate();
-            } catch (ex) {
+            } catch (ex: any) {
                 assert.strictEqual(ex.message, "Must define a target database");
             }
         });
@@ -61,8 +61,8 @@ describe("IngestionProperties", function () {
 
             try {
                 props.validate();
-            } catch (ex) {
-                assert.strictEqual(ex.message, "Json must have a mapping defined");
+            } catch (ex: any) {
+                assert.strictEqual(ex.message, "Mapping reference required for format json.");
             }
         });
 
