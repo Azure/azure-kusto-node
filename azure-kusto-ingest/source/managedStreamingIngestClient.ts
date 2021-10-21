@@ -7,13 +7,15 @@ import {CompressionType, FileDescriptor, StreamDescriptor} from "./descriptors";
 import fs from "fs";
 import {AbstractKustoClient} from "./abstractKustoClient";
 import {KustoConnectionStringBuilder} from "azure-kusto-data";
-import {KustoResponseDataSet} from "azure-kusto-data/source/response";
+import {KustoResponseDataSet, sleep} from "azure-kusto-data/source/response";
 import StreamingIngestClient from "./streamingIngestClient";
 import IngestClient from "./ingestClient";
 import { QueueSendMessageResponse } from "@azure/storage-queue";
-import { PassThrough } from "stream";
+const streamify = require('stream-array');
+const toArray = require('stream-to-array');
 
-// const maxRetries = 3
+const maxSteamSize = 1024 * 1024 * 4;
+const maxRetries = 3
 class KustoManagedStreamingIngestClient extends AbstractKustoClient {
     private streamingIngestClient: StreamingIngestClient;
     private queuedIngestClient: IngestClient;
@@ -28,54 +30,26 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
         const props = this._mergeProps(ingestionProperties);
         props.validate();
         const descriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
-        let buf = (stream as StreamDescriptor)?.stream || stream;
-        // let x = ""
-        const copyBuffer = new PassThrough()
-        // buf.pipe(copyBuffer)
-        // let copyBuffer2: PassThrough 
-        // let j = 0;
-        // try{
-        //     copyBuffer.pipe(copyBuffer2)
-        //     copyBuffer.on('data', function(chunk) {
-        //         x+=chunk
-        //         j++;
-        //         console.log("j: " + j)
-        //         if(j>=6){
-        //             try{
-        //             throw new Error()           
-        //         }catch(e){
-        // console.log(e)            
-        //         }}
-        //     });
-
-        // }catch(e){
-
-        // }
-        // let y = 0
-        // copyBuffer2.on('data', function(chunk) {
-        //     y++;
-        //     console.log("y: " + y)
-        //     x+=chunk
-        // });
         
-        // console.log(x)
-        let i = 0;
-        for (; i < 1; i++) {
-            // const copyBuffer = new PassThrough()
-            try {
-                buf.pipe(copyBuffer);
-                    await this.streamingIngestClient.ingestFromStream(new StreamDescriptor(buf).merge(descriptor), ingestionProperties);
-            } catch (err: any) {
-                if (err['@permanent']) {
-                    throw err;
+        const buffer = await toArray(descriptor.stream);
+        let sleepTime = 1000;
+        if (buffer.lenght <= maxSteamSize) {
+            let i = 0;
+            for (; i < maxRetries; i++) {
+                try {
+                        await this.streamingIngestClient.ingestFromStream(new StreamDescriptor(streamify(buffer)).merge(descriptor), ingestionProperties);
+                } catch (err: any) {
+                    if (err['@permanent']) {
+                        throw err;
+                    }
+                    await sleep(sleepTime);
+                    sleepTime *= 2;
                 }
             }
-
-            buf = copyBuffer
         }
 
         return await this.queuedIngestClient.ingestFromStream(
-            new StreamDescriptor(buf).merge(descriptor)
+            new StreamDescriptor(streamify(buffer)).merge(descriptor)
             , ingestionProperties);
     }
 

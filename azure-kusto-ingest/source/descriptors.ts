@@ -6,7 +6,7 @@ import uuidValidate from "uuid-validate";
 import zlib from "zlib";
 import pathlib from "path";
 import fs, {ReadStream} from "fs";
-import { Transform } from 'stream';
+import { Readable } from 'stream';
 
 export enum CompressionType {
     ZIP= ".zip",
@@ -79,11 +79,19 @@ export class StreamDescriptor {
     size: number | null;
     compressionType: CompressionType;
     sourceId: string;
-    constructor(readonly stream: ReadStream | Transform, sourceId: string | null = null, compressionType: CompressionType = CompressionType.None) {
+    constructor(readonly stream: ReadStream | Readable, sourceId: string | null = null, compressionType: CompressionType = CompressionType.None) {
         this.name = "stream";
         this.size = null;
         this.compressionType = compressionType;
         this.sourceId = getSourceId(sourceId);
+    }
+    
+    merge (other: StreamDescriptor){
+        this.name = other.name;
+        this.size = other.size;
+        this.compressionType = other.compressionType;
+        this.sourceId = other.sourceId;
+        return this;
     }
 }
 
