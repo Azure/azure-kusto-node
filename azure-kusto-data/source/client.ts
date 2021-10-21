@@ -92,7 +92,7 @@ export class KustoClient {
         executionType: ExecutionType,
         db: string,
         query: string | null,
-        stream: string | null,
+        stream: any,
         properties?: ClientRequestProperties | null): Promise<KustoResponseDataSet> {
         const headers: { [header: string]: string } = {};
 
@@ -101,7 +101,7 @@ export class KustoClient {
         let clientRequestId;
 
         const timeout = this._getClientTimeout(executionType, properties);
-        let payloadStr = "";
+        let payloadContent: any = "";
         if (query != null) {
             payload = {
                 "db": db,
@@ -121,12 +121,12 @@ export class KustoClient {
                 }
             }
 
-            payloadStr = JSON.stringify(payload);
+            payloadContent = JSON.stringify(payload);
 
             headers["Content-Type"] = "application/json; charset=utf-8";
             clientRequestPrefix = "KNC.execute;";
         } else if (stream != null) {
-            payloadStr = stream;
+            payloadContent = stream;
             clientRequestPrefix = "KNC.executeStreamingIngest;";
             headers["Content-Encoding"] = "gzip";
             headers["Content-Type"] = "multipart/form-data";
@@ -136,13 +136,13 @@ export class KustoClient {
 
         headers.Authorization = await this.aadHelper._getAuthHeader();
 
-        return this._doRequest(endpoint, executionType, headers, payloadStr, timeout, properties);
+        return this._doRequest(endpoint, executionType, headers, payloadContent, timeout, properties);
     }
 
     async _doRequest(endpoint: string,
                      executionType: ExecutionType,
                      headers: { [header: string]: string; },
-                     payload: string,
+                     payload: any,
                      timeout: number,
                      properties?: ClientRequestProperties | null): Promise<KustoResponseDataSet> {
         const axiosConfig = {
@@ -153,7 +153,7 @@ export class KustoClient {
         let axiosResponse;
         try {
             axiosResponse = await this.axiosInstance.post(endpoint, payload, axiosConfig);
-        } catch (error) {
+        } catch (error: any) {
             if (error.response) {
                 throw error.response.data.error;
             }

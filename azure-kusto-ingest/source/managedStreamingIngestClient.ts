@@ -13,7 +13,7 @@ import IngestClient from "./ingestClient";
 import { QueueSendMessageResponse } from "@azure/storage-queue";
 import { PassThrough } from "stream";
 
-const maxRetries = 3
+// const maxRetries = 3
 class KustoManagedStreamingIngestClient extends AbstractKustoClient {
     private streamingIngestClient: StreamingIngestClient;
     private queuedIngestClient: IngestClient;
@@ -29,14 +29,42 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
         props.validate();
         const descriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
         let buf = (stream as StreamDescriptor)?.stream || stream;
+        // let x = ""
+        const copyBuffer = new PassThrough()
+        // buf.pipe(copyBuffer)
+        // let copyBuffer2: PassThrough 
+        // let j = 0;
+        // try{
+        //     copyBuffer.pipe(copyBuffer2)
+        //     copyBuffer.on('data', function(chunk) {
+        //         x+=chunk
+        //         j++;
+        //         console.log("j: " + j)
+        //         if(j>=6){
+        //             try{
+        //             throw new Error()           
+        //         }catch(e){
+        // console.log(e)            
+        //         }}
+        //     });
 
+        // }catch(e){
+
+        // }
+        // let y = 0
+        // copyBuffer2.on('data', function(chunk) {
+        //     y++;
+        //     console.log("y: " + y)
+        //     x+=chunk
+        // });
+        
+        // console.log(x)
         let i = 0;
-        for (; i < maxRetries; i++) {
-            const copyBuffer = new PassThrough()
+        for (; i < 1; i++) {
+            // const copyBuffer = new PassThrough()
             try {
-                buf.pipe(copyBuffer)
-                return await this.streamingIngestClient.ingestFromStream(
-                    {...descriptor, stream: buf}, ingestionProperties);
+                buf.pipe(copyBuffer);
+                    await this.streamingIngestClient.ingestFromStream(new StreamDescriptor(buf).merge(descriptor), ingestionProperties);
             } catch (err: any) {
                 if (err['@permanent']) {
                     throw err;
@@ -46,7 +74,9 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
             buf = copyBuffer
         }
 
-        return await this.queuedIngestClient.ingestFromStream({...descriptor, stream: buf}, ingestionProperties);
+        return await this.queuedIngestClient.ingestFromStream(
+            new StreamDescriptor(buf).merge(descriptor)
+            , ingestionProperties);
     }
 
     async ingestFromFile(file: FileDescriptor | string, ingestionProperties: IngestionProperties): Promise<KustoResponseDataSet | QueueSendMessageResponse> {
