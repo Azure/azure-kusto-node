@@ -31,13 +31,14 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
         props.validate();
         const descriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
         
-        const buffer = await toArray(descriptor.stream);
+        const buffer: Array<Buffer> = await toArray(descriptor.stream);
         let sleepTime = 1000;
-        if (buffer.lenght <= maxSteamSize) {
+        const bufferSize = buffer.reduce((sum, b) => sum += b.length, 0);
+        if (bufferSize <= maxSteamSize) {
             let i = 0;
             for (; i < maxRetries; i++) {
                 try {
-                        await this.streamingIngestClient.ingestFromStream(new StreamDescriptor(streamify(buffer)).merge(descriptor), ingestionProperties);
+                    return await this.streamingIngestClient.ingestFromStream(new StreamDescriptor(streamify(buffer)).merge(descriptor), ingestionProperties);
                 } catch (err: any) {
                     if (err['@permanent']) {
                         throw err;
