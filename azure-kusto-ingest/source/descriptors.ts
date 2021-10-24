@@ -85,7 +85,7 @@ export class StreamDescriptor {
         this.compressionType = compressionType;
         this.sourceId = getSourceId(sourceId);
     }
-    
+
     merge (other: StreamDescriptor){
         this.name = other.name;
         this.size = other.size;

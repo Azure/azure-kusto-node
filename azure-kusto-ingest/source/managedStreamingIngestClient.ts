@@ -11,8 +11,8 @@ import {KustoResponseDataSet, sleep} from "azure-kusto-data/source/response";
 import StreamingIngestClient from "./streamingIngestClient";
 import IngestClient from "./ingestClient";
 import { QueueSendMessageResponse } from "@azure/storage-queue";
-const streamify = require('stream-array');
-const toArray = require('stream-to-array');
+import streamify from 'stream-array';
+import toArray from 'stream-to-array';
 
 const maxSteamSize = 1024 * 1024 * 4;
 const maxRetries = 3
@@ -30,8 +30,8 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
         const props = this._mergeProps(ingestionProperties);
         props.validate();
         const descriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
-        
-        const buffer: Array<Buffer> = await toArray(descriptor.stream);
+
+        const buffer: Buffer[] = await toArray(descriptor.stream);
         let sleepTime = 1000;
         const bufferSize = buffer.reduce((sum, b) => sum += b.length, 0);
         if (bufferSize <= maxSteamSize) {
