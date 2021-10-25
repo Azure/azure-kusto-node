@@ -11,8 +11,8 @@ import {KustoResponseDataSet, sleep} from "azure-kusto-data/source/response";
 import StreamingIngestClient from "./streamingIngestClient";
 import IngestClient from "./ingestClient";
 import { QueueSendMessageResponse } from "@azure/storage-queue";
-import streamify = require("stream-array");
-import toArray = require("stream-to-array");
+import streamify from "stream-array";
+import toArray from "stream-to-array";
 
 const maxSteamSize = 1024 * 1024 * 4;
 const maxRetries = 3
