@@ -9,6 +9,7 @@ import fs from "fs";
 import {AbstractKustoClient} from "./abstractKustoClient";
 import {Client as KustoClient, KustoConnectionStringBuilder} from "azure-kusto-data";
 import {KustoResponseDataSet} from "azure-kusto-data/source/response";
+import { fileToStream } from "./utils";
 
 class KustoStreamingIngestClient extends AbstractKustoClient {
     private kustoClient: KustoClient;
@@ -37,11 +38,7 @@ class KustoStreamingIngestClient extends AbstractKustoClient {
     async ingestFromFile(file: FileDescriptor | string, ingestionProperties: IngestionProperties): Promise<KustoResponseDataSet> {
         const props = this._mergeProps(ingestionProperties);
         props.validate();
-        const fileDescriptor = file instanceof FileDescriptor ? file : new FileDescriptor(file);
-        const stream = fs.createReadStream(fileDescriptor.filePath);
-        const compressionType = fileDescriptor.zipped ? CompressionType.GZIP : CompressionType.None;
-        const streamDescriptor = new StreamDescriptor(stream, fileDescriptor.sourceId, compressionType);
-        return this.ingestFromStream(streamDescriptor, ingestionProperties);
+        return this.ingestFromStream(fileToStream(file), ingestionProperties);
     }
 }
 

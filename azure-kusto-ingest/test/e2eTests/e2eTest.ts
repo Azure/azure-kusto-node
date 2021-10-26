@@ -16,7 +16,7 @@ import ManagedStreamingIngestClient from "../../source/managedStreamingIngestCli
 import {CompressionType, StreamDescriptor} from "../../source/descriptors";
 import {DataFormat, IngestionProperties, ReportLevel} from "../../source/ingestionProperties";
 import { CloudSettings } from "../.././node_modules/azure-kusto-data/source/cloudSettings";
-import { sleep } from "azure-kusto-data/source/response";
+import { sleep } from "../../source/utils";
 import sinon from "sinon";
 
 const databaseName = process.env.TEST_DATABASE;
@@ -29,22 +29,22 @@ function main(): void {
         return;
     }
 
-    const engineKcsb = ConnectionStringBuilder.withAadApplicationKeyAuthentication(process.env.ENGINE_CONNECTION_STRING  ?? "", appId, appKey, tenantId);
+    const engineKcsb = ConnectionStringBuilder.withAadApplicationKeyAuthentication(process.env.ENGINE_CONNECTION_STRING ?? "", appId, appKey, tenantId);
     const queryClient = new Client(engineKcsb);
     const streamingIngestClient = new StreamingIngestClient(engineKcsb);
-    const dmKcsb = ConnectionStringBuilder.withAadApplicationKeyAuthentication(process.env.DM_CONNECTION_STRING  ?? "", appId, appKey, tenantId);
+    const dmKcsb = ConnectionStringBuilder.withAadApplicationKeyAuthentication(process.env.DM_CONNECTION_STRING ?? "", appId, appKey, tenantId);
     const ingestClient = new IngestClient(dmKcsb);
     const statusQueues = new KustoIngestStatusQueues(ingestClient);
     const managedStreamingIngestClient = new ManagedStreamingIngestClient(engineKcsb, dmKcsb);
    
     // Mock ManagedStreamingIngestClient with mocked streamingIngestClient
     const mockedStreamingIngestClient = new StreamingIngestClient(engineKcsb);
-    const transientError: any = {}
-    transientError["@permanent"] = false
+    const transientError: any = {};
+    transientError["@permanent"] = false;
     sinon.stub(mockedStreamingIngestClient, "ingestFromStream").throws(new Error(transientError));
-    const mockedManagedStreamingIngestClient: ManagedStreamingIngestClient = Object.setPrototypeOf({ streamingIngestClient: mockedStreamingIngestClient, queuedIngestClient: new IngestClient(dmKcsb) }, ManagedStreamingIngestClient.prototype);
+    const mockedManagedStreamingIngestClient: ManagedStreamingIngestClient = 
+        Object.setPrototypeOf({ streamingIngestClient: mockedStreamingIngestClient, queuedIngestClient: new IngestClient(dmKcsb) }, ManagedStreamingIngestClient.prototype);
    
-    
     class testDataItem {
         constructor(public description: string, public path: string, public rows: number, public ingestionProperties: IngestionProperties, public testOnstreamingIngestion = true) {
         }

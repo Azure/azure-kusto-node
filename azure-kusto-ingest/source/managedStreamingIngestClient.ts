@@ -3,11 +3,12 @@
 
 import IngestionProperties from "./ingestionProperties";
 
-import {CompressionType, FileDescriptor, StreamDescriptor} from "./descriptors";
+import {FileDescriptor, StreamDescriptor} from "./descriptors";
 import fs from "fs";
 import {AbstractKustoClient} from "./abstractKustoClient";
 import {KustoConnectionStringBuilder} from "azure-kusto-data";
-import {KustoResponseDataSet, sleep} from "azure-kusto-data/source/response";
+import {KustoResponseDataSet} from "azure-kusto-data/source/response";
+import {fileToStream, getRandomSleep, sleep} from "./utils";
 import StreamingIngestClient from "./streamingIngestClient";
 import IngestClient from "./ingestClient";
 import { QueueSendMessageResponse } from "@azure/storage-queue";
@@ -43,7 +44,7 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
                     if (err['@permanent']) {
                         throw err;
                     }
-                    await sleep(sleepTime);
+                    await sleep(getRandomSleep(sleepTime));
                     sleepTime *= 2;
                 }
             }
@@ -57,11 +58,7 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
     async ingestFromFile(file: FileDescriptor | string, ingestionProperties: IngestionProperties): Promise<KustoResponseDataSet | QueueSendMessageResponse> {
         const props = this._mergeProps(ingestionProperties);
         props.validate();
-        const fileDescriptor = file instanceof FileDescriptor ? file : new FileDescriptor(file);
-        const streamFs = fs.createReadStream(fileDescriptor.filePath);
-        const compressionType = fileDescriptor.zipped ? CompressionType.GZIP : CompressionType.None;
-        const streamDescriptor = new StreamDescriptor(streamFs, fileDescriptor.sourceId, compressionType);
-        return await this.ingestFromStream(streamDescriptor, ingestionProperties);
+        return await this.ingestFromStream(fileToStream(file), ingestionProperties);
     }
 }
 
