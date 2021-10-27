@@ -36,15 +36,7 @@ function main(): void {
     const ingestClient = new IngestClient(dmKcsb);
     const statusQueues = new KustoIngestStatusQueues(ingestClient);
     const managedStreamingIngestClient = new ManagedStreamingIngestClient(engineKcsb, dmKcsb);
-   
-    // Mock ManagedStreamingIngestClient with mocked streamingIngestClient
-    const mockedStreamingIngestClient = new StreamingIngestClient(engineKcsb);
-    const transientError: any = {};
-    transientError["@permanent"] = false;
-    sinon.stub(mockedStreamingIngestClient, "ingestFromStream").throws(new Error(transientError));
-    const mockedManagedStreamingIngestClient: ManagedStreamingIngestClient = 
-        Object.setPrototypeOf({ streamingIngestClient: mockedStreamingIngestClient, queuedIngestClient: new IngestClient(dmKcsb) }, ManagedStreamingIngestClient.prototype);
-   
+  
     class testDataItem {
         constructor(public description: string, public path: string, public rows: number, public ingestionProperties: IngestionProperties, public testOnstreamingIngestion = true) {
         }
@@ -191,17 +183,6 @@ function main(): void {
                 for (const item of testItems.filter(item => item.testOnstreamingIngestion)) {
                     try {
                         await managedStreamingIngestClient.ingestFromFile(item.path, item.ingestionProperties);
-                    } catch (err) {
-                        console.error(err);
-                        assert.fail(`Failed to ingest ${item.description}`);
-                    }
-                    await assertRowsCount(item);
-                }
-            }).timeout(240000);
-            it('ingestQueuedIfTransient', async function () {
-                for (const item of testItems.filter(item => item.testOnstreamingIngestion)) {
-                    try {
-                        await mockedManagedStreamingIngestClient.ingestFromFile(item.path, item.ingestionProperties);
                     } catch (err) {
                         console.error(err);
                         assert.fail(`Failed to ingest ${item.description}`);
