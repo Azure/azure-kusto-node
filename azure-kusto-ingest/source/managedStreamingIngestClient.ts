@@ -20,11 +20,13 @@ const maxRetries = 3
 class KustoManagedStreamingIngestClient extends AbstractKustoClient {
     private streamingIngestClient: StreamingIngestClient;
     private queuedIngestClient: IngestClient;
+    private maxRetries: number;
 
     constructor(engineKcsb: string | KustoConnectionStringBuilder, dmKcsb: string | KustoConnectionStringBuilder, defaultProps: IngestionProperties | null = null) {
         super(defaultProps);
         this.streamingIngestClient = new StreamingIngestClient(engineKcsb);
         this.queuedIngestClient = new IngestClient(dmKcsb);
+        this.maxRetries = maxRetries;
     }
 
     async ingestFromStream(stream: StreamDescriptor | fs.ReadStream, ingestionProperties: IngestionProperties): Promise<KustoResponseDataSet | QueueSendMessageResponse> {
@@ -37,7 +39,7 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
         const bufferSize = buffer.reduce((sum, b) => sum += b.length, 0);
         if (bufferSize <= maxSteamSize) {
             let i = 0;
-            for (; i < maxRetries; i++) {
+            for (; i < this.maxRetries; i++) {
                 try {
                     return await this.streamingIngestClient.ingestFromStream(new StreamDescriptor(streamify(buffer)).merge(descriptor), ingestionProperties);
                 } catch (err: any) {
