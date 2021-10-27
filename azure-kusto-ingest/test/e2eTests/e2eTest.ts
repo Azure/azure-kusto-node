@@ -17,7 +17,6 @@ import {CompressionType, StreamDescriptor} from "../../source/descriptors";
 import {DataFormat, IngestionProperties, ReportLevel} from "../../source/ingestionProperties";
 import { CloudSettings } from "../.././node_modules/azure-kusto-data/source/cloudSettings";
 import { sleep } from "../../source/utils";
-import sinon from "sinon";
 
 const databaseName = process.env.TEST_DATABASE;
 const appId = process.env.APP_ID;
