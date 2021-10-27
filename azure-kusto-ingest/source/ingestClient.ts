@@ -44,8 +44,7 @@ export class KustoIngestClient extends AbstractKustoClient{
     async ingestFromStream(stream: ReadStream | StreamDescriptor, ingestionProperties: IngestionProperties): Promise<QueueSendMessageResponse> {
         const props = this._mergeProps(ingestionProperties);
         props.validate();
-
-        const descriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
+        const descriptor: StreamDescriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
 
         const blobName = `${props.database}__${props.table}__${descriptor.sourceId}` +
             `${this._getBlobNameSuffix(props.format ?? "", descriptor.compressionType)}`;

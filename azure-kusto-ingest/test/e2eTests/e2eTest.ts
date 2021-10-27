@@ -12,15 +12,16 @@ import {
     // @ts-ignore
 } from "../.././node_modules/azure-kusto-data";
 import StreamingIngestClient from "../../source/streamingIngestClient";
+import ManagedStreamingIngestClient from "../../source/managedStreamingIngestClient";
 import {CompressionType, StreamDescriptor} from "../../source/descriptors";
 import {DataFormat, IngestionProperties, ReportLevel} from "../../source/ingestionProperties";
 import { CloudSettings } from "../.././node_modules/azure-kusto-data/source/cloudSettings";
+import { sleep } from "../../source/utils";
 
 const databaseName = process.env.TEST_DATABASE;
 const appId = process.env.APP_ID;
 const appKey = process.env.APP_KEY;
 const tenantId = process.env.TENANT_ID;
-
 function main(): void {
     if (!databaseName || !appId || !appKey || !tenantId) {
         process.stdout.write("Skip E2E test - Missing env variables");
@@ -33,7 +34,8 @@ function main(): void {
     const dmKcsb = ConnectionStringBuilder.withAadApplicationKeyAuthentication(process.env.DM_CONNECTION_STRING ?? "", appId, appKey, tenantId);
     const ingestClient = new IngestClient(dmKcsb);
     const statusQueues = new KustoIngestStatusQueues(ingestClient);
-
+    const managedStreamingIngestClient = new ManagedStreamingIngestClient(engineKcsb, dmKcsb);
+  
     class testDataItem {
         constructor(public description: string, public path: string, public rows: number, public ingestionProperties: IngestionProperties, public testOnstreamingIngestion = true) {
         }
@@ -91,6 +93,7 @@ function main(): void {
             it('Create table', async function () {
                 try {
                     await queryClient.execute(databaseName, `.create table ${tableName} ${tableColumns}`);
+                    await queryClient.execute(databaseName, ".clear database cache streamingingestion schema");
                 } catch (err) {
                     assert.fail("Failed to create table");
                 }
@@ -152,7 +155,6 @@ function main(): void {
                     try {
                         await streamingIngestClient.ingestFromFile(item.path, item.ingestionProperties);
                     } catch (err) {
-                        console.error(err);
                         assert.fail(`Failed to ingest ${item.description}`);
                     }
                     await assertRowsCount(item);
@@ -167,6 +169,34 @@ function main(): void {
                     }
                     try {
                         await streamingIngestClient.ingestFromStream(stream, item.ingestionProperties);
+                    } catch (err) {
+                        assert.fail(`Failed to ingest ${item.description}`);
+                    }
+                    await assertRowsCount(item);
+                }
+            }).timeout(240000);
+        });
+
+        describe('ManagedStreamingIngestClient', function () {
+            it('ingestFromFile', async function () {
+                for (const item of testItems.filter(item => item.testOnstreamingIngestion)) {
+                    try {
+                        await managedStreamingIngestClient.ingestFromFile(item.path, item.ingestionProperties);
+                    } catch (err) {
+                        console.error(err);
+                        assert.fail(`Failed to ingest ${item.description}`);
+                    }
+                    await assertRowsCount(item);
+                }
+            }).timeout(240000);
+            it('ingestFromStream', async function () {
+                for (const item of testItems.filter(item => item.testOnstreamingIngestion)) {
+                    let stream: ReadStream | StreamDescriptor = fs.createReadStream(item.path);
+                    if (item.path.endsWith('gz')) {
+                        stream = new StreamDescriptor(stream, null, CompressionType.GZIP);
+                    }
+                    try {
+                        await managedStreamingIngestClient.ingestFromStream(stream, item.ingestionProperties);
                     } catch (err) {
                         assert.fail(`Failed to ingest ${item.description}`);
                     }
@@ -241,7 +271,7 @@ function main(): void {
                     properties.setTimeout(10);
                     await queryClient.executeQuery(databaseName, `${tableName}`, properties);
 
-                } catch (ex) {
+                } catch (ex: any) {
                     assert.equal(ex.code, 'Request execution timeout');
                     return;
                 }
@@ -269,12 +299,6 @@ function main(): void {
         const successes = await statusQueues.success.pop();
 
         return {"SuccessCount": successes.length, "FailureCount": failures.length}
-    }
-
-    function sleep(ms: number) {
-        return new Promise((resolve) => {
-            setTimeout(resolve, ms);
-        });
     }
 
     function getTestResourcePath(name: string) {

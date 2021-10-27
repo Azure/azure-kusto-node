@@ -5,6 +5,8 @@ import client from "./source/ingestClient";
 
 import streamingIngestClient from "./source/streamingIngestClient";
 
+import managedStreamingIngestClient from "./source/managedStreamingIngestClient";
+
 import KustoIngestStatusQueues from "./source/status";
 
 import {
@@ -27,6 +29,7 @@ import {
 
 export const IngestClient = client;
 export const StreamingIngestClient = streamingIngestClient;
+export const ManagedStreamingIngestClient = managedStreamingIngestClient;
 export const IngestStatusQueues = KustoIngestStatusQueues;
 export {IngestionProperties} from "./source/ingestionProperties"
 export const IngestionDescriptors = {

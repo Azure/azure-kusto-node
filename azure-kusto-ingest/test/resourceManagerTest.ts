@@ -98,7 +98,7 @@ describe("ResourceManager", function () {
             try{
                 await resourceManager.getIngestClientResourcesFromService();
             }
-            catch(ex){
+            catch(ex: any){
                 assert(ex.message.startsWith( "Kusto request erred (403)"));
                 return;
             }
