@@ -27,6 +27,9 @@ In the repository, you will find a set of simple samples that will help you get 
 - [Data SDK samples](./azure-kusto-data/example.js)
 - [Ingestion SDK samples](./azure-kusto-ingest/example.js)
 
+## Best Practices
+See the SDK [best practices guide](https://docs.microsoft.com/azure/data-explorer/kusto/api/netfx/kusto-ingest-best-practices), which though written for the .NET SDK, applies similarly here.
+
 ## Platforms compatibility
 
 The Azure Kusto SDK for Node.js was build for Node.js **v6.14.x and** above.
