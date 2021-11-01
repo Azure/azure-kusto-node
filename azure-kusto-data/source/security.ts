@@ -5,7 +5,7 @@ import "./tokenProvider";
 import * as TokenProvider from "./tokenProvider";
 
 export class AadHelper {
-    tokeProvider: TokenProvider.TokenProviderBase;
+    tokenProvider: TokenProvider.TokenProviderBase;
 
     constructor(kcsb: KustoConnectionStringBuilder) {
         if (!kcsb.dataSource) {
@@ -13,32 +13,32 @@ export class AadHelper {
         }
 
         if (!!kcsb.aadUserId && !!kcsb.password) {
-            this.tokeProvider = new TokenProvider.UserPassTokenProvider(kcsb.dataSource, kcsb.aadUserId, kcsb.password, kcsb.authorityId);
+            this.tokenProvider = new TokenProvider.UserPassTokenProvider(kcsb.dataSource, kcsb.aadUserId, kcsb.password, kcsb.authorityId);
         } else if (!!kcsb.applicationClientId && !!kcsb.applicationKey) {
-            this.tokeProvider = new TokenProvider.ApplicationKeyTokenProvider(kcsb.dataSource, kcsb.applicationClientId, kcsb.applicationKey, kcsb.authorityId);
+            this.tokenProvider = new TokenProvider.ApplicationKeyTokenProvider(kcsb.dataSource, kcsb.applicationClientId, kcsb.applicationKey, kcsb.authorityId);
         } else if (!!kcsb.applicationClientId &&
             !!kcsb.applicationCertificateThumbprint && !!kcsb.applicationCertificatePrivateKey) {
-            this.tokeProvider = new TokenProvider.ApplicationCertificateTokenProvider(kcsb.dataSource, kcsb.applicationClientId, kcsb.applicationCertificateThumbprint, kcsb.applicationCertificatePrivateKey, kcsb.applicationCertificateX5c as string | undefined, kcsb.authorityId);
+            this.tokenProvider = new TokenProvider.ApplicationCertificateTokenProvider(kcsb.dataSource, kcsb.applicationClientId, kcsb.applicationCertificateThumbprint, kcsb.applicationCertificatePrivateKey, kcsb.applicationCertificateX5c as string | undefined, kcsb.authorityId);
         } else if (kcsb.managedIdentity) {
-            this.tokeProvider = new TokenProvider.MsiTokenProvider(kcsb.dataSource, kcsb.msiClientId as string | undefined);
+            this.tokenProvider = new TokenProvider.MsiTokenProvider(kcsb.dataSource, kcsb.msiClientId as string | undefined);
         } else if (kcsb.azLoginIdentity) {
-            this.tokeProvider = new TokenProvider.AzCliTokenProvider(kcsb.dataSource);
+            this.tokenProvider = new TokenProvider.AzCliTokenProvider(kcsb.dataSource);
         } else if (kcsb.accessToken) {
-            this.tokeProvider = new TokenProvider.BasicTokenProvider(kcsb.dataSource, kcsb.accessToken as string);
+            this.tokenProvider = new TokenProvider.BasicTokenProvider(kcsb.dataSource, kcsb.accessToken as string);
         } else {
             let callback = kcsb.deviceCodeCallback;
             if (!callback) {
                 // tslint:disable-next-line:no-console
                 callback = (response) => console.log(response.message);
             }
-            this.tokeProvider = new TokenProvider.DeviceLoginTokenProvider(kcsb.dataSource, callback);
+            this.tokenProvider = new TokenProvider.DeviceLoginTokenProvider(kcsb.dataSource, callback);
         }
     }
 
     async _getAuthHeader(): Promise<string> {
-        const token = await this.tokeProvider.acquireToken();
+        const token = await this.tokenProvider.acquireToken();
         return `${token.tokenType} ${token.accessToken}`;
     }
-};
+}
 
 export default AadHelper;
