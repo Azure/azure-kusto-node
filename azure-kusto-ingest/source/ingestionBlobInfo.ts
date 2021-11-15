@@ -3,8 +3,8 @@
 
 import { v4 as uuidv4 } from 'uuid';
 import moment from "moment";
-import {BlobDescriptor} from "./descriptors";
-import IngestionProperties, {ReportLevel, ReportMethod} from "./ingestionProperties";
+import { BlobDescriptor } from "./descriptors";
+import IngestionProperties, { ReportLevel, ReportMethod } from "./ingestionProperties";
 
 export class IngestionBlobInfo {
     BlobPath: string;
@@ -62,6 +62,10 @@ export class IngestionBlobInfo {
 
         if (ingestionProperties.ingestionMappingReference) {
             additionalProperties.ingestionMappingReference = ingestionProperties.ingestionMappingReference;
+        }
+
+        if (ingestionProperties.ingestionMappingType) {
+            additionalProperties.ingestionMappingType = ingestionProperties.ingestionMappingType;
         }
 
         if (ingestionProperties.validationPolicy) {
