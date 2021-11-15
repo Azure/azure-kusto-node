@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import sinon from "sinon";
-import { StreamingIngestClient } from "..";
+import { StreamingIngestClient } from "../index";
 import { StreamDescriptor } from "../source/descriptors";
 import {KustoIngestClient} from "../source/ingestClient";
 import {DataFormat, IngestionProperties} from "../source/ingestionProperties";

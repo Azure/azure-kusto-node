@@ -1,4 +1,5 @@
 test/*
 # for https://github.com/Azure/azure-kusto-node/issues/115, https://github.com/Microsoft/TypeScript/issues/4667
+index.ts
 source/**/*.ts
 !source/**/*.d.ts
