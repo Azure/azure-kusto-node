@@ -94,7 +94,7 @@ export class CsvColumnMapping extends ColumnMapping {
     /**
      * @deprecated Use the factory methods instead.
      */
-    constructor(readonly columnName: string, readonly cslDataType?: string, readonly ordinal?: string, constantValue?: string) {
+    protected constructor(readonly columnName: string, readonly cslDataType?: string, readonly ordinal?: string, constantValue?: string) {
         super(columnName, cslDataType, { Ordinal: ordinal, ConstantValue: constantValue });
     }
 
