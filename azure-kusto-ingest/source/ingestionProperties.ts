@@ -8,20 +8,29 @@ export enum DataFormat {
     SOHSV = "sohsv",
     PSV = "psv",
     TXT = "txt",
+    RAW = "raw",
+    TSVE = "tsve",
     JSON = "json",
     SINGLEJSON = "singlejson",
+    MULTIJSON = "multijson",
     AVRO = "avro",
     PARQUET = "parquet",
-    TSVE = "tsve",
-    ORC = "orc"
+    SSTREAM = "sstream",
+    ORC = "orc",
+    APACHEAVRO = "apacheavro",
+    W3CLogFile = "w3clogfile",
 }
 
 export enum IngestionMappingType {
+    Unknown = "Unknown",
     CSV = "Csv",
-    PARQUET = "Parquet",
-    AVRO = "Avro",
     JSON = "Json",
-    ORC = "orc"
+    AVRO = "Avro",
+    PARQUET = "Parquet",
+    SSTREAM = "SStream",
+    ORC = "orc",
+    APACHEAVRO = "ApacheAvro",
+    W3CLOGFILE = "W3CLogFile",
 }
 
 export enum ValidationOptions {
@@ -52,20 +61,169 @@ export enum ReportMethod {
     Queue = 0
 }
 
-class ColumnMapping {
+interface MappingProperties {
+    Field?: string;
+    Path?: string;
+    Ordinal?: string;
+    ConstantValue?: string;
+    Transform?: string;
+}
+
+interface ApiColumnMapping {
+    Column: string,
+    DataType?: string,
+    Properties?: MappingProperties
+}
+
+abstract class ColumnMapping {
+    constructor(readonly columnName: string, readonly cslDataType?: string, readonly Properties?: MappingProperties) {
+    }
+
+    public abstract mappingType(): IngestionMappingType;
+
+    public toApiMapping(): ApiColumnMapping {
+        return {
+            Column: this.columnName,
+            DataType: this.cslDataType,
+            Properties: this.Properties
+        };
+    }
 }
 
 export class CsvColumnMapping extends ColumnMapping {
-    constructor(readonly columnName: string, readonly cslDataType: string, readonly ordinal: string) {
-        super();
+    /**
+     * @deprecated Use the factory methods instead.
+     */
+    constructor(readonly columnName: string, readonly cslDataType?: string, readonly ordinal?: string, constantValue?: string) {
+        super(columnName, cslDataType, { Ordinal: ordinal, ConstantValue: constantValue });
     }
+
+    public static withOrdinal(columnName: string, ordinal: number, cslDataType?: string): CsvColumnMapping {
+        return new CsvColumnMapping(columnName, cslDataType, ordinal.toString());
+    }
+
+    public static withConstantValue(columnName: string, constantValue: string, cslDataType?: string): CsvColumnMapping {
+        return new CsvColumnMapping(columnName, cslDataType, undefined, constantValue);
+    }
+
+    mappingType = (): IngestionMappingType => IngestionMappingType.CSV;
 }
 
 export class JsonColumnMapping extends ColumnMapping {
-    constructor(readonly columnName: string, readonly jsonPath: string, readonly cslDataType: string | null = null) {
-        super();
+    /**
+     * @deprecated Use the factory methods instead.
+     */
+    constructor(readonly columnName: string, readonly jsonPath?: string, cslDataType: string | null = null, constantValue?: string, transform?: string) {
+        super(columnName, cslDataType ?? undefined, { Path: jsonPath, ConstantValue: constantValue, Transform: transform });
     }
+
+    public static withPath(columnName: string, path: string, cslDataType?: string, transform?: string): JsonColumnMapping {
+        return new JsonColumnMapping(columnName, path, cslDataType, transform);
+    }
+
+    public static withConstantValue(columnName: string, constantValue: string, cslDataType?: string): JsonColumnMapping {
+        return new JsonColumnMapping(columnName, undefined, cslDataType, constantValue);
+    }
+
+    public static withTransform(columnName: string, transform: string, cslDataType?: string): JsonColumnMapping {
+        return new JsonColumnMapping(columnName, undefined, cslDataType, undefined, transform);
+    }
+
+    mappingType = (): IngestionMappingType => IngestionMappingType.JSON;
 }
+
+export class AvroColumnMapping extends ColumnMapping {
+    private constructor(readonly columnName: string, cslDataType?: string, path?: string, field?: string, constantValue?: string, transform?: string) {
+        super(columnName, cslDataType ?? undefined, { Path: path, Field: field, ConstantValue: constantValue, Transform: transform });
+    }
+
+    public static withPath(columnName: string, path: string, cslDataType?: string, transform?: string): AvroColumnMapping {
+        return new AvroColumnMapping(columnName, cslDataType, path, undefined, transform);
+    }
+
+    public static withField(columnName: string, field: string, cslDataType?: string, transform?: string): AvroColumnMapping {
+        return new AvroColumnMapping(columnName, cslDataType, undefined, field, transform);
+    }
+
+    public static withConstantValue(columnName: string, constantValue: string, cslDataType?: string): AvroColumnMapping {
+        return new AvroColumnMapping(columnName, cslDataType, undefined, undefined, constantValue);
+    }
+
+    public static withTransform(columnName: string, transform: string, cslDataType?: string): AvroColumnMapping {
+        return new AvroColumnMapping(columnName, cslDataType, undefined, undefined, undefined, transform);
+    }
+
+    mappingType = (): IngestionMappingType => IngestionMappingType.AVRO;
+}
+
+export class ParquetColumnMapping extends ColumnMapping {
+    private constructor(readonly columnName: string, cslDataType?: string, path?: string, field?: string, constantValue?: string, transform?: string) {
+        super(columnName, cslDataType ?? undefined, { Path: path, Field: field, ConstantValue: constantValue, Transform: transform });
+    }
+
+    public static withPath(columnName: string, path: string, cslDataType?: string, transform?: string): ParquetColumnMapping {
+        return new ParquetColumnMapping(columnName, cslDataType, path, undefined, transform);
+    }
+
+    public static withField(columnName: string, field: string, cslDataType?: string, transform?: string): ParquetColumnMapping {
+        return new ParquetColumnMapping(columnName, cslDataType, undefined, field, transform);
+    }
+
+    public static withConstantValue(columnName: string, constantValue: string, cslDataType?: string): ParquetColumnMapping {
+        return new ParquetColumnMapping(columnName, cslDataType, undefined, undefined, constantValue);
+    }
+
+    public static withTransform(columnName: string, transform: string, cslDataType?: string): ParquetColumnMapping {
+        return new ParquetColumnMapping(columnName, cslDataType, undefined, undefined, undefined, transform);
+    }
+
+    mappingType = (): IngestionMappingType => IngestionMappingType.PARQUET;
+}
+
+export class OrcColumnMapping extends ColumnMapping {
+    private constructor(readonly columnName: string, cslDataType?: string, path?: string, field?: string, constantValue?: string, transform?: string) {
+        super(columnName, cslDataType ?? undefined, { Path: path, Field: field, ConstantValue: constantValue, Transform: transform });
+    }
+
+    public static withPath(columnName: string, path: string, cslDataType?: string, transform?: string): OrcColumnMapping {
+        return new OrcColumnMapping(columnName, cslDataType, path, undefined, transform);
+    }
+
+    public static withField(columnName: string, field: string, cslDataType?: string, transform?: string): OrcColumnMapping {
+        return new OrcColumnMapping(columnName, cslDataType, undefined, field, transform);
+    }
+
+    public static withConstantValue(columnName: string, constantValue: string, cslDataType?: string): OrcColumnMapping {
+        return new OrcColumnMapping(columnName, cslDataType, undefined, undefined, constantValue);
+    }
+
+    public static withTransform(columnName: string, transform: string, cslDataType?: string): OrcColumnMapping {
+        return new OrcColumnMapping(columnName, cslDataType, undefined, undefined, undefined, transform);
+    }
+
+    mappingType = (): IngestionMappingType => IngestionMappingType.ORC;
+}
+
+export class W3CLogFileMapping extends ColumnMapping {
+    private constructor(readonly columnName: string, cslDataType?: string, field?: string, constantValue?: string, transform?: string) {
+        super(columnName, cslDataType ?? undefined, { Field: field, ConstantValue: constantValue, Transform: transform });
+    }
+
+    public static withField(columnName: string, field: string, cslDataType?: string, transform?: string): W3CLogFileMapping {
+        return new W3CLogFileMapping(columnName, cslDataType, field, transform);
+    }
+
+    public static withConstantValue(columnName: string, constantValue: string, cslDataType?: string): W3CLogFileMapping {
+        return new W3CLogFileMapping(columnName, cslDataType, undefined, constantValue);
+    }
+
+    public static withTransform(columnName: string, transform: string, cslDataType?: string): W3CLogFileMapping {
+        return new W3CLogFileMapping(columnName, cslDataType, undefined, undefined, transform);
+    }
+
+    mappingType = (): IngestionMappingType => IngestionMappingType.ORC;
+}
+
 
 class IngestionPropertiesFields {
     database?: string | null = null;
@@ -82,7 +240,7 @@ class IngestionPropertiesFields {
     reportLevel?: ReportLevel | null = null;
     reportMethod?: ReportMethod | null = null;
     validationPolicy?: string | null = null;
-    additionalProperties?: {[additional:string] : any} | null = null;
+    additionalProperties?: { [additional: string]: any } | null = null;
 }
 
 export class IngestionProperties extends IngestionPropertiesFields {
@@ -140,7 +298,7 @@ export class IngestionProperties extends IngestionPropertiesFields {
         }
     }
 
-    [extraProps: string] : any;
+    [extraProps: string]: any;
 
     merge(extraProps: any) {
         const merged = new IngestionProperties(this);
