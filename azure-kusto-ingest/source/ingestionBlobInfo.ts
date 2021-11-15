@@ -57,7 +57,7 @@ export class IngestionBlobInfo {
 
         if (ingestionProperties.ingestionMapping && ingestionProperties.ingestionMapping.length > 0) {
             // server expects a string
-            additionalProperties.ingestionMapping = JSON.stringify(ingestionProperties.ingestionMapping);
+            additionalProperties.ingestionMapping = JSON.stringify(ingestionProperties.ingestionMapping.map(m => m.toApiMapping()));
         }
 
         if (ingestionProperties.ingestionMappingReference) {

@@ -65,7 +65,7 @@ interface MappingProperties {
     Field?: string;
     Path?: string;
     Ordinal?: string;
-    ConstantValue?: string;
+    ConstValue?: string;
     Transform?: string;
 }
 
@@ -95,7 +95,7 @@ export class CsvColumnMapping extends ColumnMapping {
      * @deprecated Use the factory methods instead.
      */
     protected constructor(readonly columnName: string, readonly cslDataType?: string, readonly ordinal?: string, constantValue?: string) {
-        super(columnName, cslDataType, { Ordinal: ordinal, ConstantValue: constantValue });
+        super(columnName, cslDataType, { Ordinal: ordinal, ConstValue: constantValue });
     }
 
     public static withOrdinal(columnName: string, ordinal: number, cslDataType?: string): CsvColumnMapping {
@@ -114,7 +114,7 @@ export class JsonColumnMapping extends ColumnMapping {
      * @deprecated Use the factory methods instead.
      */
     constructor(readonly columnName: string, readonly jsonPath?: string, cslDataType: string | null = null, constantValue?: string, transform?: string) {
-        super(columnName, cslDataType ?? undefined, { Path: jsonPath, ConstantValue: constantValue, Transform: transform });
+        super(columnName, cslDataType ?? undefined, { Path: jsonPath, ConstValue: constantValue, Transform: transform });
     }
 
     public static withPath(columnName: string, path: string, cslDataType?: string, transform?: string): JsonColumnMapping {
@@ -134,7 +134,7 @@ export class JsonColumnMapping extends ColumnMapping {
 
 export class AvroColumnMapping extends ColumnMapping {
     private constructor(readonly columnName: string, cslDataType?: string, path?: string, field?: string, constantValue?: string, transform?: string) {
-        super(columnName, cslDataType ?? undefined, { Path: path, Field: field, ConstantValue: constantValue, Transform: transform });
+        super(columnName, cslDataType ?? undefined, { Path: path, Field: field, ConstValue: constantValue, Transform: transform });
     }
 
     public static withPath(columnName: string, path: string, cslDataType?: string, transform?: string): AvroColumnMapping {
@@ -158,7 +158,7 @@ export class AvroColumnMapping extends ColumnMapping {
 
 export class ParquetColumnMapping extends ColumnMapping {
     private constructor(readonly columnName: string, cslDataType?: string, path?: string, field?: string, constantValue?: string, transform?: string) {
-        super(columnName, cslDataType ?? undefined, { Path: path, Field: field, ConstantValue: constantValue, Transform: transform });
+        super(columnName, cslDataType ?? undefined, { Path: path, Field: field, ConstValue: constantValue, Transform: transform });
     }
 
     public static withPath(columnName: string, path: string, cslDataType?: string, transform?: string): ParquetColumnMapping {
@@ -182,7 +182,7 @@ export class ParquetColumnMapping extends ColumnMapping {
 
 export class OrcColumnMapping extends ColumnMapping {
     private constructor(readonly columnName: string, cslDataType?: string, path?: string, field?: string, constantValue?: string, transform?: string) {
-        super(columnName, cslDataType ?? undefined, { Path: path, Field: field, ConstantValue: constantValue, Transform: transform });
+        super(columnName, cslDataType ?? undefined, { Path: path, Field: field, ConstValue: constantValue, Transform: transform });
     }
 
     public static withPath(columnName: string, path: string, cslDataType?: string, transform?: string): OrcColumnMapping {
@@ -206,7 +206,7 @@ export class OrcColumnMapping extends ColumnMapping {
 
 export class W3CLogFileMapping extends ColumnMapping {
     private constructor(readonly columnName: string, cslDataType?: string, field?: string, constantValue?: string, transform?: string) {
-        super(columnName, cslDataType ?? undefined, { Field: field, ConstantValue: constantValue, Transform: transform });
+        super(columnName, cslDataType ?? undefined, { Field: field, ConstValue: constantValue, Transform: transform });
     }
 
     public static withField(columnName: string, field: string, cslDataType?: string, transform?: string): W3CLogFileMapping {
