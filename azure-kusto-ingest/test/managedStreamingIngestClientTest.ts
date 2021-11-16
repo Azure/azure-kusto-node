@@ -24,10 +24,14 @@ describe("ManagedStreamingIngestClient", function () {
                 Object.setPrototypeOf({ streamingIngestClient: mockedStreamingIngestClient,
                     queuedIngestClient: mockedIngestClient, maxRetries: 1 }, KustoManagedStreamingIngestClient.prototype);
 
-            const stream = Readable.from(['this is my string']);
+            const stream = new Readable();
+            stream._read = () => {
+                stream.push("this is my string");
+                stream.push(null);
+            };
 
-            stream.on('data', function(data: any) {
-                console.log(data)
+            stream.on('data', function(data: Buffer) {
+                console.log(data.toString("utf-8"))
               });
               
             try{
@@ -42,6 +46,7 @@ describe("ManagedStreamingIngestClient", function () {
                     if (e.message != expectedError) {
                         throw e;
                     }
+                    return;
                 }
 
                 throw e;
