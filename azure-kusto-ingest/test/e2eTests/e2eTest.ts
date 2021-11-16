@@ -14,7 +14,7 @@ import {
 import StreamingIngestClient from "../../source/streamingIngestClient";
 import ManagedStreamingIngestClient from "../../source/managedStreamingIngestClient";
 import {CompressionType, StreamDescriptor} from "../../source/descriptors";
-import {DataFormat, IngestionProperties, ReportLevel} from "../../source/ingestionProperties";
+import { DataFormat, IngestionProperties, JsonColumnMapping, ReportLevel } from "../../source/ingestionProperties";
 import { CloudSettings } from "../.././node_modules/azure-kusto-data/source/cloudSettings";
 import { sleep } from "../../source/utils";
 
@@ -46,7 +46,7 @@ function main(): void {
     const tableColumns = "(rownumber:int, rowguid:string, xdouble:real, xfloat:real, xbool:bool, xint16:int, xint32:int, xint64:long, xuint8:long, xuint16:long, xuint32:long, xuint64:long, xdate:datetime, xsmalltext:string, xtext:string, xnumberAsText:string, xtime:timespan, xtextWithNulls:string, xdynamicWithNulls:dynamic)";
 
     const mapping = fs.readFileSync(getTestResourcePath("dataset_mapping.json"), {encoding: 'utf8'});
-    const columnmapping = JSON.parse(mapping);
+    const columnMapping = JSON.parse(mapping).map((mapping: any) => JsonColumnMapping.withPath(mapping.column, mapping.Properties.Path, mapping.datatype));
 
     const ingestionPropertiesWithoutMapping = new IngestionProperties({
         database: databaseName,
@@ -65,7 +65,7 @@ function main(): void {
         database: databaseName,
         table: tableName,
         format: DataFormat.JSON,
-        ingestionMapping: columnmapping,
+        ingestionMapping: columnMapping,
         flushImmediately: true
     });
 
@@ -93,6 +93,7 @@ function main(): void {
             it('Create table', async function () {
                 try {
                     await queryClient.execute(databaseName, `.create table ${tableName} ${tableColumns}`);
+                    await queryClient.execute(databaseName, `.alter table ${tableName} policy streamingingestion enable`);
                     await queryClient.execute(databaseName, ".clear database cache streamingingestion schema");
                 } catch (err) {
                     assert.fail("Failed to create table");
