@@ -36,11 +36,15 @@ describe("ManagedStreamingIngestClient", function () {
                     table: 't1',
                     format: DataFormat.CSV,
                 }));
-            } catch (e) {
-                if (e.message != "Failed to get cloud info for cluster engine - Error: Request failed with status code 400")
-                {
-                    throw e;
+            } catch (e: unknown) {
+                if (e instanceof Error) {
+                    let expectedError = "Failed to get cloud info for cluster engine - Error: Request failed with status code 400";
+                    if (e.message != expectedError) {
+                        throw e;
+                    }
                 }
+
+                throw e;
             }
             sandbox.assert.calledOnce(spy);
         }).timeout(10000);
