@@ -255,7 +255,7 @@ export class W3CLogFileMapping extends ColumnMapping {
         return new W3CLogFileMapping(columnName, cslDataType, undefined, undefined, transform);
     }
 
-    mappingType = (): IngestionMappingType => IngestionMappingType.ORC;
+    mappingType = (): IngestionMappingType => IngestionMappingType.W3CLOGFILE;
 }
 
 
