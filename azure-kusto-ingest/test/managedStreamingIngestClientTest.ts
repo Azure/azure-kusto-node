@@ -42,8 +42,8 @@ describe("ManagedStreamingIngestClient", function () {
                 }));
             } catch (e: unknown) {
                 if (e instanceof Error) {
-                    let expectedError = "Failed to get cloud info for cluster engine - Error: Request failed with status code 400";
-                    if (e.message != expectedError) {
+                    let expectedError = "Failed to get cloud info for cluster engine";
+                    if (!e.message.startsWith(expectedError)) {
                         throw e;
                     }
                     return;
