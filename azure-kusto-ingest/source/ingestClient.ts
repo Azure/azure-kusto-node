@@ -14,8 +14,8 @@ import {QueueClient, QueueSendMessageResponse} from "@azure/storage-queue";
 
 import {ContainerClient} from "@azure/storage-blob";
 import IngestionProperties from "./ingestionProperties";
-import {ReadStream} from "fs";
 import {AbstractKustoClient} from "./abstractKustoClient";
+import { Readable } from "stream";
 
 
 export class KustoIngestClient extends AbstractKustoClient{
@@ -41,7 +41,7 @@ export class KustoIngestClient extends AbstractKustoClient{
         return containerClient.getBlockBlobClient(blobName);
     }
 
-    async ingestFromStream(stream: ReadStream | StreamDescriptor, ingestionProperties: IngestionProperties): Promise<QueueSendMessageResponse> {
+    async ingestFromStream(stream: StreamDescriptor | Readable, ingestionProperties: IngestionProperties): Promise<any> {
         const props = this._mergeProps(ingestionProperties);
         props.validate();
         const descriptor: StreamDescriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);

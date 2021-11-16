@@ -2,12 +2,12 @@
 // Licensed under the MIT License.
 
 import sinon from "sinon";
-import { StreamingIngestClient } from "..";
+import { StreamingIngestClient } from "../index";
 import { StreamDescriptor } from "../source/descriptors";
 import {KustoIngestClient} from "../source/ingestClient";
 import {DataFormat, IngestionProperties} from "../source/ingestionProperties";
 import KustoManagedStreamingIngestClient from "../source/managedStreamingIngestClient";
-var Stream = require('stream');
+import { Readable } from "stream";
 
 describe("ManagedStreamingIngestClient", function () {
     describe("fallback", function () {
@@ -23,20 +23,25 @@ describe("ManagedStreamingIngestClient", function () {
             const mockedManagedStreamingIngestClient: KustoManagedStreamingIngestClient = 
                 Object.setPrototypeOf({ streamingIngestClient: mockedStreamingIngestClient,
                     queuedIngestClient: mockedIngestClient, maxRetries: 1 }, KustoManagedStreamingIngestClient.prototype);
-            var stream = new Stream();
-            
+
+            const stream = Readable.from(['this is my string']);
+
             stream.on('data', function(data: any) {
                 console.log(data)
               });
               
-            stream.emit('data', 'this is my string');
             try{
                 await mockedManagedStreamingIngestClient.ingestFromStream(new StreamDescriptor(stream), new IngestionProperties({
                     database: 'db',
                     table: 't1',
                     format: DataFormat.CSV,
                 }));
-            } catch {}
+            } catch (e) {
+                if (e.message != "Failed to get cloud info for cluster engine - Error: Request failed with status code 400")
+                {
+                    throw e;
+                }
+            }
             sandbox.assert.calledOnce(spy);
         }).timeout(10000);
     });

@@ -4,7 +4,6 @@
 import IngestionProperties from "./ingestionProperties";
 
 import {FileDescriptor, StreamDescriptor} from "./descriptors";
-import fs from "fs";
 import {AbstractKustoClient} from "./abstractKustoClient";
 import {KustoConnectionStringBuilder} from "azure-kusto-data";
 import {KustoResponseDataSet} from "azure-kusto-data/source/response";
@@ -14,6 +13,7 @@ import IngestClient from "./ingestClient";
 import { QueueSendMessageResponse } from "@azure/storage-queue";
 import streamify from "stream-array";
 import toArray from "stream-to-array";
+import { Readable } from "stream";
 
 const maxSteamSize = 1024 * 1024 * 4;
 const maxRetries = 3
@@ -29,7 +29,7 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
         this.maxRetries = maxRetries;
     }
 
-    async ingestFromStream(stream: StreamDescriptor | fs.ReadStream, ingestionProperties: IngestionProperties): Promise<KustoResponseDataSet | QueueSendMessageResponse> {
+    async ingestFromStream(stream: StreamDescriptor | Readable, ingestionProperties: IngestionProperties): Promise<any> {
         const props = this._mergeProps(ingestionProperties);
         props.validate();
         const descriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
@@ -52,9 +52,7 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
             }
         }
 
-        return await this.queuedIngestClient.ingestFromStream(
-            new StreamDescriptor(streamify(buffer)).merge(descriptor)
-            , ingestionProperties);
+        return await this.queuedIngestClient.ingestFromStream(new StreamDescriptor(streamify(buffer)).merge(descriptor), ingestionProperties);
     }
 
     async ingestFromFile(file: FileDescriptor | string, ingestionProperties: IngestionProperties): Promise<KustoResponseDataSet | QueueSendMessageResponse> {
