@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import uuidValidate from "uuid-validate";
 import zlib from "zlib";
 import pathlib from "path";
-import fs, {ReadStream} from "fs";
+import fs from "fs";
 import { Readable } from 'stream';
 
 export enum CompressionType {
@@ -79,7 +79,7 @@ export class StreamDescriptor {
     size: number | null;
     compressionType: CompressionType;
     sourceId: string;
-    constructor(readonly stream: ReadStream | Readable, sourceId: string | null = null, compressionType: CompressionType = CompressionType.None) {
+    constructor(readonly stream: Readable, sourceId: string | null = null, compressionType: CompressionType = CompressionType.None) {
         this.name = "stream";
         this.size = null;
         this.compressionType = compressionType;

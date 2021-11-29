@@ -333,3 +333,12 @@ ASALocalRun/
 package.json
 __main.js
 package-lock.json
+
+# Typescript product files
+*.tsbuildinfo
+*.js
+*.js.map
+*.d.ts
+
+# We still want example.js files
+!example.js
