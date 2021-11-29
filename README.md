@@ -1,4 +1,5 @@
 # Microsoft Azure Kusto (Azure Data Explorer) SDK for Node.js
+![Github Actions Build](https://github.com/Azure/azure-kusto-node/actions/workflows/build.yml/badge.svg)
 
 This repository contains the following SDKs:
 * **Azure Kusto Data SDK**: Execute queries against a Kusto Cluster. [docs](./azure-kusto-data/README.md)
