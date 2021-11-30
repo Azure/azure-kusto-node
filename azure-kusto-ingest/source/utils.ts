@@ -31,7 +31,7 @@ export const mergeStreams = (...streams: Readable[]) : Readable => {
 }
 
 
-export const tryStreamToSizedArray = async (stream: Readable, maxBufferSize: number): Promise<Buffer | Readable> => {
+export const tryStreamToArray = async (stream: Readable, maxBufferSize: number): Promise<Buffer | Readable> => {
     return await new Promise<Buffer | Readable>((resolve, reject) => {
         const result: Buffer[] = [];
         const endListener = () => resolve(Buffer.concat(result));
