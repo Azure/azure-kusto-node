@@ -43,7 +43,7 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
             const retry = new ExponentialRetry(attemptCount, this.baseSleepTimeSecs, this.baseJitterSecs);
             while (retry.shouldTry()) {
                 try {
-                    const sourceId = `KNC.execute_managed_streaming_ingest;${descriptor.sourceId};${retry.currentAttempt}`
+                    const sourceId = `KNC.executeManagedStreamingIngest;${descriptor.sourceId};${retry.currentAttempt}`
                     return await this.streamingIngestClient.ingestFromStream(new StreamDescriptor(streamify([result])).merge(descriptor), ingestionProperties, sourceId);
                 } catch (err: any) {
                     if (err['@permanent']) {
