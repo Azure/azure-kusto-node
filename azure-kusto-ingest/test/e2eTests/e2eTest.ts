@@ -10,12 +10,12 @@ import {
     KustoConnectionStringBuilder as ConnectionStringBuilder,
     ClientRequestProperties,
     // @ts-ignore
-} from "../.././node_modules/azure-kusto-data";
+} from "azure-kusto-data";
 import StreamingIngestClient from "../../source/streamingIngestClient";
 import ManagedStreamingIngestClient from "../../source/managedStreamingIngestClient";
 import {CompressionType, StreamDescriptor} from "../../source/descriptors";
 import {DataFormat, IngestionProperties, ReportLevel} from "../../source/ingestionProperties";
-import { CloudSettings } from "../.././node_modules/azure-kusto-data/source/cloudSettings";
+import { CloudSettings } from "azure-kusto-data/source/cloudSettings";
 import { sleep } from "../../source/retry";
 
 const databaseName = process.env.TEST_DATABASE;

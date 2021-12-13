@@ -114,15 +114,6 @@ export class KustoClient {
 
             if (properties != null) {
                 payload.properties = properties.toJson();
-                clientRequestId = properties.clientRequestId;
-
-                if(properties.application != null){
-                    headers["x-ms-app"] = properties.application;
-                }
-
-                if(properties.user != null){
-                    headers["x-ms-user"] = properties.user;
-                }
             }
 
             payloadContent = JSON.stringify(payload);
@@ -134,6 +125,18 @@ export class KustoClient {
             clientRequestPrefix = "KNC.executeStreamingIngest;";
             headers["Content-Encoding"] = "gzip";
             headers["Content-Type"] = "multipart/form-data";
+        }
+
+        if (properties != null) {
+            clientRequestId = properties.clientRequestId;
+
+            if (properties.application != null) {
+                headers["x-ms-app"] = properties.application;
+            }
+
+            if (properties.user != null) {
+                headers["x-ms-user"] = properties.user;
+            }
         }
 
         headers["x-ms-client-request-id"] = clientRequestId || clientRequestPrefix + `${uuidv4()}`;
