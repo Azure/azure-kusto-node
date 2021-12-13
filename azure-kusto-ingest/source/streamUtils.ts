@@ -10,16 +10,6 @@ export const fileToStream = (file: FileDescriptor | string): StreamDescriptor =>
     return new StreamDescriptor(streamFs, fileDescriptor.sourceId, compressionType);
 }
 
-export const sleep = (ms: number): Promise<void> => {
-    return new Promise((resolve) => {
-        setTimeout(resolve, ms);
-    });
-}
-
-export const getRandomSleep = (baseMs: number): number => {
-    return baseMs + Math.floor(Math.random() * 1000);
-}
-
 export const mergeStreams = (...streams: Readable[]) : Readable => {
     let pass = new PassThrough()
     let waiting = streams.length

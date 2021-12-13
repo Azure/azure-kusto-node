@@ -15,7 +15,6 @@ import Sinon from "sinon";
 import assert from "assert";
 
 
-
 describe("ManagedStreamingIngestClient", function () {
     function getMockedClient() {
         const sandbox = sinon.createSandbox();
@@ -27,7 +26,7 @@ describe("ManagedStreamingIngestClient", function () {
         const managedClient: KustoManagedStreamingIngestClient =
             Object.setPrototypeOf({
                 streamingIngestClient: mockedStreamingIngestClient,
-                queuedIngestClient: mockedIngestClient, baseSleepTime: 0
+                queuedIngestClient: mockedIngestClient, baseSleepTimeSecs: 0, baseJitterSecs: 0
             }, KustoManagedStreamingIngestClient.prototype);
 
         return { sandbox, streamStub, queuedStub, managedClient };
@@ -48,7 +47,7 @@ describe("ManagedStreamingIngestClient", function () {
         return stream;
     }
 
-    function validateStream(stub: Sinon.SinonStub<[(StreamDescriptor | Readable), IngestionProperties], Promise<QueueSendMessageResponse>>, buffers: any[]) {
+    function validateStream(stub: Sinon.SinonStub<[(StreamDescriptor | Readable), IngestionProperties, string?], Promise<QueueSendMessageResponse>>, buffers: any[]) {
         for (const call of stub.getCalls()) {
             let calledStream = call.args[0];
             if (calledStream instanceof StreamDescriptor) {
@@ -64,7 +63,7 @@ describe("ManagedStreamingIngestClient", function () {
                 chunks.push(chunk);
             }
 
-            assert.strictEqual(Buffer.compare(Buffer.concat(chunks), Buffer.concat(buffers)),0)
+            assert.strictEqual(Buffer.compare(Buffer.concat(chunks), Buffer.concat(buffers)), 0)
         }
     }
 
@@ -137,7 +136,7 @@ describe("ManagedStreamingIngestClient", function () {
             const mockedManagedStreamingIngestClient: KustoManagedStreamingIngestClient =
                 Object.setPrototypeOf({
                     streamingIngestClient: mockedStreamingIngestClient,
-                    queuedIngestClient: mockedIngestClient, maxRetries: 1, baseSleepTime: 0
+                    queuedIngestClient: mockedIngestClient, maxRetries: 1, baseSleepTimeSecs: 0, baseJitterSecs: 0
                 }, KustoManagedStreamingIngestClient.prototype);
 
             let singleBufferSize = 1023 * 1024;

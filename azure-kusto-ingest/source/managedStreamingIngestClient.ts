@@ -7,12 +7,13 @@ import { FileDescriptor, StreamDescriptor } from "./descriptors";
 import { AbstractKustoClient } from "./abstractKustoClient";
 import { KustoConnectionStringBuilder } from "azure-kusto-data";
 import { KustoResponseDataSet } from "azure-kusto-data/source/response";
-import { fileToStream, getRandomSleep, sleep, tryStreamToArray } from "./utils";
+import { fileToStream, tryStreamToArray } from "./streamUtils";
 import StreamingIngestClient from "./streamingIngestClient";
 import IngestClient from "./ingestClient";
 import { QueueSendMessageResponse } from "@azure/storage-queue";
 import streamify from "stream-array";
 import { Readable } from "stream";
+import { ExponentialRetry} from "./retry";
 
 
 const maxStreamSize = 1024 * 1024 * 4;
@@ -21,7 +22,8 @@ const maxRetries = 3
 class KustoManagedStreamingIngestClient extends AbstractKustoClient {
     private streamingIngestClient: StreamingIngestClient;
     private queuedIngestClient: IngestClient;
-    private baseSleepTime = 1000;
+    private baseSleepTimeSecs = 1;
+    private baseJitterSecs = 1;
 
     constructor(engineKcsb: string | KustoConnectionStringBuilder, dmKcsb: string | KustoConnectionStringBuilder, defaultProps: IngestionProperties | null = null) {
         super(defaultProps);
@@ -38,17 +40,15 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
 
         if (result instanceof Buffer) // If we get buffer that means it was less than the max size, so we can do streamingIngestion
         {
-            let sleepTime = this.baseSleepTime;
-            let i = 0;
-            for (; i < maxRetries; i++) {
+            const retry = new ExponentialRetry(maxRetries, this.baseSleepTimeSecs, this.baseJitterSecs);
+            while (retry.shouldTry()) {
                 try {
                     return await this.streamingIngestClient.ingestFromStream(new StreamDescriptor(streamify([result])).merge(descriptor), ingestionProperties);
                 } catch (err: any) {
                     if (err['@permanent']) {
                         throw err;
                     }
-                    await sleep(getRandomSleep(sleepTime));
-                    sleepTime *= 2;
+                    await retry.backoff();
                 }
             }
 

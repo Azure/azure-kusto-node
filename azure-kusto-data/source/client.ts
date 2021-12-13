@@ -78,13 +78,17 @@ export class KustoClient {
         return this._execute(this.endpoints[ExecutionType.Mgmt], ExecutionType.Mgmt, db, query, null, properties);
     }
 
-    async executeStreamingIngest(db: string, table: string, stream: any, streamFormat: any, mappingName: string | null): Promise<KustoResponseDataSet> {
+    async executeStreamingIngest(db: string, table: string, stream: any, streamFormat: any, mappingName: string | null, clientRequestId?: string): Promise<KustoResponseDataSet> {
         let endpoint = `${this.endpoints[ExecutionType.Ingest]}/${db}/${table}?streamFormat=${streamFormat}`;
         if (mappingName != null) {
             endpoint += `&mappingName=${mappingName}`;
         }
-
-        return this._execute(endpoint, ExecutionType.Ingest, db, null, stream, null);
+        let properties: ClientRequestProperties | null = null;
+        if (clientRequestId) {
+            properties = new ClientRequestProperties()
+            properties.clientRequestId = clientRequestId;
+        }
+        return this._execute(endpoint, ExecutionType.Ingest, db, null, stream, properties);
     }
 
     async _execute(
