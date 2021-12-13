@@ -16,7 +16,7 @@ import ManagedStreamingIngestClient from "../../source/managedStreamingIngestCli
 import {CompressionType, StreamDescriptor} from "../../source/descriptors";
 import {DataFormat, IngestionProperties, ReportLevel} from "../../source/ingestionProperties";
 import { CloudSettings } from "../.././node_modules/azure-kusto-data/source/cloudSettings";
-import { sleep } from "../../source/utils";
+import { sleep } from "../../source/retry";
 
 const databaseName = process.env.TEST_DATABASE;
 const appId = process.env.APP_ID;
@@ -221,8 +221,8 @@ function main(): void {
                 try {
                     await ingestClient.ingestFromFile(item.path, item.ingestionProperties);
                     const status = await waitForStatus();
-                    assert.equal(status.SuccessCount, 1);
-                    assert.equal(status.FailureCount, 0);
+                    assert.strictEqual(status.SuccessCount, 1);
+                    assert.strictEqual(status.FailureCount, 0);
                 } catch (err) {
                     console.error(err);
                     assert.fail(`Failed to ingest ${item.description}`);
@@ -236,8 +236,8 @@ function main(): void {
                 try {
                     await ingestClient.ingestFromFile(item.path, item.ingestionProperties);
                     const status = await waitForStatus();
-                    assert.equal(status.SuccessCount, 0);
-                    assert.equal(status.FailureCount, 1);
+                    assert.strictEqual(status.SuccessCount, 0);
+                    assert.strictEqual(status.FailureCount, 1);
                 } catch (err) {
                     console.error(err);
                     assert.fail(`Failed to ingest ${item.description}`);
@@ -267,12 +267,12 @@ function main(): void {
 
             it('executionTimeout', async function () {
                 try {
-                    var properties = new ClientRequestProperties();
+                    const properties = new ClientRequestProperties();
                     properties.setTimeout(10);
                     await queryClient.executeQuery(databaseName, `${tableName}`, properties);
 
                 } catch (ex: any) {
-                    assert.equal(ex.code, 'Request execution timeout');
+                    assert.strictEqual(ex.code, 'Request execution timeout');
                     return;
                 }
                 assert.fail(`Didn't throw executionTimeout`);
@@ -324,7 +324,7 @@ function main(): void {
             }
         }
         currentCount += count;
-        assert.equal(count, expected, `Failed to ingest ${testItem.description}`);
+        assert.strictEqual(count, expected, `Failed to ingest ${testItem.description}`);
     }
 }
 
