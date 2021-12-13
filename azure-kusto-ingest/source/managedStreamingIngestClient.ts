@@ -13,11 +13,11 @@ import IngestClient from "./ingestClient";
 import { QueueSendMessageResponse } from "@azure/storage-queue";
 import streamify from "stream-array";
 import { Readable } from "stream";
-import { ExponentialRetry} from "./retry";
+import { ExponentialRetry } from "./retry";
 
 
 const maxStreamSize = 1024 * 1024 * 4;
-const maxRetries = 3
+const attemptCount = 3
 
 class KustoManagedStreamingIngestClient extends AbstractKustoClient {
     private streamingIngestClient: StreamingIngestClient;
@@ -40,10 +40,11 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
 
         if (result instanceof Buffer) // If we get buffer that means it was less than the max size, so we can do streamingIngestion
         {
-            const retry = new ExponentialRetry(maxRetries, this.baseSleepTimeSecs, this.baseJitterSecs);
+            const retry = new ExponentialRetry(attemptCount, this.baseSleepTimeSecs, this.baseJitterSecs);
             while (retry.shouldTry()) {
                 try {
-                    return await this.streamingIngestClient.ingestFromStream(new StreamDescriptor(streamify([result])).merge(descriptor), ingestionProperties);
+                    const sourceId = `KNC.execute_managed_streaming_ingest;${descriptor.sourceId};${retry.currentAttempt}`
+                    return await this.streamingIngestClient.ingestFromStream(new StreamDescriptor(streamify([result])).merge(descriptor), ingestionProperties, sourceId);
                 } catch (err: any) {
                     if (err['@permanent']) {
                         throw err;

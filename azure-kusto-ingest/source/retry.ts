@@ -5,10 +5,10 @@ export const sleep = (ms: number): Promise<void> => {
 }
 
 export class ExponentialRetry {
-    public retries: number;
+    public currentAttempt: number;
 
-    constructor(public maxRetries: number, public sleepBaseSecs: number, public maxJitterSecs: number) {
-        this.retries = 0;
+    constructor(public attemptCount: number, public sleepBaseSecs: number, public maxJitterSecs: number) {
+        this.currentAttempt = 0;
     }
 
     public async backoff(): Promise<void> {
@@ -16,13 +16,13 @@ export class ExponentialRetry {
             throw new Error("Max retries exceeded");
         }
 
-        const base = this.sleepBaseSecs * Math.pow(2, this.retries)
+        const base = this.sleepBaseSecs * Math.pow(2, this.currentAttempt)
         const jitter = Math.floor(this.maxJitterSecs * Math.random())
         await sleep(1000 * (base + jitter));
-        this.retries++;
+        this.currentAttempt++;
     }
 
     public shouldTry(): boolean {
-        return this.retries < this.maxRetries;
+        return this.currentAttempt < this.attemptCount;
     }
 }
