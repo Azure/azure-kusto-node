@@ -14,6 +14,7 @@ import { CloudSettings } from "azure-kusto-data/source/cloudSettings";
 import Sinon from "sinon";
 import assert from "assert";
 import uuidValidate from "uuid-validate";
+import { KustoConnectionStringBuilder } from "azure-kusto-data";
 
 
 type IngestFromStreamStub = Sinon.SinonStub<[(StreamDescriptor | Readable), IngestionProperties, string?], Promise<QueueSendMessageResponse>>;
@@ -188,5 +189,30 @@ describe("ManagedStreamingIngestClient", function () {
                 sandbox.assert.notCalled(streamStub);
             });
         }
+    });
+
+    describe("helper methods", function () {
+        it("should be able to create a ManagedStreamingIngestClient from a DM URI", function () {
+            const client = KustoManagedStreamingIngestClient.fromDmConnectionString(KustoConnectionStringBuilder.withAccessToken("https://ingest-dummy.kusto.windows.net"));
+
+            assert.strictEqual((client as any).queuedIngestClient.resourceManager.kustoClient.connectionString.dataSource,
+                "https://ingest-dummy.kusto.windows.net");
+            assert.strictEqual((client as any).streamingIngestClient.kustoClient.connectionString.dataSource,
+                "https://dummy.kusto.windows.net");
+        });
+        it("should fail when trying to create a ManagedStreamingIngestClient from an invalid DM URI", function () {
+            assert.throws(() => KustoManagedStreamingIngestClient.fromDmConnectionString(KustoConnectionStringBuilder.withAccessToken("https://dummy.kusto.windows.net")));
+        });
+        it("should be able to create a ManagedStreamingIngestClient from an Engine URI", function () {
+            const client = KustoManagedStreamingIngestClient.fromEngineConnectionString(KustoConnectionStringBuilder.withAccessToken("https://dummy.kusto.windows.net"));
+
+            assert.strictEqual((client as any).queuedIngestClient.resourceManager.kustoClient.connectionString.dataSource,
+                "https://ingest-dummy.kusto.windows.net");
+            assert.strictEqual((client as any).streamingIngestClient.kustoClient.connectionString.dataSource,
+                "https://dummy.kusto.windows.net");
+        });
+        it("should fail when trying to create a ManagedStreamingIngestClient from an invalid Engine URI", function () {
+            assert.throws(() => KustoManagedStreamingIngestClient.fromEngineConnectionString(KustoConnectionStringBuilder.withAccessToken("https://ingest-dummy.kusto.windows.net")));
+        });
     });
 });
