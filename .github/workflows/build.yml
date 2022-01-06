@@ -44,3 +44,9 @@ jobs:
           files: |
             azure-kusto-data/test-results.xml
             azure-kusto-ingest/test-results.xml
+      - uses: codecov/codecov-action@v2
+        with:
+          files: |
+            azure-kusto-data/coverage/lcov.info
+            azure-kusto-ingest/coverage/lcov.infol
+          fail_ci_if_error: true
