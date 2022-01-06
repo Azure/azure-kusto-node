@@ -42,8 +42,8 @@ jobs:
         if: always()
         with:
           files: |
-            azure-kusto-data/test-results.xml
-            azure-kusto-ingest/test-results.xml
+            ./azure-kusto-data/test-results.xml
+            ./azure-kusto-ingest/test-results.xml
       - uses: codecov/codecov-action@v2
         with:
           files: |

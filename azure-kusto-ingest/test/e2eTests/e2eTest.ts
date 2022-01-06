@@ -1,20 +1,16 @@
+/*
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 import assert from "assert";
-import fs, {ReadStream} from 'fs';
+import fs, { ReadStream } from 'fs';
 import IngestClient from "../../source/ingestClient";
 import KustoIngestStatusQueues from "../../source/status";
-import {
-    Client,
-    KustoConnectionStringBuilder as ConnectionStringBuilder,
-    ClientRequestProperties,
-    // @ts-ignore
-} from "../.././node_modules/azure-kusto-data";
+import { Client, ClientRequestProperties, KustoConnectionStringBuilder as ConnectionStringBuilder, } from "../.././node_modules/azure-kusto-data";
 import StreamingIngestClient from "../../source/streamingIngestClient";
 import ManagedStreamingIngestClient from "../../source/managedStreamingIngestClient";
-import {CompressionType, StreamDescriptor} from "../../source/descriptors";
-import {DataFormat, IngestionProperties, ReportLevel} from "../../source/ingestionProperties";
+import { CompressionType, StreamDescriptor } from "../../source/descriptors";
+import { DataFormat, IngestionProperties, ReportLevel } from "../../source/ingestionProperties";
 import { CloudSettings } from "../.././node_modules/azure-kusto-data/source/cloudSettings";
 import { sleep } from "../../source/utils";
 
@@ -107,7 +103,7 @@ function main(): void {
                 }
             });
         });
-        
+
         describe('cloud info', function () {
             it('Cached cloud info', async function () {
                 const cloudInfo = CloudSettings.getInstance().cloudCache[process.env.ENGINE_CONNECTION_STRING as string]; // it should be already in the cache at this point
@@ -328,4 +324,4 @@ function main(): void {
     }
 }
 
-main();
+main();*/
