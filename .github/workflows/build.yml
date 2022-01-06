@@ -40,8 +40,8 @@ jobs:
       - uses: codecov/codecov-action@v2
         with:
           files: |
-            ./azure-kusto-data/coverage/lcov.info
-            ./azure-kusto-ingest/coverage/lcov.info
+            ../azure-kusto-data/coverage/lcov.info
+            ../azure-kusto-ingest/coverage/lcov.info
           fail_ci_if_error: true
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
