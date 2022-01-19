@@ -331,7 +331,6 @@ ASALocalRun/
 
 .vscode
 __main.js
-package-lock.json
 
 # Typescript product files
 *.tsbuildinfo
