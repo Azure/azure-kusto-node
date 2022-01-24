@@ -9,14 +9,13 @@ import {
     Client,
     KustoConnectionStringBuilder as ConnectionStringBuilder,
     ClientRequestProperties,
-    // @ts-ignore
 } from "azure-kusto-data";
 import StreamingIngestClient from "../../source/streamingIngestClient";
 import ManagedStreamingIngestClient from "../../source/managedStreamingIngestClient";
 import {CompressionType, StreamDescriptor} from "../../source/descriptors";
 import { DataFormat, IngestionProperties, JsonColumnMapping, ReportLevel } from "../../source/ingestionProperties";
 import { CloudSettings } from "azure-kusto-data/source/cloudSettings";
-import { sleep } from "../../source/utils";
+import { sleep } from "../../source/retry";
 
 const databaseName = process.env.TEST_DATABASE;
 const appId = process.env.APP_ID;
@@ -89,7 +88,7 @@ function main(): void {
             }
         });
 
-        describe('SetUp', function () {
+        describe('SetUp', async function () {
             it('Create table', async function () {
                 try {
                     await queryClient.execute(databaseName, `.create table ${tableName} ${tableColumns}`);
