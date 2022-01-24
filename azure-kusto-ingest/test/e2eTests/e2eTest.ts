@@ -10,13 +10,13 @@ import {
     KustoConnectionStringBuilder as ConnectionStringBuilder,
     ClientRequestProperties,
     // @ts-ignore
-} from "../.././node_modules/azure-kusto-data";
+} from "azure-kusto-data";
 import StreamingIngestClient from "../../source/streamingIngestClient";
 import ManagedStreamingIngestClient from "../../source/managedStreamingIngestClient";
 import {CompressionType, StreamDescriptor} from "../../source/descriptors";
 import {DataFormat, IngestionProperties, ReportLevel} from "../../source/ingestionProperties";
-import { CloudSettings } from "../.././node_modules/azure-kusto-data/source/cloudSettings";
-import { sleep } from "../../source/utils";
+import { CloudSettings } from "azure-kusto-data/source/cloudSettings";
+import { sleep } from "../../source/retry";
 
 const databaseName = process.env.TEST_DATABASE;
 const appId = process.env.APP_ID;
@@ -80,7 +80,7 @@ function main(): void {
 
     let currentCount = 0;
 
-    describe(`E2E Tests - ${tableName}`, function () {
+    describe(`E2E Tests`, function () {
         after(async function () {
             try {
                 await queryClient.execute(databaseName, `.drop table ${tableName} ifexists`);
@@ -89,23 +89,21 @@ function main(): void {
             }
         });
 
-        describe('SetUp', function () {
-            it('Create table', async function () {
-                try {
-                    await queryClient.execute(databaseName, `.create table ${tableName} ${tableColumns}`);
-                    await queryClient.execute(databaseName, ".clear database cache streamingingestion schema");
-                } catch (err) {
-                    assert.fail("Failed to create table");
-                }
-            });
+        before('SetUp', async function () {
+            console.log(`Create Table ${tableName}`)
+            try {
+                await queryClient.execute(databaseName, `.create table ${tableName} ${tableColumns}`);
+                await queryClient.execute(databaseName, ".clear database cache streamingingestion schema");
+            } catch (err) {
+                assert.fail("Failed to create table");
+            }
 
-            it('Create table ingestion mapping', async function () {
-                try {
-                    await queryClient.execute(databaseName, `.create-or-alter table ${tableName} ingestion json mapping '${mappingName}' '${mapping}'`);
-                } catch (err) {
-                    assert.fail("Failed to create table ingestion mapping" + err);
-                }
-            });
+            console.log('Create table ingestion mapping')
+            try {
+                await queryClient.execute(databaseName, `.create-or-alter table ${tableName} ingestion json mapping '${mappingName}' '${mapping}'`);
+            } catch (err) {
+                assert.fail("Failed to create table ingestion mapping" + err);
+            }
         });
 
         describe('cloud info', function () {
@@ -221,8 +219,8 @@ function main(): void {
                 try {
                     await ingestClient.ingestFromFile(item.path, item.ingestionProperties);
                     const status = await waitForStatus();
-                    assert.equal(status.SuccessCount, 1);
-                    assert.equal(status.FailureCount, 0);
+                    assert.strictEqual(status.SuccessCount, 1);
+                    assert.strictEqual(status.FailureCount, 0);
                 } catch (err) {
                     console.error(err);
                     assert.fail(`Failed to ingest ${item.description}`);
@@ -236,8 +234,8 @@ function main(): void {
                 try {
                     await ingestClient.ingestFromFile(item.path, item.ingestionProperties);
                     const status = await waitForStatus();
-                    assert.equal(status.SuccessCount, 0);
-                    assert.equal(status.FailureCount, 1);
+                    assert.strictEqual(status.SuccessCount, 0);
+                    assert.strictEqual(status.FailureCount, 1);
                 } catch (err) {
                     console.error(err);
                     assert.fail(`Failed to ingest ${item.description}`);
@@ -267,12 +265,12 @@ function main(): void {
 
             it('executionTimeout', async function () {
                 try {
-                    var properties = new ClientRequestProperties();
+                    const properties = new ClientRequestProperties();
                     properties.setTimeout(10);
                     await queryClient.executeQuery(databaseName, `${tableName}`, properties);
 
                 } catch (ex: any) {
-                    assert.equal(ex.code, 'Request execution timeout');
+                    assert.strictEqual(ex.code, 'Request execution timeout');
                     return;
                 }
                 assert.fail(`Didn't throw executionTimeout`);
@@ -324,7 +322,7 @@ function main(): void {
             }
         }
         currentCount += count;
-        assert.equal(count, expected, `Failed to ingest ${testItem.description}`);
+        assert.strictEqual(count, expected, `Failed to ingest ${testItem.description}`);
     }
 }
 
