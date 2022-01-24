@@ -114,6 +114,8 @@ abstract class ColumnMapping {
                 if (this.Properties.hasOwnProperty(key)) {
                     const typedKey = key as keyof MappingProperties;
                     const property = this.Properties[typedKey];
+
+                    // We don't do if (property) because we '0' is a legitimate value
                     if (property !== undefined && property !== null) {
                         result.Properties[typedKey] = property.toString();
                     }

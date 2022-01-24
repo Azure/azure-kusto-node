@@ -22,10 +22,10 @@
     "prepublish": "npm run build",
     "example": "npm run build && node example.js",
     "lint": "npm run build && tslint --project tsconfig.json --quiet",
-    "test": "npm run build && mocha",
-    "e2e": "npm run build && mocha test/e2eTests/e2eTest.ts",
-    "allTests": "npm run build && mocha --timeout 240000 --recursive",
-    "testPipeline": "npm run build && nyc --reporter lcovonly mocha --timeout 240000 --recursive --reporter mocha-junit-reporter "
+    "test": "npm run build && mocha  --parallel",
+    "e2e": "npm run build && mocha  --parallel test/e2eTests/e2eTest.ts",
+    "allTests": "npm run build && mocha --timeout 240000 --recursive --parallel",
+    "testPipeline": "npm run build && nyc --reporter lcovonly mocha  --parallel --timeout 240000 --recursive --reporter mocha-junit-reporter "
   },
   "repository": {
     "type": "git",

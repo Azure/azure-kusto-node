@@ -323,7 +323,7 @@ function main(): void {
             }
         }
         currentCount += count;
-        assert.strictEqual(count, expected, `Failed to ingest ${testItem.description}`);
+        assert.strictEqual(count, expected, `Failed to ingest ${testItem.description} - '${count}' rows ingested, expected '${expected}'`);
     }
 }
 
