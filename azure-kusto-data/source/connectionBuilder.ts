@@ -101,6 +101,10 @@ export class KustoConnectionStringBuilder {
         }
     }
 
+    static fromExisting(other: KustoConnectionStringBuilder): KustoConnectionStringBuilder {
+        return Object.assign({}, other);
+    }
+
     static withAadUserPasswordAuthentication(connectionString: string, userId: string, password: string, authorityId?: string) {
         if (!userId || userId.trim().length == 0) throw new Error("Invalid user");
         if (!password || password.trim().length == 0) throw new Error("Invalid password");

@@ -3,30 +3,69 @@
 
 import IngestionProperties from "./ingestionProperties";
 
-import {FileDescriptor, StreamDescriptor} from "./descriptors";
-import {AbstractKustoClient} from "./abstractKustoClient";
-import {KustoConnectionStringBuilder} from "azure-kusto-data";
-import {KustoResponseDataSet} from "azure-kusto-data/source/response";
-import {fileToStream, getRandomSleep, sleep} from "./utils";
+import { FileDescriptor, StreamDescriptor } from "./descriptors";
+import { AbstractKustoClient } from "./abstractKustoClient";
+import { KustoConnectionStringBuilder } from "azure-kusto-data";
+import { KustoResponseDataSet } from "azure-kusto-data/source/response";
+import { fileToStream, tryStreamToArray } from "./streamUtils";
 import StreamingIngestClient from "./streamingIngestClient";
 import IngestClient from "./ingestClient";
 import { QueueSendMessageResponse } from "@azure/storage-queue";
 import streamify from "stream-array";
-import toArray from "stream-to-array";
 import { Readable } from "stream";
+import { ExponentialRetry } from "./retry";
 
-const maxSteamSize = 1024 * 1024 * 4;
-const maxRetries = 3
+
+const maxStreamSize = 1024 * 1024 * 4;
+const attemptCount = 3
+const ingestPrefix = "https://ingest-";
+
 class KustoManagedStreamingIngestClient extends AbstractKustoClient {
     private streamingIngestClient: StreamingIngestClient;
     private queuedIngestClient: IngestClient;
-    private maxRetries: number;
+    private baseSleepTimeSecs = 1;
+    private baseJitterSecs = 1;
+
+    /**
+     * Creates a KustoManagedStreamingIngestClient from a DM connection string.
+     * This method infers the engine connection string.
+     * For advanced usage, use the constructor that takes a DM connection string and an engine connection string.
+     * @param dmConnectionString The DM connection string.
+     * @param defaultProps The default ingestion properties.
+     */
+    static fromDmConnectionString(dmConnectionString: KustoConnectionStringBuilder, defaultProps: IngestionProperties | null = null): KustoManagedStreamingIngestClient {
+        if (dmConnectionString.dataSource == null || !dmConnectionString.dataSource.startsWith(ingestPrefix)) {
+            throw new Error(`DM connection string must include the prefix '${ingestPrefix}'`);
+        }
+
+        const engineConnectionString = KustoConnectionStringBuilder.fromExisting(dmConnectionString);
+        engineConnectionString.dataSource = engineConnectionString.dataSource?.replace(ingestPrefix, "https://");
+
+        return new KustoManagedStreamingIngestClient(engineConnectionString, dmConnectionString, defaultProps);
+    }
+
+    /**
+     * Creates a KustoManagedStreamingIngestClient from a engine connection string.
+     * This method infers the engine connection string.
+     * For advanced usage, use the constructor that takes an engine connection string and an engine connection string.
+     * @param engineConnectionString The engine connection string.
+     * @param defaultProps The default ingestion properties.
+     */
+    static fromEngineConnectionString(engineConnectionString: KustoConnectionStringBuilder, defaultProps: IngestionProperties | null = null): KustoManagedStreamingIngestClient {
+        if (engineConnectionString.dataSource == null || engineConnectionString.dataSource.startsWith(ingestPrefix)) {
+            throw new Error(`Engine connection string must not include the prefix '${ingestPrefix}'`);
+        }
+
+        const dmConnectionString = KustoConnectionStringBuilder.fromExisting(engineConnectionString);
+        dmConnectionString.dataSource = dmConnectionString.dataSource?.replace("https://", ingestPrefix);
+
+        return new KustoManagedStreamingIngestClient(engineConnectionString, dmConnectionString, defaultProps);
+    }
 
     constructor(engineKcsb: string | KustoConnectionStringBuilder, dmKcsb: string | KustoConnectionStringBuilder, defaultProps: IngestionProperties | null = null) {
         super(defaultProps);
-        this.streamingIngestClient = new StreamingIngestClient(engineKcsb);
-        this.queuedIngestClient = new IngestClient(dmKcsb);
-        this.maxRetries = maxRetries;
+        this.streamingIngestClient = new StreamingIngestClient(engineKcsb, defaultProps);
+        this.queuedIngestClient = new IngestClient(dmKcsb, defaultProps);
     }
 
     async ingestFromStream(stream: StreamDescriptor | Readable, ingestionProperties: IngestionProperties): Promise<any> {
@@ -34,25 +73,27 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
         props.validate();
         const descriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
 
-        const buffer: Buffer[] = await toArray(descriptor.stream);
-        let sleepTime = 1000;
-        const bufferSize = buffer.reduce((sum, b) => sum += b.length, 0);
-        if (bufferSize <= maxSteamSize) {
-            let i = 0;
-            for (; i < this.maxRetries; i++) {
+        let result = await tryStreamToArray(descriptor.stream, maxStreamSize);
+
+        if (result instanceof Buffer) // If we get buffer that means it was less than the max size, so we can do streamingIngestion
+        {
+            const retry = new ExponentialRetry(attemptCount, this.baseSleepTimeSecs, this.baseJitterSecs);
+            while (retry.shouldTry()) {
                 try {
-                    return await this.streamingIngestClient.ingestFromStream(new StreamDescriptor(streamify(buffer)).merge(descriptor), ingestionProperties);
+                    const sourceId = `KNC.executeManagedStreamingIngest;${descriptor.sourceId};${retry.currentAttempt}`
+                    return await this.streamingIngestClient.ingestFromStream(new StreamDescriptor(streamify([result])).merge(descriptor), ingestionProperties, sourceId);
                 } catch (err: any) {
                     if (err['@permanent']) {
                         throw err;
                     }
-                    await sleep(getRandomSleep(sleepTime));
-                    sleepTime *= 2;
+                    await retry.backoff();
                 }
             }
+
+            result = streamify([result]);
         }
 
-        return await this.queuedIngestClient.ingestFromStream(new StreamDescriptor(streamify(buffer)).merge(descriptor), ingestionProperties);
+        return await this.queuedIngestClient.ingestFromStream(new StreamDescriptor(result).merge(descriptor), ingestionProperties);
     }
 
     async ingestFromFile(file: FileDescriptor | string, ingestionProperties: IngestionProperties): Promise<KustoResponseDataSet | QueueSendMessageResponse> {

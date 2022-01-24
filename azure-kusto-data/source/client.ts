@@ -78,13 +78,17 @@ export class KustoClient {
         return this._execute(this.endpoints[ExecutionType.Mgmt], ExecutionType.Mgmt, db, query, null, properties);
     }
 
-    async executeStreamingIngest(db: string, table: string, stream: any, streamFormat: any, mappingName: string | null): Promise<KustoResponseDataSet> {
+    async executeStreamingIngest(db: string, table: string, stream: any, streamFormat: any, mappingName: string | null, clientRequestId?: string): Promise<KustoResponseDataSet> {
         let endpoint = `${this.endpoints[ExecutionType.Ingest]}/${db}/${table}?streamFormat=${streamFormat}`;
         if (mappingName != null) {
             endpoint += `&mappingName=${mappingName}`;
         }
-
-        return this._execute(endpoint, ExecutionType.Ingest, db, null, stream, null);
+        let properties: ClientRequestProperties | null = null;
+        if (clientRequestId) {
+            properties = new ClientRequestProperties()
+            properties.clientRequestId = clientRequestId;
+        }
+        return this._execute(endpoint, ExecutionType.Ingest, db, null, stream, properties);
     }
 
     async _execute(
@@ -110,15 +114,6 @@ export class KustoClient {
 
             if (properties != null) {
                 payload.properties = properties.toJson();
-                clientRequestId = properties.clientRequestId;
-
-                if(properties.application != null){
-                    headers["x-ms-app"] = properties.application;
-                }
-
-                if(properties.user != null){
-                    headers["x-ms-user"] = properties.user;
-                }
             }
 
             payloadContent = JSON.stringify(payload);
@@ -130,6 +125,18 @@ export class KustoClient {
             clientRequestPrefix = "KNC.executeStreamingIngest;";
             headers["Content-Encoding"] = "gzip";
             headers["Content-Type"] = "multipart/form-data";
+        }
+
+        if (properties != null) {
+            clientRequestId = properties.clientRequestId;
+
+            if (properties.application != null) {
+                headers["x-ms-app"] = properties.application;
+            }
+
+            if (properties.user != null) {
+                headers["x-ms-user"] = properties.user;
+            }
         }
 
         headers["x-ms-client-request-id"] = clientRequestId || clientRequestPrefix + `${uuidv4()}`;

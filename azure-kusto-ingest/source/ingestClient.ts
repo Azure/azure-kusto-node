@@ -41,7 +41,7 @@ export class KustoIngestClient extends AbstractKustoClient{
         return containerClient.getBlockBlobClient(blobName);
     }
 
-    async ingestFromStream(stream: StreamDescriptor | Readable, ingestionProperties: IngestionProperties): Promise<any> {
+    async ingestFromStream(stream: StreamDescriptor | Readable, ingestionProperties: IngestionProperties): Promise<QueueSendMessageResponse> {
         const props = this._mergeProps(ingestionProperties);
         props.validate();
         const descriptor: StreamDescriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
