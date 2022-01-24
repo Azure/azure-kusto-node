@@ -8,7 +8,7 @@ import zlib from "zlib";
 import {AbstractKustoClient} from "./abstractKustoClient";
 import {Client as KustoClient, KustoConnectionStringBuilder} from "azure-kusto-data";
 import {KustoResponseDataSet} from "azure-kusto-data/source/response";
-import { fileToStream } from "./utils";
+import { fileToStream } from "./streamUtils";
 import { Readable } from "stream";
 
 class KustoStreamingIngestClient extends AbstractKustoClient {
@@ -20,7 +20,7 @@ class KustoStreamingIngestClient extends AbstractKustoClient {
         this.kustoClient = new KustoClient(kcsb);
     }
 
-    async ingestFromStream(stream: StreamDescriptor | Readable, ingestionProperties: IngestionProperties): Promise<any> {
+    async ingestFromStream(stream: StreamDescriptor | Readable, ingestionProperties: IngestionProperties, clientRequestId?: string): Promise<any> {
         const props = this._mergeProps(ingestionProperties);
         props.validate();
         const descriptor: StreamDescriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
@@ -32,7 +32,8 @@ class KustoStreamingIngestClient extends AbstractKustoClient {
             props.table as string,
             compressedStream,
             props.format,
-            props.ingestionMappingReference ?? null);
+            props.ingestionMappingReference ?? null,
+            clientRequestId);
     }
 
     async ingestFromFile(file: FileDescriptor | string, ingestionProperties: IngestionProperties): Promise<KustoResponseDataSet> {
