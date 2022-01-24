@@ -340,3 +340,7 @@ __main.js
 
 # We still want example.js files
 !example.js
+
+**/.nyc_output
+**/coverage
+**/test-results.xml
