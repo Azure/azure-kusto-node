@@ -88,23 +88,21 @@ function main(): void {
             }
         });
 
-        describe('SetUp', async function () {
-            it('Create table', async function () {
+        before('SetUp', async function () {
                 try {
                     await queryClient.execute(databaseName, `.create table ${tableName} ${tableColumns}`);
                     await queryClient.execute(databaseName, `.alter table ${tableName} policy streamingingestion enable`);
                     await queryClient.execute(databaseName, ".clear database cache streamingingestion schema");
-                } catch (err) {
-                    assert.fail("Failed to create table");
-                }
-            });
 
-            console.log('Create table ingestion mapping')
-            try {
-                await queryClient.execute(databaseName, `.create-or-alter table ${tableName} ingestion json mapping '${mappingName}' '${mapping}'`);
-            } catch (err) {
-                assert.fail("Failed to create table ingestion mapping" + err);
-            }
+                    console.log('Create table ingestion mapping')
+                    try {
+                        await queryClient.execute(databaseName, `.create-or-alter table ${tableName} ingestion json mapping '${mappingName}' '${mapping}'`);
+                    } catch (err) {
+                        assert.fail("Failed to create table ingestion mapping, error: " + JSON.stringify(err));
+                    }
+                } catch (err) {
+                    assert.fail("Failed to create table, error: " + JSON.stringify(err));
+                }
         });
 
         describe('cloud info', function () {
