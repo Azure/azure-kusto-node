@@ -107,7 +107,7 @@ function main(): void {
                 assert.fail("Failed to create table ingestion mapping" + err);
             }
         });
-        
+
         describe('cloud info', function () {
             it('Cached cloud info', async function () {
                 const cloudInfo = CloudSettings.getInstance().cloudCache[process.env.ENGINE_CONNECTION_STRING as string]; // it should be already in the cache at this point
