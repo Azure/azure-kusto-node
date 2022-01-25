@@ -1,17 +1,20 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-const assert = require("assert");
-const v2Response = require("./data/response/v2");
-const { KustoResponseDataSetV2 } = require("../source/response");
+import assert from "assert";
+
+import v2Response from "./data/response/v2.json";
+import { KustoResponseDataSetV2 } from "../source/response";
+
 
 describe("KustoResultDataSet", function () {
     describe("#constructor()", function () {
         it("valid input", function () {
-            let actual = new KustoResponseDataSetV2(v2Response);
+            // @ts-ignore - it can't infer the type from the json, but it's valid
+            const actual = new KustoResponseDataSetV2(v2Response);
 
-            assert.equal(actual.primaryResults.length, 1);
-            assert.equal(actual.tables.length, 3);
+            assert.strictEqual(actual.primaryResults.length, 1);
+            assert.strictEqual(actual.tables.length, 3);
             assert.notEqual(actual.statusTable, null);
         });
     });

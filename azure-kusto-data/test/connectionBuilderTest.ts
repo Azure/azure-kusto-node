@@ -17,11 +17,11 @@ describe("KustoConnectionStringBuilder", function () {
             ];
 
             for (const kcsb of kcsbs) {
-                assert.equal(kcsb.dataSource, "localhost");
-                assert.equal(kcsb.authorityId, "common");
+                assert.strictEqual(kcsb.dataSource, "localhost");
+                assert.strictEqual(kcsb.authorityId, "common");
                 const emptyFields = ["aadUserId", "password", "applicationClientId", "applicationKey"];
                 for (const field of emptyFields) {
-                    assert.equal(kcsb[field], null);
+                    assert.strictEqual(kcsb[field], undefined);
                 }
             }
         });
@@ -42,13 +42,13 @@ describe("KustoConnectionStringBuilder", function () {
             kcsbs.push(kcsb1);
 
             for (const kcsb of kcsbs) {
-                assert.equal(kcsb.dataSource, "localhost");
-                assert.equal(kcsb.aadUserId, expectedUser);
-                assert.equal(kcsb.password, expectedPassword);
-                assert.equal(kcsb.authorityId, "common");
+                assert.strictEqual(kcsb.dataSource, "localhost");
+                assert.strictEqual(kcsb.aadUserId, expectedUser);
+                assert.strictEqual(kcsb.password, expectedPassword);
+                assert.strictEqual(kcsb.authorityId, "common");
                 const emptyFields = ["applicationClientId", "applicationKey"];
                 for (const field of emptyFields) {
-                    assert.equal(kcsb[field], null);
+                    assert.strictEqual(kcsb[field], undefined);
                 }
             }
         });
@@ -72,13 +72,13 @@ describe("KustoConnectionStringBuilder", function () {
             kcsbs.push(kcsb1);
 
             for (const kcsb of kcsbs) {
-                assert.equal(kcsb.dataSource, "localhost");
-                assert.equal(kcsb.applicationClientId, uuid);
-                assert.equal(kcsb.applicationKey, key);
-                assert.equal(kcsb.authorityId, "common");
+                assert.strictEqual(kcsb.dataSource, "localhost");
+                assert.strictEqual(kcsb.applicationClientId, uuid);
+                assert.strictEqual(kcsb.applicationKey, key);
+                assert.strictEqual(kcsb.authorityId, "common");
                 const emptyFields = ["aadUserId", "password"];
                 for (const field of emptyFields) {
-                    assert.equal(kcsb[field], null);
+                    assert.strictEqual(kcsb[field], undefined);
                 }
             }
         });

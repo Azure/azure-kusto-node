@@ -10,9 +10,6 @@
       "only-arrow-functions": false
     },
     "linterOptions": {
-      "exclude": [
-        "./test/**/*"
-      ]
     },
     "rulesDirectory": []
 }

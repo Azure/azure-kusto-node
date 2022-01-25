@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+/* tslint:disable:no-console */
+
 import assert from "assert";
 import fs, {ReadStream} from 'fs';
 import IngestClient from "../../source/ingestClient";
@@ -35,8 +37,8 @@ function main(): void {
     const ingestClient = new IngestClient(dmKcsb);
     const statusQueues = new KustoIngestStatusQueues(ingestClient);
     const managedStreamingIngestClient = new ManagedStreamingIngestClient(engineKcsb, dmKcsb);
-  
-    class testDataItem {
+
+    class TestDataItem {
         constructor(public description: string, public path: string, public rows: number, public ingestionProperties: IngestionProperties, public testOnstreamingIngestion = true) {
         }
     }
@@ -70,12 +72,12 @@ function main(): void {
     });
 
     const testItems = [
-        new testDataItem("csv", getTestResourcePath("dataset.csv"), 10, ingestionPropertiesWithoutMapping),
-        new testDataItem("csv.gz", getTestResourcePath("dataset_gzip.csv.gz"), 10, ingestionPropertiesWithoutMapping),
-        new testDataItem("json with mapping ref", getTestResourcePath("dataset.json"), 2, ingestionPropertiesWithMappingReference),
-        new testDataItem("json.gz with mapping ref", getTestResourcePath("dataset_gzip.json.gz"), 2, ingestionPropertiesWithMappingReference),
-        new testDataItem("json with mapping", getTestResourcePath("dataset.json"), 2, ingestionPropertiesWithColumnMapping, false),
-        new testDataItem("json.gz with mapping", getTestResourcePath("dataset_gzip.json.gz"), 2, ingestionPropertiesWithColumnMapping, false)
+        new TestDataItem("csv", getTestResourcePath("dataset.csv"), 10, ingestionPropertiesWithoutMapping),
+        new TestDataItem("csv.gz", getTestResourcePath("dataset_gzip.csv.gz"), 10, ingestionPropertiesWithoutMapping),
+        new TestDataItem("json with mapping ref", getTestResourcePath("dataset.json"), 2, ingestionPropertiesWithMappingReference),
+        new TestDataItem("json.gz with mapping ref", getTestResourcePath("dataset_gzip.json.gz"), 2, ingestionPropertiesWithMappingReference),
+        new TestDataItem("json with mapping", getTestResourcePath("dataset.json"), 2, ingestionPropertiesWithColumnMapping, false),
+        new TestDataItem("json.gz with mapping", getTestResourcePath("dataset_gzip.json.gz"), 2, ingestionPropertiesWithColumnMapping, false)
     ];
 
     let currentCount = 0;
@@ -149,7 +151,7 @@ function main(): void {
 
         describe('StreamingIngestClient', function () {
             it('ingestFromFile', async function () {
-                for (const item of testItems.filter(item => item.testOnstreamingIngestion)) {
+                for (const item of testItems.filter(i => i.testOnstreamingIngestion)) {
                     try {
                         await streamingIngestClient.ingestFromFile(item.path, item.ingestionProperties);
                     } catch (err) {
@@ -160,7 +162,7 @@ function main(): void {
             }).timeout(240000);
 
             it('ingestFromStream', async function () {
-                for (const item of testItems.filter(item => item.testOnstreamingIngestion)) {
+                for (const item of testItems.filter(i => i.testOnstreamingIngestion)) {
                     let stream: ReadStream | StreamDescriptor = fs.createReadStream(item.path);
                     if (item.path.endsWith('gz')) {
                         stream = new StreamDescriptor(stream, null, CompressionType.GZIP);
@@ -177,7 +179,7 @@ function main(): void {
 
         describe('ManagedStreamingIngestClient', function () {
             it('ingestFromFile', async function () {
-                for (const item of testItems.filter(item => item.testOnstreamingIngestion)) {
+                for (const item of testItems.filter(i => i.testOnstreamingIngestion)) {
                     try {
                         await managedStreamingIngestClient.ingestFromFile(item.path, item.ingestionProperties);
                     } catch (err) {
@@ -188,7 +190,7 @@ function main(): void {
                 }
             }).timeout(240000);
             it('ingestFromStream', async function () {
-                for (const item of testItems.filter(item => item.testOnstreamingIngestion)) {
+                for (const item of testItems.filter(i => i.testOnstreamingIngestion)) {
                     let stream: ReadStream | StreamDescriptor = fs.createReadStream(item.path);
                     if (item.path.endsWith('gz')) {
                         stream = new StreamDescriptor(stream, null, CompressionType.GZIP);
@@ -303,7 +305,7 @@ function main(): void {
         return __dirname + `/e2eData/${name}`;
     }
 
-    async function assertRowsCount(testItem: testDataItem) {
+    async function assertRowsCount(testItem: TestDataItem) {
         let count = 0;
         const expected = testItem.rows;
         // Timeout = 3 min

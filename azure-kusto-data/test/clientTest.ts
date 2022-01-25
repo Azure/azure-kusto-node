@@ -14,14 +14,10 @@ import {
     KustoResponseDataSetV2
 } from "../source/response";
 
-// tslint:disable-next-line:no-var-requires
-const v2Response = require("./data/response/v2");
-// tslint:disable-next-line:no-var-requires
-const v2ResponseError = require("./data/response/v2error");
-// tslint:disable-next-line:no-var-requires
-const v1Response = require("./data/response/v1");
-// tslint:disable-next-line:no-var-requires variable-name
-const v1_2Response = require("./data/response/v1_2");
+import v2Response from "./data/response/v2.json";
+import v2ResponseError from "./data/response/v2error.json";
+import v1Response from "./data/response/v1.json";
+import v1_2Response from "./data/response/v1_2.json";
 
 enum ExecutionType {
     Mgmt = "mgmt",
@@ -36,8 +32,8 @@ describe("KustoClient", function () {
             const url = "https://cluster.kusto.windows.net";
             const client = new KustoClient(url);
 
-            assert.equal(client.connectionString.authorityId, "common");
-            assert.equal(client.connectionString.dataSource, url);
+            assert.strictEqual(client.connectionString.authorityId, "common");
+            assert.strictEqual(client.connectionString.dataSource, url);
         });
     });
 
@@ -47,7 +43,7 @@ describe("KustoClient", function () {
             const client = new KustoClient(url);
 
             const response = client._parseResponse(v1Response, ExecutionType.Mgmt);
-            assert.equal((response as KustoResponseDataSetV1).version, "1.0");
+            assert.strictEqual((response as KustoResponseDataSetV1).version, "1.0");
         });
 
         it("valid v1 more data", function () {
@@ -55,7 +51,7 @@ describe("KustoClient", function () {
             const client = new KustoClient(url);
 
             const response = client._parseResponse(v1_2Response, ExecutionType.QueryV1);
-            assert.equal((response as KustoResponseDataSetV1).version, "1.0");
+            assert.strictEqual((response as KustoResponseDataSetV1).version, "1.0");
         });
 
         it("valid v2", function () {
@@ -64,7 +60,7 @@ describe("KustoClient", function () {
 
 
             const response = client._parseResponse(v2Response, ExecutionType.Query);
-            assert.equal((response as KustoResponseDataSetV2).version, "2.0");
+            assert.strictEqual((response as KustoResponseDataSetV2).version, "2.0");
         });
 
         it("valid v2 raw", function () {
@@ -72,7 +68,7 @@ describe("KustoClient", function () {
             const client = new KustoClient(url);
 
             const response = client._parseResponse(v2Response, ExecutionType.Query, { raw: true } as ClientRequestProperties);
-            assert.equal(response, v2Response);
+            assert.strictEqual(response, v2Response);
         });
 
         it("malformed body", function () {
@@ -82,7 +78,9 @@ describe("KustoClient", function () {
                 client._parseResponse({}, ExecutionType.Query);
             }
             catch(ex){
-                ex.message.startsWith("Failed to parse response ({undefined}) with the following error [TypeError: data.forEach is not a function].");
+                assert( ex instanceof Error && ex.message.startsWith("Failed to parse response ({undefined}) with the following error [TypeError:" +
+                    " data.forEach is" +
+                    " not a function]."));
                 return;
             }
             assert.fail();
@@ -96,7 +94,7 @@ describe("KustoClient", function () {
                 client._parseResponse(v2ResponseError, ExecutionType.Query);
             }
             catch(ex){
-                assert.equal(ex.message.startsWith("Kusto request had errors"), true);
+                assert( ex instanceof Error && ex.message.startsWith("Kusto request had errors"));
                 return;
             }
             assert.fail();
@@ -112,8 +110,8 @@ describe("KustoClient", function () {
             client.aadHelper._getAuthHeader = () => { return Promise.resolve("MockToken") };
             client._doRequest = (_endpoint, _executionType, _headers, payload, timeout) => {
                 const payloadObj = JSON.parse(payload);
-                assert.equal(payloadObj.properties.Options.servertimeout, "00:02:30.6");
-                assert.equal(timeout, timeoutMs + moment.duration(0.5, "minutes").asMilliseconds());
+                assert.strictEqual(payloadObj.properties.Options.servertimeout, "00:02:30.6");
+                assert.strictEqual(timeout, timeoutMs + moment.duration(0.5, "minutes").asMilliseconds());
                 return Promise.resolve(new KustoResponseDataSetV2([]));
             };
 
@@ -130,7 +128,7 @@ describe("KustoClient", function () {
             client.aadHelper._getAuthHeader = () => { return Promise.resolve("MockToken") };
             client._doRequest = (_endpoint, _executionType, _headers, payload, timeout) => {
                 JSON.parse(payload);
-                assert.equal(timeout, timeoutMs);
+                assert.strictEqual(timeout, timeoutMs);
                 return Promise.resolve(new KustoResponseDataSetV2([]));
             };
 
@@ -143,7 +141,7 @@ describe("KustoClient", function () {
 
             client.aadHelper._getAuthHeader = () => { return Promise.resolve("MockToken") };
             client._doRequest = (_endpoint, _executionType, _headers, _payload, timeout) => {
-                assert.equal(timeout, moment.duration(4.5, "minutes").asMilliseconds());
+                assert.strictEqual(timeout, moment.duration(4.5, "minutes").asMilliseconds());
                 return Promise.resolve(new KustoResponseDataSetV2([]));
             };
 
@@ -155,7 +153,7 @@ describe("KustoClient", function () {
             const client = new KustoClient(url);
             client.aadHelper._getAuthHeader = () => { return Promise.resolve("MockToken") };
             client._doRequest = (_endpoint, _executionType, _headers, _payload, timeout) => {
-                assert.equal(timeout, moment.duration(10.5, "minutes").asMilliseconds());
+                assert.strictEqual(timeout, moment.duration(10.5, "minutes").asMilliseconds());
                 return Promise.resolve(new KustoResponseDataSetV2([]));
             };
 
@@ -175,9 +173,9 @@ describe("KustoClient", function () {
             clientRequestProps.user = user;
             client.aadHelper._getAuthHeader = () => { return Promise.resolve("MockToken") };
             client._doRequest = (_endpoint, _executionType, headers) => {
-                assert.equal(headers["x-ms-client-request-id"], clientRequestId);
-                assert.equal(headers["x-ms-app"], application);
-                assert.equal(headers["x-ms-user"], user);
+                assert.strictEqual(headers["x-ms-client-request-id"], clientRequestId);
+                assert.strictEqual(headers["x-ms-app"], application);
+                assert.strictEqual(headers["x-ms-user"], user);
                 return Promise.resolve(new KustoResponseDataSetV2([]));
             };
 
@@ -190,8 +188,8 @@ describe("KustoClient", function () {
 
             client.aadHelper._getAuthHeader = () => { return Promise.resolve("MockToken") };
             client._doRequest = (endpoint, executionType, _headers, _payload, _timeout, _properties) => {
-                assert.equal(endpoint, `${url}/v1/rest/query`);
-                assert.equal(executionType, ExecutionType.QueryV1);
+                assert.strictEqual(endpoint, `${url}/v1/rest/query`);
+                assert.strictEqual(executionType, ExecutionType.QueryV1);
                 return Promise.resolve(new KustoResponseDataSetV2([]));
             };
 

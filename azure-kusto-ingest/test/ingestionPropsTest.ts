@@ -2,12 +2,12 @@
 // Licensed under the MIT License.
 
 import assert from "assert";
-import {IngestionProperties, JsonColumnMapping} from "../source/ingestionProperties";
+import { DataFormat, IngestionProperties, JsonColumnMapping } from "../source/ingestionProperties";
 
 import {IngestionBlobInfo} from "../source/ingestionBlobInfo";
 import {BlobDescriptor} from "../source/descriptors";
 
-const { DataFormat } = require("../source/ingestionProperties");
+
 
 describe("IngestionProperties", function () {
     describe("#constructor()", function () {

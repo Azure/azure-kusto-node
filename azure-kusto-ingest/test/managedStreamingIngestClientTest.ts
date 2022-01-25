@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+/* tslint:disable:no-console */
+
 import sinon from "sinon";
 import { StreamingIngestClient } from "../index";
 import { StreamDescriptor } from "../source/descriptors";
@@ -46,7 +48,7 @@ describe("ManagedStreamingIngestClient", function () {
         };
 
         stream.on('data', function (data: Buffer) {
-            console.log(data.toString("utf-8").substring(0, 100));
+            console.debug(data.toString("utf-8").substring(0, 100));
         });
         return stream;
     }
@@ -87,7 +89,7 @@ describe("ManagedStreamingIngestClient", function () {
         }
     }
 
-    CloudSettings.getInstance().cloudCache["engine"] = CloudSettings.getInstance().defaultCloudInfo;
+    CloudSettings.getInstance().cloudCache.engine = CloudSettings.getInstance().defaultCloudInfo;
 
     const testUuid = "9c565db6-ddcd-4b2d-bb6e-17525aab254d";
 
@@ -100,7 +102,7 @@ describe("ManagedStreamingIngestClient", function () {
                 queuedStub.throws(new Error("Should not be called"));
 
 
-                let items = [
+                const items = [
                     Buffer.alloc(1024 * 1024, "a"),
                     Buffer.alloc(1024 * 1024, "b"),
                     Buffer.alloc(1024 * 1024, "c"),
@@ -130,11 +132,11 @@ describe("ManagedStreamingIngestClient", function () {
                 // Mock ManagedStreamingIngestClient with mocked streamingIngestClient
                 const transientError = { "@permanent": false };
                 streamStub.throws(transientError);
-                queuedStub.returns(Promise.resolve(<QueueSendMessageResponse>{}));
+                queuedStub.returns(Promise.resolve({} as QueueSendMessageResponse));
 
                 managedClient._mergeProps()
 
-                let items = [Buffer.from("string1"), Buffer.from("string2"), Buffer.from("string3")];
+                const items = [Buffer.from("string1"), Buffer.from("string2"), Buffer.from("string3")];
                 const stream = createStream(items);
 
                 await managedClient.ingestFromStream(new StreamDescriptor(stream, sourceId), new IngestionProperties({
@@ -155,18 +157,18 @@ describe("ManagedStreamingIngestClient", function () {
                 const mockedStreamingIngestClient = new StreamingIngestClient("engine");
                 const mockedIngestClient = new KustoIngestClient("engine");
                 const sandbox = sinon.createSandbox();
-                let streamStub = sinon.stub(mockedStreamingIngestClient, "ingestFromStream");
+                const streamStub = sinon.stub(mockedStreamingIngestClient, "ingestFromStream");
                 streamStub.throws(new Error("Should not be called"));
-                let queuedStub = sinon.stub(mockedIngestClient, "ingestFromStream");
-                queuedStub.returns(Promise.resolve(<QueueSendMessageResponse>{}));
+                const queuedStub = sinon.stub(mockedIngestClient, "ingestFromStream");
+                queuedStub.returns(Promise.resolve({} as QueueSendMessageResponse));
                 const mockedManagedStreamingIngestClient: KustoManagedStreamingIngestClient =
                     Object.setPrototypeOf({
                         streamingIngestClient: mockedStreamingIngestClient,
                         queuedIngestClient: mockedIngestClient, maxRetries: 1, baseSleepTimeSecs: 0, baseJitterSecs: 0
                     }, KustoManagedStreamingIngestClient.prototype);
 
-                let singleBufferSize = 1023 * 1024;
-                let buffers = [
+                const singleBufferSize = 1023 * 1024;
+                const buffers = [
                     Buffer.alloc(singleBufferSize, "a"),
                     Buffer.alloc(singleBufferSize, "b"),
                     Buffer.alloc(singleBufferSize, "c"),
