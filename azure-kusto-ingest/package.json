@@ -25,7 +25,7 @@
     "test": "npm run build && mocha --parallel --recursive test/*.js",
     "e2e": "npm run build && mocha --parallel test/e2eTests/e2eTest.ts",
     "allTests": "npm run build && mocha --parallel --timeout 240000 --recursive",
-    "testPipeline": "npm run build && nyc --reporter lcovonly mocha --parallel --timeout 240000 --recursive --reporter mocha-junit-reporter "
+    "testPipeline": "npm run build && nyc --reporter lcovonly mocha --timeout 240000 --recursive --reporter mocha-junit-reporter "
   },
   "repository": {
     "type": "git",

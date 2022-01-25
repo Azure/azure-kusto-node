@@ -23,7 +23,7 @@
     "example": "npm run build && node example.js",
     "lint": "npm run build && tslint --project tsconfig.json --quiet",
     "test": "npm run build && mocha --parallel",
-    "testPipeline": "npm run build && nyc --reporter lcovonly mocha --parallel --reporter mocha-junit-reporter"
+    "testPipeline": "npm run build && nyc --reporter lcovonly mocha --reporter mocha-junit-reporter"
   },
   "repository": {
     "type": "git",
