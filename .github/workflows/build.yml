@@ -19,6 +19,7 @@ jobs:
           cache-dependency-path: |
             azure-kusto-data/package-lock.json
             azure-kusto-ingest/package-lock.json
+      - run: npm install -g npm@latest
       - working-directory: ./azure-kusto-data
         run: |
           npm i
