@@ -8,13 +8,14 @@ export enum WellKnownDataSet {
     QueryCompletionInformation = "QueryCompletionInformation",
     TableOfContents = "TableOfContents",
     QueryProperties = "QueryProperties"
+};
+
+const ValueParser: { [fromString: string]: (typeof moment | typeof moment.duration) } = {
+    datetime: moment,
+    timespan: moment.duration,
+    DateTime: moment,
+    TimeSpan: moment.duration,
 }
-
-type DateTimeParser = (value: string) => any;
-type TimeSpanParser = (value: number) => any;
-
-const defaultDatetimeParser: DateTimeParser = (t:string) => moment(t);
-const defaultTimespanParser: TimeSpanParser = (t:number) => moment.duration(t);
 
 export interface Table {
     TableKind?: string;
@@ -30,35 +31,21 @@ interface Column {
     DateType?: string
 }
 
+
 export class KustoResultRow {
     columns: KustoResultColumn[];
     raw: any;
 
     [column: string]: any;
 
-    constructor(columns: KustoResultColumn[], row: { [ord: number]: any }, dateTimeParser: DateTimeParser = defaultDatetimeParser, timeSpanParser: TimeSpanParser = defaultTimespanParser) {
+    constructor(columns: KustoResultColumn[], row: { [ord: number]: any }) {
         this.columns = columns.sort((a, b) => a.ordinal - b.ordinal);
         this.raw = row;
 
         for (const col of this.columns) {
-            if (col.name == null) {
-                continue;
-            }
-            let value = row[col.ordinal];
+            const parse = ValueParser[col.type as string];
 
-            if (col.type != null) {
-                switch (col.type.toLowerCase()) {
-                    case "datetime":
-                        value = dateTimeParser(value);
-                        break;
-                    case "timespan":
-                        value = timeSpanParser(value);
-                        break;
-                }
-                this[col.name] = row[col.ordinal];
-            }
-
-            this[col.name] = value;
+            this[col.name as string] = parse ? parse(row[col.ordinal]) : row[col.ordinal];
         }
     }
 
@@ -73,7 +60,7 @@ export class KustoResultRow {
         return this[this.columns[index].name as string];
     }
 
-    toObject() {
+    toJson() {
         const obj: any = {};
 
         for (const col of this.columns) {
@@ -83,8 +70,8 @@ export class KustoResultRow {
         return obj;
     }
 
-    toJsonString() {
-        return JSON.stringify(this.toObject());
+    toString() {
+        return JSON.stringify(this.toJson());
     }
 }
 
@@ -107,8 +94,6 @@ export class KustoResultTable {
     kind?: string;
     columns: KustoResultColumn[];
     readonly _rows: any[];
-    private _dateTimeParser: DateTimeParser = defaultDatetimeParser;
-    private _timeSpanParser: TimeSpanParser = defaultTimespanParser;
 
     [row: number]: any;
 
@@ -130,42 +115,28 @@ export class KustoResultTable {
                 Object.defineProperty(this, i, {get: () => new KustoResultRow(this.columns, this._rows[i])});
             }
         }
-    }
 
-    get timeSpanParser(): TimeSpanParser {
-        return this._timeSpanParser;
-    }
-
-    set timeSpanParser(value: TimeSpanParser) {
-        this._timeSpanParser = value;
-    }
-    get dateTimeParser(): DateTimeParser {
-        return this._dateTimeParser;
-    }
-
-    set dateTimeParser(value: DateTimeParser) {
-        this._dateTimeParser = value;
     }
 
     * rows() {
         for (const row of this._rows) {
-            yield new KustoResultRow(this.columns, row, this._dateTimeParser, this._timeSpanParser);
+            yield new KustoResultRow(this.columns, row);
         }
     }
 
-    toObject() {
+    toJson() {
         const table: any = {};
 
         table.name = this.name;
         table.data = [];
         for (const row of this.rows()) {
-            table.data.push(row.toObject());
+            table.data.push(row.toJson());
         }
 
         return table;
     }
 
-    toJsonString() {
-        return JSON.stringify(this.toObject());
+    toString() {
+        return JSON.stringify(this.toJson());
     }
 }
