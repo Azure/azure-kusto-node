@@ -18,7 +18,7 @@ async function start() {
     try {
         const results = await kustoClient.execute(database, `['${table}'] | limit 1`);
         console.log(JSON.stringify(results));
-        console.log(results.primaryResults[0].toString());
+        console.log(results.primaryResults[0].toJsonString());
     }
     catch (error) {
         console.log(error);
@@ -40,7 +40,7 @@ async function start() {
     try {
         const results = await kustoClient.execute(database, `['${table}'] | limit 1`, clientRequestProps);
         console.log(JSON.stringify(results));
-        console.log(results.primaryResults[0].toString());
+        console.log(results.primaryResults[0].toJsonString());
     }
     catch (error) {
         console.log(error);
