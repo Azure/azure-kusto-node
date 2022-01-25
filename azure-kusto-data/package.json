@@ -44,7 +44,7 @@
   },
   "devDependencies": {
     "@types/mocha": "^8.2.0",
-    "mocha": "^7.1.2",
+    "mocha": "^9.2.0",
     "mocha-junit-reporter": "^2.0.2",
     "nyc": "^15.1.0",
     "sinon": "^7.2.3",
