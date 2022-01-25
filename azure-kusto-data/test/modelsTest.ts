@@ -83,7 +83,7 @@ describe("KustoResultRow", function () {
             for (let index = 0; index < inputColumns.length; index++) {
                 const currentActual = asJson[inputColumns[index].name as string];
                 if (inputColumns[index].type === "timespan") {
-                    assert.strictEqual(Number(currentActual), expectedValues[index]);
+                    assert.strictEqual(Number(currentActual), Number(expectedValues[index]));
                 }
                 else if (typeof(currentActual) == "object") {
                     assert.strictEqual(currentActual.toString(), expectedValues[index].toString());
