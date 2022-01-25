@@ -5,7 +5,7 @@
   "main": "index.js",
   "types": "index.d.ts",
   "engines": {
-    "node": ">= 8.0.0"
+    "node": ">= 14.0.0"
   },
   "tags": [
     "azure",
@@ -22,10 +22,10 @@
     "prepublish": "npm run build",
     "example": "npm run build && node example.js",
     "lint": "npm run build && tslint --project tsconfig.json --quiet",
-    "test": "npm run build && mocha  --parallel",
-    "e2e": "npm run build && mocha  --parallel test/e2eTests/e2eTest.ts",
-    "allTests": "npm run build && mocha --timeout 240000 --recursive --parallel",
-    "testPipeline": "npm run build && nyc --reporter lcovonly mocha  --parallel --timeout 240000 --recursive --reporter mocha-junit-reporter "
+    "test": "npm run build && mocha --parallel --recursive test/*.js",
+    "e2e": "npm run build && mocha --parallel test/e2eTests/e2eTest.ts",
+    "allTests": "npm run build && mocha --parallel --timeout 240000 --recursive",
+    "testPipeline": "npm run build && nyc --reporter lcovonly mocha --timeout 240000 --recursive --reporter mocha-junit-reporter "
   },
   "repository": {
     "type": "git",
@@ -52,7 +52,7 @@
   },
   "devDependencies": {
     "@types/mocha": "^8.2.0",
-    "mocha": "^7.2.0",
+    "mocha": "^9.2.0",
     "mocha-junit-reporter": "^2.0.2",
     "nyc": "^15.1.0",
     "sinon": "^7.2.3",
