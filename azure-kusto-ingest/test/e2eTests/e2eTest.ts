@@ -306,8 +306,7 @@ function main(): void {
         let count = 0;
         const expected = testItem.rows;
         // Timeout = 3 min
-        for (let i = 0; i < 18; i++) {
-            await sleep(10000);
+        for (let i = 0; i < 60; i++) {
             let results;
             try {
                 results = await queryClient.execute(databaseName ?? "", `${tableName} | count `);
@@ -319,6 +318,7 @@ function main(): void {
             if (count >= expected) {
                 break;
             }
+            await sleep(3000);
         }
         currentCount += count;
         assert.strictEqual(count, expected, `Failed to ingest ${testItem.description} - '${count}' rows ingested, expected '${expected}'`);
