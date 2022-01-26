@@ -405,7 +405,7 @@ export class IngestionProperties{
                 }
 
                 const wrongMappings = this.ingestionMappingColumns.filter(m => m.mappingKind !== mappingKind).map(m => `Mapping kind mismatch for column '${m.columnName}' - expected data format kind -  '${mappingKind}', but was '${m.mappingKind}'`);
-                if (wrongMappings) {
+                if (wrongMappings.length > 0) {
                     throw new IngestionPropertiesValidationError(`Invalid columns:\n${wrongMappings.join("\n")}`);
                 }
             }
