@@ -11,7 +11,7 @@ import KustoIngestStatusQueues from "./source/status";
 
 import {
     AvroColumnMapping, CsvColumnMapping, JsonColumnMapping, ParquetColumnMapping, OrcColumnMapping, W3CLogFileMapping,
-    DataFormat, IngestionMappingType,
+    DataFormat, IngestionMappingKind,
     ReportLevel,
     ReportMethod,
     ValidationImplications,
@@ -50,6 +50,8 @@ export const IngestionPropertiesEnums = {
     ValidationImplications,
     ValidationOptions,
     DataFormat,
-    IngestionMappingType,
+    IngestionMappingType: IngestionMappingKind,
     CompressionType
 };
+
+export { IngestionPropertiesValidationError} from "./source/errors"

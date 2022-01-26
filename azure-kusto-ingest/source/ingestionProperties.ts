@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import { IngestionPropertiesValidationError } from "./errors";
+
 export enum DataFormat {
     CSV = "csv",
     TSV = "tsv",
@@ -21,8 +23,7 @@ export enum DataFormat {
     W3CLogFile = "w3clogfile",
 }
 
-export enum IngestionMappingType {
-    Unknown = "Unknown",
+export enum IngestionMappingKind {
     CSV = "Csv",
     JSON = "Json",
     AVRO = "Avro",
@@ -31,6 +32,47 @@ export enum IngestionMappingType {
     ORC = "orc",
     APACHEAVRO = "ApacheAvro",
     W3CLOGFILE = "W3CLogFile",
+}
+
+export function dataFormatMappingKind(dataFormat: DataFormat): IngestionMappingKind {
+    switch (dataFormat) {
+        case DataFormat.CSV:
+            return IngestionMappingKind.CSV;
+        case DataFormat.TSV:
+            return IngestionMappingKind.CSV;
+        case DataFormat.SCSV:
+            return IngestionMappingKind.CSV;
+        case DataFormat.SOHSV:
+            return IngestionMappingKind.CSV;
+        case DataFormat.PSV:
+            return IngestionMappingKind.CSV;
+        case DataFormat.TXT:
+            return IngestionMappingKind.CSV;
+        case DataFormat.RAW:
+            return IngestionMappingKind.CSV;
+        case DataFormat.TSVE:
+            return IngestionMappingKind.CSV;
+        case DataFormat.JSON:
+            return IngestionMappingKind.JSON;
+        case DataFormat.SINGLEJSON:
+            return IngestionMappingKind.JSON;
+        case DataFormat.MULTIJSON:
+            return IngestionMappingKind.JSON;
+        case DataFormat.AVRO:
+            return IngestionMappingKind.AVRO;
+        case DataFormat.PARQUET:
+            return IngestionMappingKind.PARQUET;
+        case DataFormat.SSTREAM:
+            return IngestionMappingKind.SSTREAM;
+        case DataFormat.ORC:
+            return IngestionMappingKind.ORC;
+        case DataFormat.APACHEAVRO:
+            return IngestionMappingKind.APACHEAVRO;
+        case DataFormat.W3CLogFile:
+            return IngestionMappingKind.W3CLOGFILE;
+        default:
+            throw new IngestionPropertiesValidationError(`Unsupported data format: ${dataFormat}`);
+    }
 }
 
 export enum ValidationOptions {
@@ -95,10 +137,10 @@ interface ApiColumnMapping {
 }
 
 abstract class ColumnMapping {
-    constructor(readonly columnName: string, readonly cslDataType?: string, readonly Properties?: MappingProperties) {
+    protected constructor(readonly columnName: string, readonly cslDataType?: string, readonly Properties?: MappingProperties) {
     }
 
-    public abstract mappingType(): IngestionMappingType;
+    public abstract mappingKind: IngestionMappingKind;
 
     public toApiMapping(): ApiColumnMapping {
         const result: ApiColumnMapping = {
@@ -142,7 +184,7 @@ export class CsvColumnMapping extends ColumnMapping {
         return new CsvColumnMapping(columnName, cslDataType, undefined, constantValue);
     }
 
-    mappingType = (): IngestionMappingType => IngestionMappingType.CSV;
+    mappingKind = IngestionMappingKind.CSV;
 }
 
 export class JsonColumnMapping extends ColumnMapping {
@@ -165,7 +207,7 @@ export class JsonColumnMapping extends ColumnMapping {
         return new JsonColumnMapping(columnName, undefined, cslDataType, undefined, transform);
     }
 
-    mappingType = (): IngestionMappingType => IngestionMappingType.JSON;
+    mappingKind = IngestionMappingKind.JSON;
 }
 
 export class AvroColumnMapping extends ColumnMapping {
@@ -189,7 +231,56 @@ export class AvroColumnMapping extends ColumnMapping {
         return new AvroColumnMapping(columnName, cslDataType, undefined, undefined, undefined, transform);
     }
 
-    mappingType = (): IngestionMappingType => IngestionMappingType.AVRO;
+    mappingKind = IngestionMappingKind.AVRO;
+}
+
+export class ApacheAvroColumnMapping extends ColumnMapping {
+    private constructor(readonly columnName: string, cslDataType?: string, path?: string, field?: string, constantValue?: string, transform?: Transformation) {
+        super(columnName, cslDataType ?? undefined, { Path: path, Field: field, ConstValue: constantValue, Transform: transform });
+    }
+
+    public static withPath(columnName: string, path: string, cslDataType?: string, transform?: FieldTransformation): ApacheAvroColumnMapping {
+        return new ApacheAvroColumnMapping(columnName, cslDataType, path, undefined, undefined, transform);
+    }
+
+    public static withField(columnName: string, field: string, cslDataType?: string, transform?: FieldTransformation): ApacheAvroColumnMapping {
+        return new ApacheAvroColumnMapping(columnName, cslDataType, undefined, field, undefined, transform);
+    }
+
+    public static withConstantValue(columnName: string, constantValue: string, cslDataType?: string): ApacheAvroColumnMapping {
+        return new ApacheAvroColumnMapping(columnName, cslDataType, undefined, undefined, constantValue);
+    }
+
+    public static withTransform(columnName: string, transform: ConstantTransformation, cslDataType?: string): ApacheAvroColumnMapping {
+        return new ApacheAvroColumnMapping(columnName, cslDataType, undefined, undefined, undefined, transform);
+    }
+
+    mappingKind = IngestionMappingKind.APACHEAVRO;
+}
+
+
+export class SStreamColumnMapping extends ColumnMapping {
+    private constructor(readonly columnName: string, cslDataType?: string, path?: string, field?: string, constantValue?: string, transform?: Transformation) {
+        super(columnName, cslDataType ?? undefined, { Path: path, Field: field, ConstValue: constantValue, Transform: transform });
+    }
+
+    public static withPath(columnName: string, path: string, cslDataType?: string, transform?: FieldTransformation): SStreamColumnMapping {
+        return new SStreamColumnMapping(columnName, cslDataType, path, undefined, undefined, transform);
+    }
+
+    public static withField(columnName: string, field: string, cslDataType?: string, transform?: FieldTransformation): SStreamColumnMapping {
+        return new SStreamColumnMapping(columnName, cslDataType, undefined, field, undefined, transform);
+    }
+
+    public static withConstantValue(columnName: string, constantValue: string, cslDataType?: string): SStreamColumnMapping {
+        return new SStreamColumnMapping(columnName, cslDataType, undefined, undefined, constantValue);
+    }
+
+    public static withTransform(columnName: string, transform: ConstantTransformation, cslDataType?: string): SStreamColumnMapping {
+        return new SStreamColumnMapping(columnName, cslDataType, undefined, undefined, undefined, transform);
+    }
+
+    mappingKind = IngestionMappingKind.SSTREAM;
 }
 
 export class ParquetColumnMapping extends ColumnMapping {
@@ -213,7 +304,7 @@ export class ParquetColumnMapping extends ColumnMapping {
         return new ParquetColumnMapping(columnName, cslDataType, undefined, undefined, undefined, transform);
     }
 
-    mappingType = (): IngestionMappingType => IngestionMappingType.PARQUET;
+    mappingKind = IngestionMappingKind.PARQUET;
 }
 
 export class OrcColumnMapping extends ColumnMapping {
@@ -237,7 +328,7 @@ export class OrcColumnMapping extends ColumnMapping {
         return new OrcColumnMapping(columnName, cslDataType, undefined, undefined, undefined, transform);
     }
 
-    mappingType = (): IngestionMappingType => IngestionMappingType.ORC;
+    mappingKind = IngestionMappingKind.ORC;
 }
 
 export class W3CLogFileMapping extends ColumnMapping {
@@ -257,110 +348,76 @@ export class W3CLogFileMapping extends ColumnMapping {
         return new W3CLogFileMapping(columnName, cslDataType, undefined, undefined, transform);
     }
 
-    mappingType = (): IngestionMappingType => IngestionMappingType.W3CLOGFILE;
+    mappingKind = IngestionMappingKind.W3CLOGFILE;
 }
 
 
-class IngestionPropertiesFields {
-    database?: string | null = null;
-    table?: string | null = null;
-    format?: string | null = null;
-    ingestionMapping?: ColumnMapping[] | null = null;
-    ingestionMappingReference?: string | null = null;
-    ingestionMappingType?: IngestionMappingType | string | null = null;
-    additionalTags?: string | null = null;
-    ingestIfNotExists?: string | null = null;
-    ingestByTags?: string[] | null = null;
-    dropByTags?: string[] | null = null;
-    flushImmediately?: boolean | null = null;
-    reportLevel?: ReportLevel | null = null;
-    reportMethod?: ReportMethod | null = null;
-    validationPolicy?: string | null = null;
-    additionalProperties?: { [additional: string]: any } | null = null;
-}
 
-export class IngestionProperties extends IngestionPropertiesFields {
-    constructor({
-                    database = null,
-                    table = null,
-                    format = null,
-                    ingestionMapping = null,
-                    ingestionMappingReference = null,
-                    ingestionMappingType = null,
-                    additionalTags = null,
-                    ingestIfNotExists = null,
-                    ingestByTags = null,
-                    dropByTags = null,
-                    flushImmediately = null,
-                    reportLevel = null,
-                    reportMethod = null,
-                    validationPolicy = null,
-                    additionalProperties = null
-                }: IngestionPropertiesFields) {
-        super();
-        if (ingestionMapping && ingestionMappingReference) throw new Error("Both mapping and a mapping reference detected");
 
-        this.database = database;
-        this.table = table;
-        this.format = format;
-        this.ingestionMapping = ingestionMapping;
-        this.ingestionMappingType = ingestionMappingType;
-        this.ingestionMappingReference = ingestionMappingReference;
-        this.additionalTags = additionalTags;
-        this.ingestIfNotExists = ingestIfNotExists;
-        this.ingestByTags = ingestByTags;
-        this.dropByTags = dropByTags;
-        this.flushImmediately = flushImmediately;
-        this.reportLevel = reportLevel;
-        this.reportMethod = reportMethod;
-        this.validationPolicy = validationPolicy;
-        this.additionalProperties = additionalProperties;
+export class IngestionProperties{
+    database?: string;
+    table?: string;
+    format: DataFormat = DataFormat.CSV;
+    ingestionMappingColumns?: ColumnMapping[];
+    ingestionMappingReference?: string;
+    ingestionMappingKind?: IngestionMappingKind;
+    additionalTags?: string | null;
+    ingestIfNotExists?: string | null;
+    ingestByTags?: string[] | null;
+    dropByTags?: string[] | null;
+    flushImmediately: boolean = false;
+    reportLevel: ReportLevel = ReportLevel.DoNotReport;
+    reportMethod: ReportMethod = ReportMethod.Queue;
+    validationPolicy?: string | null;
+    additionalProperties?: { [additional: string]: any } | null;
+
+    constructor(data: Partial<IngestionProperties>) {
+        Object.assign(this, data);
     }
 
     validate() {
+        if (!this.database) throw new IngestionPropertiesValidationError("Must define a target database");
+        if (!this.table) throw new IngestionPropertiesValidationError("Must define a target table");
+        if (!this.format) throw new IngestionPropertiesValidationError("Must define a data format");
 
-        if (!this.flushImmediately) this.flushImmediately = false;
-        if (!this.reportLevel) this.reportLevel = ReportLevel.DoNotReport;
-        if (!this.reportMethod) this.reportMethod = ReportMethod.Queue;
 
-        if (!this.database) throw new Error("Must define a target database");
-        if (!this.table) throw new Error("Must define a target table");
-        if (!this.format) throw new Error("Must define a data format");
-        if (this.ingestionMapping && this.ingestionMappingReference) {
-            throw new Error("Both mapping and a mapping reference detected");
-        }
-        if (!this.ingestionMapping && !this.ingestionMappingReference && MappingRequiredFormats.includes(this.format as DataFormat)) {
-            throw new Error(`Mapping reference required for format ${this.format}.`);
-        }
+        if (!this.ingestionMappingColumns && !this.ingestionMappingReference) {
+            if (this.ingestionMappingKind) {
+                throw new IngestionPropertiesValidationError("Cannot define ingestionMappingKind without either ingestionMappingColumns or" +
+                    " ingestionMappingReference");
+            }
 
-        if (this.ingestionMapping && this.ingestionMapping.length > 0) {
-            if (!this.ingestionMappingType) {
-                this.ingestionMappingType = this.ingestionMapping[0].mappingType().toString();
-            } else {
-                if (this.ingestionMappingType.toString() !== this.ingestionMapping[0].mappingType().toString()) {
-                    throw new Error(`Mapping type mismatch between ingestion mapping type (${this.ingestionMappingType}) and provided mapping object (${this.ingestionMapping[0].mappingType().toString()}).`);
+            if (MappingRequiredFormats.includes(this.format as DataFormat)) {
+                throw new IngestionPropertiesValidationError(`Mapping reference required for format '${this.format}'.`);
+            }
+        } else {
+            const mappingKind = dataFormatMappingKind(this.format);
+            if (this.ingestionMappingKind && this.ingestionMappingKind !== mappingKind) {
+                throw new IngestionPropertiesValidationError(`Mapping kind '${this.ingestionMappingKind}' does not match format '${this.format}' (should be '${mappingKind}')`);
+            }
+            if (this.ingestionMappingColumns) {
+                if (this.ingestionMappingReference) {
+                    throw new IngestionPropertiesValidationError("Cannot define both ingestionMappingColumns and ingestionMappingReference");
+                }
+
+                if (this.ingestionMappingColumns.length === 0) {
+                    throw new IngestionPropertiesValidationError("Must define at least one column mapping");
+                }
+
+                const wrongMappings = this.ingestionMappingColumns.filter(m => m.mappingKind !== mappingKind).map(m => `Mapping kind mismatch for column '${m.columnName}' - expected data format kind -  '${mappingKind}', but was '${m.mappingKind}'`);
+                if (wrongMappings) {
+                    throw new IngestionPropertiesValidationError(`Invalid columns:\n${wrongMappings.join("\n")}`);
                 }
             }
         }
-
-        if (this.ingestionMappingType) {
-            if (this.format && (this.ingestionMappingType.toLowerCase() != this.format.toLowerCase())) {
-                throw new Error(`Format (${this.format}) doesn't match Ingestion Mapping Type (${this.ingestionMappingType}).`);
-            }
-        }
-
-        // TODO - should we throw an error when having mappings but not specifying the type? in c# it's a "warning"
-
     }
 
-    [extraProps: string]: any;
-
-    merge(extraProps: any) {
+    merge(extraProps: IngestionProperties) {
         const merged = new IngestionProperties(this);
 
-        for (const key of Object.keys(extraProps)) {
-            if (extraProps[key] != null) {
-                merged[key] = extraProps[key];
+        for (const key of Object.keys(extraProps) as (keyof IngestionProperties)[]) {
+            if ( extraProps[key]) {
+                (<K extends keyof IngestionProperties>(k: K) => { merged[k] = extraProps[k]; })(key);
             }
         }
 

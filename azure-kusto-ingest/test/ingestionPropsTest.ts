@@ -3,16 +3,17 @@
 
 import assert from "assert";
 import {
+    ApacheAvroColumnMapping,
     AvroColumnMapping,
     ConstantTransformation,
     CsvColumnMapping,
     DataFormat,
     FieldTransformation,
-    IngestionMappingType,
+    IngestionMappingKind,
     IngestionProperties,
     JsonColumnMapping,
     OrcColumnMapping,
-    ParquetColumnMapping,
+    ParquetColumnMapping, SStreamColumnMapping,
     W3CLogFileMapping
 } from "../source/ingestionProperties";
 
@@ -73,37 +74,57 @@ describe("IngestionProperties", function () {
             try {
                 props.validate();
             } catch (ex: any) {
-                assert.strictEqual(ex.message, "Mapping reference required for format json.");
+                assert.strictEqual(ex.message, "Mapping reference required for format 'json'.");
             }
         });
 
         it("Should error when mapping object doesn't match mapping type", function() {
-            const props = new IngestionProperties({database: "db", table: "table", format: DataFormat.CSV, ingestionMappingType: IngestionMappingType.CSV, ingestionMapping: [JsonColumnMapping.withConstantValue("a", "const_value")]});
+            const props = new IngestionProperties({database: "db", table: "table", format: DataFormat.CSV, ingestionMappingKind: IngestionMappingKind.CSV, ingestionMappingColumns: [JsonColumnMapping.withConstantValue("a", "const_value")]});
 
             try {
                 props.validate();
             } catch (ex: any) {
-                assert.strictEqual(ex.message, "Mapping type mismatch between ingestion mapping type (Csv) and provided mapping object (Json).");
+                assert.strictEqual(ex.message, "Invalid columns:\nMapping kind mismatch for column 'a' - expected data format kind -  'Csv', but was 'Json'");
             }
         })
 
-        it("Should error when format doesn't match mapping type", function() {
-            const props = new IngestionProperties({database: "db", table: "table", format: DataFormat.CSV, ingestionMappingType: IngestionMappingType.JSON, ingestionMapping: [JsonColumnMapping.withConstantValue("a", "const_value")]});
+        it("Should error when mapping object doesn't match mapping type multiple objects", function() {
+            const props = new IngestionProperties({
+                database: "db",
+                table: "table",
+                format: DataFormat.CSV,
+                ingestionMappingKind: IngestionMappingKind.CSV,
+                ingestionMappingColumns: [CsvColumnMapping.withConstantValue("a", "const_value"),
+                    JsonColumnMapping.withConstantValue("b", "const_value"),
+                    AvroColumnMapping.withConstantValue("c", "const_value")]
+            });
 
             try {
                 props.validate();
             } catch (ex: any) {
-                assert.strictEqual(ex.message, "Format (csv) doesn't match Ingestion Mapping Type (Json).");
+                assert.strictEqual(ex.message, "Invalid columns:\nMapping kind mismatch for column 'b' - expected data format kind -  'Csv', but was" +
+                    " 'Json'\nMapping kind mismatch for column 'c' - expected data format kind -  'Csv', but was 'Avro'");
+            }
+        })
+
+
+        it("Should error when format doesn't match mapping type", function() {
+            const props = new IngestionProperties({database: "db", table: "table", format: DataFormat.CSV, ingestionMappingKind: IngestionMappingKind.JSON, ingestionMappingColumns: [JsonColumnMapping.withConstantValue("a", "const_value")]});
+
+            try {
+                props.validate();
+            } catch (ex: any) {
+                assert.strictEqual(ex.message, "Mapping kind 'Json' does not match format 'csv' (should be 'Csv')");
             }
         })
 
         it("Should error when format doesn't match implicit mapping type", function() {
-            const props = new IngestionProperties({database: "db", table: "table", format: DataFormat.CSV, ingestionMapping: [JsonColumnMapping.withConstantValue("a", "const_value")]});
+            const props = new IngestionProperties({database: "db", table: "table", format: DataFormat.CSV, ingestionMappingColumns: [JsonColumnMapping.withConstantValue("a", "const_value")]});
 
             try {
                 props.validate();
             } catch (ex: any) {
-                assert.strictEqual(ex.message, "Format (csv) doesn't match Ingestion Mapping Type (Json).");
+                assert.strictEqual(ex.message, "Invalid columns:\nMapping kind mismatch for column 'a' - expected data format kind -  'Csv', but was 'Json'");
             }
         })
 
@@ -122,7 +143,7 @@ describe("IngestionProperties", function () {
         })
 
         describe("Should return the correct mapping when passing ConstantValue", function () {
-            const types = [JsonColumnMapping, CsvColumnMapping, AvroColumnMapping, ParquetColumnMapping, OrcColumnMapping, W3CLogFileMapping];
+            const types = [JsonColumnMapping, CsvColumnMapping, AvroColumnMapping, ApacheAvroColumnMapping, SStreamColumnMapping, ParquetColumnMapping, OrcColumnMapping, W3CLogFileMapping];
             types.forEach(type => {
                 it(`should handle correctly for type ${type}`, function () {
                     const result = [{ "Column": "a", "Properties": { "ConstValue": "const_value" } }, {
@@ -136,7 +157,7 @@ describe("IngestionProperties", function () {
         })
 
         describe("Should return the correct mapping when passing Transform", function () {
-            const types = [JsonColumnMapping, AvroColumnMapping, ParquetColumnMapping, OrcColumnMapping, W3CLogFileMapping];
+            const types = [JsonColumnMapping, AvroColumnMapping, ApacheAvroColumnMapping, SStreamColumnMapping, ParquetColumnMapping, OrcColumnMapping, W3CLogFileMapping];
             types.forEach(type => {
                 it(`should handle correctly for type ${type}`, function () {
                     const result = [{ "Column": "a", "Properties": { "ConstValue": "const_value" } }, {
@@ -151,7 +172,7 @@ describe("IngestionProperties", function () {
         })
 
         describe("Should return the correct mapping when passing Path", function () {
-            const types = [JsonColumnMapping, AvroColumnMapping, ParquetColumnMapping, OrcColumnMapping];
+            const types = [JsonColumnMapping, AvroColumnMapping, ApacheAvroColumnMapping, SStreamColumnMapping, ParquetColumnMapping, OrcColumnMapping];
             types.forEach(type => {
                 it(`should handle correctly for type ${type}`, function () {
                     const result = [{ "Column": "a", "Properties": { "Path": "$.a" } }, {
@@ -165,7 +186,7 @@ describe("IngestionProperties", function () {
         })
 
         describe("Should return the correct mapping when passing Path with transformations and types", function () {
-            const types = [JsonColumnMapping, AvroColumnMapping, ParquetColumnMapping, OrcColumnMapping];
+            const types = [JsonColumnMapping, AvroColumnMapping, ApacheAvroColumnMapping, SStreamColumnMapping, ParquetColumnMapping, OrcColumnMapping];
             types.forEach(type => {
                 it(`should handle correctly for type ${type}`, function () {
                     const result = [{ "Column": "a", "DataType": "datetime", "Properties": { "Path": "$.a", "Transform": 'DateTimeFromUnixSeconds' } }, {
@@ -180,7 +201,7 @@ describe("IngestionProperties", function () {
         })
 
         describe("Should return the correct mapping when passing Field with transformations and types", function () {
-            const types = [W3CLogFileMapping, AvroColumnMapping, ParquetColumnMapping, OrcColumnMapping];
+            const types = [W3CLogFileMapping, AvroColumnMapping, ApacheAvroColumnMapping, SStreamColumnMapping, ParquetColumnMapping, OrcColumnMapping];
             types.forEach(type => {
                 it(`should handle correctly for type ${type}`, function () {
                     const result = [{ "Column": "a", "DataType": "datetime", "Properties": { "Field": "a", "Transform": 'DateTimeFromUnixSeconds' } }, {
@@ -197,7 +218,7 @@ describe("IngestionProperties", function () {
 
         it("json mapping as additional props on ingestion blob info", function () {
             const columns = [new JsonColumnMapping('Id', '$.Id', 'int'), new JsonColumnMapping('Value', '$.value', 'dynamic')];
-            const props = new IngestionProperties({database: "db", table: "table", format: DataFormat.CSV, ingestionMapping: columns});
+            const props = new IngestionProperties({database: "db", table: "table", format: DataFormat.CSV, ingestionMappingColumns: columns});
             const ingestionBlobInfo = new IngestionBlobInfo(new BlobDescriptor('https://account.blob.core.windows.net/blobcontainer/blobfile.json'), props);
             const reParsed = [{"Column":"Id","DataType":"int","Properties":{"Path":"$.Id"}},{"Column":"Value","DataType":"dynamic","Properties":{"Path":"$.value"}}];
             assert.deepStrictEqual(JSON.parse(ingestionBlobInfo.AdditionalProperties.ingestionMapping), reParsed);

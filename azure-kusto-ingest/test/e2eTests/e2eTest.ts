@@ -64,7 +64,7 @@ function main(): void {
         database: databaseName,
         table: tableName,
         format: DataFormat.JSON,
-        ingestionMapping: columnMapping,
+        ingestionMappingColumns: columnMapping,
         flushImmediately: true
     });
 

@@ -55,17 +55,17 @@ export class IngestionBlobInfo {
             additionalProperties.ingestIfNotExists = ingestionProperties.ingestIfNotExists;
         }
 
-        if (ingestionProperties.ingestionMapping && ingestionProperties.ingestionMapping.length > 0) {
+        if (ingestionProperties.ingestionMappingColumns && ingestionProperties.ingestionMappingColumns.length > 0) {
             // server expects a string
-            additionalProperties.ingestionMapping = JSON.stringify(ingestionProperties.ingestionMapping.map(m => m.toApiMapping()));
+            additionalProperties.ingestionMapping = JSON.stringify(ingestionProperties.ingestionMappingColumns.map(m => m.toApiMapping()));
         }
 
         if (ingestionProperties.ingestionMappingReference) {
             additionalProperties.ingestionMappingReference = ingestionProperties.ingestionMappingReference;
         }
 
-        if (ingestionProperties.ingestionMappingType) {
-            additionalProperties.ingestionMappingType = ingestionProperties.ingestionMappingType;
+        if (ingestionProperties.ingestionMappingKind) {
+            additionalProperties.ingestionMappingType = ingestionProperties.ingestionMappingKind;
         }
 
         if (ingestionProperties.validationPolicy) {
