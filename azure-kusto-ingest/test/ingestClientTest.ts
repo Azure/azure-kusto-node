@@ -6,9 +6,9 @@ import {KustoIngestClient} from "../source/ingestClient";
 import {DataFormat, IngestionProperties} from "../source/ingestionProperties";
 
 
-describe("KustoIngestClient", function () {
-    describe("#constructor()", function () {
-        it("valid input", function () {
+describe("KustoIngestClient", () => {
+    describe("#constructor()", () => {
+        it("valid input", () => {
             const ingestClient = new KustoIngestClient("https://cluster.kusto.windows.net", {
                 database: "db",
                 table: "table",
@@ -23,8 +23,8 @@ describe("KustoIngestClient", function () {
         });
     });
 
-    describe("#_resolveProperties()", function () {
-        it("empty default props", function () {
+    describe("#_resolveProperties()", () => {
+        it("empty default props", () => {
             const newProps = new IngestionProperties({
                 database: "db",
                 table: "table",
@@ -39,7 +39,7 @@ describe("KustoIngestClient", function () {
             assert.strictEqual(actual.format, "csv");
         });
 
-        it("empty new props", function () {
+        it("empty new props", () => {
             // TODO: not sure a unit test will be useful here
             const defaultProps = new IngestionProperties({
                 database: "db",
@@ -55,7 +55,7 @@ describe("KustoIngestClient", function () {
             assert.strictEqual(actual.format, "csv");
         });
 
-        it("both exist props", function () {
+        it("both exist props", () => {
             const defaultProps = new IngestionProperties({
                 database: "db",
                 table: "table",
@@ -74,7 +74,7 @@ describe("KustoIngestClient", function () {
             assert.strictEqual(actual.ingestionMappingReference, "MappingRef");
         });
 
-        it("empty both", function () {
+        it("empty both", () => {
             const client = new KustoIngestClient('https://cluster.region.kusto.windows.net');
 
             const actual = client._mergeProps();
@@ -82,20 +82,20 @@ describe("KustoIngestClient", function () {
         });
     });
 
-    describe("#ingestFromFile()", function () {
-        it("valid input", function () {
+    describe("#ingestFromFile()", () => {
+        it("valid input", () => {
             // TODO: not sure a unit test will be useful here
         });
     });
 
-    describe("#ingestFromStream()", function () {
-        it("valid input", function () {
+    describe("#ingestFromStream()", () => {
+        it("valid input", () => {
             // TODO: not sure a unit test will be useful here
         });
     });
 
-    describe("#ingestFromBlob()", function () {
-        it("valid input", function () {
+    describe("#ingestFromBlob()", () => {
+        it("valid input", () => {
             // TODO: not sure a unit test will be useful here
         });
     });

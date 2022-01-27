@@ -1,6 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+// TODO: split this file when we merge the new ColumnMappings
+/* tslint:disable:max-classes-per-file */
+
 export enum DataFormat {
     CSV = "csv",
     TSV = "tsv",

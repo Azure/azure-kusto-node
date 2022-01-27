@@ -117,7 +117,7 @@ async function startStreamingIngestion() {
     // Ingest from stream with either ReadStream or StreamDescriptor
     let stream = fs.createReadStream("file.json");
     try {
-        await streamingIngestClient.ingestFromStream("file.json", props2);
+        await streamingIngestClient.ingestFromStream(stream, props2);
         console.log("Ingestion done");
     }
     catch (err) {

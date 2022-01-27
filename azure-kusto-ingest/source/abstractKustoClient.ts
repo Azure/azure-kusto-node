@@ -8,12 +8,12 @@ export abstract class AbstractKustoClient {
 
     _mergeProps(newProperties?: IngestionProperties | null): IngestionProperties {
         // no default props
-        if (newProperties == null || Object.keys(newProperties).length == 0) {
+        if (!newProperties || Object.keys(newProperties).length === 0) {
             return this.defaultProps || new IngestionProperties({});
         }
 
         // no new props
-        if (this.defaultProps == null || Object.keys(this.defaultProps).length == 0) {
+        if (this.defaultProps == null || Object.keys(this.defaultProps).length === 0) {
             return newProperties || new IngestionProperties({});
         }
         // both exist - merge
