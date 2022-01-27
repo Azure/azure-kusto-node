@@ -4,11 +4,7 @@
         "tslint:recommended"
     ],
     "jsRules": {},
-    "rules": {
-      "max-classes-per-file": false,
-      "triple-equals": false,
-      "only-arrow-functions": false
-    },
+    "rules": {},
     "linterOptions": {
     },
     "rulesDirectory": []

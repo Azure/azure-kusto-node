@@ -5,9 +5,9 @@ import assert from "assert";
 import { v4 as uuidv4 } from 'uuid';
 import {KustoConnectionStringBuilder} from "../source/connectionBuilder";
 
-describe("KustoConnectionStringBuilder", function () {
-    describe("#constructor(connectionString)", function () {
-        it("from string with no creds", function () {
+describe("KustoConnectionStringBuilder", () => {
+    describe("#constructor(connectionString)", () => {
+        it("from string with no creds", () => {
             const kcsbs = [
                 new KustoConnectionStringBuilder("localhost"),
                 new KustoConnectionStringBuilder("data Source=localhost"),
@@ -26,7 +26,7 @@ describe("KustoConnectionStringBuilder", function () {
             }
         });
 
-        it("from string with username auth", function () {
+        it("from string with username auth", () => {
             const expectedUser = "test";
             const expectedPassword = "Pa$$w0rd";
             const kcsbs = [
@@ -53,7 +53,7 @@ describe("KustoConnectionStringBuilder", function () {
             }
         });
 
-        it("from string with app auth", function () {
+        it("from string with app auth", () => {
 
             const uuid = uuidv4();
             const key = "key of application";

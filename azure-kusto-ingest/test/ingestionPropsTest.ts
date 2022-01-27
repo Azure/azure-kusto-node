@@ -9,9 +9,9 @@ import {BlobDescriptor} from "../source/descriptors";
 
 
 
-describe("IngestionProperties", function () {
-    describe("#constructor()", function () {
-        it("valid input", function () {
+describe("IngestionProperties", () => {
+    describe("#constructor()", () => {
+        it("valid input", () => {
             const props = new IngestionProperties({database: "db", table: "table", format: DataFormat.CSV});
 
             assert.strictEqual(props.database, "db");
@@ -20,8 +20,8 @@ describe("IngestionProperties", function () {
         });
     });
 
-    describe("#merge()", function () {
-        it("valid input", function () {
+    describe("#merge()", () => {
+        it("valid input", () => {
             const props = new IngestionProperties({database: "db", table: "table", format: DataFormat.CSV});
 
             const otherProps = new IngestionProperties({ingestionMappingReference: "CsvMappingRef"});
@@ -35,8 +35,8 @@ describe("IngestionProperties", function () {
         });
     });
 
-    describe("#validate()", function () {
-        it("valid input", function () {
+    describe("#validate()", () => {
+        it("valid input", () => {
             const props = new IngestionProperties({database: "db", table: "table", format: DataFormat.CSV, ingestionMappingReference: "CsvMappingRef"});
 
             try {
@@ -46,7 +46,7 @@ describe("IngestionProperties", function () {
             }
         });
 
-        it("invalid input", function () {
+        it("invalid input", () => {
             const props = new IngestionProperties({});
 
             try {
@@ -56,7 +56,7 @@ describe("IngestionProperties", function () {
             }
         });
 
-        it("invalid input json", function () {
+        it("invalid input json", () => {
             const props = new IngestionProperties({database: "db", table: "table", format: DataFormat.JSON});
 
             try {
@@ -66,7 +66,7 @@ describe("IngestionProperties", function () {
             }
         });
 
-        it("json mapping as additional props on ingestion blob info", function () {
+        it("json mapping as additional props on ingestion blob info", () => {
             const columns = [new JsonColumnMapping('Id', '$.Id', 'int'), new JsonColumnMapping('Value', '$.value', 'dynamic')];
             const props = new IngestionProperties({database: "db", table: "table", format: DataFormat.CSV, ingestionMapping: columns});
             const ingestionBlobInfo = new IngestionBlobInfo(new BlobDescriptor('https://account.blob.core.windows.net/blobcontainer/blobfile.json'), props);

@@ -26,9 +26,9 @@ enum ExecutionType {
     QueryV1 = "queryv1",
 }
 
-describe("KustoClient", function () {
-    describe("#constructor", function () {
-        it("valid", function () {
+describe("KustoClient", () => {
+    describe("#constructor", () => {
+        it("valid", () => {
             const url = "https://cluster.kusto.windows.net";
             const client = new KustoClient(url);
 
@@ -37,8 +37,8 @@ describe("KustoClient", function () {
         });
     });
 
-    describe("#_parseResponse()", function () {
-        it("valid v1", function () {
+    describe("#_parseResponse()", () => {
+        it("valid v1", () => {
             const url = "https://cluster.kusto.windows.net";
             const client = new KustoClient(url);
 
@@ -46,7 +46,7 @@ describe("KustoClient", function () {
             assert.strictEqual((response as KustoResponseDataSetV1).version, "1.0");
         });
 
-        it("valid v1 more data", function () {
+        it("valid v1 more data", () => {
             const url = "https://cluster.kusto.windows.net";
             const client = new KustoClient(url);
 
@@ -54,7 +54,7 @@ describe("KustoClient", function () {
             assert.strictEqual((response as KustoResponseDataSetV1).version, "1.0");
         });
 
-        it("valid v2", function () {
+        it("valid v2", () => {
             const url = "https://cluster.kusto.windows.net";
             const client = new KustoClient(url);
 
@@ -63,7 +63,7 @@ describe("KustoClient", function () {
             assert.strictEqual((response as KustoResponseDataSetV2).version, "2.0");
         });
 
-        it("valid v2 raw", function () {
+        it("valid v2 raw", () => {
             const url = "https://cluster.kusto.windows.net";
             const client = new KustoClient(url);
 
@@ -71,7 +71,7 @@ describe("KustoClient", function () {
             assert.strictEqual(response, v2Response);
         });
 
-        it("malformed body", function () {
+        it("malformed body", () => {
             const url = "https://cluster.kusto.windows.net";
             const client = new KustoClient(url);
             try{
@@ -86,7 +86,7 @@ describe("KustoClient", function () {
             assert.fail();
         });
 
-        it("erred v2 not partial", function () {
+        it("erred v2 not partial", () => {
             const url = "https://cluster.kusto.windows.net";
             const client = new KustoClient(url);
 
@@ -100,7 +100,7 @@ describe("KustoClient", function () {
             assert.fail();
         });
 
-        it("setTimout for request", async function () {
+        it("setTimout for request", async () => {
             const url = "https://cluster.kusto.windows.net";
             const client = new KustoClient(url);
 
@@ -118,7 +118,7 @@ describe("KustoClient", function () {
             await client.execute("Database", "Table | count", clientRequestProps);
         });
 
-        it("setClientTimout for request", async function () {
+        it("setClientTimout for request", async () => {
             const url = "https://cluster.kusto.windows.net";
             const client = new KustoClient(url);
 
@@ -135,7 +135,7 @@ describe("KustoClient", function () {
             await client.execute("Database", "Table | count", clientRequestProps);
         });
 
-        it("default timeout for query", async function () {
+        it("default timeout for query", async () => {
             const url = "https://cluster.kusto.windows.net";
             const client = new KustoClient(url);
 
@@ -148,7 +148,7 @@ describe("KustoClient", function () {
             await client.execute("Database", "Table | count");
         });
 
-        it("default timeout for admin", async function () {
+        it("default timeout for admin", async () => {
             const url = "https://cluster.kusto.windows.net";
             const client = new KustoClient(url);
             client.aadHelper._getAuthHeader = () => { return Promise.resolve("MockToken") };
@@ -160,7 +160,7 @@ describe("KustoClient", function () {
             await client.execute("Database", ".show database DataBase schema");
         });
 
-        it("set clientRequestId for request", async function () {
+        it("set clientRequestId for request", async () => {
             const url = "https://cluster.kusto.windows.net";
             const client = new KustoClient(url);
             const clientRequestId = `MyApp.MyActivity;${uuidv4()}`;
@@ -182,7 +182,7 @@ describe("KustoClient", function () {
             await client.execute("Database", "Table | count", clientRequestProps);
         });
 
-        it("executeQueryV1", async function () {
+        it("executeQueryV1", async () => {
             const url = "https://cluster.kusto.windows.net";
             const client = new KustoClient(url);
 

@@ -1,6 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+// We want all the Resources related classes in this file
+/* tslint:disable:max-classes-per-file */
+
 import {Client} from "azure-kusto-data";
 import moment from "moment";
 
@@ -19,10 +22,10 @@ export class ResourceURI {
     }
 
     getSASConnectionString(): string {
-        if (this.objectType == "queue") {
+        if (this.objectType === "queue") {
             return `QueueEndpoint=https://${this.storageAccountName}.queue.core.windows.net/;SharedAccessSignature=${this.sas}`;
         }
-        if (this.objectType == "blob") {
+        if (this.objectType === "blob") {
             return `BlobEndpoint=https://${this.storageAccountName}.blob.core.windows.net/;SharedAccessSignature=${this.sas}`;
         }
 
@@ -95,7 +98,7 @@ export class ResourceManager {
     getResourceByName(table: { rows: () => any; }, resourceName: string): ResourceURI[] {
         const result = [];
         for (const row of table.rows()) {
-            if (row.ResourceTypeName == resourceName) {
+            if (row.ResourceTypeName === resourceName) {
                 result.push(ResourceURI.fromURI(row.StorageRoot));
             }
         }

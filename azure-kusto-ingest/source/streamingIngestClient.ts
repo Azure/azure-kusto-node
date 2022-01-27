@@ -26,7 +26,7 @@ class KustoStreamingIngestClient extends AbstractKustoClient {
         const descriptor: StreamDescriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
 
         const compressedStream =
-            descriptor.compressionType == CompressionType.None ? descriptor.stream.pipe(zlib.createGzip()) : descriptor.stream;
+            descriptor.compressionType === CompressionType.None ? descriptor.stream.pipe(zlib.createGzip()) : descriptor.stream;
         return this.kustoClient.executeStreamingIngest(
             props.database as string,
             props.table as string,

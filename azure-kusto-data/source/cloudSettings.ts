@@ -45,15 +45,15 @@ export class CloudSettings {
 
         try {
             const response = await axios.get(kustoUri + this.METADATA_ENDPOINT);
-            if (response.status == 200) {
+            if (response.status === 200) {
                 this.cloudCache[kustoUri] = response.data.AzureAD || this.defaultCloudInfo;
             }
             else {
                 throw new Error(`Kusto returned an invalid cloud metadata response - ${response}`);
             }
         }
-        catch (ex: any) {
-            if (ex.response?.status == 404) {
+        catch (ex) {
+            if (axios.isAxiosError(ex) && ex.response?.status === 404) {
                 // For now as long not all proxies implement the metadata endpoint, if no endpoint exists return public cloud data
                 this.cloudCache[kustoUri] = this.defaultCloudInfo;
             }

@@ -21,7 +21,7 @@ import { KustoConnectionStringBuilder } from "azure-kusto-data";
 
 type IngestFromStreamStub = Sinon.SinonStub<[(StreamDescriptor | Readable), IngestionProperties, string?], Promise<QueueSendMessageResponse>>;
 
-describe("ManagedStreamingIngestClient", function () {
+describe("ManagedStreamingIngestClient", () => {
     function getMockedClient() {
         const sandbox = sinon.createSandbox();
         const mockedStreamingIngestClient = new StreamingIngestClient("engine");
@@ -47,7 +47,7 @@ describe("ManagedStreamingIngestClient", function () {
             stream.push(null);
         };
 
-        stream.on('data', function (data: Buffer) {
+        stream.on('data', (data: Buffer) => {
             console.debug(data.toString("utf-8").substring(0, 100));
         });
         return stream;
@@ -93,9 +93,9 @@ describe("ManagedStreamingIngestClient", function () {
 
     const testUuid = "9c565db6-ddcd-4b2d-bb6e-17525aab254d";
 
-    describe("standard", function () {
+    describe("standard", () => {
         for (const sourceId of [null, testUuid]){
-            it(`should use streaming ingest with sourceId ${sourceId}`, async function () {
+            it(`should use streaming ingest with sourceId ${sourceId}`, async () => {
                 const { managedClient, queuedStub, sandbox, streamStub } = getMockedClient();
 
                 streamStub.returns(Promise.resolve({}));
@@ -124,9 +124,9 @@ describe("ManagedStreamingIngestClient", function () {
 
     });
 
-    describe("fallback", function () {
+    describe("fallback", () => {
         for (const sourceId of [null, testUuid]) {
-            it(`should fall to queued when transient error with sourceId ${sourceId}`, async function () {
+            it(`should fall to queued when transient error with sourceId ${sourceId}`, async () => {
                 const { managedClient, queuedStub, sandbox, streamStub } = getMockedClient();
 
                 // Mock ManagedStreamingIngestClient with mocked streamingIngestClient
@@ -152,7 +152,7 @@ describe("ManagedStreamingIngestClient", function () {
                 validateStream(queuedStub, items, sourceId);
             });
 
-            it('should fallback when size is too big', async function () {
+            it('should fallback when size is too big', async () => {
                 // Mock ManagedStreamingIngestClient with mocked streamingIngestClient
                 const mockedStreamingIngestClient = new StreamingIngestClient("engine");
                 const mockedIngestClient = new KustoIngestClient("engine");
@@ -193,8 +193,8 @@ describe("ManagedStreamingIngestClient", function () {
         }
     });
 
-    describe("helper methods", function () {
-        it("should be able to create a ManagedStreamingIngestClient from a DM URI", function () {
+    describe("helper methods", () => {
+        it("should be able to create a ManagedStreamingIngestClient from a DM URI", () => {
             const client = KustoManagedStreamingIngestClient.fromDmConnectionString(KustoConnectionStringBuilder.withAccessToken("https://ingest-dummy.kusto.windows.net"));
 
             assert.strictEqual((client as any).queuedIngestClient.resourceManager.kustoClient.connectionString.dataSource,
@@ -202,10 +202,10 @@ describe("ManagedStreamingIngestClient", function () {
             assert.strictEqual((client as any).streamingIngestClient.kustoClient.connectionString.dataSource,
                 "https://dummy.kusto.windows.net");
         });
-        it("should fail when trying to create a ManagedStreamingIngestClient from an invalid DM URI", function () {
+        it("should fail when trying to create a ManagedStreamingIngestClient from an invalid DM URI", () => {
             assert.throws(() => KustoManagedStreamingIngestClient.fromDmConnectionString(KustoConnectionStringBuilder.withAccessToken("https://dummy.kusto.windows.net")));
         });
-        it("should be able to create a ManagedStreamingIngestClient from an Engine URI", function () {
+        it("should be able to create a ManagedStreamingIngestClient from an Engine URI", () => {
             const client = KustoManagedStreamingIngestClient.fromEngineConnectionString(KustoConnectionStringBuilder.withAccessToken("https://dummy.kusto.windows.net"));
 
             assert.strictEqual((client as any).queuedIngestClient.resourceManager.kustoClient.connectionString.dataSource,
@@ -213,7 +213,7 @@ describe("ManagedStreamingIngestClient", function () {
             assert.strictEqual((client as any).streamingIngestClient.kustoClient.connectionString.dataSource,
                 "https://dummy.kusto.windows.net");
         });
-        it("should fail when trying to create a ManagedStreamingIngestClient from an invalid Engine URI", function () {
+        it("should fail when trying to create a ManagedStreamingIngestClient from an invalid Engine URI", () => {
             assert.throws(() => KustoManagedStreamingIngestClient.fromEngineConnectionString(KustoConnectionStringBuilder.withAccessToken("https://ingest-dummy.kusto.windows.net")));
         });
     });
