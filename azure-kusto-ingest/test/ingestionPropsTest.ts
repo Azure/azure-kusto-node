@@ -79,7 +79,7 @@ describe("IngestionProperties", () => {
             }
         });
 
-        it("Should error when mapping object doesn't match mapping type", function() {
+        it("Should error when mapping object doesn't match mapping type", () => {
             const props = new IngestionProperties({database: "db", table: "table", format: DataFormat.CSV, ingestionMappingKind: IngestionMappingKind.CSV, ingestionMappingColumns: [JsonColumnMapping.withConstantValue("a", "const_value")]});
 
             try {
@@ -89,7 +89,7 @@ describe("IngestionProperties", () => {
             }
         })
 
-        it("Should error when mapping object doesn't match mapping type multiple objects", function() {
+        it("Should error when mapping object doesn't match mapping type multiple objects", () => {
             const props = new IngestionProperties({
                 database: "db",
                 table: "table",
@@ -109,7 +109,7 @@ describe("IngestionProperties", () => {
         })
 
 
-        it("Should error when format doesn't match mapping type", function() {
+        it("Should error when format doesn't match mapping type", () => {
             const props = new IngestionProperties({database: "db", table: "table", format: DataFormat.CSV, ingestionMappingKind: IngestionMappingKind.JSON, ingestionMappingColumns: [JsonColumnMapping.withConstantValue("a", "const_value")]});
 
             try {
@@ -119,7 +119,7 @@ describe("IngestionProperties", () => {
             }
         })
 
-        it("Should error when format doesn't match implicit mapping type", function() {
+        it("Should error when format doesn't match implicit mapping type", () => {
             const props = new IngestionProperties({database: "db", table: "table", format: DataFormat.CSV, ingestionMappingColumns: [JsonColumnMapping.withConstantValue("a", "const_value")]});
 
             try {
@@ -129,10 +129,10 @@ describe("IngestionProperties", () => {
             }
         })
 
-        describe("Should return the correct mapping when passing Ordinal", function () {
+        describe("Should return the correct mapping when passing Ordinal", () => {
             const types = [CsvColumnMapping];
             types.forEach(type => {
-                it(`should handle correctly for type ${type}`, function () {
+                it(`should handle correctly for type ${type}`, () => {
                     const result = [{ "Column": "a", "Properties": { "Ordinal": "0" } }, {
                         "Column": "b",
                         "Properties": { "ConstValue": "const_value2" }
@@ -143,10 +143,10 @@ describe("IngestionProperties", () => {
             });
         })
 
-        describe("Should return the correct mapping when passing ConstantValue", function () {
+        describe("Should return the correct mapping when passing ConstantValue", () => {
             const types = [JsonColumnMapping, CsvColumnMapping, AvroColumnMapping, ApacheAvroColumnMapping, SStreamColumnMapping, ParquetColumnMapping, OrcColumnMapping, W3CLogFileMapping];
             types.forEach(type => {
-                it(`should handle correctly for type ${type}`, function () {
+                it(`should handle correctly for type ${type}`, () => {
                     const result = [{ "Column": "a", "Properties": { "ConstValue": "const_value" } }, {
                         "Column": "b",
                         "Properties": { "ConstValue": "const_value2" }
@@ -157,10 +157,10 @@ describe("IngestionProperties", () => {
             });
         })
 
-        describe("Should return the correct mapping when passing Transform", function () {
+        describe("Should return the correct mapping when passing Transform", () => {
             const types = [JsonColumnMapping, AvroColumnMapping, ApacheAvroColumnMapping, SStreamColumnMapping, ParquetColumnMapping, OrcColumnMapping, W3CLogFileMapping];
             types.forEach(type => {
-                it(`should handle correctly for type ${type}`, function () {
+                it(`should handle correctly for type ${type}`, () => {
                     const result = [{ "Column": "a", "Properties": { "ConstValue": "const_value" } }, {
                         "Column": "b",
                         "DataType": "int",
@@ -172,10 +172,10 @@ describe("IngestionProperties", () => {
             });
         })
 
-        describe("Should return the correct mapping when passing Path", function () {
+        describe("Should return the correct mapping when passing Path", () => {
             const types = [JsonColumnMapping, AvroColumnMapping, ApacheAvroColumnMapping, SStreamColumnMapping, ParquetColumnMapping, OrcColumnMapping];
             types.forEach(type => {
-                it(`should handle correctly for type ${type}`, function () {
+                it(`should handle correctly for type ${type}`, () => {
                     const result = [{ "Column": "a", "Properties": { "Path": "$.a" } }, {
                         "Column": "b",
                         "Properties": { "ConstValue": "const_value2" }
@@ -186,10 +186,10 @@ describe("IngestionProperties", () => {
             });
         })
 
-        describe("Should return the correct mapping when passing Path with transformations and types", function () {
+        describe("Should return the correct mapping when passing Path with transformations and types", () => {
             const types = [JsonColumnMapping, AvroColumnMapping, ApacheAvroColumnMapping, SStreamColumnMapping, ParquetColumnMapping, OrcColumnMapping];
             types.forEach(type => {
-                it(`should handle correctly for type ${type}`, function () {
+                it(`should handle correctly for type ${type}`, () => {
                     const result = [{ "Column": "a", "DataType": "datetime", "Properties": { "Path": "$.a", "Transform": 'DateTimeFromUnixSeconds' } }, {
                         "Column": "b",
                         "DataType": "int",
@@ -201,10 +201,10 @@ describe("IngestionProperties", () => {
             });
         })
 
-        describe("Should return the correct mapping when passing Field with transformations and types", function () {
+        describe("Should return the correct mapping when passing Field with transformations and types", () => {
             const types = [W3CLogFileMapping, AvroColumnMapping, ApacheAvroColumnMapping, SStreamColumnMapping, ParquetColumnMapping, OrcColumnMapping];
             types.forEach(type => {
-                it(`should handle correctly for type ${type}`, function () {
+                it(`should handle correctly for type ${type}`, () => {
                     const result = [{ "Column": "a", "DataType": "datetime", "Properties": { "Field": "a", "Transform": 'DateTimeFromUnixSeconds' } }, {
                         "Column": "b",
                         "DataType": "int",
