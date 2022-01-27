@@ -70,7 +70,7 @@ describe("KustoResultRow", () => {
                 inputValues
             );
 
-            const asJson = actual.toObject();
+            const asJson = actual.toJSON();
             const expectedValues = [
                 moment(inputValues[0] as string),
                 inputValues[1],
@@ -112,7 +112,7 @@ describe("KustoResultRow", () => {
                 (t) => t + 5
             );
 
-            const asJson = actual.toObject();
+            const asJson = actual.toJSON();
             const expectedValues = [
                 "2016-06-06T15:35:00Z-date",
                 inputValues[1],
