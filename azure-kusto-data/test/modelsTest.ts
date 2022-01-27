@@ -70,7 +70,7 @@ describe("KustoResultRow", () => {
                 inputValues
             );
 
-            const asJson = actual.toJson();
+            const asJson = actual.toJSON();
             const expectedValues = [
                 moment(inputValues[0] as string),
                 inputValues[1],

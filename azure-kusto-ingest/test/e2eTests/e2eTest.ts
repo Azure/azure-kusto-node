@@ -11,9 +11,10 @@ import { Client, ClientRequestProperties, KustoConnectionStringBuilder as Connec
 import StreamingIngestClient from "../../source/streamingIngestClient";
 import ManagedStreamingIngestClient from "../../source/managedStreamingIngestClient";
 import { CompressionType, StreamDescriptor } from "../../source/descriptors";
-import { DataFormat, IngestionProperties, JsonColumnMapping, ReportLevel } from "../../source/ingestionProperties";
+import { DataFormat, IngestionProperties, ReportLevel} from "../../source/ingestionProperties";
 import { CloudSettings } from "azure-kusto-data/source/cloudSettings";
 import { sleep } from "../../source/retry";
+import { JsonColumnMapping } from "../../source/columnMappings";
 
 interface ParsedJsonMapping {
     Properties: { Path: string };

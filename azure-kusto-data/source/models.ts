@@ -63,7 +63,7 @@ export class KustoResultRow {
         return this[this.columns[index].name as string];
     }
 
-    toJson() {
+    toJSON() {
         const obj: any = {};
 
         for (const col of this.columns) {
@@ -74,7 +74,7 @@ export class KustoResultRow {
     }
 
     toString() {
-        return JSON.stringify(this.toJson());
+        return JSON.stringify(this.toJSON());
     }
 }
 
@@ -127,19 +127,19 @@ export class KustoResultTable {
         }
     }
 
-    toJson() {
+    toJSON() {
         const table: any = {};
 
         table.name = this.name;
         table.data = [];
         for (const row of this.rows()) {
-            table.data.push(row.toJson());
+            table.data.push(row.toJSON());
         }
 
         return table;
     }
 
     toString() {
-        return JSON.stringify(this.toJson());
+        return JSON.stringify(this.toJSON());
     }
 }

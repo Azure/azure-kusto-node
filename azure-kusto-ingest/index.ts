@@ -10,7 +10,6 @@ import managedStreamingIngestClient from "./source/managedStreamingIngestClient"
 import KustoIngestStatusQueues from "./source/status";
 
 import {
-    AvroColumnMapping, CsvColumnMapping, JsonColumnMapping, ParquetColumnMapping, OrcColumnMapping, W3CLogFileMapping,
     DataFormat, IngestionMappingKind,
     ReportLevel,
     ReportMethod,
@@ -26,6 +25,7 @@ import {
     FileDescriptor,
     StreamDescriptor
 } from "./source/descriptors";
+import { AvroColumnMapping, CsvColumnMapping, JsonColumnMapping, OrcColumnMapping, ParquetColumnMapping, W3CLogFileMapping } from "./source/columnMappings";
 
 export const IngestClient = client;
 export const StreamingIngestClient = streamingIngestClient;

@@ -3,22 +3,21 @@
 
 import assert from "assert";
 import {
-    ApacheAvroColumnMapping,
-    AvroColumnMapping,
-    ConstantTransformation,
-    CsvColumnMapping,
     DataFormat,
-    FieldTransformation,
     IngestionMappingKind,
-    IngestionProperties,
-    JsonColumnMapping,
-    OrcColumnMapping,
-    ParquetColumnMapping, SStreamColumnMapping,
-    W3CLogFileMapping
+    IngestionProperties
 } from "../source/ingestionProperties";
 
 import { IngestionBlobInfo } from "../source/ingestionBlobInfo";
 import { BlobDescriptor } from "../source/descriptors";
+import {
+    ApacheAvroColumnMapping,
+    AvroColumnMapping, ConstantTransformation, CsvColumnMapping, FieldTransformation, JsonColumnMapping,
+    OrcColumnMapping,
+    ParquetColumnMapping,
+    SStreamColumnMapping,
+    W3CLogFileMapping
+} from "../source/columnMappings";
 
 
 

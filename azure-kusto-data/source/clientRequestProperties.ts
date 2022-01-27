@@ -65,7 +65,7 @@ export class ClientRequestProperties {
         this._options = {};
     }
 
-    toJson() {
+    toJSON() {
         const json: { Options?: { [option: string]: any }, Parameters?: { [option: string]: any } } = {};
 
         if (Object.keys(this._options).length !== 0) {
@@ -83,7 +83,7 @@ export class ClientRequestProperties {
     }
 
     toString() {
-        return JSON.stringify(this.toJson());
+        return JSON.stringify(this.toJSON());
     }
 
     _msToTimespan(duration: number): string {
