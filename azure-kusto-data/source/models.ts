@@ -1,6 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+// We want all the Kusto table models in this file
+/* tslint:disable:max-classes-per-file */
+
 import moment from "moment";
 
 export enum WellKnownDataSet {
@@ -8,7 +11,7 @@ export enum WellKnownDataSet {
     QueryCompletionInformation = "QueryCompletionInformation",
     TableOfContents = "TableOfContents",
     QueryProperties = "QueryProperties"
-};
+}
 
 const ValueParser: { [fromString: string]: (typeof moment | typeof moment.duration) } = {
     datetime: moment,

@@ -49,7 +49,7 @@ export class KustoClient {
         };
         this.axiosInstance = axios.create({
             headers,
-            validateStatus: (status: number) => status == 200,
+            validateStatus: (status: number) => status === 200,
 
             // keepAlive pools and reuses TCP connections, so it's faster
             httpAgent: new http.Agent({ keepAlive: true }),
@@ -172,13 +172,13 @@ export class KustoClient {
 
     _parseResponse(response: any, executionType: ExecutionType, properties?: ClientRequestProperties | null, status?: number) : KustoResponseDataSet {
         const {raw} = properties || {};
-        if (raw === true || executionType == ExecutionType.Ingest) {
+        if (raw === true || executionType === ExecutionType.Ingest) {
             return response;
         }
 
         let kustoResponse = null;
         try {
-            if (executionType == ExecutionType.Query) {
+            if (executionType === ExecutionType.Query) {
                 kustoResponse = new KustoResponseDataSetV2(response);
             } else {
                 kustoResponse = new KustoResponseDataSetV1(response);
@@ -205,7 +205,7 @@ export class KustoClient {
             }
         }
 
-        return (executionType == ExecutionType.Query ||  executionType == ExecutionType.QueryV1) ? QUERY_TIMEOUT_IN_MILLISECS : COMMAND_TIMEOUT_IN_MILLISECS;
+        return (executionType === ExecutionType.Query ||  executionType === ExecutionType.QueryV1) ? QUERY_TIMEOUT_IN_MILLISECS : COMMAND_TIMEOUT_IN_MILLISECS;
     }
 }
 

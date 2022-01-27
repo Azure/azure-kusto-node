@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+/* tslint:disable:no-console */
+
 import assert from "assert";
 import fs, {ReadStream} from 'fs';
 import IngestClient from "../../source/ingestClient";
@@ -35,8 +37,8 @@ function main(): void {
     const ingestClient = new IngestClient(dmKcsb);
     const statusQueues = new KustoIngestStatusQueues(ingestClient);
     const managedStreamingIngestClient = new ManagedStreamingIngestClient(engineKcsb, dmKcsb);
-  
-    class testDataItem {
+
+    class TestDataItem {
         constructor(public description: string, public path: string, public rows: number, public ingestionProperties: IngestionProperties, public testOnstreamingIngestion = true) {
         }
     }
@@ -70,18 +72,18 @@ function main(): void {
     });
 
     const testItems = [
-        new testDataItem("csv", getTestResourcePath("dataset.csv"), 10, ingestionPropertiesWithoutMapping),
-        new testDataItem("csv.gz", getTestResourcePath("dataset_gzip.csv.gz"), 10, ingestionPropertiesWithoutMapping),
-        new testDataItem("json with mapping ref", getTestResourcePath("dataset.json"), 2, ingestionPropertiesWithMappingReference),
-        new testDataItem("json.gz with mapping ref", getTestResourcePath("dataset_gzip.json.gz"), 2, ingestionPropertiesWithMappingReference),
-        new testDataItem("json with mapping", getTestResourcePath("dataset.json"), 2, ingestionPropertiesWithColumnMapping, false),
-        new testDataItem("json.gz with mapping", getTestResourcePath("dataset_gzip.json.gz"), 2, ingestionPropertiesWithColumnMapping, false)
+        new TestDataItem("csv", getTestResourcePath("dataset.csv"), 10, ingestionPropertiesWithoutMapping),
+        new TestDataItem("csv.gz", getTestResourcePath("dataset_gzip.csv.gz"), 10, ingestionPropertiesWithoutMapping),
+        new TestDataItem("json with mapping ref", getTestResourcePath("dataset.json"), 2, ingestionPropertiesWithMappingReference),
+        new TestDataItem("json.gz with mapping ref", getTestResourcePath("dataset_gzip.json.gz"), 2, ingestionPropertiesWithMappingReference),
+        new TestDataItem("json with mapping", getTestResourcePath("dataset.json"), 2, ingestionPropertiesWithColumnMapping, false),
+        new TestDataItem("json.gz with mapping", getTestResourcePath("dataset_gzip.json.gz"), 2, ingestionPropertiesWithColumnMapping, false)
     ];
 
     let currentCount = 0;
 
-    describe(`E2E Tests`, function () {
-        after(async function () {
+    describe(`E2E Tests`, () => {
+        after(async () => {
             try {
                 await queryClient.execute(databaseName, `.drop table ${tableName} ifexists`);
             } catch (err) {
@@ -89,7 +91,7 @@ function main(): void {
             }
         });
 
-        before('SetUp', async function () {
+        before('SetUp', async () => {
             console.log(`Create Table ${tableName}`)
             try {
                 await queryClient.execute(databaseName, `.create table ${tableName} ${tableColumns}`);
@@ -106,20 +108,20 @@ function main(): void {
             }
         });
 
-        describe('cloud info', function () {
-            it('Cached cloud info', async function () {
+        describe('cloud info', () => {
+            it('Cached cloud info', async () => {
                 const cloudInfo = CloudSettings.getInstance().cloudCache[process.env.ENGINE_CONNECTION_STRING as string]; // it should be already in the cache at this point
                 assert.strictEqual(cloudInfo.KustoClientAppId, CloudSettings.getInstance().defaultCloudInfo.KustoClientAppId);
             })
 
-            it('cloud info 404', async function () {
+            it('cloud info 404', async () => {
                 const cloudInfo = await CloudSettings.getInstance().getCloudInfoForCluster("https://www.microsoft.com");
                 assert.strictEqual(cloudInfo, CloudSettings.getInstance().defaultCloudInfo);
             })
         });
 
-        describe('ingestClient', function () {
-            it('ingestFromFile', async function () {
+        describe('ingestClient', () => {
+            it('ingestFromFile', async () => {
                 for (const item of testItems) {
                     try {
                         await ingestClient.ingestFromFile(item.path, item.ingestionProperties);
@@ -131,7 +133,7 @@ function main(): void {
                 }
             }).timeout(240000);
 
-            it('ingestFromStream', async function () {
+            it('ingestFromStream', async () => {
                 for (const item of testItems) {
                     let stream: ReadStream | StreamDescriptor = fs.createReadStream(item.path);
                     if (item.path.endsWith('gz')) {
@@ -147,9 +149,9 @@ function main(): void {
             }).timeout(240000);
         });
 
-        describe('StreamingIngestClient', function () {
-            it('ingestFromFile', async function () {
-                for (const item of testItems.filter(item => item.testOnstreamingIngestion)) {
+        describe('StreamingIngestClient', () => {
+            it('ingestFromFile', async () => {
+                for (const item of testItems.filter(i => i.testOnstreamingIngestion)) {
                     try {
                         await streamingIngestClient.ingestFromFile(item.path, item.ingestionProperties);
                     } catch (err) {
@@ -159,8 +161,8 @@ function main(): void {
                 }
             }).timeout(240000);
 
-            it('ingestFromStream', async function () {
-                for (const item of testItems.filter(item => item.testOnstreamingIngestion)) {
+            it('ingestFromStream', async () => {
+                for (const item of testItems.filter(i => i.testOnstreamingIngestion)) {
                     let stream: ReadStream | StreamDescriptor = fs.createReadStream(item.path);
                     if (item.path.endsWith('gz')) {
                         stream = new StreamDescriptor(stream, null, CompressionType.GZIP);
@@ -175,9 +177,9 @@ function main(): void {
             }).timeout(240000);
         });
 
-        describe('ManagedStreamingIngestClient', function () {
-            it('ingestFromFile', async function () {
-                for (const item of testItems.filter(item => item.testOnstreamingIngestion)) {
+        describe('ManagedStreamingIngestClient', () => {
+            it('ingestFromFile', async () => {
+                for (const item of testItems.filter(i => i.testOnstreamingIngestion)) {
                     try {
                         await managedStreamingIngestClient.ingestFromFile(item.path, item.ingestionProperties);
                     } catch (err) {
@@ -187,8 +189,8 @@ function main(): void {
                     await assertRowsCount(item);
                 }
             }).timeout(240000);
-            it('ingestFromStream', async function () {
-                for (const item of testItems.filter(item => item.testOnstreamingIngestion)) {
+            it('ingestFromStream', async () => {
+                for (const item of testItems.filter(i => i.testOnstreamingIngestion)) {
                     let stream: ReadStream | StreamDescriptor = fs.createReadStream(item.path);
                     if (item.path.endsWith('gz')) {
                         stream = new StreamDescriptor(stream, null, CompressionType.GZIP);
@@ -203,8 +205,8 @@ function main(): void {
             }).timeout(240000);
         });
 
-        describe('KustoIngestStatusQueues', function () {
-            it('CleanStatusQueues', async function () {
+        describe('KustoIngestStatusQueues', () => {
+            it('CleanStatusQueues', async () => {
                 try {
                     await cleanStatusQueues();
                 } catch (err) {
@@ -213,7 +215,7 @@ function main(): void {
                 }
             }).timeout(240000);
 
-            it('CheckSucceededIngestion', async function () {
+            it('CheckSucceededIngestion', async () => {
                 const item = testItems[0];
                 item.ingestionProperties.reportLevel = ReportLevel.FailuresAndSuccesses;
                 try {
@@ -227,7 +229,7 @@ function main(): void {
                 }
             }).timeout(240000);
 
-            it('CheckFailedIngestion', async function () {
+            it('CheckFailedIngestion', async () => {
                 const item = testItems[0];
                 item.ingestionProperties.reportLevel = ReportLevel.FailuresAndSuccesses;
                 item.ingestionProperties.database = "invalid";
@@ -243,8 +245,8 @@ function main(): void {
             }).timeout(240000);
         });
 
-        describe('QueryClient', function () {
-            it('General BadRequest', async function () {
+        describe('QueryClient', () => {
+            it('General BadRequest', async () => {
                 try {
                     await queryClient.executeQuery(databaseName, "invalidSyntax ");
                 } catch (ex) {
@@ -253,7 +255,7 @@ function main(): void {
                 assert.fail(`General BadRequest`);
             });
 
-            it('PartialQueryFailure', async function () {
+            it('PartialQueryFailure', async () => {
                 try {
                     await queryClient.executeQuery(databaseName, "invalidSyntax ");
 
@@ -263,7 +265,7 @@ function main(): void {
                 assert.fail(`Didn't throw PartialQueryFailure`);
             });
 
-            it('executionTimeout', async function () {
+            it('executionTimeout', async () => {
                 try {
                     const properties = new ClientRequestProperties();
                     properties.setTimeout(10);
@@ -303,7 +305,7 @@ function main(): void {
         return __dirname + `/e2eData/${name}`;
     }
 
-    async function assertRowsCount(testItem: testDataItem) {
+    async function assertRowsCount(testItem: TestDataItem) {
         let count = 0;
         const expected = testItem.rows;
         // Timeout = 3 min

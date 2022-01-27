@@ -1,6 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+// We want all the Descriptors to be in this file
+/* tslint:disable:max-classes-per-file */
+
 import { v4 as uuidv4 } from 'uuid';
 import uuidValidate from "uuid-validate";
 import zlib from "zlib";
@@ -49,7 +52,7 @@ export class FileDescriptor {
                 .on("error", (err) => {
                     reject(err);
                 });
-            output.once("close", function () {
+            output.once("close", () => {
                 resolve(null);
             });
         });

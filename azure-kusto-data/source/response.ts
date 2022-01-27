@@ -1,6 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+// We want all the Response models to be in this file
+/* tslint:disable:max-classes-per-file */
+
 import {KustoResultTable, Table, WellKnownDataSet} from "./models";
 
 interface V2DataSetHeaderFrame {
@@ -78,7 +81,7 @@ export abstract class KustoResponseDataSet {
         let errors = 0;
         let warnings = 0;
 
-        if (this.statusTable && this.statusTable._rows.length != 0) {
+        if (this.statusTable && this.statusTable._rows.length !== 0) {
             let minLevel = ErrorLevels.Error;
             const errorColumn = this.getErrorColumn();
             for (const row of this.statusTable.rows()) {
@@ -86,10 +89,10 @@ export abstract class KustoResponseDataSet {
                     if (row[errorColumn] < minLevel) {
                         minLevel = row[errorColumn];
                         errors = 1;
-                    } else if (row[errorColumn] == minLevel) {
+                    } else if (row[errorColumn] === minLevel) {
                         errors += 1;
                     }
-                } else if (row[errorColumn] == warnings) {
+                } else if (row[errorColumn] === warnings) {
                     warnings += 1;
                 }
             }
@@ -103,7 +106,7 @@ export abstract class KustoResponseDataSet {
 
     private getErrorsByLevel(errorLevel: ErrorLevels) {
         const result = [];
-        if (this.statusTable && this.statusTable._rows.length != 0) {
+        if (this.statusTable && this.statusTable._rows.length !== 0) {
             const errorColumn = this.getErrorColumn();
             const cridColumn = this.getCridColumn();
             const statusColumn = this.getStatusColumn();
@@ -167,7 +170,7 @@ export class KustoResponseDataSetV1 extends KustoResponseDataSet {
 
             this.tables[0].id = 0;
 
-            if (this.tables.length == 2) {
+            if (this.tables.length === 2) {
                 this.tables[1].kind = WellKnownDataSet.QueryProperties;
                 this.tables[1].id = 1;
             }
@@ -227,4 +230,4 @@ export class KustoResponseDataSetV2 extends KustoResponseDataSet {
         this.dataSetCompletion = dataSetCompletion;
         this.version = "2.0";
     }
-};
+}

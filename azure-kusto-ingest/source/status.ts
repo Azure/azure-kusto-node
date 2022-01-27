@@ -1,6 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+// We want all the Status related classes in this file
+/* tslint:disable:max-classes-per-file */
+
 import {StatusQueue} from "./statusQ";
 import KustoIngestClient from "./ingestClient";
 import {ResourceURI} from "./resourceManager";

@@ -12,9 +12,9 @@ import {Client as KustoClient} from "azure-kusto-data";
 import {IngestClientResources, ResourceManager, ResourceURI} from "../source/resourceManager";
 import {KustoResponseDataSet} from "azure-kusto-data/source/response";
 
-describe("ResourceURI", function () {
-    describe("#fromUri()", function () {
-        it("valid input", function () {
+describe("ResourceURI", () => {
+    describe("#fromUri()", () => {
+        it("valid input", () => {
             const accountName = "account";
             const objectType = "blob";
             const objectName = "container";
@@ -30,8 +30,8 @@ describe("ResourceURI", function () {
         });
     });
 
-    describe("#getSASConnectionString()", function () {
-        it("valid input", function () {
+    describe("#getSASConnectionString()", () => {
+        it("valid input", () => {
             const accountName = "account";
             const objectType = "blob";
             const objectName = "container";
@@ -46,7 +46,7 @@ describe("ResourceURI", function () {
 });
 
 
-describe("ResourceManager", function () {
+describe("ResourceManager", () => {
     const rows = [
         { ResourceTypeName: "SecuredReadyForAggregationQueue", StorageRoot: "https://account.queue.core.windows.net/ready1?sas" },
         { ResourceTypeName: "FailedIngestionsQueue", StorageRoot: "https://account.queue.core.windows.net/failed?sas" },
@@ -66,8 +66,8 @@ describe("ResourceManager", function () {
         }]
     };
 
-    describe("#constructor()", function () {
-        it("valid input", function () {
+    describe("#constructor()", () => {
+        it("valid input", () => {
             const resourceManager = new ResourceManager(new KustoClient("https://cluster.kusto.windows.net"));
 
             assert.strictEqual(resourceManager.ingestClientResources, null);
@@ -75,8 +75,8 @@ describe("ResourceManager", function () {
         });
     });
 
-    describe("#getIngestClientResourcesFromService()", function () {
-        it("valid input", async function () {
+    describe("#getIngestClientResourcesFromService()", () => {
+        it("valid input", async () => {
             const client = new KustoClient("https://cluster.kusto.windows.net")
             sinon.stub(client, "execute").returns(Promise.resolve(mockedResourcesResponse as KustoResponseDataSet));
 
@@ -90,7 +90,7 @@ describe("ResourceManager", function () {
         });
 
 
-        it("error response", async function () {
+        it("error response", async () => {
             const client = new KustoClient("https://cluster.kusto.windows.net");
             sinon.stub(client, "execute").throwsException(new Error("Kusto request erred (403)"));
 
@@ -106,8 +106,8 @@ describe("ResourceManager", function () {
         });
     });
 
-    describe("#getResourceByName()", function () {
-        it("valid input", function () {
+    describe("#getResourceByName()", () => {
+        it("valid input", () => {
             const resourceManager = new ResourceManager(new KustoClient("https://cluster.kusto.windows.net"));
 
             const resources = resourceManager.getResourceByName(mockedResourcesResponse.primaryResults[0], "TempStorage");
@@ -115,8 +115,8 @@ describe("ResourceManager", function () {
         });
     });
 
-    describe("#refreshIngestClientResources()", function () {
-        it("should refresh", async function () {
+    describe("#refreshIngestClientResources()", () => {
+        it("should refresh", async () => {
             const resourceManager = new ResourceManager(new KustoClient("https://cluster.kusto.windows.net"));
 
             const call = sinon.stub(resourceManager, "getIngestClientResourcesFromService");
@@ -125,7 +125,7 @@ describe("ResourceManager", function () {
             assert.strictEqual(call.calledOnce, true);
         });
 
-        it("shouldn't refresh", async function () {
+        it("shouldn't refresh", async () => {
             const resourceManager = new ResourceManager(new KustoClient("https://cluster.kusto.windows.net"));
 
             const call = sinon.stub(resourceManager, "getIngestClientResourcesFromService");

@@ -5,6 +5,9 @@ import {PeekedMessageItem, QueueClient} from "@azure/storage-queue";
 import {ResourceURI} from "./resourceManager"
 import {StatusMessage} from "./status";
 
+// QueueDetails is a very small class, so we don't need it in a different file
+/* tslint:disable:max-classes-per-file */
+
 class QueueDetails {
     constructor(readonly name: string, readonly service: QueueClient) {
     }
@@ -38,7 +41,7 @@ export class StatusQueue {
     }
 
     _getQServices(queuesDetails: ResourceURI[]) {
-        return queuesDetails.map(function (q) {
+        return queuesDetails.map(q => {
             const sasConnectionString = q.getSASConnectionString();
             if (!sasConnectionString) {
                 throw new Error("Empty or null connection string");
@@ -77,7 +80,7 @@ export class StatusQueue {
                 if (m && Object.keys(m).length > 0) {
                     result.push(options && options.raw ? m : this.deserializeMessage(m));
 
-                    if (result.length == n) {
+                    if (result.length === n) {
                         return {done: true, nonEmptyQs, result};
                     }
                 }
@@ -116,9 +119,9 @@ export class StatusQueue {
                     result.push(options && options.raw ? m : this.deserializeMessage(m));
 
                     if (!(options && !options.remove)) {
-                        q.service.deleteMessage(m.messageId, m.popReceipt);
+                        await q.service.deleteMessage(m.messageId, m.popReceipt);
                     }
-                    if (result.length == n) {
+                    if (result.length === n) {
                         return {done: true, nonEmptyQs, result};
                     }
                 }
