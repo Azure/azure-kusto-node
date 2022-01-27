@@ -8,8 +8,8 @@ import {KustoResultColumn, KustoResultRow, KustoResultTable} from "../source/mod
 // tslint:disable-next-line:no-var-requires
 const v2Response = require("./data/response/v2.json");
 
-describe("KustoResultRow", function () {
-    describe("#constructor()", function () {
+describe("KustoResultRow", () => {
+    describe("#constructor()", () => {
         const rawColumns = [
             {
                 "ColumnName": "Timestamp",
@@ -39,7 +39,7 @@ describe("KustoResultRow", function () {
 
         const inputColumns = rawColumns.map((c, i) => new KustoResultColumn(c, i));
 
-        it("initialize properly", function () {
+        it("initialize properly", () => {
             const inputValues = [
                 "2016-06-06T15:35:00Z",
                 "foo",
@@ -51,10 +51,10 @@ describe("KustoResultRow", function () {
 
             const actual = new KustoResultRow(inputColumns, inputValues);
 
-            assert.equal(actual.columns.length, inputColumns.length);
+            assert.strictEqual(actual.columns.length, inputColumns.length);
         });
 
-        it("column ordinal affects order", function () {
+        it("column ordinal affects order", () => {
             const inputValues = [
                 "2016-06-06T15:35:00Z",
                 "foo",
@@ -83,18 +83,18 @@ describe("KustoResultRow", function () {
             for (let index = 0; index < inputColumns.length; index++) {
                 const currentActual = asJson[inputColumns[index].name as string];
                 if (inputColumns[index].type === "timespan") {
-                    assert.equal(Number(currentActual), expectedValues[index]);
+                    assert.strictEqual(Number(currentActual), Number(expectedValues[index]));
                 }
-                else if (typeof(currentActual) == "object") {
-                    assert.equal(currentActual.toString(), expectedValues[index].toString());
+                else if (typeof(currentActual) === "object") {
+                    assert.strictEqual(currentActual.toString(), expectedValues[index].toString());
                 } else {
-                    assert.equal(currentActual, expectedValues[index]);
+                    assert.strictEqual(currentActual, expectedValues[index]);
                 }
             }
 
         });
 
-        it("mismatching data - less data than columns", function () {
+        it("mismatching data - less data than columns", () => {
             const inputValues = [
                 "2016-06-06T15:35:00Z",
                 "foo",
@@ -106,10 +106,10 @@ describe("KustoResultRow", function () {
 
             const actual = new KustoResultRow(inputColumns, inputValues);
 
-            assert.equal(actual.columns.length, inputColumns.length);
+            assert.strictEqual(actual.columns.length, inputColumns.length);
         });
 
-        it("mismatching data - less columns than data ", function () {
+        it("mismatching data - less columns than data ", () => {
             const inputValues = [
                 "2016-06-06T15:35:00Z",
                 "foo",
@@ -121,11 +121,11 @@ describe("KustoResultRow", function () {
 
             const actual = new KustoResultRow(inputColumns, inputValues);
 
-            assert.equal(actual.columns.length, inputColumns.length);
+            assert.strictEqual(actual.columns.length, inputColumns.length);
         });
 
 
-        it("mismatching data - type mismatch ", function () {
+        it("mismatching data - type mismatch ", () => {
             const inputValues = [
                 "2016-06-06T15:35:00Z",
                 "foo",
@@ -137,10 +137,10 @@ describe("KustoResultRow", function () {
 
             const actual = new KustoResultRow(inputColumns, inputValues);
 
-            assert.equal(actual.columns.length, inputColumns.length);
+            assert.strictEqual(actual.columns.length, inputColumns.length);
         });
 
-        it("iterate data", function () {
+        it("iterate data", () => {
             const inputValues = [
                 "2016-06-06T15:35:00Z",
                 "foo",
@@ -157,14 +157,14 @@ describe("KustoResultRow", function () {
             let i = 0;
 
             for (const v of actual.values()) {
-                assert.equal(v, inputValues[i]);
+                assert.strictEqual(v, inputValues[i]);
                 values.push(v);
                 i++;
             }
-            assert.equal(actual.columns.length, inputValues.length);
+            assert.strictEqual(actual.columns.length, inputValues.length);
         });
 
-        it("mapped props", function () {
+        it("mapped props", () => {
             const inputValues = [
                 "2016-06-06T15:35:00Z",
                 "foo",
@@ -185,15 +185,15 @@ describe("KustoResultRow", function () {
 
             const actual = new KustoResultRow(inputColumns, inputValues);
 
-            assert.equal(actual.Timestamp.toString(), expectedValues[0].toString());
-            assert.equal(actual.Name, expectedValues[1]);
-            assert.equal(actual.Altitude, expectedValues[2]);
-            assert.equal(actual.Temperature, expectedValues[3]);
-            assert.equal(actual.IsFlying, expectedValues[4]);
-            assert.equal(actual.TimeFlying.toString(), expectedValues[5].toString());
+            assert.strictEqual(actual.Timestamp.toString(), expectedValues[0].toString());
+            assert.strictEqual(actual.Name, expectedValues[1]);
+            assert.strictEqual(actual.Altitude, expectedValues[2]);
+            assert.strictEqual(actual.Temperature, expectedValues[3]);
+            assert.strictEqual(actual.IsFlying, expectedValues[4]);
+            assert.strictEqual(actual.TimeFlying.toString(), expectedValues[5].toString());
         });
 
-        it("value at", function () {
+        it("value at", () => {
             const inputValues = [
                 "2016-06-06T15:35:00Z",
                 "foo",
@@ -215,10 +215,10 @@ describe("KustoResultRow", function () {
             const actual = new KustoResultRow(inputColumns, inputValues);
 
             for (let i = 0; i < inputValues.length; i++) {
-                if (typeof (expectedValues[i]) == "object") {
-                    assert.equal(JSON.stringify(actual.getValueAt(i)), JSON.stringify(expectedValues[i]));
+                if (typeof (expectedValues[i]) === "object") {
+                    assert.strictEqual(JSON.stringify(actual.getValueAt(i)), JSON.stringify(expectedValues[i]));
                 } else {
-                    assert.equal(actual.getValueAt(i), expectedValues[i]);
+                    assert.strictEqual(actual.getValueAt(i), expectedValues[i]);
                 }
             }
         });
@@ -227,8 +227,8 @@ describe("KustoResultRow", function () {
 });
 
 
-describe("KustoResultColumn", function () {
-    describe("#constructor()", function () {
+describe("KustoResultColumn", () => {
+    describe("#constructor()", () => {
         const rawColumns = [
             {
                 "ColumnName": "Timestamp",
@@ -254,18 +254,18 @@ describe("KustoResultColumn", function () {
             }
         ];
 
-        it("valid input", function () {
+        it("valid input", () => {
             const actual = new KustoResultColumn(rawColumns[1], 0);
 
-            assert.equal(actual.name, rawColumns[1].ColumnName);
+            assert.strictEqual(actual.name, rawColumns[1].ColumnName);
         });
 
-        it("invalid input - missing props", function () {
+        it("invalid input - missing props", () => {
             const actualMissingType = new KustoResultColumn(rawColumns[2], 0);
             const actualMissingName = new KustoResultColumn(rawColumns[3], 0);
 
-            assert.equal(actualMissingName.name, null);
-            assert.equal(actualMissingType.type, null);
+            assert.strictEqual(actualMissingName.name, null);
+            assert.strictEqual(actualMissingType.type, null);
         });
 
 
@@ -273,26 +273,26 @@ describe("KustoResultColumn", function () {
 });
 
 
-describe("KustoResultTable", function () {
-    describe("#constructor()", function () {
-        it("valid initialization", function () {
+describe("KustoResultTable", () => {
+    describe("#constructor()", () => {
+        it("valid initialization", () => {
             const actual = new KustoResultTable(v2Response[2]);
 
-            assert.equal(actual.columns.length, 6);
-            assert.equal(actual._rows.length, 3);
+            assert.strictEqual(actual.columns.length, 6);
+            assert.strictEqual(actual._rows.length, 3);
         });
-        it("iterate over rows", function () {
+        it("iterate over rows", () => {
             const actual = new KustoResultTable(v2Response[2]);
 
             const rows = [];
             for (const row of actual.rows()) {
                 rows.push(row);
-                assert.equal(
+                assert.strictEqual(
                     JSON.stringify(row),
                     JSON.stringify(new KustoResultRow(row.columns, row.raw)));
             }
 
-            assert.equal(rows.length, 3);
+            assert.strictEqual(rows.length, 3);
         });
     });
 });

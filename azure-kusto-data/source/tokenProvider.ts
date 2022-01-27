@@ -5,6 +5,9 @@ import { DeviceCodeResponse } from "@azure/msal-common";
 import { ManagedIdentityCredential, AzureCliCredential} from "@azure/identity";
 import { CloudSettings, CloudInfo } from "./cloudSettings"
 
+// We want all the Token Providers in this file
+/* tslint:disable:max-classes-per-file */
+
 export declare type TokenResponse = {
     tokenType: string;
     accessToken: string;
@@ -22,7 +25,7 @@ export abstract class TokenProviderBase {
 
     abstract acquireToken(): Promise<TokenResponse>;
 
-    constructor(kustoUri: string) {
+    protected constructor(kustoUri: string) {
         this.kustoUri = kustoUri;
         if (kustoUri != null) {
             const suffix = this.kustoUri.endsWith("/") ? ".default" : "/.default";
@@ -121,7 +124,7 @@ abstract class MsalTokenProvider extends TokenProviderBase {
     abstract initClient(): void;
     abstract acquireMsalToken(): Promise<AuthenticationResult | null>;
 
-    constructor(kustoUri: string, authorityId?: string) {
+    protected constructor(kustoUri: string, authorityId?: string) {
         super(kustoUri);
         this.initialized = false;
         this.authorityId = authorityId;

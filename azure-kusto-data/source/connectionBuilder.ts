@@ -106,8 +106,8 @@ export class KustoConnectionStringBuilder {
     }
 
     static withAadUserPasswordAuthentication(connectionString: string, userId: string, password: string, authorityId?: string) {
-        if (!userId || userId.trim().length == 0) throw new Error("Invalid user");
-        if (!password || password.trim().length == 0) throw new Error("Invalid password");
+        if (!userId || userId.trim().length === 0) throw new Error("Invalid user");
+        if (!password || password.trim().length === 0) throw new Error("Invalid password");
 
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         kcsb[KeywordMapping.aadUserId.propName] = userId;
@@ -118,8 +118,8 @@ export class KustoConnectionStringBuilder {
     }
 
     static withAadApplicationKeyAuthentication(connectionString: string, aadAppId: string, appKey: string, authorityId?: string) {
-        if (!aadAppId || aadAppId.trim().length == 0) throw new Error("Invalid app id");
-        if (!appKey || appKey.trim().length == 0) throw new Error("Invalid app key");
+        if (!aadAppId || aadAppId.trim().length === 0) throw new Error("Invalid app id");
+        if (!appKey || appKey.trim().length === 0) throw new Error("Invalid app key");
 
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         kcsb[KeywordMapping.applicationClientId.propName] = aadAppId;
@@ -130,9 +130,9 @@ export class KustoConnectionStringBuilder {
     }
 
     static withAadApplicationCertificateAuthentication(connectionString: string, aadAppId: string, applicationCertificatePrivateKey: string, applicationCertificateThumbprint: string,  authorityId?: string, applicationCertificateX5c?: string) {
-        if (!aadAppId || aadAppId.trim().length == 0) throw new Error("Invalid app id");
-        if (!applicationCertificatePrivateKey || applicationCertificatePrivateKey.trim().length == 0) throw new Error("Invalid certificate");
-        if (!applicationCertificateThumbprint || applicationCertificateThumbprint.trim().length == 0) throw new Error("Invalid thumbprint");
+        if (!aadAppId || aadAppId.trim().length === 0) throw new Error("Invalid app id");
+        if (!applicationCertificatePrivateKey || applicationCertificatePrivateKey.trim().length === 0) throw new Error("Invalid certificate");
+        if (!applicationCertificateThumbprint || applicationCertificateThumbprint.trim().length === 0) throw new Error("Invalid thumbprint");
 
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         kcsb[KeywordMapping.applicationClientId.propName] = aadAppId;
@@ -145,7 +145,7 @@ export class KustoConnectionStringBuilder {
     }
 
 
-    static withAadDeviceAuthentication(connectionString: string, authorityId: string, deviceCodeCallback?: (response: DeviceCodeResponse) => void) {
+    static withAadDeviceAuthentication(connectionString: string, authorityId: string = "common", deviceCodeCallback?: (response: DeviceCodeResponse) => void) {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         kcsb[KeywordMapping.authorityId.propName] = authorityId;
         kcsb.deviceCodeCallback = deviceCodeCallback;
