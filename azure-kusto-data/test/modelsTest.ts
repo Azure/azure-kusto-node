@@ -94,7 +94,7 @@ describe("KustoResultRow", () => {
 
         });
 
-        it("custom parsers", function () {
+        it("custom parsers", () => {
             const inputValues = [
                 "2016-06-06T15:35:00Z",
                 "foo",
@@ -127,7 +127,7 @@ describe("KustoResultRow", () => {
                 if (inputColumns[index].type === "timespan") {
                     assert.strictEqual(Number(currentActual), Number(expectedValues[index]));
                 }
-                else if (typeof(currentActual) == "object") {
+                else if (typeof(currentActual) === "object") {
                     assert.strictEqual(currentActual.toString(), expectedValues[index].toString());
                 } else {
                     assert.strictEqual(currentActual, expectedValues[index]);
@@ -336,7 +336,7 @@ describe("KustoResultTable", () => {
 
             assert.strictEqual(rows.length, 3);
         });
-        it("iterate over rows with custom parsers", function () {
+        it("iterate over rows with custom parsers", () => {
             const actual = new KustoResultTable(v2Response[2]);
             const dateParser =(t: string) => t + "-date";
             const timeParser =(t: number) => t + 5;
