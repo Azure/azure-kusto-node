@@ -20,18 +20,20 @@ export class AadHelper {
             !!kcsb.applicationCertificateThumbprint && !!kcsb.applicationCertificatePrivateKey) {
             this.tokenProvider = new TokenProvider.ApplicationCertificateTokenProvider(kcsb.dataSource, kcsb.applicationClientId, kcsb.applicationCertificateThumbprint, kcsb.applicationCertificatePrivateKey, kcsb.applicationCertificateX5c as string | undefined, kcsb.authorityId);
         } else if (kcsb.managedIdentity) {
-            this.tokenProvider = new TokenProvider.MsiTokenProvider(kcsb.dataSource, kcsb.msiClientId as string | undefined);
+            this.tokenProvider = new TokenProvider.MsiTokenProvider(kcsb.dataSource, kcsb.authorityId, kcsb.applicationClientId, kcsb.timeoutMs);
         } else if (kcsb.azLoginIdentity) {
-            this.tokenProvider = new TokenProvider.AzCliTokenProvider(kcsb.dataSource);
+            this.tokenProvider = new TokenProvider.AzCliTokenProvider(kcsb.dataSource, kcsb.authorityId, kcsb.applicationClientId, kcsb.timeoutMs);
         } else if (kcsb.accessToken) {
             this.tokenProvider = new TokenProvider.BasicTokenProvider(kcsb.dataSource, kcsb.accessToken as string);
-        } else {
+        } else if (kcsb.interactiveLogin) {
+            this.tokenProvider = new TokenProvider.InteractiveLoginTokenProvider(kcsb.dataSource, kcsb.authorityId, kcsb.loginHint);
+        }else {
             let callback = kcsb.deviceCodeCallback;
             if (!callback) {
                 // tslint:disable-next-line:no-console
                 callback = (response) => console.log(response.message);
             }
-            this.tokenProvider = new TokenProvider.DeviceLoginTokenProvider(kcsb.dataSource, callback);
+            this.tokenProvider = new TokenProvider.DeviceLoginTokenProvider(kcsb.dataSource, callback, kcsb.authorityId);
         }
     }
 

@@ -19,7 +19,7 @@ describe("KustoConnectionStringBuilder", () => {
             for (const kcsb of kcsbs) {
                 assert.strictEqual(kcsb.dataSource, "localhost");
                 assert.strictEqual(kcsb.authorityId, "common");
-                const emptyFields = ["aadUserId", "password", "applicationClientId", "applicationKey"];
+                const emptyFields = ["aadUserId", "password", "applicationClientId", "applicationKey"] as const;
                 for (const field of emptyFields) {
                     assert.strictEqual(kcsb[field], undefined);
                 }
@@ -46,7 +46,7 @@ describe("KustoConnectionStringBuilder", () => {
                 assert.strictEqual(kcsb.aadUserId, expectedUser);
                 assert.strictEqual(kcsb.password, expectedPassword);
                 assert.strictEqual(kcsb.authorityId, "common");
-                const emptyFields = ["applicationClientId", "applicationKey"];
+                const emptyFields = ["applicationClientId", "applicationKey"] as const;
                 for (const field of emptyFields) {
                     assert.strictEqual(kcsb[field], undefined);
                 }
@@ -76,7 +76,7 @@ describe("KustoConnectionStringBuilder", () => {
                 assert.strictEqual(kcsb.applicationClientId, uuid);
                 assert.strictEqual(kcsb.applicationKey, key);
                 assert.strictEqual(kcsb.authorityId, "common");
-                const emptyFields = ["aadUserId", "password"];
+                const emptyFields = ["aadUserId", "password"] as const;
                 for (const field of emptyFields) {
                     assert.strictEqual(kcsb[field], undefined);
                 }

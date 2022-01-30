@@ -2,58 +2,60 @@
 // Licensed under the MIT License.
 
 import { DeviceCodeResponse } from "@azure/msal-common";
+import { KeyOfType } from "./typeUtilts";
 
 interface MappingType {
-    propName: string,
     mappedTo: string,
     validNames: string[]
 }
 
-const KeywordMapping: { [name: string]: MappingType } = Object.freeze({
+// This type gurantess that we don't have properties in KeywordMapping that don't exist in KustoConnectionStringBuilder
+type KeywordMappingRecordType = Partial<Record<keyof KustoConnectionStringBuilder, MappingType>>;
+
+const KeywordMapping: KeywordMappingRecordType = Object.freeze<Readonly<KeywordMappingRecordType>>({
     dataSource: {
-        propName: "dataSource",
         mappedTo: "Data Source",
         validNames: ["data source", "addr", "address", "network address", "server"]
     },
     aadUserId: {
-        propName: "aadUserId",
         mappedTo: "AAD User ID",
         validNames: ["aad user id"]
     },
     password: {
-        propName: "password",
         mappedTo: "Password",
         validNames: ["password", "pwd"]
     },
     applicationClientId: {
-        propName: "applicationClientId",
         mappedTo: "Application Client Id",
         validNames: ["application client id", "appclientid"]
     },
+    msiClientId: {
+        mappedTo: "Msi Client Id",
+        validNames: ["msi client id", "msiclientid"]
+    },
     applicationKey: {
-        propName: "applicationKey",
         mappedTo: "Application Key",
         validNames: ["application key", "appkey"]
     },
     applicationCertificatePrivateKey: {
-        propName: "applicationCertificatePrivateKey",
         mappedTo: "application Certificate PrivateKey",
         validNames: ["application Certificate PrivateKey"]
     },
     applicationCertificateThumbprint: {
-        propName: "applicationCertificateThumbprint",
         mappedTo: "Application Certificate Thumbprint",
         validNames: ["application certificate thumbprint"]
     },
     applicationCertificateX5c: {
-        propName: "applicationCertificateX5c",
         mappedTo: "Application Certificate x5c",
         validNames: ["application certificate x5c"]
     },
     authorityId: {
-        propName: "authorityId",
         mappedTo: "Authority Id",
         validNames: ["authority id", "authorityid", "authority", "tenantid", "tenant", "tid"]
+    },
+    loginHint: {
+        mappedTo: "Login Hint",
+        validNames: ["login hint"]
     }
 });
 
@@ -61,25 +63,37 @@ const getPropName = (key: string): string => {
     const _key = key.trim().toLowerCase();
 
     for (const keyword of Object.keys(KeywordMapping)) {
-        const k = KeywordMapping[keyword];
+        const k = KeywordMapping[keyword as keyof KustoConnectionStringBuilder];
+        if (!k) {
+            continue;
+        }
         if (k.validNames.indexOf(_key) >= 0) {
-            return k.propName;
+            return keyword;
         }
     }
     throw new Error(key);
 };
 
+
 export class KustoConnectionStringBuilder {
-    [prop: string]: string | boolean | ((info: DeviceCodeResponse) => void) |  undefined;
     dataSource?: string;
     aadUserId?: string;
     password?: string;
     applicationClientId?: string;
+    msiClientId?: string;
     applicationKey?: string;
     applicationCertificatePrivateKey?: string;
     applicationCertificateThumbprint?: string;
-    authorityId?: string;
+    applicationCertificateX5c?: string;
+    authorityId: string = "common";
     deviceCodeCallback?: (response: DeviceCodeResponse) => void;
+    loginHint?: string;
+    timeoutMs?: number;
+    deviceCallback?: boolean;
+    interactiveLogin?: boolean;
+    accessToken?: string;
+    azLoginIdentity?: boolean;
+    managedIdentity?: boolean;
 
     constructor(connectionString: string) {
         if (!connectionString || connectionString.trim().length === 0) throw new Error("Missing connection string");
@@ -92,12 +106,11 @@ export class KustoConnectionStringBuilder {
             connectionString = "Data Source=" + connectionString;
         }
 
-        this[KeywordMapping.authorityId.propName] = "common";
-
         const params = connectionString.split(";");
         for (const item of params) {
             const kvp = item.split("=");
-            this[getPropName(kvp[0])] = kvp[1].trim();
+            const propName = getPropName(kvp[0]) as KeyOfType<KustoConnectionStringBuilder, string>;
+            this[propName] = kvp[1].trim();
         }
     }
 
@@ -110,9 +123,11 @@ export class KustoConnectionStringBuilder {
         if (!password || password.trim().length === 0) throw new Error("Invalid password");
 
         const kcsb = new KustoConnectionStringBuilder(connectionString);
-        kcsb[KeywordMapping.aadUserId.propName] = userId;
-        kcsb[KeywordMapping.password.propName] = password;
-        kcsb[KeywordMapping.authorityId.propName] = authorityId || "common";
+        kcsb.aadUserId = userId;
+        kcsb.password = password;
+        if (authorityId) {
+            kcsb.authorityId = authorityId;
+        }
 
         return kcsb;
     }
@@ -122,9 +137,12 @@ export class KustoConnectionStringBuilder {
         if (!appKey || appKey.trim().length === 0) throw new Error("Invalid app key");
 
         const kcsb = new KustoConnectionStringBuilder(connectionString);
-        kcsb[KeywordMapping.applicationClientId.propName] = aadAppId;
-        kcsb[KeywordMapping.applicationKey.propName] = appKey;
-        kcsb[KeywordMapping.authorityId.propName] = authorityId || "common";
+        kcsb.applicationClientId = aadAppId;
+        kcsb.applicationKey = appKey;
+        if (authorityId) {
+            kcsb.authorityId = authorityId;
+        }
+
 
         return kcsb;
     }
@@ -135,11 +153,13 @@ export class KustoConnectionStringBuilder {
         if (!applicationCertificateThumbprint || applicationCertificateThumbprint.trim().length === 0) throw new Error("Invalid thumbprint");
 
         const kcsb = new KustoConnectionStringBuilder(connectionString);
-        kcsb[KeywordMapping.applicationClientId.propName] = aadAppId;
-        kcsb[KeywordMapping.applicationCertificatePrivateKey.propName] = applicationCertificatePrivateKey;
-        kcsb[KeywordMapping.applicationCertificateThumbprint.propName] = applicationCertificateThumbprint;
-        kcsb[KeywordMapping.applicationCertificateX5c.propName] = applicationCertificateX5c;
-        kcsb[KeywordMapping.authorityId.propName] = authorityId || "common";
+        kcsb.applicationClientId = aadAppId;
+        kcsb.applicationCertificatePrivateKey = applicationCertificatePrivateKey;
+        kcsb.applicationCertificateThumbprint = applicationCertificateThumbprint;
+        kcsb.applicationCertificateX5c = applicationCertificateX5c;
+        if (authorityId) {
+            kcsb.authorityId = authorityId;
+        }
 
         return kcsb;
     }
@@ -147,24 +167,35 @@ export class KustoConnectionStringBuilder {
 
     static withAadDeviceAuthentication(connectionString: string, authorityId: string = "common", deviceCodeCallback?: (response: DeviceCodeResponse) => void) {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
-        kcsb[KeywordMapping.authorityId.propName] = authorityId;
+        kcsb.authorityId = authorityId;
         kcsb.deviceCodeCallback = deviceCodeCallback;
+        kcsb.deviceCallback = true
 
         return kcsb;
     }
 
-    static withAadManagedIdentities(connectionString: string, msiClientId?: string) {
+    static withAadManagedIdentities(connectionString: string, authorityId?: string, msiClientId?: string, timeoutMs?: number) {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
+        if (authorityId) {
+            kcsb.authorityId = authorityId;
+        }
         kcsb.msiClientId = msiClientId;
+        kcsb.timeoutMs = timeoutMs;
         kcsb.managedIdentity = true;
 
         return kcsb;
     }
 
-    static withAzLoginIdentity(connectionString: string) {
+    static withAzLoginIdentity(connectionString: string,authorityId?: string, clientId?: string, timeoutMs?: number, ) {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
 
         kcsb.azLoginIdentity = true;
+        if (authorityId) {
+            kcsb.authorityId = authorityId;
+        }
+        kcsb.applicationClientId = clientId;
+        kcsb.timeoutMs = timeoutMs;
+
 
         return kcsb;
     }
@@ -173,6 +204,20 @@ export class KustoConnectionStringBuilder {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
 
         kcsb.accessToken = accessToken;
+
+        return kcsb;
+    }
+
+    static withInteractiveLogin(connectionString: string, authorityId?: string, clientId?: string, timeoutMs?: number, loginHint?: string) {
+        const kcsb = new KustoConnectionStringBuilder(connectionString);
+
+        kcsb.interactiveLogin = true;
+        if (authorityId) {
+            kcsb.authorityId = authorityId;
+        }
+        kcsb.loginHint = loginHint;
+        kcsb.applicationClientId = clientId;
+        kcsb.timeoutMs = timeoutMs;
 
         return kcsb;
     }
