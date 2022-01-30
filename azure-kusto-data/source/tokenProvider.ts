@@ -84,10 +84,7 @@ export class MsiTokenProvider extends TokenProviderBase {
             this.managedIdentityCredential = this.clientId  ? new ManagedIdentityCredential(this.clientId) : new ManagedIdentityCredential();
         }
         const msiToken = await this.managedIdentityCredential.getToken(this.kustoUri);
-        if (msiToken?.token != null) {
-            return { tokenType: BEARER_TYPE, accessToken: msiToken.token };
-        }
-        throw new Error(`"Failed to obtain MSI token for '${this.kustoUri}' with '${this.clientId}'`)
+        return { tokenType: BEARER_TYPE, accessToken: msiToken.token };
     }
 }
 
@@ -106,11 +103,7 @@ export class AzCliTokenProvider extends TokenProviderBase {
             this.azureCliCredentials = new AzureCliCredential();
         }
         const response = await this.azureCliCredentials.getToken(this.scopes);
-
-        if(response){
-            return { tokenType: BEARER_TYPE, accessToken: response.token };
-        }
-        throw new Error(`"Failed to obtain AzCli token for '${this.kustoUri}'`)
+        return { tokenType: BEARER_TYPE, accessToken: response.token };
     }
 }
 
