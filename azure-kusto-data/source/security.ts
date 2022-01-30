@@ -3,10 +3,9 @@
 import KustoConnectionStringBuilder from "./connectionBuilder";
 import "./tokenProvider";
 import * as TokenProvider from "./tokenProvider";
-import { KustoAuthenticationError } from "./errors";
 
 export class AadHelper {
-    tokenProvider?: TokenProvider.TokenProviderBase;
+    tokenProvider: TokenProvider.TokenProviderBase;
 
     constructor(kcsb: KustoConnectionStringBuilder) {
         if (!kcsb.dataSource) {
@@ -20,34 +19,27 @@ export class AadHelper {
         } else if (!!kcsb.applicationClientId &&
             !!kcsb.applicationCertificateThumbprint && !!kcsb.applicationCertificatePrivateKey) {
             this.tokenProvider = new TokenProvider.ApplicationCertificateTokenProvider(kcsb.dataSource, kcsb.applicationClientId, kcsb.applicationCertificateThumbprint, kcsb.applicationCertificatePrivateKey, kcsb.applicationCertificateX5c as string | undefined, kcsb.authorityId);
-        } else if (kcsb.useManagedIdentityAuth) {
-            this.tokenProvider = new TokenProvider.MsiTokenProvider(kcsb.dataSource, kcsb.authorityId, kcsb.msiClientId, kcsb.timeoutMs);
-        } else if (kcsb.useAzLoginAuth) {
-            this.tokenProvider = new TokenProvider.AzCliTokenProvider(kcsb.dataSource, kcsb.authorityId, undefined, kcsb.timeoutMs);
+        } else if (kcsb.managedIdentity) {
+            this.tokenProvider = new TokenProvider.MsiTokenProvider(kcsb.dataSource, kcsb.authorityId, kcsb.applicationClientId, kcsb.timeoutMs);
+        } else if (kcsb.azLoginIdentity) {
+            this.tokenProvider = new TokenProvider.AzCliTokenProvider(kcsb.dataSource, kcsb.authorityId, kcsb.applicationClientId, kcsb.timeoutMs);
         } else if (kcsb.accessToken) {
             this.tokenProvider = new TokenProvider.BasicTokenProvider(kcsb.dataSource, kcsb.accessToken as string);
-        } else if (kcsb.useUserPromptAuth) {
-            this.tokenProvider = new TokenProvider.UserPromptProvider(kcsb.dataSource, kcsb.authorityId, kcsb.applicationClientId, kcsb.timeoutMs, kcsb.loginHint);
-        } else if (kcsb.tokenProvider) {
-            this.tokenProvider = new TokenProvider.CallbackTokenProvider(kcsb.dataSource, kcsb.tokenProvider);
-        } else if (kcsb.useDeviceCodeAuth){
-            if (kcsb.deviceCodeCallback === undefined) {
-                throw new KustoAuthenticationError("Device code authentication requires a callback function", undefined, TokenProvider.DeviceLoginTokenProvider.name, {});
+        } else if (kcsb.interactiveLogin) {
+            this.tokenProvider = new TokenProvider.InteractiveLoginTokenProvider(kcsb.dataSource, kcsb.authorityId, kcsb.loginHint);
+        }else {
+            let callback = kcsb.deviceCodeCallback;
+            if (!callback) {
+                // tslint:disable-next-line:no-console
+                callback = (response) => console.log(response.message);
             }
-            this.tokenProvider = new TokenProvider.DeviceLoginTokenProvider(kcsb.dataSource, kcsb.deviceCodeCallback, kcsb.authorityId);
+            this.tokenProvider = new TokenProvider.DeviceLoginTokenProvider(kcsb.dataSource, callback, kcsb.authorityId);
         }
     }
 
-    async getAuthHeader(): Promise<string | null> {
-        if (!this.tokenProvider) {
-            return null;
-        }
-        try {
-            const token = await this.tokenProvider.acquireToken();
-            return `${token.tokenType} ${token.accessToken}`;
-        } catch (e) {
-            throw new KustoAuthenticationError(e instanceof Error ? e.message : `${e}`, e instanceof Error ? e : undefined, this.tokenProvider.constructor.name, this.tokenProvider.context());
-        }
+    async _getAuthHeader(): Promise<string> {
+        const token = await this.tokenProvider.acquireToken();
+        return `${token.tokenType} ${token.accessToken}`;
     }
 }
 
