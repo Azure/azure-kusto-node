@@ -97,7 +97,7 @@ function main(): void {
                 await queryClient.execute(databaseName, `.create table ${tableName} ${tableColumns}`);
                 await queryClient.execute(databaseName, ".clear database cache streamingingestion schema");
             } catch (err) {
-                assert.fail("Failed to create table");
+                assert.fail("Failed to create table - " + err);
             }
 
             console.log('Create table ingestion mapping')

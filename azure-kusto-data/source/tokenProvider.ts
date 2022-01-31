@@ -40,7 +40,7 @@ export abstract class TokenProviderBase {
     protected constructor(kustoUri: string) {
         this.kustoUri = kustoUri;
         if (kustoUri != null) {
-            const suffix = this.kustoUri.endsWith("/") ? ".default" : "/.default";
+            const suffix = (!this.kustoUri.endsWith("/") ? "/" : "") + ".default";
             this.scopes = [kustoUri + suffix];
         }
     }
@@ -86,7 +86,7 @@ abstract class MsalTokenProvider extends TokenProviderBase {
     cloudInfo!: CloudInfo;
     authorityId: string;
     initialized: boolean;
-    authorityUri: string;
+    authorityUri!: string;
 
     abstract initClient(): void;
     abstract acquireMsalToken(): Promise<TokenType | null>;
@@ -95,7 +95,6 @@ abstract class MsalTokenProvider extends TokenProviderBase {
         super(kustoUri);
         this.initialized = false;
         this.authorityId = authorityId;
-        this.authorityUri = CloudSettings.getAuthorityUri(this.cloudInfo, this.authorityId);
     }
 
     async acquireToken(): Promise<TokenResponse> {
@@ -107,6 +106,7 @@ abstract class MsalTokenProvider extends TokenProviderBase {
                     resourceUri = resourceUri.replace(".kusto.", ".kustomfa.")
                 }
                 this.scopes = [resourceUri + "/.default"]
+                this.authorityUri = CloudSettings.getAuthorityUri(this.cloudInfo, this.authorityId);
                 this.initClient();
             }
             this.initialized = true;
@@ -133,11 +133,20 @@ export abstract class AzureIdentityProvider extends MsalTokenProvider {
         this.credential = this.getCredential();
     }
 
+    getCommonOptions(): { authorityHost: string; clientId: string | undefined; tenantId: string } {
+        return {
+            authorityHost: this.authorityHost,
+            tenantId: this.authorityId,
+            clientId: this.clientId,
+        }
+    }
+
     async acquireMsalToken(): Promise<TokenType | null> {
         const response = await this.credential.getToken(this.scopes, {
             requestOptions: {
                 timeout: this.timeoutMs
             },
+            tenantId: this.authorityId
         });
         if (response === null) {
             throw new Error("Failed to get token from msal");
@@ -154,7 +163,7 @@ export abstract class AzureIdentityProvider extends MsalTokenProvider {
  */
 export class MsiTokenProvider extends AzureIdentityProvider {
     getCredential(): TokenCredential {
-        const options: TokenCredentialOptions = {authorityHost: this.authorityHost};
+        const options: TokenCredentialOptions = this.getCommonOptions();
         return this.clientId ? new ManagedIdentityCredential(this.clientId, options) : new ManagedIdentityCredential(options);
     }
 }
@@ -164,7 +173,7 @@ export class MsiTokenProvider extends AzureIdentityProvider {
  */
 export class AzCliTokenProvider extends AzureIdentityProvider {
     getCredential(): TokenCredential {
-        return new AzureCliCredential({authorityHost: this.authorityHost});
+        return new AzureCliCredential(this.getCommonOptions());
     }
 }
 
@@ -172,17 +181,18 @@ export class AzCliTokenProvider extends AzureIdentityProvider {
  * AzCli Token Provider obtains a refresh token from the AzCli cache and uses it to authenticate with MSAL
  */
 export class InteractiveLoginTokenProvider extends AzureIdentityProvider {
+    // The default port is 80, which can lead to permission errors, so we'll choose another port
+    readonly BrowserPort = 23145;
+
     constructor(kustoUri: string, authorityId: string, clientId?: string, timeoutMs?: number, private loginHint?: string) {
         super(kustoUri, authorityId, clientId, timeoutMs);
     }
 
     getCredential(): TokenCredential {
         return new InteractiveBrowserCredential({
-            authorityHost: this.authorityHost,
+            ...this.getCommonOptions(),
             loginHint: this.loginHint,
-            clientId: this.clientId,
-            // The default port is 80, which can lead to permission errors, so let's set it to a random port
-            redirectUri: "http://localhost:23145/"
+            redirectUri: `http://localhost:${this.BrowserPort}/`
 });
     }
 }
