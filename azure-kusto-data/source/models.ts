@@ -156,6 +156,13 @@ export class KustoResultTable {
         }
     }
 
+    /**
+     * @deprecated use the compliant toJSON() instead
+     */
+    toJson() {
+        return this.toJSON();
+    }
+
     toJSON() {
         const table: any = {};
 
