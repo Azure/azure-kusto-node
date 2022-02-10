@@ -94,6 +94,48 @@ describe("KustoResultRow", () => {
 
         });
 
+        it("custom parsers", () => {
+            const inputValues = [
+                "2016-06-06T15:35:00Z",
+                "foo",
+                101,
+                3.14,
+                false,
+                3493235670000
+            ];
+
+            const reverseOrderColumns = rawColumns.slice().reverse();
+            const actual = new KustoResultRow(
+                reverseOrderColumns.map((c, i) => new KustoResultColumn(c, rawColumns.length - i - 1)),
+                inputValues,
+                (t) => t + "-date",
+                (t) => t + 5
+            );
+
+            const asJson = actual.toJSON();
+            const expectedValues = [
+                "2016-06-06T15:35:00Z-date",
+                inputValues[1],
+                inputValues[2],
+                inputValues[3],
+                inputValues[4],
+                3493235670005,
+            ];
+
+            for (let index = 0; index < inputColumns.length; index++) {
+                const currentActual = asJson[inputColumns[index].name as string];
+                if (inputColumns[index].type === "timespan") {
+                    assert.strictEqual(Number(currentActual), Number(expectedValues[index]));
+                }
+                else if (typeof(currentActual) === "object") {
+                    assert.strictEqual(currentActual.toString(), expectedValues[index].toString());
+                } else {
+                    assert.strictEqual(currentActual, expectedValues[index]);
+                }
+            }
+
+        });
+
         it("mismatching data - less data than columns", () => {
             const inputValues = [
                 "2016-06-06T15:35:00Z",
@@ -290,6 +332,23 @@ describe("KustoResultTable", () => {
                 assert.strictEqual(
                     JSON.stringify(row),
                     JSON.stringify(new KustoResultRow(row.columns, row.raw)));
+            }
+
+            assert.strictEqual(rows.length, 3);
+        });
+        it("iterate over rows with custom parsers", () => {
+            const actual = new KustoResultTable(v2Response[2]);
+            const dateParser =(t: string) => t + "-date";
+            const timeParser =(t: number) => t + 5;
+            actual.dateTimeParser = dateParser;
+            actual.timeSpanParser = timeParser;
+
+            const rows = [];
+            for (const row of actual.rows()) {
+                rows.push(row);
+                assert.strictEqual(
+                    JSON.stringify(row),
+                    JSON.stringify(new KustoResultRow(row.columns, row.raw, dateParser, timeParser)));
             }
 
             assert.strictEqual(rows.length, 3);
