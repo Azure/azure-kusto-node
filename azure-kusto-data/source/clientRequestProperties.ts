@@ -65,6 +65,13 @@ export class ClientRequestProperties {
         this._options = {};
     }
 
+    /**
+     * @deprecated use the compliant toJSON() instead
+     */
+    toJson() {
+        return this.toJSON();
+    }
+
     toJSON() {
         const json: { Options?: { [option: string]: any }, Parameters?: { [option: string]: any } } = {};
 
