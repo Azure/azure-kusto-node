@@ -76,6 +76,13 @@ export class KustoResultRow {
         return this[this.columns[index].name as string];
     }
 
+    /**
+     * @deprecated use the compliant toJSON() instead
+     */
+    toJson() {
+        return this.toJSON();
+    }
+
     toJSON() {
         const obj: any = {};
 
@@ -155,6 +162,7 @@ export class KustoResultTable {
             yield new KustoResultRow(this.columns, row, this._dateTimeParser, this._timeSpanParser);
         }
     }
+
 
     /**
      * @deprecated use the compliant toJSON() instead

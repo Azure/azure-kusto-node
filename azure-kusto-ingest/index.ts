@@ -10,8 +10,7 @@ import managedStreamingIngestClient from "./source/managedStreamingIngestClient"
 import KustoIngestStatusQueues from "./source/status";
 
 import {
-    CsvColumnMapping, DataFormat, IngestionMappingType,
-    JsonColumnMapping,
+    DataFormat, IngestionMappingKind,
     ReportLevel,
     ReportMethod,
     ValidationImplications,
@@ -26,12 +25,13 @@ import {
     FileDescriptor,
     StreamDescriptor
 } from "./source/descriptors";
+import { AvroColumnMapping, CsvColumnMapping, JsonColumnMapping, OrcColumnMapping, ParquetColumnMapping, W3CLogFileMapping } from "./source/columnMappings";
 
 export const IngestClient = client;
 export const StreamingIngestClient = streamingIngestClient;
 export const ManagedStreamingIngestClient = managedStreamingIngestClient;
 export const IngestStatusQueues = KustoIngestStatusQueues;
-export {IngestionProperties} from "./source/ingestionProperties"
+export { IngestionProperties } from "./source/ingestionProperties"
 export const IngestionDescriptors = {
     BlobDescriptor,
     FileDescriptor,
@@ -40,12 +40,18 @@ export const IngestionDescriptors = {
 export const IngestionPropertiesEnums = {
     JsonColumnMapping,
     CsvColumnMapping,
+    AvroColumnMapping,
+    ParquetColumnMapping,
+    OrcColumnMapping,
+    W3CLogFileMapping,
     ValidationPolicy,
     ReportLevel,
     ReportMethod,
     ValidationImplications,
     ValidationOptions,
     DataFormat,
-    IngestionMappingType,
+    IngestionMappingType: IngestionMappingKind,
     CompressionType
 };
+
+export { IngestionPropertiesValidationError} from "./source/errors"

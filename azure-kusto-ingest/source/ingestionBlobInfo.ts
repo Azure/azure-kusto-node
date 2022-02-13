@@ -3,8 +3,8 @@
 
 import { v4 as uuidv4 } from 'uuid';
 import moment from "moment";
-import {BlobDescriptor} from "./descriptors";
-import IngestionProperties, {ReportLevel, ReportMethod} from "./ingestionProperties";
+import { BlobDescriptor } from "./descriptors";
+import IngestionProperties, { ReportLevel, ReportMethod } from "./ingestionProperties";
 
 export class IngestionBlobInfo {
     BlobPath: string;
@@ -26,7 +26,7 @@ export class IngestionBlobInfo {
         this.DatabaseName = ingestionProperties.database ?? null;
         this.TableName = ingestionProperties.table ?? null;
         this.RetainBlobOnSuccess = true;
-        this.FlushImmediately = !!ingestionProperties.flushImmediately;
+        this.FlushImmediately = ingestionProperties.flushImmediately;
         this.IgnoreSizeLimit = false;
         this.ReportLevel = ingestionProperties.reportLevel ?? null;
         this.ReportMethod = ingestionProperties.reportMethod ?? null;
@@ -55,13 +55,17 @@ export class IngestionBlobInfo {
             additionalProperties.ingestIfNotExists = ingestionProperties.ingestIfNotExists;
         }
 
-        if (ingestionProperties.ingestionMapping && ingestionProperties.ingestionMapping.length > 0) {
+        if (ingestionProperties.ingestionMappingColumns && ingestionProperties.ingestionMappingColumns.length > 0) {
             // server expects a string
-            additionalProperties.ingestionMapping = JSON.stringify(ingestionProperties.ingestionMapping);
+            additionalProperties.ingestionMapping = JSON.stringify(ingestionProperties.ingestionMappingColumns.map(m => m.toApiMapping()));
         }
 
         if (ingestionProperties.ingestionMappingReference) {
             additionalProperties.ingestionMappingReference = ingestionProperties.ingestionMappingReference;
+        }
+
+        if (ingestionProperties.ingestionMappingKind) {
+            additionalProperties.ingestionMappingType = ingestionProperties.ingestionMappingKind;
         }
 
         if (ingestionProperties.validationPolicy) {
