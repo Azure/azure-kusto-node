@@ -113,7 +113,7 @@ export class KustoClient {
             };
 
             if (properties != null) {
-                payload.properties = properties.toJson();
+                payload.properties = properties.toJSON();
             }
 
             payloadContent = JSON.stringify(payload);

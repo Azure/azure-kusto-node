@@ -4,26 +4,29 @@
 /* tslint:disable:no-console */
 
 import assert from "assert";
-import fs, {ReadStream} from 'fs';
+import fs, { ReadStream } from 'fs';
 import IngestClient from "../../source/ingestClient";
 import KustoIngestStatusQueues from "../../source/status";
-import {
-    Client,
-    KustoConnectionStringBuilder as ConnectionStringBuilder,
-    ClientRequestProperties,
-    // @ts-ignore
-} from "azure-kusto-data";
+import { Client, ClientRequestProperties, KustoConnectionStringBuilder as ConnectionStringBuilder, } from "azure-kusto-data";
 import StreamingIngestClient from "../../source/streamingIngestClient";
 import ManagedStreamingIngestClient from "../../source/managedStreamingIngestClient";
-import {CompressionType, StreamDescriptor} from "../../source/descriptors";
-import {DataFormat, IngestionProperties, ReportLevel} from "../../source/ingestionProperties";
+import { CompressionType, StreamDescriptor } from "../../source/descriptors";
+import { DataFormat, IngestionProperties, ReportLevel} from "../../source/ingestionProperties";
 import { CloudSettings } from "azure-kusto-data/source/cloudSettings";
 import { sleep } from "../../source/retry";
+import { JsonColumnMapping } from "../../source/columnMappings";
+
+interface ParsedJsonMapping {
+    Properties: { Path: string };
+    column: string;
+    datatype: string;
+}
 
 const databaseName = process.env.TEST_DATABASE;
 const appId = process.env.APP_ID;
 const appKey = process.env.APP_KEY;
 const tenantId = process.env.TENANT_ID;
+
 function main(): void {
     if (!databaseName || !appId || !appKey || !tenantId) {
         process.stdout.write("Skip E2E test - Missing env variables");
@@ -47,8 +50,8 @@ function main(): void {
     const mappingName = "mappingRef";
     const tableColumns = "(rownumber:int, rowguid:string, xdouble:real, xfloat:real, xbool:bool, xint16:int, xint32:int, xint64:long, xuint8:long, xuint16:long, xuint32:long, xuint64:long, xdate:datetime, xsmalltext:string, xtext:string, xnumberAsText:string, xtime:timespan, xtextWithNulls:string, xdynamicWithNulls:dynamic)";
 
-    const mapping = fs.readFileSync(getTestResourcePath("dataset_mapping.json"), {encoding: 'utf8'});
-    const columnmapping = JSON.parse(mapping);
+    const mapping = fs.readFileSync(getTestResourcePath("dataset_mapping.json"), { encoding: 'utf8' });
+    const columnMapping = JSON.parse(mapping).map((m: ParsedJsonMapping) => JsonColumnMapping.withPath(m.column, m.Properties.Path, m.datatype));
 
     const ingestionPropertiesWithoutMapping = new IngestionProperties({
         database: databaseName,
@@ -67,7 +70,7 @@ function main(): void {
         database: databaseName,
         table: tableName,
         format: DataFormat.JSON,
-        ingestionMapping: columnmapping,
+        ingestionMappingColumns: columnMapping,
         flushImmediately: true
     });
 
@@ -92,19 +95,19 @@ function main(): void {
         });
 
         before('SetUp', async () => {
-            console.log(`Create Table ${tableName}`)
             try {
                 await queryClient.execute(databaseName, `.create table ${tableName} ${tableColumns}`);
+                await queryClient.execute(databaseName, `.alter table ${tableName} policy streamingingestion enable`);
                 await queryClient.execute(databaseName, ".clear database cache streamingingestion schema");
-            } catch (err) {
-                assert.fail("Failed to create table - " + err);
-            }
 
-            console.log('Create table ingestion mapping')
-            try {
-                await queryClient.execute(databaseName, `.create-or-alter table ${tableName} ingestion json mapping '${mappingName}' '${mapping}'`);
+                console.log('Create table ingestion mapping')
+                try {
+                    await queryClient.execute(databaseName, `.create-or-alter table ${tableName} ingestion json mapping '${mappingName}' '${mapping}'`);
+                } catch (err) {
+                    assert.fail("Failed to create table ingestion mapping, error: " + JSON.stringify(err));
+                }
             } catch (err) {
-                assert.fail("Failed to create table ingestion mapping" + err);
+                assert.fail("Failed to create table, error: " + JSON.stringify(err));
             }
         });
 
@@ -298,7 +301,7 @@ function main(): void {
         const failures = await statusQueues.failure.pop();
         const successes = await statusQueues.success.pop();
 
-        return {"SuccessCount": successes.length, "FailureCount": failures.length}
+        return { "SuccessCount": successes.length, "FailureCount": failures.length }
     }
 
     function getTestResourcePath(name: string) {
@@ -324,7 +327,7 @@ function main(): void {
             await sleep(3000);
         }
         currentCount += count;
-        assert.strictEqual(count, expected, `Failed to ingest ${testItem.description}`);
+        assert.strictEqual(count, expected, `Failed to ingest ${testItem.description} - '${count}' rows ingested, expected '${expected}'`);
     }
 }
 
