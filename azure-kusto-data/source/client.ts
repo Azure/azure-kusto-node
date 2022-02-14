@@ -141,7 +141,7 @@ export class KustoClient {
 
         headers["x-ms-client-request-id"] = clientRequestId || clientRequestPrefix + `${uuidv4()}`;
 
-        const authHeader = await this.aadHelper.getAuthHeader();
+        const authHeader = await this.aadHelper._getAuthHeader();
         if (authHeader != null) {
             headers.Authorization = authHeader;
         }
