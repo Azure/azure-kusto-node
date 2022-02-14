@@ -175,6 +175,10 @@ export class IngestionProperties {
     database?: string;
     table?: string;
     format: DataFormat = DataFormat.CSV;
+    /**
+     * @deprecated. Use ingestionMappingColumns instead.
+     */
+    ingestionMapping?: ColumnMapping[];
     ingestionMappingColumns?: ColumnMapping[];
     ingestionMappingReference?: string;
     /**
@@ -203,6 +207,10 @@ export class IngestionProperties {
 
         if (this.ingestionMappingType && !this.ingestionMappingKind) {
             this.ingestionMappingKind = this.ingestionMappingType;
+        }
+
+        if (this.ingestionMapping && !this.ingestionMappingColumns) {
+            this.ingestionMappingColumns = this.ingestionMapping;
         }
 
         if (!this.ingestionMappingColumns && !this.ingestionMappingReference) {
