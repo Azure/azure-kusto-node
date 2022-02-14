@@ -7,23 +7,77 @@
 import { IngestionPropertiesValidationError } from "./errors";
 import { ColumnMapping } from "./columnMappings";
 
+/**
+ * Data formats supported for Kusto ingestion.
+ */
 export enum DataFormat {
+    /**
+     * Comma-separated value.
+     */
     CSV = "csv",
+    /**
+     * Tab-separated value.
+     */
     TSV = "tsv",
+    /**
+     * Semicolon-separated value (the unique Azure Storage log format).
+     */
     SCSV = "scsv",
+    /**
+     * Start-Of-Header (CTRL-A)-separated value.
+     */
     SOHSV = "sohsv",
+    /**
+     * Pipeline-separated value (used by Cosmos).
+     */
     PSV = "psv",
+    /**
+     * Each record is a line and has just one field.
+     */
     TXT = "txt",
+    /**
+     * Whole stream is a single record with a single field.
+     */
     RAW = "raw",
+    /**
+     * Tab-separated value with '\' escaping character.
+     */
     TSVE = "tsve",
+    /**
+     * Data is in a JSON format, each line is record with a single JSON value.
+     */
     JSON = "json",
+    /**
+     * Data stream holds a single JSON value -- newlines are regular whitespace.
+     */
     SINGLEJSON = "singlejson",
+    /**
+     * The data stream is a concatenation of JSON documents (property bags all).
+     */
     MULTIJSON = "multijson",
+    /**
+     * Avro format.
+     */
     AVRO = "avro",
+    /**
+     * Parquet format.
+     */
     PARQUET = "parquet",
+    /**
+     * Microsoft Cosmos structured streams format
+     */
     SSTREAM = "sstream",
+    /**
+     * The Optimized Row Columnar (ORC)
+     */
     ORC = "orc",
+    /**
+     * Avro format for ingesting through avro2json.
+     */
     APACHEAVRO = "apacheavro",
+    /**
+     * W3C Extended Log File format.
+     */
     W3CLogFile = "w3clogfile",
 }
 
