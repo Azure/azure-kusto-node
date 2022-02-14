@@ -10,7 +10,8 @@ import managedStreamingIngestClient from "./source/managedStreamingIngestClient"
 import KustoIngestStatusQueues from "./source/status";
 
 import {
-    DataFormat, IngestionMappingKind,
+    DataFormat,
+    IngestionMappingKind,
     ReportLevel,
     ReportMethod,
     ValidationImplications,
@@ -19,27 +20,22 @@ import {
 } from "./source/ingestionProperties";
 
 
+import { BlobDescriptor, CompressionType, FileDescriptor, StreamDescriptor } from "./source/descriptors";
 import {
-    BlobDescriptor,
-    CompressionType,
-    FileDescriptor,
-    StreamDescriptor
-} from "./source/descriptors";
-import {
-    ColumnMapping,
+    ApacheAvroColumnMapping,
     AvroColumnMapping,
+    ColumnMapping,
+    ConstantTransformation,
     CsvColumnMapping,
+    FieldTransformation,
     JsonColumnMapping,
     OrcColumnMapping,
     ParquetColumnMapping,
-    W3CLogFileMapping,
-    ApacheAvroColumnMapping,
     SStreamColumnMapping,
-    ConstantTransformation,
-    FieldTransformation,
+    W3CLogFileMapping,
 } from "./source/columnMappings";
 
-export {Transformation as ColumnMappingTransformation} from "./source/columnMappings";
+export { Transformation as ColumnMappingTransformation } from "./source/columnMappings";
 
 export const IngestClient = client;
 export const StreamingIngestClient = streamingIngestClient;
@@ -64,7 +60,11 @@ export const IngestionPropertiesEnums = {
     ValidationImplications,
     ValidationOptions,
     DataFormat,
+    /**
+     * @deprecated - use IngestionMappingKind instead
+     */
     IngestionMappingType: IngestionMappingKind,
+    IngestionMappingKind,
     CompressionType,
     ApacheAvroColumnMapping,
     SStreamColumnMapping,
@@ -73,4 +73,4 @@ export const IngestionPropertiesEnums = {
     ColumnMapping,
 };
 
-export { IngestionPropertiesValidationError} from "./source/errors"
+export { IngestionPropertiesValidationError } from "./source/errors"

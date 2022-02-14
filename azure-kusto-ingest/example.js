@@ -6,7 +6,7 @@ const IngestStatusQueues = require("azure-kusto-ingest").IngestStatusQueues;
 const IngestionProps = require("azure-kusto-ingest").IngestionProperties;
 const { ReportLevel, ReportMethod } = require("azure-kusto-ingest").IngestionPropertiesEnums;
 const KustoConnectionStringBuilder = require("azure-kusto-data").KustoConnectionStringBuilder;
-const { DataFormat, JsonColumnMapping, IngestionMappingType, CompressionType } = require("azure-kusto-ingest").IngestionPropertiesEnums;
+const { DataFormat, JsonColumnMapping, IngestionMappingKind, CompressionType } = require("azure-kusto-ingest").IngestionPropertiesEnums;
 const { BlobDescriptor, StreamDescriptor } = require("azure-kusto-ingest").IngestionDescriptors;
 const StreamingIngestClient = require("azure-kusto-ingest").StreamingIngestClient;
 const fs = require('fs');
@@ -25,7 +25,7 @@ const props = new IngestionProps({
         new JsonColumnMapping("TargetColumn2", "$.sourceProp2"),
         new JsonColumnMapping("TargetColumn3", "$.sourceProp3")
     ],
-    ingestionMappingType: IngestionMappingType.JSON,
+    ingestionMappingType: IngestionMappingKind.JSON,
     reportLevel: ReportLevel.FailuresAndSuccesses,
     reportMethod: ReportMethod.Queue
 
