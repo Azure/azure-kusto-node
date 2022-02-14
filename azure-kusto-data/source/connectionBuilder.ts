@@ -21,6 +21,11 @@ const KeywordMapping: KeywordMappingRecordType = Object.freeze<Readonly<KeywordM
         mappedTo: "Data Source",
         validNames: ["data source", "addr", "address", "network address", "server"],
     },
+    aadFederatedSecurity: {
+        mappedTo: "AAD Federated Security",
+        validNames: ["aad federated security", "federated security", "federated", "fed", "aadfed"],
+        isBool: true,
+    },
     aadUserId: {
         mappedTo: "AAD User ID",
         validNames: ["aad user id"],
@@ -63,7 +68,7 @@ const KeywordMapping: KeywordMappingRecordType = Object.freeze<Readonly<KeywordM
     loginHint: {
         mappedTo: "Login Hint",
         validNames: ["login hint"],
-    }
+    },
 });
 
 const getPropName = (key: string): [string, MappingType] => {
@@ -86,6 +91,7 @@ export class KustoConnectionStringBuilder {
     static readonly SecretReplacement = "****";
 
     dataSource?: string;
+    aadFederatedSecurity?: boolean;
     aadUserId?: string;
     password?: string;
     applicationClientId?: string;
@@ -98,11 +104,11 @@ export class KustoConnectionStringBuilder {
     deviceCodeCallback?: (response: DeviceCodeResponse) => void;
     loginHint?: string;
     timeoutMs?: number;
-    deviceCallback?: boolean;
-    interactiveLogin?: boolean;
     accessToken?: string;
-    azLoginIdentity?: boolean;
-    managedIdentity?: boolean;
+    isDeviceCode?: boolean;
+    isInteractiveLogin?: boolean;
+    isAzLoginIdentity?: boolean;
+    isManagedIdentity?: boolean;
 
     constructor(connectionString: string) {
         if (!connectionString || connectionString.trim().length === 0) throw new Error("Missing connection string");
@@ -120,7 +126,7 @@ export class KustoConnectionStringBuilder {
             const kvp = item.split("=");
             const [mappingTypeName, mappingType] = getPropName(kvp[0]);
             if (mappingType.isBool) {
-                this[mappingTypeName as KeyOfType<KustoConnectionStringBuilder, boolean | undefined>] = kvp[1].toLowerCase() === "true";
+                this[mappingTypeName as KeyOfType<KustoConnectionStringBuilder, boolean | undefined>] = kvp[1].trim().toLowerCase() === "true";
             } else {
                 this[mappingTypeName as KeyOfType<KustoConnectionStringBuilder, string | undefined>] = kvp[1]?.trim();
             }
@@ -152,6 +158,7 @@ export class KustoConnectionStringBuilder {
         if (!password || password.trim().length === 0) throw new Error("Invalid password");
 
         const kcsb = new KustoConnectionStringBuilder(connectionString);
+        kcsb.aadFederatedSecurity = true;
         kcsb.aadUserId = userId;
         kcsb.password = password;
         if (authorityId) {
@@ -166,6 +173,7 @@ export class KustoConnectionStringBuilder {
         if (!appKey || appKey.trim().length === 0) throw new Error("Invalid app key");
 
         const kcsb = new KustoConnectionStringBuilder(connectionString);
+        kcsb.aadFederatedSecurity = true;
         kcsb.applicationClientId = aadAppId;
         kcsb.applicationKey = appKey;
         if (authorityId) {
@@ -182,6 +190,7 @@ export class KustoConnectionStringBuilder {
         if (!applicationCertificateThumbprint || applicationCertificateThumbprint.trim().length === 0) throw new Error("Invalid thumbprint");
 
         const kcsb = new KustoConnectionStringBuilder(connectionString);
+        kcsb.aadFederatedSecurity = true;
         kcsb.applicationClientId = aadAppId;
         kcsb.applicationCertificatePrivateKey = applicationCertificatePrivateKey;
         kcsb.applicationCertificateThumbprint = applicationCertificateThumbprint;
@@ -196,29 +205,32 @@ export class KustoConnectionStringBuilder {
 
     static withAadDeviceAuthentication(connectionString: string, authorityId: string = "common", deviceCodeCallback?: (response: DeviceCodeResponse) => void) {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
+        kcsb.aadFederatedSecurity = true;
         kcsb.authorityId = authorityId;
         kcsb.deviceCodeCallback = deviceCodeCallback;
-        kcsb.deviceCallback = true
+        kcsb.isDeviceCode = true
 
         return kcsb;
     }
 
     static withAadManagedIdentities(connectionString: string, authorityId?: string, msiClientId?: string, timeoutMs?: number) {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
+        kcsb.aadFederatedSecurity = true;
         if (authorityId) {
             kcsb.authorityId = authorityId;
         }
         kcsb.msiClientId = msiClientId;
         kcsb.timeoutMs = timeoutMs;
-        kcsb.managedIdentity = true;
+        kcsb.isManagedIdentity = true;
 
         return kcsb;
     }
 
     static withAzLoginIdentity(connectionString: string, authorityId?: string, clientId?: string, timeoutMs?: number,) {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
+        kcsb.aadFederatedSecurity = true;
 
-        kcsb.azLoginIdentity = true;
+        kcsb.isAzLoginIdentity = true;
         if (authorityId) {
             kcsb.authorityId = authorityId;
         }
@@ -231,6 +243,7 @@ export class KustoConnectionStringBuilder {
 
     static withAccessToken(connectionString: string, accessToken?: string) {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
+        kcsb.aadFederatedSecurity = true;
 
         kcsb.accessToken = accessToken;
 
@@ -239,8 +252,9 @@ export class KustoConnectionStringBuilder {
 
     static withInteractiveLogin(connectionString: string, authorityId?: string, clientId?: string, timeoutMs?: number, loginHint?: string) {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
+        kcsb.aadFederatedSecurity = true;
 
-        kcsb.interactiveLogin = true;
+        kcsb.isInteractiveLogin = true;
         if (authorityId) {
             kcsb.authorityId = authorityId;
         }

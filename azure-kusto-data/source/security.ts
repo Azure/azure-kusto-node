@@ -5,7 +5,7 @@ import "./tokenProvider";
 import * as TokenProvider from "./tokenProvider";
 
 export class AadHelper {
-    tokenProvider: TokenProvider.TokenProviderBase;
+    tokenProvider?: TokenProvider.TokenProviderBase;
 
     constructor(kcsb: KustoConnectionStringBuilder) {
         if (!kcsb.dataSource) {
@@ -19,15 +19,15 @@ export class AadHelper {
         } else if (!!kcsb.applicationClientId &&
             !!kcsb.applicationCertificateThumbprint && !!kcsb.applicationCertificatePrivateKey) {
             this.tokenProvider = new TokenProvider.ApplicationCertificateTokenProvider(kcsb.dataSource, kcsb.applicationClientId, kcsb.applicationCertificateThumbprint, kcsb.applicationCertificatePrivateKey, kcsb.applicationCertificateX5c as string | undefined, kcsb.authorityId);
-        } else if (kcsb.managedIdentity) {
+        } else if (kcsb.isManagedIdentity) {
             this.tokenProvider = new TokenProvider.MsiTokenProvider(kcsb.dataSource, kcsb.authorityId, kcsb.applicationClientId, kcsb.timeoutMs);
-        } else if (kcsb.azLoginIdentity) {
+        } else if (kcsb.isAzLoginIdentity) {
             this.tokenProvider = new TokenProvider.AzCliTokenProvider(kcsb.dataSource, kcsb.authorityId, kcsb.applicationClientId, kcsb.timeoutMs);
         } else if (kcsb.accessToken) {
             this.tokenProvider = new TokenProvider.BasicTokenProvider(kcsb.dataSource, kcsb.accessToken as string);
-        } else if (kcsb.interactiveLogin) {
+        } else if (kcsb.isInteractiveLogin) {
             this.tokenProvider = new TokenProvider.InteractiveLoginTokenProvider(kcsb.dataSource, kcsb.authorityId, kcsb.loginHint);
-        } else {
+        } else if (kcsb.isDeviceCode){
             let callback = kcsb.deviceCodeCallback;
             if (!callback) {
                 // tslint:disable-next-line:no-console
@@ -37,7 +37,10 @@ export class AadHelper {
         }
     }
 
-    async _getAuthHeader(): Promise<string> {
+    async _getAuthHeader(): Promise<string | null> {
+        if (!this.tokenProvider) {
+            return null;
+        }
         const token = await this.tokenProvider.acquireToken();
         return `${token.tokenType} ${token.accessToken}`;
     }
