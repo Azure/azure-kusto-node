@@ -147,8 +147,12 @@ export enum ValidationImplications {
 
 
 export class ValidationPolicy {
-    constructor(readonly validationOptions: ValidationOptions = ValidationOptions.DoNotValidate, readonly validationImplications: ValidationImplications = ValidationImplications.BestEffort) {
+    constructor(
+        readonly validationOptions: ValidationOptions = ValidationOptions.DoNotValidate,
+        readonly validationImplications: ValidationImplications = ValidationImplications.BestEffort
+    ) {
     }
+
     toJSON(): Record<string, number> {
         return {
             ValidationOptions: this.validationOptions,
@@ -167,12 +171,16 @@ export enum ReportMethod {
     Queue = 0
 }
 
-export class IngestionProperties{
+export class IngestionProperties {
     database?: string;
     table?: string;
     format: DataFormat = DataFormat.CSV;
     ingestionMappingColumns?: ColumnMapping[];
     ingestionMappingReference?: string;
+    /**
+     * @deprecated. Use ingestionMappingKind instead.
+     */
+    ingestionMappingType?: IngestionMappingKind;
     ingestionMappingKind?: IngestionMappingKind;
     additionalTags?: string;
     ingestIfNotExists?: string;
@@ -193,6 +201,9 @@ export class IngestionProperties{
         if (!this.table) throw new IngestionPropertiesValidationError("Must define a target table");
         if (!this.format) throw new IngestionPropertiesValidationError("Must define a data format");
 
+        if (this.ingestionMappingType && !this.ingestionMappingKind) {
+            this.ingestionMappingKind = this.ingestionMappingType;
+        }
 
         if (!this.ingestionMappingColumns && !this.ingestionMappingReference) {
             if (this.ingestionMappingKind) {
@@ -226,8 +237,10 @@ export class IngestionProperties{
         const merged = new IngestionProperties(this);
 
         for (const key of Object.keys(extraProps) as (keyof IngestionProperties)[]) {
-            if ( extraProps[key]) {
-                (<K extends keyof IngestionProperties>(k: K) => { merged[k] = extraProps[k]; })(key);
+            if (extraProps[key]) {
+                (<K extends keyof IngestionProperties>(k: K) => {
+                    merged[k] = extraProps[k];
+                })(key);
             }
         }
 

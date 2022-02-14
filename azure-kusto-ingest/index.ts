@@ -47,6 +47,32 @@ export const IngestionDescriptors = {
     FileDescriptor,
     StreamDescriptor,
 };
+
+export {
+    JsonColumnMapping,
+    CsvColumnMapping,
+    AvroColumnMapping,
+    ParquetColumnMapping,
+    OrcColumnMapping,
+    W3CLogFileMapping,
+    ValidationPolicy,
+    ReportLevel,
+    ReportMethod,
+    ValidationImplications,
+    ValidationOptions,
+    DataFormat,
+    IngestionMappingKind,
+    CompressionType,
+    ApacheAvroColumnMapping,
+    SStreamColumnMapping,
+    ConstantTransformation,
+    FieldTransformation,
+    ColumnMapping
+};
+
+/**
+ * @deprecated - import directly instead
+ */
 export const IngestionPropertiesEnums = {
     JsonColumnMapping,
     CsvColumnMapping,
