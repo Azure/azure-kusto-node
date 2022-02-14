@@ -42,12 +42,12 @@ const statusQueues = new IngestStatusQueues(ingestClient);
 
 startIngestion();
 
-// Streaming ingest client 
+// Streaming ingest client
 const props2 = new IngestionProps({
     database: "Database",
     table: "Table",
     format: DataFormat.JSON,
-    ingestionMappingReference: "Pre-defiend mapping name" // For json format mapping is required
+    ingestionMappingReference: "Pre-defined mapping name"
 });
 
 // Init with engine endpoint

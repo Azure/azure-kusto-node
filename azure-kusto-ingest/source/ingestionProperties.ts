@@ -81,8 +81,6 @@ export enum DataFormat {
     W3CLogFile = "w3clogfile",
 }
 
-export const MappingRequiredFormats = Object.freeze([DataFormat.JSON, DataFormat.SINGLEJSON, DataFormat.AVRO, DataFormat.ORC])
-
 export enum IngestionMappingKind {
     CSV = "Csv",
     JSON = "Json",
@@ -202,9 +200,6 @@ export class IngestionProperties{
                     " ingestionMappingReference");
             }
 
-            if (MappingRequiredFormats.includes(this.format as DataFormat)) {
-                throw new IngestionPropertiesValidationError(`Mapping reference required for format '${this.format}'.`);
-            }
         } else {
             const mappingKind = dataFormatMappingKind(this.format);
             if (this.ingestionMappingKind && this.ingestionMappingKind !== mappingKind) {

@@ -25,7 +25,21 @@ import {
     FileDescriptor,
     StreamDescriptor
 } from "./source/descriptors";
-import { AvroColumnMapping, CsvColumnMapping, JsonColumnMapping, OrcColumnMapping, ParquetColumnMapping, W3CLogFileMapping } from "./source/columnMappings";
+import {
+    ColumnMapping,
+    AvroColumnMapping,
+    CsvColumnMapping,
+    JsonColumnMapping,
+    OrcColumnMapping,
+    ParquetColumnMapping,
+    W3CLogFileMapping,
+    ApacheAvroColumnMapping,
+    SStreamColumnMapping,
+    ConstantTransformation,
+    FieldTransformation,
+} from "./source/columnMappings";
+
+export {Transformation as ColumnMappingTransformation} from "./source/columnMappings";
 
 export const IngestClient = client;
 export const StreamingIngestClient = streamingIngestClient;
@@ -35,7 +49,7 @@ export { IngestionProperties } from "./source/ingestionProperties"
 export const IngestionDescriptors = {
     BlobDescriptor,
     FileDescriptor,
-    StreamDescriptor
+    StreamDescriptor,
 };
 export const IngestionPropertiesEnums = {
     JsonColumnMapping,
@@ -51,7 +65,12 @@ export const IngestionPropertiesEnums = {
     ValidationOptions,
     DataFormat,
     IngestionMappingType: IngestionMappingKind,
-    CompressionType
+    CompressionType,
+    ApacheAvroColumnMapping,
+    SStreamColumnMapping,
+    ConstantTransformation,
+    FieldTransformation,
+    ColumnMapping,
 };
 
 export { IngestionPropertiesValidationError} from "./source/errors"
