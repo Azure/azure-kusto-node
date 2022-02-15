@@ -49,17 +49,17 @@ const KeywordMapping: KeywordMappingRecordType = Object.freeze<Readonly<KeywordM
         isSecret: true,
     },
     applicationCertificatePrivateKey: {
-        mappedTo: "application Certificate PrivateKey",
-        validNames: ["application Certificate PrivateKey"],
+        mappedTo: "Application Certificate PrivateKey",
+        validNames: ["Application Certificate PrivateKey"],
         isSecret: true,
     },
     applicationCertificateThumbprint: {
         mappedTo: "Application Certificate Thumbprint",
-        validNames: ["application certificate thumbprint"],
+        validNames: ["application certificate thumbprint", "AppCert"],
     },
     applicationCertificateX5c: {
         mappedTo: "Application Certificate x5c",
-        validNames: ["application certificate x5c"],
+        validNames: ["application certificate x5c", "Application Certificate Send Public Certificate", "Application Certificate SendX5c", "SendX5c"],
     },
     authorityId: {
         mappedTo: "Authority Id",
@@ -79,11 +79,11 @@ const getPropName = (key: string): [string, MappingType] => {
         if (!k) {
             continue;
         }
-        if (k.validNames.indexOf(_key) >= 0) {
+        if (k.validNames.map(n => n.trim().toLowerCase()).indexOf(_key) >= 0) {
             return [keyword, k];
         }
     }
-    throw new Error(key);
+    throw new Error("Failed to get prop: " + key);
 };
 
 
@@ -102,6 +102,7 @@ export class KustoConnectionStringBuilder {
     applicationCertificateX5c?: string;
     authorityId: string = "common";
     deviceCodeCallback?: (response: DeviceCodeResponse) => void;
+    tokenProvider?: () => Promise<string>;
     loginHint?: string;
     timeoutMs?: number;
     accessToken?: string;
@@ -184,7 +185,14 @@ export class KustoConnectionStringBuilder {
         return kcsb;
     }
 
-    static withAadApplicationCertificateAuthentication(connectionString: string, aadAppId: string, applicationCertificatePrivateKey: string, applicationCertificateThumbprint: string, authorityId?: string, applicationCertificateX5c?: string) {
+    static withAadApplicationCertificateAuthentication(
+        connectionString: string,
+        aadAppId: string,
+        applicationCertificatePrivateKey: string,
+        applicationCertificateThumbprint: string,
+        authorityId?: string,
+        applicationCertificateX5c?: string,
+    ) {
         if (!aadAppId || aadAppId.trim().length === 0) throw new Error("Invalid app id");
         if (!applicationCertificatePrivateKey || applicationCertificatePrivateKey.trim().length === 0) throw new Error("Invalid certificate");
         if (!applicationCertificateThumbprint || applicationCertificateThumbprint.trim().length === 0) throw new Error("Invalid thumbprint");
@@ -195,6 +203,7 @@ export class KustoConnectionStringBuilder {
         kcsb.applicationCertificatePrivateKey = applicationCertificatePrivateKey;
         kcsb.applicationCertificateThumbprint = applicationCertificateThumbprint;
         kcsb.applicationCertificateX5c = applicationCertificateX5c;
+
         if (authorityId) {
             kcsb.authorityId = authorityId;
         }
@@ -246,6 +255,15 @@ export class KustoConnectionStringBuilder {
         kcsb.aadFederatedSecurity = true;
 
         kcsb.accessToken = accessToken;
+
+        return kcsb;
+    }
+
+    static withTokenProvider(connectionString: string, tokenProvider?: () => Promise<string>) {
+        const kcsb = new KustoConnectionStringBuilder(connectionString);
+        kcsb.aadFederatedSecurity = true;
+
+        kcsb.tokenProvider = tokenProvider;
 
         return kcsb;
     }

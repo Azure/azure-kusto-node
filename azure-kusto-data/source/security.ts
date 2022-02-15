@@ -27,6 +27,8 @@ export class AadHelper {
             this.tokenProvider = new TokenProvider.BasicTokenProvider(kcsb.dataSource, kcsb.accessToken as string);
         } else if (kcsb.isInteractiveLogin) {
             this.tokenProvider = new TokenProvider.InteractiveLoginTokenProvider(kcsb.dataSource, kcsb.authorityId, kcsb.loginHint);
+        } else if (kcsb.tokenProvider) {
+            this.tokenProvider = new TokenProvider.CallbackTokenProvider(kcsb.dataSource, kcsb.tokenProvider);
         } else if (kcsb.isDeviceCode){
             let callback = kcsb.deviceCodeCallback;
             if (!callback) {
