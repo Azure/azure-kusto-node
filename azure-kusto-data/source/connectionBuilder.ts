@@ -39,10 +39,6 @@ const KeywordMapping: KeywordMappingRecordType = Object.freeze<Readonly<KeywordM
         mappedTo: "Application Client Id",
         validNames: ["application client id", "appclientid"],
     },
-    msiClientId: {
-        mappedTo: "Msi Client Id",
-        validNames: ["msi client id", "msiclientid"],
-    },
     applicationKey: {
         mappedTo: "Application Key",
         validNames: ["application key", "appkey"],
@@ -65,10 +61,6 @@ const KeywordMapping: KeywordMappingRecordType = Object.freeze<Readonly<KeywordM
         mappedTo: "Authority Id",
         validNames: ["authority id", "authorityid", "authority", "tenantid", "tenant", "tid"],
     },
-    loginHint: {
-        mappedTo: "Login Hint",
-        validNames: ["login hint"],
-    },
 });
 
 const getPropName = (key: string): [string, MappingType] => {
@@ -89,6 +81,8 @@ const getPropName = (key: string): [string, MappingType] => {
 
 export class KustoConnectionStringBuilder {
     static readonly SecretReplacement = "****";
+    // tslint:disable-next-line:no-console
+    static defaultDeviceCallback: (response: DeviceCodeResponse) => void = (response) => console.log(response.message);
 
     dataSource?: string;
     aadFederatedSecurity?: boolean;
@@ -212,7 +206,7 @@ export class KustoConnectionStringBuilder {
     }
 
 
-    static withAadDeviceAuthentication(connectionString: string, authorityId: string = "common", deviceCodeCallback?: (response: DeviceCodeResponse) => void) {
+    static withAadDeviceAuthentication(connectionString: string, authorityId: string = "common", deviceCodeCallback: (response: DeviceCodeResponse) => void = KustoConnectionStringBuilder.defaultDeviceCallback) {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         kcsb.aadFederatedSecurity = true;
         kcsb.authorityId = authorityId;
@@ -235,7 +229,7 @@ export class KustoConnectionStringBuilder {
         return kcsb;
     }
 
-    static withAzLoginIdentity(connectionString: string, authorityId?: string, clientId?: string, timeoutMs?: number,) {
+    static withAzLoginIdentity(connectionString: string, authorityId?: string, timeoutMs?: number,) {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         kcsb.aadFederatedSecurity = true;
 
@@ -243,7 +237,6 @@ export class KustoConnectionStringBuilder {
         if (authorityId) {
             kcsb.authorityId = authorityId;
         }
-        kcsb.applicationClientId = clientId;
         kcsb.timeoutMs = timeoutMs;
 
 
@@ -259,7 +252,7 @@ export class KustoConnectionStringBuilder {
         return kcsb;
     }
 
-    static withTokenProvider(connectionString: string, tokenProvider?: () => Promise<string>) {
+    static withTokenProvider(connectionString: string, tokenProvider: () => Promise<string>) {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         kcsb.aadFederatedSecurity = true;
 

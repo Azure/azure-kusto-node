@@ -5,6 +5,62 @@
 import assert from "assert";
 import { v4 as uuidv4 } from 'uuid';
 import { KustoConnectionStringBuilder } from "../source/connectionBuilder";
+import { DeviceCodeResponse } from "@azure/msal-common";
+
+function doComparsion(
+    kcsbs: KustoConnectionStringBuilder[],
+    expectedProperties: Partial<Record<keyof KustoConnectionStringBuilder, unknown>>,
+    expectedToString: string,
+    expectedToStringWithSecrets: string
+) {
+    for (const [i, kcsb] of kcsbs.entries()) {
+        console.log(`Checking connection string #${i} - ${kcsb.toString(false)}`);
+
+        const emptyFields = [
+            "aadUserId",
+            "applicationClientId",
+            "password",
+            "msiClientId",
+            "applicationKey",
+            "applicationCertificatePrivateKey",
+            "applicationCertificateThumbprint",
+            "applicationCertificateX5c",
+            "deviceCodeCallback",
+            "loginHint",
+            "timeoutMs",
+            "accessToken",
+            "isAzLoginIdentity",
+            "isManagedIdentity",
+            "isInteractiveLogin",
+            "isDeviceCode"
+        ];
+
+        for (const entry of Object.entries(expectedProperties)) {
+            const [key, value] = entry;
+
+            const kcsbEntry = kcsb[key as keyof KustoConnectionStringBuilder];
+
+            if (typeof kcsbEntry === "function") {
+                assert.notStrictEqual(kcsbEntry, undefined, `${key} is not defined`);
+                continue;
+            }
+            assert.strictEqual(kcsbEntry, value, `${key} is not equal to ${value}`);
+        }
+
+        for (const field of emptyFields.filter(f => !(f in expectedProperties))) {
+            assert.strictEqual(kcsb[field as keyof KustoConnectionStringBuilder], undefined, `${field} should be undefined`);
+        }
+
+        assert.strictEqual(
+            kcsb.toString(),
+            expectedToString
+        )
+        assert.strictEqual(
+            kcsb.toString(false),
+            expectedToStringWithSecrets
+        )
+    }
+}
 
 describe("KustoConnectionStringBuilder", () => {
     describe("#constructor(connectionString)", () => {
@@ -16,79 +72,21 @@ describe("KustoConnectionStringBuilder", () => {
                 new KustoConnectionStringBuilder("Addr = localhost"),
             ];
 
-            for (const [i, kcsb] of kcsbs.entries()) {
-                console.log(`Checking connection string #${i} - ${kcsb.toString(false)}`);
-                assert.strictEqual(kcsb.dataSource, "localhost");
-                assert.strictEqual(kcsb.authorityId, "common");
-                const emptyFields = [
-                    "aadUserId",
-                    "applicationClientId",
-                    "password",
-                    "msiClientId",
-                    "applicationKey",
-                    "applicationCertificatePrivateKey",
-                    "applicationCertificateThumbprint",
-                    "applicationCertificateX5c",
-                    "deviceCodeCallback",
-                    "loginHint",
-                    "timeoutMs",
-                    "accessToken",
-                    "isAzLoginIdentity",
-                    "isManagedIdentity",
-                    "isInteractiveLogin",
-                    "isDeviceCode"
-                ] as const;
-
-                for (const field of emptyFields) {
-                    assert.strictEqual(kcsb[field], undefined, `${field} should be undefined`);
-                }
-                assert.strictEqual(kcsb.toString(), `Data Source=localhost;Authority Id=common`);
-
-            }
+            doComparsion(
+                kcsbs,
+                {
+                    dataSource: "localhost",
+                    authorityId: "common"
+                },
+                "Data Source=localhost;Authority Id=common",
+                "Data Source=localhost;Authority Id=common"
+            );
         });
 
 
-        describe("from string with username auth", () => {
+        describe("from username auth", () => {
             const expectedUser = "test";
             const expectedPassword = "Pa$$w0rd";
-
-            function doComparison(kcsbs: KustoConnectionStringBuilder[], exceptedAuthorityId: string) {
-                for (const [i, kcsb] of kcsbs.entries()) {
-                    console.log(`Checking connection string #${i} - ${kcsb.toString(false)}`);
-                    assert.strictEqual(kcsb.dataSource, "localhost");
-                    assert.strictEqual(kcsb.aadUserId, expectedUser);
-                    assert.strictEqual(kcsb.password, expectedPassword);
-                    assert.strictEqual(kcsb.authorityId, exceptedAuthorityId);
-                    const emptyFields = [
-                        "applicationClientId",
-                        "msiClientId",
-                        "applicationKey",
-                        "applicationCertificatePrivateKey",
-                        "applicationCertificateThumbprint",
-                        "applicationCertificateX5c",
-                        "deviceCodeCallback",
-                        "loginHint",
-                        "timeoutMs",
-                        "accessToken",
-                        "isAzLoginIdentity",
-                        "isManagedIdentity",
-                        "isInteractiveLogin",
-                        "isDeviceCode"
-                    ] as const;
-                    for (const field of emptyFields) {
-                        assert.strictEqual(kcsb[field], undefined, `${field} should be undefined`);
-                    }
-
-                    assert.strictEqual(
-                        kcsb.toString(),
-                        `Data Source=localhost;AAD Federated Security=true;AAD User ID=${expectedUser};Password=****;Authority Id=${exceptedAuthorityId}`
-                    )
-                    assert.strictEqual(
-                        kcsb.toString(false),
-                        `Data Source=localhost;AAD Federated Security=true;AAD User ID=${expectedUser};Password=${expectedPassword};Authority Id=${exceptedAuthorityId}`
-                    )
-                }
-            }
 
             it("without authority id", () => {
                 const kcsbs = [
@@ -104,7 +102,18 @@ describe("KustoConnectionStringBuilder", () => {
                 kcsb1.password = expectedPassword;
                 kcsbs.push(kcsb1);
 
-                doComparison(kcsbs, "common");
+                doComparsion(
+                    kcsbs,
+                    {
+                        dataSource: "localhost",
+                        authorityId: "common",
+                        aadUserId: expectedUser,
+                        password: expectedPassword,
+                        aadFederatedSecurity: true
+                    },
+                    `Data Source=localhost;AAD Federated Security=true;AAD User ID=${expectedUser};Password=****;Authority Id=common`,
+                    `Data Source=localhost;AAD Federated Security=true;AAD User ID=${expectedUser};Password=${expectedPassword};Authority Id=common`
+                );
             });
 
             it("with authority id", () => {
@@ -125,54 +134,25 @@ describe("KustoConnectionStringBuilder", () => {
                 kcsb1.authorityId = expectedAuthorityId;
                 kcsbs.push(kcsb1);
 
-                doComparison(kcsbs, expectedAuthorityId);
+                doComparsion(
+                    kcsbs,
+                    {
+                        dataSource: "localhost",
+                        authorityId: expectedAuthorityId,
+                        aadUserId: expectedUser,
+                        password: expectedPassword,
+                        aadFederatedSecurity: true
+                    },
+                    `Data Source=localhost;AAD Federated Security=true;AAD User ID=${expectedUser};Password=****;Authority Id=${expectedAuthorityId}`,
+                    `Data Source=localhost;AAD Federated Security=true;AAD User ID=${expectedUser};Password=${expectedPassword};Authority Id=${expectedAuthorityId}`
+                );
             })
         });
 
 
-        describe("from string with app auth", () => {
+        describe("from app key auth", () => {
             const expectedUuid = uuidv4();
             const expectedKey = "key of application";
-
-
-            function doComparison(kcsbs: KustoConnectionStringBuilder[], expectedAuthorityId: string) {
-                for (const [i, kcsb] of kcsbs.entries()) {
-                    console.log(`Checking connection string #${i} - ${kcsb.toString(false)}`);
-
-                    assert.strictEqual(kcsb.dataSource, "localhost");
-                    assert.strictEqual(kcsb.applicationClientId, expectedUuid);
-                    assert.strictEqual(kcsb.applicationKey, expectedKey);
-                    assert.strictEqual(kcsb.authorityId, expectedAuthorityId);
-                    const emptyFields = [
-                        "aadUserId",
-                        "password",
-                        "msiClientId",
-                        "applicationCertificatePrivateKey",
-                        "applicationCertificateThumbprint",
-                        "applicationCertificateX5c",
-                        "deviceCodeCallback",
-                        "loginHint",
-                        "timeoutMs",
-                        "accessToken",
-                        "isAzLoginIdentity",
-                        "isManagedIdentity",
-                        "isInteractiveLogin",
-                        "isDeviceCode"
-                    ] as const;
-                    for (const field of emptyFields) {
-                        assert.strictEqual(kcsb[field], undefined, `${field} should be undefined`);
-                    }
-
-                    assert.strictEqual(
-                        kcsb.toString(),
-                        `Data Source=localhost;AAD Federated Security=true;Application Client Id=${expectedUuid};Application Key=****;Authority Id=${expectedAuthorityId}`
-                    )
-                    assert.strictEqual(
-                        kcsb.toString(false),
-                        `Data Source=localhost;AAD Federated Security=true;Application Client Id=${expectedUuid};Application Key=${expectedKey};Authority Id=${expectedAuthorityId}`
-                    )
-                }
-            }
 
             it("without authority id", () => {
                 const kcsbs = [
@@ -189,7 +169,17 @@ describe("KustoConnectionStringBuilder", () => {
                 kcsb1.applicationKey = expectedKey;
                 kcsbs.push(kcsb1);
 
-                doComparison(kcsbs, "common");
+                doComparsion(
+                    kcsbs,
+                    {
+                        dataSource: "localhost",
+                        applicationClientId: expectedUuid,
+                        applicationKey: expectedKey,
+                        aadFederatedSecurity: true
+                    },
+                    `Data Source=localhost;AAD Federated Security=true;Application Client Id=${expectedUuid};Application Key=****;Authority Id=common`,
+                    `Data Source=localhost;AAD Federated Security=true;Application Client Id=${expectedUuid};Application Key=${expectedKey};Authority Id=common`
+                );
             })
 
             it("with authority id", () => {
@@ -210,69 +200,37 @@ describe("KustoConnectionStringBuilder", () => {
                 kcsb1.authorityId = expectedAuthorityId;
                 kcsbs.push(kcsb1);
 
-                doComparison(kcsbs, expectedAuthorityId);
+                doComparsion(
+                    kcsbs,
+                    {
+                        dataSource: "localhost",
+                        applicationClientId: expectedUuid,
+                        applicationKey: expectedKey,
+                        aadFederatedSecurity: true
+                    },
+                    `Data Source=localhost;AAD Federated Security=true;Application Client Id=${expectedUuid};Application Key=****;Authority Id=${expectedAuthorityId}`,
+                    `Data Source=localhost;AAD Federated Security=true;Application Client Id=${expectedUuid};Application Key=${expectedKey};Authority Id=${expectedAuthorityId}`
+                );
             })
         });
 
-        describe("from string with certificate auth", () => {
+        describe("from certificate auth", () => {
             const appId = uuidv4();
             const privateKey = "some private key";
             const thumbPrint = "thumbprint";
-            const authorityId = "test-authority";
+            const expectedAuthorityId = "test-authority";
             const cert5xc = "5xc";
 
-
-            function doComparison(kcsbs: KustoConnectionStringBuilder[], expectedAuthorityId: string) {
-                for (const [i, kcsb] of kcsbs.entries()) {
-                    console.log(`Checking connection string #${i} - ${kcsb.toString(false)}`);
-
-                    assert.strictEqual(kcsb.dataSource, "localhost");
-                    assert.strictEqual(kcsb.applicationClientId, appId);
-                    assert.strictEqual(kcsb.authorityId, expectedAuthorityId);
-                    assert.strictEqual(kcsb.applicationCertificatePrivateKey, privateKey);
-                    assert.strictEqual(kcsb.applicationCertificateThumbprint, thumbPrint);
-                    assert.strictEqual(kcsb.applicationCertificateX5c, cert5xc);
-
-                    const emptyFields = [
-                        "aadUserId",
-                        "password",
-                        "applicationKey",
-                        "msiClientId",
-                        "deviceCodeCallback",
-                        "loginHint",
-                        "timeoutMs",
-                        "accessToken",
-                        "isAzLoginIdentity",
-                        "isManagedIdentity",
-                        "isInteractiveLogin",
-                        "isDeviceCode"
-                    ] as const;
-                    for (const field of emptyFields) {
-                        assert.strictEqual(kcsb[field], undefined, `${field} should be undefined`);
-                    }
-
-                    assert.strictEqual(
-                        kcsb.toString(),
-                        `Data Source=localhost;AAD Federated Security=true;Application Client Id=${appId};Application Certificate PrivateKey=****;Application Certificate Thumbprint=${thumbPrint};Application Certificate x5c=${cert5xc};Authority Id=${expectedAuthorityId}`
-                    )
-                    assert.strictEqual(
-                        kcsb.toString(false),
-                        `Data Source=localhost;AAD Federated Security=true;Application Client Id=${appId};Application Certificate PrivateKey=${privateKey};Application Certificate Thumbprint=${thumbPrint};Application Certificate x5c=${cert5xc};Authority Id=${expectedAuthorityId}`
-                    )
-                }
-            }
-
             it("with authority id", () => {
-
                 const kcsbs = [
-                    new KustoConnectionStringBuilder(`localhost;Application client Id=${appId};application Certificate PrivateKey=${privateKey};application certificate thumbprint=${thumbPrint};Authority Id=${authorityId};application certificate x5c=${cert5xc};AAD Federated Security=True`),
-                    new KustoConnectionStringBuilder(`localhost;AppClientId=${appId};Application Certificate PrivateKey=${privateKey};appcert=${thumbPrint};Authority Id=${authorityId};SendX5c=${cert5xc};AAD Federated Security=True`),
+                    new KustoConnectionStringBuilder(`localhost;Application client Id=${appId};application Certificate PrivateKey=${privateKey};application certificate thumbprint=${thumbPrint};Authority Id=${expectedAuthorityId};application certificate x5c=${cert5xc};AAD Federated Security=True`),
+                    new KustoConnectionStringBuilder(`localhost;AppClientId=${appId};Application Certificate PrivateKey=${privateKey};appcert=${thumbPrint};Authority Id=${expectedAuthorityId};SendX5c=${cert5xc};AAD Federated Security=True`),
                     KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(
                         "localhost",
                         appId,
                         privateKey,
                         thumbPrint,
-                        authorityId,
+                        expectedAuthorityId,
                         cert5xc,
                     )
                 ];
@@ -280,16 +238,305 @@ describe("KustoConnectionStringBuilder", () => {
                 const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
                 kcsb1.aadFederatedSecurity = true;
                 kcsb1.applicationClientId = appId;
-                kcsb1.authorityId = authorityId;
+                kcsb1.authorityId = expectedAuthorityId;
                 kcsb1.applicationCertificatePrivateKey = privateKey;
                 kcsb1.applicationCertificateThumbprint = thumbPrint;
                 kcsb1.applicationCertificateX5c = cert5xc;
                 kcsbs.push(kcsb1);
 
-                doComparison(kcsbs, authorityId);
+                doComparsion(
+                    kcsbs,
+                    {
+                        dataSource: "localhost",
+                        applicationClientId: appId,
+                        applicationCertificatePrivateKey: privateKey,
+                        applicationCertificateThumbprint: thumbPrint,
+                        authorityId: expectedAuthorityId,
+                        applicationCertificateX5c: cert5xc,
+                        aadFederatedSecurity: true
+                    },
+                    `Data Source=localhost;AAD Federated Security=true;Application Client Id=${appId};Application Certificate PrivateKey=****;Application Certificate Thumbprint=${thumbPrint};Application Certificate x5c=${cert5xc};Authority Id=${expectedAuthorityId}`,
+                    `Data Source=localhost;AAD Federated Security=true;Application Client Id=${appId};Application Certificate PrivateKey=${privateKey};Application Certificate Thumbprint=${thumbPrint};Application Certificate x5c=${cert5xc};Authority Id=${expectedAuthorityId}`
+                );
+            })
+
+            it("without authority id", () => {
+                const kcsbs = [
+                    new KustoConnectionStringBuilder(`localhost;Application client Id=${appId};application Certificate PrivateKey=${privateKey};application certificate thumbprint=${thumbPrint};application certificate x5c=${cert5xc};AAD Federated Security=True`),
+                    new KustoConnectionStringBuilder(`localhost;AppClientId=${appId};Application Certificate PrivateKey=${privateKey};appcert=${thumbPrint};SendX5c=${cert5xc};AAD Federated Security=True`),
+                    KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(
+                        "localhost",
+                        appId,
+                        privateKey,
+                        thumbPrint,
+                        "common",
+                        cert5xc,
+                    )
+                ];
+
+                const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
+                kcsb1.aadFederatedSecurity = true;
+                kcsb1.applicationClientId = appId;
+                kcsb1.applicationCertificatePrivateKey = privateKey;
+                kcsb1.applicationCertificateThumbprint = thumbPrint;
+                kcsb1.applicationCertificateX5c = cert5xc;
+                kcsbs.push(kcsb1);
+
+                doComparsion(
+                    kcsbs,
+                    {
+                        dataSource: "localhost",
+                        applicationClientId: appId,
+                        applicationCertificatePrivateKey: privateKey,
+                        applicationCertificateThumbprint: thumbPrint,
+                        authorityId: "common",
+                        applicationCertificateX5c: cert5xc,
+                        aadFederatedSecurity: true
+                    },
+                    `Data Source=localhost;AAD Federated Security=true;Application Client Id=${appId};Application Certificate PrivateKey=****;Application Certificate Thumbprint=${thumbPrint};Application Certificate x5c=${cert5xc};Authority Id=common`,
+                    `Data Source=localhost;AAD Federated Security=true;Application Client Id=${appId};Application Certificate PrivateKey=${privateKey};Application Certificate Thumbprint=${thumbPrint};Application Certificate x5c=${cert5xc};Authority Id=common`
+                );
+            })
+
+            it("without 3xc", () => {
+                const kcsbs = [
+                    new KustoConnectionStringBuilder(`localhost;Application client Id=${appId};application Certificate PrivateKey=${privateKey};application certificate thumbprint=${thumbPrint};AAD Federated Security=True`),
+                    new KustoConnectionStringBuilder(`localhost;AppClientId=${appId};Application Certificate PrivateKey=${privateKey};appcert=${thumbPrint};AAD Federated Security=True`),
+                    KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(
+                        "localhost",
+                        appId,
+                        privateKey,
+                        thumbPrint,
+                        "common",
+                    )
+                ];
+
+                const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
+                kcsb1.aadFederatedSecurity = true;
+                kcsb1.applicationClientId = appId;
+                kcsb1.applicationCertificatePrivateKey = privateKey;
+                kcsb1.applicationCertificateThumbprint = thumbPrint;
+                kcsbs.push(kcsb1);
+
+                doComparsion(
+                    kcsbs,
+                    {
+                        dataSource: "localhost",
+                        applicationClientId: appId,
+                        applicationCertificatePrivateKey: privateKey,
+                        applicationCertificateThumbprint: thumbPrint,
+                        authorityId: "common",
+                        aadFederatedSecurity: true
+                    },
+                    `Data Source=localhost;AAD Federated Security=true;Application Client Id=${appId};Application Certificate PrivateKey=****;Application Certificate Thumbprint=${thumbPrint};Authority Id=common`,
+                    `Data Source=localhost;AAD Federated Security=true;Application Client Id=${appId};Application Certificate PrivateKey=${privateKey};Application Certificate Thumbprint=${thumbPrint};Authority Id=common`
+                );
             })
         });
 
+        it("from aad device auth", () => {
+            const kcsbs = [
+                KustoConnectionStringBuilder.withAadDeviceAuthentication("localhost", "common"),
+                KustoConnectionStringBuilder.withAadDeviceAuthentication("localhost", "common", (res) => res),
+            ];
+
+            const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
+            kcsb1.aadFederatedSecurity = true;
+            kcsb1.isDeviceCode = true;
+            kcsb1.deviceCodeCallback = (res) => res;
+
+            doComparsion(
+                kcsbs,
+                {
+                    dataSource: "localhost",
+                    authorityId: "common",
+                    isDeviceCode: true,
+                    aadFederatedSecurity: true,
+                    deviceCodeCallback: (res: DeviceCodeResponse) => res
+                },
+                "Data Source=localhost;AAD Federated Security=true;Authority Id=common",
+                "Data Source=localhost;AAD Federated Security=true;Authority Id=common"
+            );
+        });
+
+        describe("from msi auth", () => {
+            it("without clientId and timeout", () => {
+                const kcsbs = [
+                    KustoConnectionStringBuilder.withAadManagedIdentities("localhost", "common"),
+                ];
+
+                const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
+                kcsb1.aadFederatedSecurity = true;
+                kcsb1.isManagedIdentity = true;
+
+                doComparsion(
+                    kcsbs,
+                    {
+                        dataSource: "localhost",
+                        authorityId: "common",
+                        isManagedIdentity: true,
+                        aadFederatedSecurity: true,
+                    },
+                    "Data Source=localhost;AAD Federated Security=true;Authority Id=common",
+                    "Data Source=localhost;AAD Federated Security=true;Authority Id=common"
+                )
+            });
+
+            it("with clientId and timeout", () => {
+                const msiClientId = "clientId";
+                const timeoutMs = 10;
+                const kcsbs = [
+                    KustoConnectionStringBuilder.withAadManagedIdentities("localhost", "common", msiClientId, timeoutMs),
+                ];
+
+                const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
+                kcsb1.aadFederatedSecurity = true;
+                kcsb1.isManagedIdentity = true;
+                kcsb1.msiClientId = msiClientId;
+                kcsb1.timeoutMs = timeoutMs;
+
+                doComparsion(
+                    kcsbs,
+                    {
+                        dataSource: "localhost",
+                        authorityId: "common",
+                        isManagedIdentity: true,
+                        aadFederatedSecurity: true,
+                        msiClientId,
+                        timeoutMs
+                    },
+                    "Data Source=localhost;AAD Federated Security=true;Authority Id=common",
+                    "Data Source=localhost;AAD Federated Security=true;Authority Id=common"
+                )
+            });
+        });
+
+        describe("from az cli", () => {
+            const timeout = 10000;
+            const authorityId = "common";
+            const kcsbs = [
+                KustoConnectionStringBuilder.withAzLoginIdentity("localhost", authorityId, timeout),
+                KustoConnectionStringBuilder.withAzLoginIdentity("localhost", undefined, timeout),
+            ];
+
+            const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
+            kcsb1.aadFederatedSecurity = true;
+            kcsb1.isAzLoginIdentity = true;
+            kcsb1.authorityId = authorityId;
+            kcsb1.timeoutMs = timeout;
+
+            doComparsion(
+                kcsbs,
+                {
+                    dataSource: "localhost",
+                    aadFederatedSecurity: true,
+                    authorityId,
+                    timeoutMs: timeout,
+                    isAzLoginIdentity: true,
+                },
+                "Data Source=localhost;AAD Federated Security=true;Authority Id=common",
+                "Data Source=localhost;AAD Federated Security=true;Authority Id=common"
+            );
+        });
+
+        describe("from access token", () => {
+            const token = "some_token";
+            const kcsbs = [
+                KustoConnectionStringBuilder.withAccessToken("localhost", token),
+            ];
+
+            const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
+            kcsb1.aadFederatedSecurity = true;
+            kcsb1.accessToken = token;
+
+            doComparsion(
+                kcsbs,
+                {
+                    dataSource: "localhost",
+                    aadFederatedSecurity: true,
+                    accessToken: token,
+                },
+                "Data Source=localhost;AAD Federated Security=true;Authority Id=common",
+                "Data Source=localhost;AAD Federated Security=true;Authority Id=common"
+            );
+        });
+
+        describe("from token provider", () => {
+            const tokenProvider = () => Promise.resolve("some_token");
+            const kcsbs = [
+                KustoConnectionStringBuilder.withTokenProvider("localhost", tokenProvider),
+            ];
+
+            const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
+            kcsb1.aadFederatedSecurity = true;
+            kcsb1.tokenProvider = tokenProvider;
+
+            doComparsion(
+                kcsbs,
+                {
+                    dataSource: "localhost",
+                    aadFederatedSecurity: true,
+                    tokenProvider,
+                },
+                "Data Source=localhost;AAD Federated Security=true;Authority Id=common",
+                "Data Source=localhost;AAD Federated Security=true;Authority Id=common"
+            );
+        });
+
+        describe("interactive login", () => {
+            it("without optional params", () => {
+                const kcsbs = [
+                    KustoConnectionStringBuilder.withInteractiveLogin("localhost", "common"),
+                ];
+
+                const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
+                kcsb1.aadFederatedSecurity = true;
+                kcsb1.isInteractiveLogin = true;
+
+                doComparsion(
+                    kcsbs,
+                    {
+                        dataSource: "localhost",
+                        authorityId: "common",
+                        isInteractiveLogin: true,
+                        aadFederatedSecurity: true,
+                    },
+                    "Data Source=localhost;AAD Federated Security=true;Authority Id=common",
+                    "Data Source=localhost;AAD Federated Security=true;Authority Id=common"
+                )
+            });
+
+            it("with optional params", () => {
+                const clientId = "clientId";
+                const loginHint = "myUser";
+                const timeoutMs = 10;
+                const kcsbs = [
+                    KustoConnectionStringBuilder.withInteractiveLogin("localhost", "common", clientId, timeoutMs, loginHint),
+                ];
+
+                const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
+                kcsb1.aadFederatedSecurity = true;
+                kcsb1.isInteractiveLogin = true;
+                kcsb1.applicationClientId = clientId;
+                kcsb1.timeoutMs = timeoutMs;
+                kcsb1.loginHint = loginHint;
+
+                doComparsion(
+                    kcsbs,
+                    {
+                        dataSource: "localhost",
+                        authorityId: "common",
+                        isInteractiveLogin: true,
+                        aadFederatedSecurity: true,
+                        applicationClientId: clientId,
+                        timeoutMs,
+                        loginHint
+                    },
+                    `Data Source=localhost;AAD Federated Security=true;Application Client Id=${clientId};Authority Id=common`,
+                    `Data Source=localhost;AAD Federated Security=true;Application Client Id=${clientId};Authority Id=common`
+                )
+            });
+        });
     });
 });
 
