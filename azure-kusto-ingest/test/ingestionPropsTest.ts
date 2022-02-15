@@ -51,11 +51,7 @@ describe("IngestionProperties", () => {
         it("valid input", () => {
             const props = new IngestionProperties({database: "db", table: "table", format: DataFormat.CSV, ingestionMappingReference: "CsvMappingRef"});
 
-            try {
-                props.validate();
-            } catch (ex: any) {
-                assert.fail(ex);
-            }
+            props.validate();
         });
 
         it("invalid input", () => {
@@ -65,17 +61,15 @@ describe("IngestionProperties", () => {
                 props.validate();
             } catch (ex: any) {
                 assert.strictEqual(ex.message, "Must define a target database");
+                return;
             }
+            assert.fail("Expected an exception")
         });
 
-        it("invalid input json", () => {
+        it("json without mapping should succeed", () => {
             const props = new IngestionProperties({database: "db", table: "table", format: DataFormat.JSON});
 
-            try {
-                props.validate();
-            } catch (ex: any) {
-                assert.strictEqual(ex.message, "Mapping reference required for format 'json'.");
-            }
+            props.validate();
         });
 
         it("Should error when mapping object doesn't match mapping type", () => {
@@ -85,7 +79,9 @@ describe("IngestionProperties", () => {
                 props.validate();
             } catch (ex: any) {
                 assert.strictEqual(ex.message, "Invalid columns:\nMapping kind mismatch for column 'a' - expected data format kind -  'Csv', but was 'Json'");
+                return;
             }
+            assert.fail("Expected an exception")
         })
 
         it("Should error when mapping object doesn't match mapping type multiple objects", () => {
@@ -104,7 +100,10 @@ describe("IngestionProperties", () => {
             } catch (ex: any) {
                 assert.strictEqual(ex.message, "Invalid columns:\nMapping kind mismatch for column 'b' - expected data format kind -  'Csv', but was" +
                     " 'Json'\nMapping kind mismatch for column 'c' - expected data format kind -  'Csv', but was 'Avro'");
+                return;
             }
+            assert.fail("Expected an exception")
+
         })
 
 
@@ -115,7 +114,9 @@ describe("IngestionProperties", () => {
                 props.validate();
             } catch (ex: any) {
                 assert.strictEqual(ex.message, "Mapping kind 'Json' does not match format 'csv' (should be 'Csv')");
+                return;
             }
+            assert.fail("Expected an exception")
         })
 
         it("Should error when format doesn't match implicit mapping type", () => {
@@ -125,7 +126,9 @@ describe("IngestionProperties", () => {
                 props.validate();
             } catch (ex: any) {
                 assert.strictEqual(ex.message, "Invalid columns:\nMapping kind mismatch for column 'a' - expected data format kind -  'Csv', but was 'Json'");
+                return;
             }
+            assert.fail("Expected an exception")
         })
 
         describe("Should return the correct mapping when passing Ordinal", () => {
