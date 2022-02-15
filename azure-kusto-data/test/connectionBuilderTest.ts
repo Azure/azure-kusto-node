@@ -214,6 +214,82 @@ describe("KustoConnectionStringBuilder", () => {
             })
         });
 
+        describe("from string with certificate auth", () => {
+            const appId = uuidv4();
+            const privateKey = "some private key";
+            const thumbPrint = "thumbprint";
+            const authorityId = "test-authority";
+            const cert5xc = "5xc";
+
+
+            function doComparison(kcsbs: KustoConnectionStringBuilder[], expectedAuthorityId: string) {
+                for (const [i, kcsb] of kcsbs.entries()) {
+                    console.log(`Checking connection string #${i} - ${kcsb.toString(false)}`);
+
+                    assert.strictEqual(kcsb.dataSource, "localhost");
+                    assert.strictEqual(kcsb.applicationClientId, appId);
+                    assert.strictEqual(kcsb.authorityId, expectedAuthorityId);
+                    assert.strictEqual(kcsb.applicationCertificatePrivateKey, privateKey);
+                    assert.strictEqual(kcsb.applicationCertificateThumbprint, thumbPrint);
+                    assert.strictEqual(kcsb.applicationCertificateX5c, cert5xc);
+
+                    const emptyFields = [
+                        "aadUserId",
+                        "password",
+                        "applicationKey",
+                        "msiClientId",
+                        "deviceCodeCallback",
+                        "loginHint",
+                        "timeoutMs",
+                        "accessToken",
+                        "isAzLoginIdentity",
+                        "isManagedIdentity",
+                        "isInteractiveLogin",
+                        "isDeviceCode"
+                    ] as const;
+                    for (const field of emptyFields) {
+                        assert.strictEqual(kcsb[field], undefined, `${field} should be undefined`);
+                    }
+
+                    assert.strictEqual(
+                        kcsb.toString(),
+                        `Data Source=localhost;AAD Federated Security=true;Application Client Id=${appId};Application Certificate PrivateKey=****;Application Certificate Thumbprint=${thumbPrint};Application Certificate x5c=${cert5xc};Authority Id=${expectedAuthorityId}`
+                    )
+                    assert.strictEqual(
+                        kcsb.toString(false),
+                        `Data Source=localhost;AAD Federated Security=true;Application Client Id=${appId};Application Certificate PrivateKey=${privateKey};Application Certificate Thumbprint=${thumbPrint};Application Certificate x5c=${cert5xc};Authority Id=${expectedAuthorityId}`
+                    )
+                }
+            }
+
+            it("with authority id", () => {
+
+                const kcsbs = [
+                    new KustoConnectionStringBuilder(`localhost;Application client Id=${appId};application Certificate PrivateKey=${privateKey};application certificate thumbprint=${thumbPrint};Authority Id=${authorityId};application certificate x5c=${cert5xc};AAD Federated Security=True`),
+                    new KustoConnectionStringBuilder(`localhost;AppClientId=${appId};Application Certificate PrivateKey=${privateKey};appcert=${thumbPrint};Authority Id=${authorityId};SendX5c=${cert5xc};AAD Federated Security=True`),
+                    KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(
+                        "localhost",
+                        appId,
+                        privateKey,
+                        thumbPrint,
+                        authorityId,
+                        cert5xc,
+                    )
+                ];
+
+                const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
+                kcsb1.aadFederatedSecurity = true;
+                kcsb1.applicationClientId = appId;
+                kcsb1.authorityId = authorityId;
+                kcsb1.applicationCertificatePrivateKey = privateKey;
+                kcsb1.applicationCertificateThumbprint = thumbPrint;
+                kcsb1.applicationCertificateX5c = cert5xc;
+                kcsbs.push(kcsb1);
+
+                doComparison(kcsbs, authorityId);
+            })
+        });
+
     });
 });
 
