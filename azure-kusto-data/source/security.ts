@@ -20,22 +20,20 @@ export class AadHelper {
             !!kcsb.applicationCertificateThumbprint && !!kcsb.applicationCertificatePrivateKey) {
             this.tokenProvider = new TokenProvider.ApplicationCertificateTokenProvider(kcsb.dataSource, kcsb.applicationClientId, kcsb.applicationCertificateThumbprint, kcsb.applicationCertificatePrivateKey, kcsb.applicationCertificateX5c as string | undefined, kcsb.authorityId);
         } else if (kcsb.isManagedIdentity) {
-            this.tokenProvider = new TokenProvider.MsiTokenProvider(kcsb.dataSource, kcsb.authorityId, kcsb.applicationClientId, kcsb.timeoutMs);
+            this.tokenProvider = new TokenProvider.MsiTokenProvider(kcsb.dataSource, kcsb.authorityId, kcsb.msiClientId, kcsb.timeoutMs);
         } else if (kcsb.isAzLoginIdentity) {
-            this.tokenProvider = new TokenProvider.AzCliTokenProvider(kcsb.dataSource, kcsb.authorityId, kcsb.applicationClientId, kcsb.timeoutMs);
+            this.tokenProvider = new TokenProvider.AzCliTokenProvider(kcsb.dataSource, kcsb.authorityId, undefined, kcsb.timeoutMs);
         } else if (kcsb.accessToken) {
             this.tokenProvider = new TokenProvider.BasicTokenProvider(kcsb.dataSource, kcsb.accessToken as string);
         } else if (kcsb.isInteractiveLogin) {
-            this.tokenProvider = new TokenProvider.InteractiveLoginTokenProvider(kcsb.dataSource, kcsb.authorityId, kcsb.loginHint);
+            this.tokenProvider = new TokenProvider.InteractiveLoginTokenProvider(kcsb.dataSource, kcsb.authorityId, kcsb.applicationClientId, kcsb.timeoutMs, kcsb.loginHint);
         } else if (kcsb.tokenProvider) {
             this.tokenProvider = new TokenProvider.CallbackTokenProvider(kcsb.dataSource, kcsb.tokenProvider);
         } else if (kcsb.isDeviceCode){
-            let callback = kcsb.deviceCodeCallback;
-            if (!callback) {
-                // tslint:disable-next-line:no-console
-                callback = (response) => console.log(response.message);
+            if (kcsb.deviceCodeCallback === undefined) {
+                throw new Error("Device code authentication requires a callback function");
             }
-            this.tokenProvider = new TokenProvider.DeviceLoginTokenProvider(kcsb.dataSource, callback, kcsb.authorityId);
+            this.tokenProvider = new TokenProvider.DeviceLoginTokenProvider(kcsb.dataSource, kcsb.deviceCodeCallback, kcsb.authorityId);
         }
     }
 
