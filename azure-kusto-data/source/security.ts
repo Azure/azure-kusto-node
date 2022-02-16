@@ -3,6 +3,7 @@
 import KustoConnectionStringBuilder from "./connectionBuilder";
 import "./tokenProvider";
 import * as TokenProvider from "./tokenProvider";
+import { KustoAuthenticationError } from "./errors";
 
 export class AadHelper {
     tokenProvider?: TokenProvider.TokenProviderBase;
@@ -31,18 +32,22 @@ export class AadHelper {
             this.tokenProvider = new TokenProvider.CallbackTokenProvider(kcsb.dataSource, kcsb.tokenProvider);
         } else if (kcsb.isDeviceCode){
             if (kcsb.deviceCodeCallback === undefined) {
-                throw new Error("Device code authentication requires a callback function");
+                throw new KustoAuthenticationError("Device code authentication requires a callback function", undefined, TokenProvider.DeviceLoginTokenProvider.name, {});
             }
             this.tokenProvider = new TokenProvider.DeviceLoginTokenProvider(kcsb.dataSource, kcsb.deviceCodeCallback, kcsb.authorityId);
         }
     }
 
-    async _getAuthHeader(): Promise<string | null> {
+    async getAuthHeader(): Promise<string | null> {
         if (!this.tokenProvider) {
             return null;
         }
-        const token = await this.tokenProvider.acquireToken();
-        return `${token.tokenType} ${token.accessToken}`;
+        try {
+            const token = await this.tokenProvider.acquireToken();
+            return `${token.tokenType} ${token.accessToken}`;
+        } catch (e) {
+            throw new KustoAuthenticationError(e.message, e, this.tokenProvider.constructor.name, this.tokenProvider.context());
+        }
     }
 }
 

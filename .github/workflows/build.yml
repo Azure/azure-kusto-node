@@ -27,7 +27,6 @@ jobs:
           npm run testPipeline
         env:
           AUTO_TEST: true
-          LOGIN_TEST: true
       - working-directory: ./azure-kusto-ingest
         run: |
           npm i
@@ -42,7 +41,6 @@ jobs:
           ENGINE_CONNECTION_STRING: "https://sdkse2etest.eastus.kusto.windows.net"
           DM_CONNECTION_STRING: "https://ingest-sdkse2etest.eastus.kusto.windows.net"
           AUTO_TEST: true
-          LOGIN_TEST: true
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v2
       - name: Publish Unit Test Results
