@@ -46,7 +46,7 @@ export class AadHelper {
             const token = await this.tokenProvider.acquireToken();
             return `${token.tokenType} ${token.accessToken}`;
         } catch (e) {
-            throw new KustoAuthenticationError(e.message, e, this.tokenProvider.constructor.name, this.tokenProvider.context());
+            throw new KustoAuthenticationError(e instanceof Error ? e.message : `${e}`, e, this.tokenProvider.constructor.name, this.tokenProvider.context());
         }
     }
 }

@@ -10,7 +10,7 @@ export class ClientRequestProperties {
     public application: string | null;
     public raw?: boolean;
 
-    constructor(options?: {}, parameters?: {}, clientRequestId?: string, user?: string, application?: string) {
+    constructor(options?: Record<string, unknown>, parameters?: Record<string, unknown>, clientRequestId?: string, user?: string, application?: string) {
         this._options = options || {};
         this._parameters = parameters || {};
         this.clientRequestId = clientRequestId || null;
@@ -49,7 +49,7 @@ export class ClientRequestProperties {
         this.setOption("servertimeout", timeoutMillis);
     }
 
-    getTimeout() {
+    getTimeout() : number | undefined {
         return this.getOption("servertimeout");
     }
 
@@ -78,7 +78,7 @@ export class ClientRequestProperties {
         if (Object.keys(this._options).length !== 0) {
             json.Options = this._options;
             if (json.Options.servertimeout) {
-                json.Options.servertimeout = this._msToTimespan(json.Options.servertimeout);
+                json.Options.servertimeout = this._msToTimespan(json.Options.servertimeout as number);
             }
         }
 
@@ -99,11 +99,11 @@ export class ClientRequestProperties {
         const minutes = Math.floor((duration / (1000 * 60)) % 60);
         const hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
 
-        const hoursStr = (hours < 10) ? "0" + hours : String(hours);
-        const minutesStr = (minutes < 10) ? "0" + minutes : String(minutes);
-        const secondsStr = (seconds < 10) ? "0" + seconds : String(seconds);
+        const hoursStr = (hours < 10) ? `0${hours}` : String(hours);
+        const minutesStr = (minutes < 10) ? `0${minutes}` : String(minutes);
+        const secondsStr = (seconds < 10) ? `0${seconds}` : String(seconds);
 
-        return hoursStr + ":" + minutesStr + ":" + secondsStr + "." + milliseconds;
+        return `${hoursStr}:${minutesStr}:${secondsStr}.${milliseconds}`;
     }
 }
 

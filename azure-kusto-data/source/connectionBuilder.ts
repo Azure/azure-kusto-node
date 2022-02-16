@@ -81,7 +81,7 @@ const getPropName = (key: string): [string, MappingType] => {
 
 export class KustoConnectionStringBuilder {
     static readonly SecretReplacement = "****";
-    // tslint:disable-next-line:no-console
+    // eslint-disable-next-line no-console
     static defaultDeviceCallback: (response: DeviceCodeResponse) => void = (response) => console.log(response.message);
 
     dataSource?: string;

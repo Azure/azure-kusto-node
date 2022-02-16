@@ -1,4 +1,4 @@
-/* tslint:disable:no-console */
+/* eslint-disable no-console */
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
@@ -7,12 +7,12 @@ import { v4 as uuidv4 } from 'uuid';
 import { KustoConnectionStringBuilder } from "../source/connectionBuilder";
 import { DeviceCodeResponse } from "@azure/msal-common";
 
-function doComparsion(
+const doComparsion = (
     kcsbs: KustoConnectionStringBuilder[],
     expectedProperties: Partial<Record<keyof KustoConnectionStringBuilder, unknown>>,
     expectedToString: string,
     expectedToStringWithSecrets: string
-) {
+) => {
     for (const [i, kcsb] of kcsbs.entries()) {
         console.log(`Checking connection string #${i} - ${kcsb.toString(false)}`);
 
@@ -64,7 +64,7 @@ function doComparsion(
             expectedToStringWithSecrets
         )
     }
-}
+};
 
 describe("KustoConnectionStringBuilder", () => {
     describe("validation tests", () => {

@@ -1,13 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
+// We want all the Token Providers in this file
+/* eslint-disable max-classes-per-file */
+
 import { ConfidentialClientApplication, PublicClientApplication } from "@azure/msal-node";
 import { DeviceCodeResponse } from "@azure/msal-common";
 import { AzureCliCredential, InteractiveBrowserCredential, ManagedIdentityCredential, TokenCredentialOptions, } from "@azure/identity";
 import { CloudInfo, CloudSettings } from "./cloudSettings"
 import { TokenCredential } from "@azure/core-auth";
-
-// We want all the Token Providers in this file
-/* tslint:disable:max-classes-per-file */
 
 export declare type TokenResponse = {
     tokenType: string;

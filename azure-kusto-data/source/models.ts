@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 // We want all the Kusto table models in this file
-/* tslint:disable:max-classes-per-file */
+/* eslint-disable max-classes-per-file */
 
 import moment from "moment";
 
@@ -66,7 +66,7 @@ export class KustoResultRow {
     }
 
     * values() {
-        // tslint:disable-next-line:forin
+        // eslint-disable-next-line guard-for-in
         for (const item in this.rows) {
             yield item;
         }
@@ -83,8 +83,8 @@ export class KustoResultRow {
         return this.toJSON();
     }
 
-    toJSON() {
-        const obj: any = {};
+    toJSON(): Record<string, any> {
+        const obj: Record<string, any> = {};
 
         for (const col of this.columns) {
             obj[col.name as string] = this[col.name as string];
@@ -171,11 +171,17 @@ export class KustoResultTable {
         return this.toJSON();
     }
 
-    toJSON() {
-        const table: any = {};
-
-        table.name = this.name;
-        table.data = [];
+    toJSON(): {
+        name: string,
+        data: Record<string, any>[],
+    } {
+        const table: {
+            name: string,
+            data: Record<string, any>[],
+        } = {
+            name: this.name,
+            data: [],
+        };
         for (const row of this.rows()) {
             table.data.push(row.toJSON());
         }

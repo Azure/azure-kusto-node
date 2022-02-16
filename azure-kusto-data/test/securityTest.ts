@@ -13,7 +13,7 @@ describe("test errors", () => {
         CloudSettings.getInstance().cloudCache["https://somecluster.kusto.windows.net"] = CloudSettings.getInstance().defaultCloudInfo;
     });
 
-    it("no data source", async () => {
+    it("no data source", () => {
         const kcsb = new KustoConnectionStringBuilder("test");
         kcsb.dataSource = "";
 
