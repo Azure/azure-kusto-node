@@ -8,16 +8,9 @@ import { CredentialUnavailableError } from "@azure/identity";
 import { loginTest, manualLoginTest } from "./data/testUtils";
 
 
-describe("test errors", () => {
+describe("test exceptions", () => {
     before(() => {
         CloudSettings.getInstance().cloudCache["https://somecluster.kusto.windows.net"] = CloudSettings.getInstance().defaultCloudInfo;
-    });
-
-    it("no data source", async () => {
-        const kcsb = new KustoConnectionStringBuilder("test");
-        kcsb.dataSource = "";
-
-        assert.throws(() => new AadHelper(kcsb), Error, "Invalid string builder - missing dataSource");
     });
 
     it("test user pass", async () => {
@@ -91,7 +84,7 @@ describe("test errors", () => {
         const kcsb = new KustoConnectionStringBuilder("https://somecluster.kusto.windows.net");
         kcsb.aadFederatedSecurity = true;
         kcsb.authorityId = "common";
-        kcsb.useDeviceCodeAuth = true
+        kcsb.isDeviceCode = true
 
         assert.throws(() => new AadHelper(kcsb), KustoAuthenticationError, "Device code authentication is not supported without a function");
     });
@@ -99,7 +92,7 @@ describe("test errors", () => {
     it("test msi", async () => {
         const cluster = "https://somecluster.kusto.windows.net";
         const clientId = "86f7361f-15b7-4f10-aef5-3ce66ac73766";
-        const kcsb = KustoConnectionStringBuilder.withAadManagedIdentities(cluster, clientId, "organizations", 1);
+        const kcsb = KustoConnectionStringBuilder.withAadManagedIdentities(cluster, "organizations", clientId, 1);
 
         const helper = new AadHelper(kcsb);
         try {
@@ -117,15 +110,6 @@ describe("test errors", () => {
 describe("Test providers", () => {
     before(() => {
         CloudSettings.getInstance().cloudCache["https://somecluster.kusto.windows.net"] = CloudSettings.getInstance().defaultCloudInfo;
-    });
-
-    it("test null", async () => {
-        const cluster = "https://somecluster.kusto.windows.net";
-        const kcsb = new KustoConnectionStringBuilder(cluster);
-
-        const helper = new AadHelper(kcsb);
-        const token = await helper.getAuthHeader();
-        assert.strictEqual(token, null);
     });
 
     it("test access token", async () => {
@@ -209,10 +193,10 @@ describe("Test providers", () => {
         assert.notStrictEqual(token, null);
     }).timeout(30000);
 
-    manualLoginTest()("test user prompt", async () => {
+    manualLoginTest()("test interactive login", async () => {
         const cluster = "https://somecluster.kusto.windows.net";
 
-        const kcsb = KustoConnectionStringBuilder.withUserPrompt(cluster, "organizations");
+        const kcsb = KustoConnectionStringBuilder.withInteractiveLogin(cluster, "organizations");
 
         const helper = new AadHelper(kcsb);
         const token = await helper.getAuthHeader();
@@ -222,7 +206,7 @@ describe("Test providers", () => {
     manualLoginTest("TEST_MSI")("test msi", async () => {
         const cluster = "https://somecluster.kusto.windows.net";
 
-        const kcsb = KustoConnectionStringBuilder.withAadManagedIdentities(cluster, undefined,"organizations");
+        const kcsb = KustoConnectionStringBuilder.withAadManagedIdentities(cluster, "organizations");
 
         const helper = new AadHelper(kcsb);
         const token = await helper.getAuthHeader();
