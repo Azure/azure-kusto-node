@@ -27,7 +27,7 @@ describe("CloudInfo", () => {
             }
 
             assert.strictEqual(provider.scopes[0], "https://fakeurl.kusto.windows.net/.default");
-        });
+        }).timeout(5000);
 
         it("mfa off", async () => {
             const fakeUri2 = "https://fakeurl2.kusto.windows.net"
@@ -49,6 +49,6 @@ describe("CloudInfo", () => {
             }
 
             assert.strictEqual(provider.scopes[0], "https://fakeurl.kustomfa.windows.net/.default");
-        });
+        }).timeout(5000);
     });
 });

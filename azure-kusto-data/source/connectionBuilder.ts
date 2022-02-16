@@ -243,7 +243,7 @@ export class KustoConnectionStringBuilder {
         return kcsb;
     }
 
-    static withAccessToken(connectionString: string, accessToken?: string) {
+    static withAccessToken(connectionString: string, accessToken: string) {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         kcsb.aadFederatedSecurity = true;
 
