@@ -16,6 +16,8 @@ function doComparsion(
     for (const [i, kcsb] of kcsbs.entries()) {
         console.log(`Checking connection string #${i} - ${kcsb.toString(false)}`);
 
+        const clone = KustoConnectionStringBuilder.fromExisting(kcsb);
+
         const emptyFields = [
             "aadUserId",
             "applicationClientId",
@@ -45,10 +47,12 @@ function doComparsion(
                 continue;
             }
             assert.strictEqual(kcsbEntry, value, `${key} is not equal to ${value}`);
+            assert.strictEqual(clone[key as keyof KustoConnectionStringBuilder], value, `${key} is not equal to ${value} in clone`);
         }
 
         for (const field of emptyFields.filter(f => !(f in expectedProperties))) {
             assert.strictEqual(kcsb[field as keyof KustoConnectionStringBuilder], undefined, `${field} should be undefined`);
+            assert.strictEqual(clone[field as keyof KustoConnectionStringBuilder], undefined, `${field} should be undefined in clone`);
         }
 
         assert.strictEqual(
@@ -63,6 +67,63 @@ function doComparsion(
 }
 
 describe("KustoConnectionStringBuilder", () => {
+    describe("validation tests", () => {
+        it("throws when empty connection string is provided", () => {
+            assert.throws(() => new KustoConnectionStringBuilder(" "), Error, "Missing connection string");
+        });
+
+        it("removes trailing dashes from data source", () => {
+            const kcsbForward = new KustoConnectionStringBuilder("https://test.kusto.windows.net/");
+            assert.strictEqual(kcsbForward.dataSource, "https://test.kusto.windows.net");
+            const kcsbBack = new KustoConnectionStringBuilder("https://test.kusto.windows.net\\");
+            assert.strictEqual(kcsbBack.dataSource, "https://test.kusto.windows.net");
+        });
+
+        it("throws when user or password is empty", () => {
+            assert.throws(
+                () => KustoConnectionStringBuilder.withAadUserPasswordAuthentication("https://test.kusto.windows.net/", " ", "password"),
+                Error,
+                "Invalid user"
+            );
+            assert.throws(
+                () => KustoConnectionStringBuilder.withAadUserPasswordAuthentication("https://test.kusto.windows.net/", "user", " "),
+                Error,
+                "Invalid password"
+            );
+        });
+
+        it("throws when appId or appKey is empty", () => {
+            assert.throws(
+                () => KustoConnectionStringBuilder.withAadApplicationKeyAuthentication("https://test.kusto.windows.net/", " ", "password"),
+                Error,
+                "Invalid app id"
+            );
+            assert.throws(() => KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(
+                "https://test.kusto.windows.net/",
+                "53e12945-98b5-4d5c-9465-fd6b6edf848e",
+                " "
+            ), Error, "Invalid app key");
+        });
+
+        it("throws when certificate values are empty", () => {
+            assert.throws(
+                () => KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication("https://test.kusto.windows.net/", " ", "private", "thumb"),
+                Error,
+                "Invalid app id"
+            );
+            assert.throws(
+                () => KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication("https://test.kusto.windows.net/", "53e12945-98b5-4d5c-9465-fd6b6edf848e", " ", "thumb"),
+                Error,
+                "Invalid app certificate"
+            );
+            assert.throws(
+                () => KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication("https://test.kusto.windows.net/", "53e12945-98b5-4d5c-9465-fd6b6edf848e", "private", " "),
+                Error,
+                "Invalid app thumbprint"
+            );
+        });
+    });
+
     describe("#constructor(connectionString)", () => {
         it("from string with no creds", () => {
             const kcsbs = [

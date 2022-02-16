@@ -106,7 +106,7 @@ export class KustoConnectionStringBuilder {
     isManagedIdentity?: boolean;
 
     constructor(connectionString: string) {
-        if (!connectionString || connectionString.trim().length === 0) throw new Error("Missing connection string");
+        if (connectionString.trim().length === 0) throw new Error("Missing connection string");
 
         if (connectionString.endsWith("/") || connectionString.endsWith("\\")) {
             connectionString = connectionString.slice(0, -1);
@@ -149,8 +149,8 @@ export class KustoConnectionStringBuilder {
     }
 
     static withAadUserPasswordAuthentication(connectionString: string, userId: string, password: string, authorityId?: string) {
-        if (!userId || userId.trim().length === 0) throw new Error("Invalid user");
-        if (!password || password.trim().length === 0) throw new Error("Invalid password");
+        if (userId.trim().length === 0) throw new Error("Invalid user");
+        if (password.trim().length === 0) throw new Error("Invalid password");
 
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         kcsb.aadFederatedSecurity = true;
@@ -164,8 +164,8 @@ export class KustoConnectionStringBuilder {
     }
 
     static withAadApplicationKeyAuthentication(connectionString: string, aadAppId: string, appKey: string, authorityId?: string) {
-        if (!aadAppId || aadAppId.trim().length === 0) throw new Error("Invalid app id");
-        if (!appKey || appKey.trim().length === 0) throw new Error("Invalid app key");
+        if (aadAppId.trim().length === 0) throw new Error("Invalid app id");
+        if (appKey.trim().length === 0) throw new Error("Invalid app key");
 
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         kcsb.aadFederatedSecurity = true;
@@ -187,9 +187,9 @@ export class KustoConnectionStringBuilder {
         authorityId?: string,
         applicationCertificateX5c?: string,
     ) {
-        if (!aadAppId || aadAppId.trim().length === 0) throw new Error("Invalid app id");
-        if (!applicationCertificatePrivateKey || applicationCertificatePrivateKey.trim().length === 0) throw new Error("Invalid certificate");
-        if (!applicationCertificateThumbprint || applicationCertificateThumbprint.trim().length === 0) throw new Error("Invalid thumbprint");
+        if (aadAppId.trim().length === 0) throw new Error("Invalid app id");
+        if (applicationCertificatePrivateKey.trim().length === 0) throw new Error("Invalid certificate");
+        if (applicationCertificateThumbprint.trim().length === 0) throw new Error("Invalid thumbprint");
 
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         kcsb.aadFederatedSecurity = true;

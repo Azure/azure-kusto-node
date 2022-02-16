@@ -8,9 +8,16 @@ import { CredentialUnavailableError } from "@azure/identity";
 import { loginTest, manualLoginTest } from "./data/testUtils";
 
 
-describe("test exceptions", () => {
+describe("test errors", () => {
     before(() => {
         CloudSettings.getInstance().cloudCache["https://somecluster.kusto.windows.net"] = CloudSettings.getInstance().defaultCloudInfo;
+    });
+
+    it("no data source", async () => {
+        const kcsb = new KustoConnectionStringBuilder("test");
+        kcsb.dataSource = "";
+
+        assert.throws(() => new AadHelper(kcsb), Error, "Invalid string builder - missing dataSource");
     });
 
     it("test user pass", async () => {
@@ -110,6 +117,15 @@ describe("test exceptions", () => {
 describe("Test providers", () => {
     before(() => {
         CloudSettings.getInstance().cloudCache["https://somecluster.kusto.windows.net"] = CloudSettings.getInstance().defaultCloudInfo;
+    });
+
+    it("test null", async () => {
+        const cluster = "https://somecluster.kusto.windows.net";
+        const kcsb = new KustoConnectionStringBuilder(cluster);
+
+        const helper = new AadHelper(kcsb);
+        const token = await helper.getAuthHeader();
+        assert.strictEqual(token, null);
     });
 
     it("test access token", async () => {
