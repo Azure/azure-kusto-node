@@ -10,7 +10,8 @@ import managedStreamingIngestClient from "./source/managedStreamingIngestClient"
 import KustoIngestStatusQueues from "./source/status";
 
 import {
-    DataFormat, IngestionMappingKind,
+    DataFormat,
+    IngestionMappingKind,
     ReportLevel,
     ReportMethod,
     ValidationImplications,
@@ -19,13 +20,22 @@ import {
 } from "./source/ingestionProperties";
 
 
+import { BlobDescriptor, CompressionType, FileDescriptor, StreamDescriptor } from "./source/descriptors";
 import {
-    BlobDescriptor,
-    CompressionType,
-    FileDescriptor,
-    StreamDescriptor
-} from "./source/descriptors";
-import { AvroColumnMapping, CsvColumnMapping, JsonColumnMapping, OrcColumnMapping, ParquetColumnMapping, W3CLogFileMapping } from "./source/columnMappings";
+    ApacheAvroColumnMapping,
+    AvroColumnMapping,
+    ColumnMapping,
+    ConstantTransformation,
+    CsvColumnMapping,
+    FieldTransformation,
+    JsonColumnMapping,
+    OrcColumnMapping,
+    ParquetColumnMapping,
+    SStreamColumnMapping,
+    W3CLogFileMapping,
+} from "./source/columnMappings";
+
+export { Transformation as ColumnMappingTransformation } from "./source/columnMappings";
 
 export const IngestClient = client;
 export const StreamingIngestClient = streamingIngestClient;
@@ -35,8 +45,34 @@ export { IngestionProperties } from "./source/ingestionProperties"
 export const IngestionDescriptors = {
     BlobDescriptor,
     FileDescriptor,
-    StreamDescriptor
+    StreamDescriptor,
 };
+
+export {
+    JsonColumnMapping,
+    CsvColumnMapping,
+    AvroColumnMapping,
+    ParquetColumnMapping,
+    OrcColumnMapping,
+    W3CLogFileMapping,
+    ValidationPolicy,
+    ReportLevel,
+    ReportMethod,
+    ValidationImplications,
+    ValidationOptions,
+    DataFormat,
+    IngestionMappingKind,
+    CompressionType,
+    ApacheAvroColumnMapping,
+    SStreamColumnMapping,
+    ConstantTransformation,
+    FieldTransformation,
+    ColumnMapping
+};
+
+/**
+ * @deprecated - import directly instead
+ */
 export const IngestionPropertiesEnums = {
     JsonColumnMapping,
     CsvColumnMapping,
@@ -50,8 +86,17 @@ export const IngestionPropertiesEnums = {
     ValidationImplications,
     ValidationOptions,
     DataFormat,
+    /**
+     * @deprecated - use IngestionMappingKind instead
+     */
     IngestionMappingType: IngestionMappingKind,
-    CompressionType
+    IngestionMappingKind,
+    CompressionType,
+    ApacheAvroColumnMapping,
+    SStreamColumnMapping,
+    ConstantTransformation,
+    FieldTransformation,
+    ColumnMapping,
 };
 
-export { IngestionPropertiesValidationError} from "./source/errors"
+export { IngestionPropertiesValidationError } from "./source/errors"

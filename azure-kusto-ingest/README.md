@@ -10,7 +10,7 @@
 const IngestClient = require("azure-kusto-ingest").IngestClient;
 const IngestionProps = require("azure-kusto-ingest").IngestionProperties;
 const KustoConnectionStringBuilder = require("azure-kusto-data").KustoConnectionStringBuilder;
-const { DataFormat, JsonColumnMapping } = require("azure-kusto-ingest").IngestionPropertiesEnums;
+const { DataFormat, JsonColumnMapping } = require("azure-kusto-ingest");
 
 const kcsb = KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(`https://ingest-${cluster}.kusto.windows.net`, appId, appKey, authorityId);
 
@@ -179,9 +179,9 @@ For Example:
 const IngestClient = require("azure-kusto-ingest").IngestClient;
 const IngestStatusQueues = require("azure-kusto-ingest").IngestStatusQueues;
 const IngestionProps = require("azure-kusto-ingest").IngestionProperties;
-const { ReportLevel, ReportMethod } = require("azure-kusto-ingest").IngestionPropertiesEnums;
+const { ReportLevel, ReportMethod } = require("azure-kusto-ingest");
 const KustoConnectionStringBuilder = require("azure-kusto-data").KustoConnectionStringBuilder;
-const { DataFormat, JsonColumnMapping } = require("azure-kusto-ingest").IngestionPropertiesEnums;
+const { DataFormat, JsonColumnMapping } = require("azure-kusto-ingest");
 const fs = require("fs");
 
 
