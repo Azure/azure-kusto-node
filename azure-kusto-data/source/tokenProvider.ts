@@ -1,14 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { PublicClientApplication, ConfidentialClientApplication } from "@azure/msal-node";
+import { ConfidentialClientApplication, PublicClientApplication } from "@azure/msal-node";
 import { DeviceCodeResponse } from "@azure/msal-common";
-import {
-    ManagedIdentityCredential,
-    AzureCliCredential,
-    InteractiveBrowserCredential,
-    TokenCredentialOptions,
-} from "@azure/identity";
-import { CloudSettings, CloudInfo } from "./cloudSettings"
+import { AzureCliCredential, InteractiveBrowserCredential, ManagedIdentityCredential, TokenCredentialOptions, } from "@azure/identity";
+import { CloudInfo, CloudSettings } from "./cloudSettings"
 import { TokenCredential } from "@azure/core-auth";
 
 // We want all the Token Providers in this file
@@ -36,6 +31,10 @@ export abstract class TokenProviderBase {
     scopes!: string[];
 
     abstract acquireToken(): Promise<TokenResponse>;
+
+    context(): Record<string, any> {
+        return {};
+    }
 
     protected constructor(kustoUri: string) {
         this.kustoUri = kustoUri;
@@ -89,6 +88,7 @@ abstract class MsalTokenProvider extends TokenProviderBase {
     authorityUri!: string;
 
     abstract initClient(): void;
+
     abstract acquireMsalToken(): Promise<TokenType | null>;
 
     protected constructor(kustoUri: string, authorityId: string) {
@@ -117,6 +117,10 @@ abstract class MsalTokenProvider extends TokenProviderBase {
             return { tokenType: token.tokenType, accessToken: token.accessToken }
         }
         throw new Error("Failed to get token from msal");
+    }
+
+    context(): Record<string, any> {
+        return { ...super.context(), kustoUri: this.kustoUri, authorityId: this.authorityId };
     }
 }
 
@@ -152,6 +156,18 @@ export abstract class AzureIdentityProvider extends MsalTokenProvider {
             throw new Error("Failed to get token from msal");
         }
         return { tokenType: BEARER_TYPE, accessToken: response.token };
+    }
+
+    context(): Record<string, any> {
+        let base: Record<string, any> = { ...super.context(), kustoUri: this.kustoUri, authorityId: this.authorityId };
+        if (this.clientId) {
+            base = { ...base, clientId: this.clientId };
+        }
+        if (this.timeoutMs) {
+            base = { ...base, timeoutMs: this.timeoutMs };
+        }
+
+        return base;
     }
 
     abstract getCredential(): TokenCredential;
@@ -193,7 +209,15 @@ export class InteractiveLoginTokenProvider extends AzureIdentityProvider {
             ...this.getCommonOptions(),
             loginHint: this.loginHint,
             redirectUri: `http://localhost:${this.BrowserPort}/`
-});
+        });
+    }
+
+    context(): Record<string, any> {
+        let base = super.context();
+        if (this.loginHint) {
+            base = { ...base, loginHint: this.loginHint };
+        }
+        return base;
     }
 }
 
@@ -235,6 +259,10 @@ export class UserPassTokenProvider extends MsalTokenProvider {
             this.homeAccountId = token?.account?.homeAccountId;
         }
         return token;
+    }
+
+    context(): Record<string, any> {
+        return { ...super.context(), userName: this.userName, homeAccountId: this.homeAccountId };
     }
 }
 
@@ -305,6 +333,10 @@ export class ApplicationKeyTokenProvider extends MsalTokenProvider {
     acquireMsalToken(): Promise<TokenType | null> {
         return this.msalClient.acquireTokenByClientCredential({ scopes: this.scopes });
     }
+
+    context(): Record<string, any> {
+        return { ...super.context(), clientId: this.appClientId };
+    }
 }
 
 /**
@@ -343,5 +375,9 @@ export class ApplicationCertificateTokenProvider extends MsalTokenProvider {
 
     acquireMsalToken(): Promise<TokenType | null> {
         return this.msalClient.acquireTokenByClientCredential({ scopes: this.scopes });
+    }
+
+    context(): Record<string, any> {
+        return { ...super.context(), clientId: this.appClientId, thumbprint: this.certThumbprint };
     }
 }

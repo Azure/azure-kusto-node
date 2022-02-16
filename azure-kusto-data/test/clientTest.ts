@@ -107,7 +107,7 @@ describe("KustoClient", () => {
             const clientRequestProps = new ClientRequestProperties();
             const timeoutMs = moment.duration(2.51, "minutes").asMilliseconds();
             clientRequestProps.setTimeout(timeoutMs);
-            client.aadHelper._getAuthHeader = () => { return Promise.resolve("MockToken") };
+            client.aadHelper.getAuthHeader = () => { return Promise.resolve("MockToken") };
             client._doRequest = (_endpoint, _executionType, _headers, payload, timeout) => {
                 const payloadObj = JSON.parse(payload);
                 assert.strictEqual(payloadObj.properties.Options.servertimeout, "00:02:30.6");
@@ -125,7 +125,7 @@ describe("KustoClient", () => {
             const clientRequestProps = new ClientRequestProperties();
             const timeoutMs = moment.duration(2.51, "minutes").asMilliseconds();
             clientRequestProps.setClientTimeout(timeoutMs);
-            client.aadHelper._getAuthHeader = () => { return Promise.resolve("MockToken") };
+            client.aadHelper.getAuthHeader = () => { return Promise.resolve("MockToken") };
             client._doRequest = (_endpoint, _executionType, _headers, payload, timeout) => {
                 JSON.parse(payload);
                 assert.strictEqual(timeout, timeoutMs);
@@ -139,7 +139,7 @@ describe("KustoClient", () => {
             const url = "https://cluster.kusto.windows.net";
             const client = new KustoClient(url);
 
-            client.aadHelper._getAuthHeader = () => { return Promise.resolve("MockToken") };
+            client.aadHelper.getAuthHeader = () => { return Promise.resolve("MockToken") };
             client._doRequest = (_endpoint, _executionType, _headers, _payload, timeout) => {
                 assert.strictEqual(timeout, moment.duration(4.5, "minutes").asMilliseconds());
                 return Promise.resolve(new KustoResponseDataSetV2([]));
@@ -151,7 +151,7 @@ describe("KustoClient", () => {
         it("default timeout for admin", async () => {
             const url = "https://cluster.kusto.windows.net";
             const client = new KustoClient(url);
-            client.aadHelper._getAuthHeader = () => { return Promise.resolve("MockToken") };
+            client.aadHelper.getAuthHeader = () => { return Promise.resolve("MockToken") };
             client._doRequest = (_endpoint, _executionType, _headers, _payload, timeout) => {
                 assert.strictEqual(timeout, moment.duration(10.5, "minutes").asMilliseconds());
                 return Promise.resolve(new KustoResponseDataSetV2([]));
@@ -171,7 +171,7 @@ describe("KustoClient", () => {
             clientRequestProps.clientRequestId = clientRequestId;
             clientRequestProps.application = application;
             clientRequestProps.user = user;
-            client.aadHelper._getAuthHeader = () => { return Promise.resolve("MockToken") };
+            client.aadHelper.getAuthHeader = () => { return Promise.resolve("MockToken") };
             client._doRequest = (_endpoint, _executionType, headers) => {
                 assert.strictEqual(headers["x-ms-client-request-id"], clientRequestId);
                 assert.strictEqual(headers["x-ms-app"], application);
@@ -186,7 +186,7 @@ describe("KustoClient", () => {
             const url = "https://cluster.kusto.windows.net";
             const client = new KustoClient(url);
 
-            client.aadHelper._getAuthHeader = () => { return Promise.resolve("MockToken") };
+            client.aadHelper.getAuthHeader = () => { return Promise.resolve("MockToken") };
             client._doRequest = (endpoint, executionType, _headers, _payload, _timeout, _properties) => {
                 assert.strictEqual(endpoint, `${url}/v1/rest/query`);
                 assert.strictEqual(executionType, ExecutionType.QueryV1);
