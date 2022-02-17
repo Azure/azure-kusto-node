@@ -1,8 +1,9 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+/* eslint-disable max-classes-per-file -- We want all the Column Mappings to be in this file */
+
 import { IngestionMappingKind} from "./ingestionProperties";
-
-
-// We want all the Column Mappings to be in this file
-/* tslint:disable:max-classes-per-file */
 
 export enum FieldTransformation {
     PropertyBagArrayToDictionary = "PropertyBagArrayToDictionary",
@@ -54,7 +55,7 @@ export abstract class ColumnMapping {
         if (this.Properties) {
             result.Properties = {};
             for (const key in this.Properties) {
-                if (this.Properties.hasOwnProperty(key)) {
+                if (Object.prototype.hasOwnProperty.call(this.Properties, key)) {
                     const typedKey = key as keyof MappingProperties;
                     const property = this.Properties[typedKey];
 

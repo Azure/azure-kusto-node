@@ -59,7 +59,8 @@ describe("IngestionProperties", () => {
 
             try {
                 props.validate();
-            } catch (ex: any) {
+            } catch (ex: unknown) {
+                assert.ok(ex instanceof Error);
                 assert.strictEqual(ex.message, "Must define a target database");
                 return;
             }
@@ -77,7 +78,8 @@ describe("IngestionProperties", () => {
 
             try {
                 props.validate();
-            } catch (ex: any) {
+            } catch (ex: unknown) {
+                assert.ok(ex instanceof Error);
                 assert.strictEqual(ex.message, "Invalid columns:\nMapping kind mismatch for column 'a' - expected data format kind -  'Csv', but was 'Json'");
                 return;
             }
@@ -97,7 +99,8 @@ describe("IngestionProperties", () => {
 
             try {
                 props.validate();
-            } catch (ex: any) {
+            } catch (ex: unknown) {
+                assert.ok(ex instanceof Error);
                 assert.strictEqual(ex.message, "Invalid columns:\nMapping kind mismatch for column 'b' - expected data format kind -  'Csv', but was" +
                     " 'Json'\nMapping kind mismatch for column 'c' - expected data format kind -  'Csv', but was 'Avro'");
                 return;
@@ -112,7 +115,8 @@ describe("IngestionProperties", () => {
 
             try {
                 props.validate();
-            } catch (ex: any) {
+            } catch (ex: unknown) {
+                assert.ok(ex instanceof Error);
                 assert.strictEqual(ex.message, "Mapping kind 'Json' does not match format 'csv' (should be 'Csv')");
                 return;
             }
@@ -124,7 +128,8 @@ describe("IngestionProperties", () => {
 
             try {
                 props.validate();
-            } catch (ex: any) {
+            } catch (ex: unknown) {
+                assert.ok(ex instanceof Error);
                 assert.strictEqual(ex.message, "Invalid columns:\nMapping kind mismatch for column 'a' - expected data format kind -  'Csv', but was 'Json'");
                 return;
             }

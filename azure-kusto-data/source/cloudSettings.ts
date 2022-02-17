@@ -44,9 +44,8 @@ export class CloudSettings {
         }
 
         try {
-            const response = await axios.get(kustoUri + this.METADATA_ENDPOINT);
+            const response = await axios.get<{AzureAD: CloudInfo | undefined}>(kustoUri + this.METADATA_ENDPOINT);
             if (response.status === 200) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 this.cloudCache[kustoUri] = response.data.AzureAD || this.defaultCloudInfo;
             }
             else {

@@ -1,30 +1,33 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-/* tslint:disable:no-console */
+/* eslint-disable no-console */
 
 import assert from "assert";
-import fs, {ReadStream} from 'fs';
+import fs, { ReadStream } from 'fs';
 import IngestClient from "../../source/ingestClient";
 import KustoIngestStatusQueues from "../../source/status";
-import {
-    Client,
-    KustoConnectionStringBuilder as ConnectionStringBuilder,
-    ClientRequestProperties,
-    // @ts-ignore
-} from "azure-kusto-data";
+import { Client, ClientRequestProperties, KustoConnectionStringBuilder as ConnectionStringBuilder, } from "azure-kusto-data";
 import StreamingIngestClient from "../../source/streamingIngestClient";
 import ManagedStreamingIngestClient from "../../source/managedStreamingIngestClient";
-import {CompressionType, StreamDescriptor} from "../../source/descriptors";
-import {DataFormat, IngestionProperties, ReportLevel} from "../../source/ingestionProperties";
+import { CompressionType, StreamDescriptor } from "../../source/descriptors";
+import { DataFormat, IngestionProperties, ReportLevel } from "../../source/ingestionProperties";
 import { CloudSettings } from "azure-kusto-data/source/cloudSettings";
 import { sleep } from "../../source/retry";
+import { JsonColumnMapping } from "../../source/columnMappings";
+
+interface ParsedJsonMapping {
+    Properties: { Path: string };
+    column: string;
+    datatype: string;
+}
 
 const databaseName = process.env.TEST_DATABASE;
 const appId = process.env.APP_ID;
 const appKey = process.env.APP_KEY;
 const tenantId = process.env.TENANT_ID;
-function main(): void {
+
+const main = (): void => {
     if (!databaseName || !appId || !appKey || !tenantId) {
         process.stdout.write("Skip E2E test - Missing env variables");
         return;
@@ -39,16 +42,29 @@ function main(): void {
     const managedStreamingIngestClient = new ManagedStreamingIngestClient(engineKcsb, dmKcsb);
 
     class TestDataItem {
-        constructor(public description: string, public path: string, public rows: number, public ingestionProperties: IngestionProperties, public testOnstreamingIngestion = true) {
+        constructor(
+            public description: string,
+            public path: string,
+            public rows: number,
+            public ingestionProperties: IngestionProperties,
+            public testOnstreamingIngestion = true
+        ) {
         }
     }
 
-    const tableName = "NodeTest" + Date.now();
+    const getTestResourcePath = (name: string) => __dirname + `/e2eData/${name}`;
+
+
+    const tableName = `NodeTest${Date.now()}`;
     const mappingName = "mappingRef";
     const tableColumns = "(rownumber:int, rowguid:string, xdouble:real, xfloat:real, xbool:bool, xint16:int, xint32:int, xint64:long, xuint8:long, xuint16:long, xuint32:long, xuint64:long, xdate:datetime, xsmalltext:string, xtext:string, xnumberAsText:string, xtime:timespan, xtextWithNulls:string, xdynamicWithNulls:dynamic)";
 
-    const mapping = fs.readFileSync(getTestResourcePath("dataset_mapping.json"), {encoding: 'utf8'});
-    const columnmapping = JSON.parse(mapping);
+    const mapping = fs.readFileSync(getTestResourcePath("dataset_mapping.json"), { encoding: 'utf8' });
+    const columnMapping = (JSON.parse(mapping) as ParsedJsonMapping[]).map((m: ParsedJsonMapping) => JsonColumnMapping.withPath(
+        m.column,
+        m.Properties.Path,
+        m.datatype
+    ));
 
     const ingestionPropertiesWithoutMapping = new IngestionProperties({
         database: databaseName,
@@ -67,7 +83,7 @@ function main(): void {
         database: databaseName,
         table: tableName,
         format: DataFormat.JSON,
-        ingestionMapping: columnmapping,
+        ingestionMappingColumns: columnMapping,
         flushImmediately: true
     });
 
@@ -92,24 +108,24 @@ function main(): void {
         });
 
         before('SetUp', async () => {
-            console.log(`Create Table ${tableName}`)
             try {
                 await queryClient.execute(databaseName, `.create table ${tableName} ${tableColumns}`);
+                await queryClient.execute(databaseName, `.alter table ${tableName} policy streamingingestion enable`);
                 await queryClient.execute(databaseName, ".clear database cache streamingingestion schema");
-            } catch (err) {
-                assert.fail("Failed to create table - " + err);
-            }
 
-            console.log('Create table ingestion mapping')
-            try {
-                await queryClient.execute(databaseName, `.create-or-alter table ${tableName} ingestion json mapping '${mappingName}' '${mapping}'`);
+                console.log('Create table ingestion mapping')
+                try {
+                    await queryClient.execute(databaseName, `.create-or-alter table ${tableName} ingestion json mapping '${mappingName}' '${mapping}'`);
+                } catch (err) {
+                    assert.fail("Failed to create table ingestion mapping, error: " + JSON.stringify(err));
+                }
             } catch (err) {
-                assert.fail("Failed to create table ingestion mapping" + err);
+                assert.fail("Failed to create table, error: " + JSON.stringify(err));
             }
         });
 
         describe('cloud info', () => {
-            it('Cached cloud info', async () => {
+            it('Cached cloud info', () => {
                 const cloudInfo = CloudSettings.getInstance().cloudCache[process.env.ENGINE_CONNECTION_STRING as string]; // it should be already in the cache at this point
                 assert.strictEqual(cloudInfo.KustoClientAppId, CloudSettings.getInstance().defaultCloudInfo.KustoClientAppId);
             })
@@ -126,8 +142,7 @@ function main(): void {
                     try {
                         await ingestClient.ingestFromFile(item.path, item.ingestionProperties);
                     } catch (err) {
-                        console.error(err);
-                        assert.fail(`Failed to ingest ${item.description}`);
+                        assert.fail(`Failed to ingest ${item.description}, ${JSON.stringify(err)}`);
                     }
                     await assertRowsCount(item);
                 }
@@ -142,7 +157,7 @@ function main(): void {
                     try {
                         await ingestClient.ingestFromStream(stream, item.ingestionProperties);
                     } catch (err) {
-                        assert.fail(`Failed to ingest ${item.description}`);
+                        assert.fail(`Failed to ingest ${item.description} - ${JSON.stringify(err)}`);
                     }
                     await assertRowsCount(item);
                 }
@@ -183,8 +198,7 @@ function main(): void {
                     try {
                         await managedStreamingIngestClient.ingestFromFile(item.path, item.ingestionProperties);
                     } catch (err) {
-                        console.error(err);
-                        assert.fail(`Failed to ingest ${item.description}`);
+                        assert.fail(`Failed to ingest ${item.description} - ${JSON.stringify(err)}`);
                     }
                     await assertRowsCount(item);
                 }
@@ -210,8 +224,7 @@ function main(): void {
                 try {
                     await cleanStatusQueues();
                 } catch (err) {
-                    console.error(err);
-                    assert.fail(`Failed to Clean status queues`);
+                    assert.fail(`Failed to Clean status queues - ${JSON.stringify(err)}`);
                 }
             }).timeout(240000);
 
@@ -224,8 +237,7 @@ function main(): void {
                     assert.strictEqual(status.SuccessCount, 1);
                     assert.strictEqual(status.FailureCount, 0);
                 } catch (err) {
-                    console.error(err);
-                    assert.fail(`Failed to ingest ${item.description}`);
+                    assert.fail(`Failed to ingest ${item.description} - ${JSON.stringify(err)}`);
                 }
             }).timeout(240000);
 
@@ -239,8 +251,7 @@ function main(): void {
                     assert.strictEqual(status.SuccessCount, 0);
                     assert.strictEqual(status.FailureCount, 1);
                 } catch (err) {
-                    console.error(err);
-                    assert.fail(`Failed to ingest ${item.description}`);
+                    assert.fail(`Failed to ingest ${item.description} - ${JSON.stringify(err)}`);
                 }
             }).timeout(240000);
         });
@@ -271,8 +282,8 @@ function main(): void {
                     properties.setTimeout(10);
                     await queryClient.executeQuery(databaseName, `${tableName}`, properties);
 
-                } catch (ex: any) {
-                    assert.strictEqual(ex.code, 'Request execution timeout');
+                } catch (ex: unknown) {
+                    assert.strictEqual((ex as { code: string }).code, 'Request execution timeout');
                     return;
                 }
                 assert.fail(`Didn't throw executionTimeout`);
@@ -280,7 +291,7 @@ function main(): void {
         });
     });
 
-    async function cleanStatusQueues() {
+    const cleanStatusQueues = async () => {
         while (!await statusQueues.failure.isEmpty()) {
             await statusQueues.failure.pop();
         }
@@ -288,9 +299,9 @@ function main(): void {
         while (!await statusQueues.success.isEmpty()) {
             await statusQueues.success.pop();
         }
-    }
+    };
 
-    async function waitForStatus() {
+    const waitForStatus = async () => {
         while (await statusQueues.failure.isEmpty() && await statusQueues.success.isEmpty()) {
             await sleep(1000);
         }
@@ -298,14 +309,10 @@ function main(): void {
         const failures = await statusQueues.failure.pop();
         const successes = await statusQueues.success.pop();
 
-        return {"SuccessCount": successes.length, "FailureCount": failures.length}
-    }
+        return { "SuccessCount": successes.length, "FailureCount": failures.length }
+    };
 
-    function getTestResourcePath(name: string) {
-        return __dirname + `/e2eData/${name}`;
-    }
-
-    async function assertRowsCount(testItem: TestDataItem) {
+    const assertRowsCount = async (testItem: TestDataItem) => {
         let count = 0;
         const expected = testItem.rows;
         // Timeout = 3 min
@@ -317,15 +324,17 @@ function main(): void {
                 continue;
             }
 
-            count = results.primaryResults[0][0].Count - currentCount;
+            const row = results.primaryResults[0].toJSON<{Count: number}>().data[0];
+
+            count = row.Count - currentCount;
             if (count >= expected) {
                 break;
             }
             await sleep(3000);
         }
         currentCount += count;
-        assert.strictEqual(count, expected, `Failed to ingest ${testItem.description}`);
-    }
-}
+        assert.strictEqual(count, expected, `Failed to ingest ${testItem.description} - '${count}' rows ingested, expected '${expected}'`);
+    };
+};
 
 main();

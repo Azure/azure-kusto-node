@@ -83,14 +83,14 @@ export class KustoResultRow {
         return this.toJSON();
     }
 
-    toJSON(): Record<string, any> {
+    toJSON<T = Record<string, any>>(): T {
         const obj: Record<string, any> = {};
 
         for (const col of this.columns) {
             obj[col.name as string] = this[col.name as string];
         }
 
-        return obj;
+        return obj as T;
     }
 
     toString() {
@@ -171,19 +171,19 @@ export class KustoResultTable {
         return this.toJSON();
     }
 
-    toJSON(): {
+    toJSON<T = Record<string, any>>(): {
         name: string,
-        data: Record<string, any>[],
+        data: T[],
     } {
         const table: {
             name: string,
-            data: Record<string, any>[],
+            data: T[],
         } = {
             name: this.name,
             data: [],
         };
         for (const row of this.rows()) {
-            table.data.push(row.toJSON());
+            table.data.push(row.toJSON<T>());
         }
 
         return table;

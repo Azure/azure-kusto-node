@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-// We want all the Descriptors to be in this file
-/* tslint:disable:max-classes-per-file */
+/* eslint-disable max-classes-per-file -- We want all the Descriptors to be in this file */
 
 import { v4 as uuidv4 } from 'uuid';
 import uuidValidate from "uuid-validate";
@@ -17,7 +16,7 @@ export enum CompressionType {
     None= "",
 }
 
-function getSourceId(sourceId: string | null): string {
+const getSourceId = (sourceId: string | null): string => {
     if (sourceId) {
         if (!uuidValidate(sourceId, 4)) {
             throw Error("sourceId is not a valid uuid/v4");
@@ -25,7 +24,7 @@ function getSourceId(sourceId: string | null): string {
         return sourceId;
     }
     return uuidv4();
-}
+};
 
 export class FileDescriptor {
     readonly name: string;

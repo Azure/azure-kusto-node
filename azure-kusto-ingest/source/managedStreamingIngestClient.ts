@@ -30,6 +30,7 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
      * Creates a KustoManagedStreamingIngestClient from a DM connection string.
      * This method infers the engine connection string.
      * For advanced usage, use the constructor that takes a DM connection string and an engine connection string.
+     *
      * @param dmConnectionString The DM connection string.
      * @param defaultProps The default ingestion properties.
      */
@@ -48,6 +49,7 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
      * Creates a KustoManagedStreamingIngestClient from a engine connection string.
      * This method infers the engine connection string.
      * For advanced usage, use the constructor that takes an engine connection string and an engine connection string.
+     *
      * @param engineConnectionString The engine connection string.
      * @param defaultProps The default ingestion properties.
      */
@@ -82,8 +84,9 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
                 try {
                     const sourceId = `KNC.executeManagedStreamingIngest;${descriptor.sourceId};${retry.currentAttempt}`
                     return await this.streamingIngestClient.ingestFromStream(new StreamDescriptor(streamify([result])).merge(descriptor), ingestionProperties, sourceId);
-                } catch (err: any) {
-                    if (err['@permanent']) {
+                } catch (err: unknown) {
+                    const oneApiError = err as {"@permanent"?: boolean};
+                    if (oneApiError['@permanent']) {
                         throw err;
                     }
                     await retry.backoff();

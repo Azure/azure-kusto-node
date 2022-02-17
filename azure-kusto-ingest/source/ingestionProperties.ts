@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-// The main class is IngestionProperties, ValidationPolicy is a tiny class
-/* tslint:disable:max-classes-per-file */
+/* eslint-disable max-classes-per-file -- the main class is IngestionProperties, ValidationPolicy is a tiny class */
 
 import { IngestionPropertiesValidationError } from "./errors";
 import { ColumnMapping } from "./columnMappings";
@@ -92,7 +91,7 @@ export enum IngestionMappingKind {
     W3CLOGFILE = "W3CLogFile",
 }
 
-export function dataFormatMappingKind(dataFormat: DataFormat): IngestionMappingKind {
+export const dataFormatMappingKind = (dataFormat: DataFormat): IngestionMappingKind => {
     switch (dataFormat) {
         case DataFormat.CSV:
             return IngestionMappingKind.CSV;
@@ -131,7 +130,7 @@ export function dataFormatMappingKind(dataFormat: DataFormat): IngestionMappingK
         default:
             throw new IngestionPropertiesValidationError(`Unsupported data format: ${dataFormat}`);
     }
-}
+};
 
 export enum ValidationOptions {
     DoNotValidate = 0,

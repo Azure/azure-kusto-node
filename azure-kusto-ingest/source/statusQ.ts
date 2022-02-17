@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+// QueueDetails is a very small class, so we don't need it in a different file
+/* eslint-disable max-classes-per-file */
+
 import {PeekedMessageItem, QueueClient} from "@azure/storage-queue";
 import {ResourceURI} from "./resourceManager"
 import {StatusMessage} from "./status";
-
-// QueueDetails is a very small class, so we don't need it in a different file
-/* tslint:disable:max-classes-per-file */
 
 class QueueDetails {
     constructor(readonly name: string, readonly service: QueueClient) {
@@ -14,7 +14,7 @@ class QueueDetails {
 }
 
 
-function shuffle<T>(a: T[]): T[] {
+const shuffle = <T>(a: T[]): T[] => {
     for (let i = a.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         const temp = a[j];
@@ -23,7 +23,7 @@ function shuffle<T>(a: T[]): T[] {
     }
 
     return a;
-}
+};
 
 interface PeekParams {
     raw: boolean;
