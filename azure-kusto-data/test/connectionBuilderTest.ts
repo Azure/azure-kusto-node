@@ -423,7 +423,7 @@ describe("KustoConnectionStringBuilder", () => {
         describe("from msi auth", () => {
             it("without clientId and timeout", () => {
                 const kcsbs = [
-                    KustoConnectionStringBuilder.withAadManagedIdentities("localhost", "common"),
+                    KustoConnectionStringBuilder.withAadManagedIdentities("localhost"),
                 ];
 
                 const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
@@ -447,7 +447,7 @@ describe("KustoConnectionStringBuilder", () => {
                 const msiClientId = "clientId";
                 const timeoutMs = 10;
                 const kcsbs = [
-                    KustoConnectionStringBuilder.withAadManagedIdentities("localhost", "common", msiClientId, timeoutMs),
+                    KustoConnectionStringBuilder.withAadManagedIdentities("localhost", msiClientId, "common", timeoutMs),
                 ];
 
                 const kcsb1 = new KustoConnectionStringBuilder("server=localhost");

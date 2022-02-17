@@ -216,7 +216,7 @@ export class KustoConnectionStringBuilder {
         return kcsb;
     }
 
-    static withAadManagedIdentities(connectionString: string, authorityId?: string, msiClientId?: string, timeoutMs?: number) {
+    static withAadManagedIdentities(connectionString: string, msiClientId?: string, authorityId?: string, timeoutMs?: number) {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         kcsb.aadFederatedSecurity = true;
         if (authorityId) {
