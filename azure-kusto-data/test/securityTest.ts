@@ -99,7 +99,7 @@ describe("test errors", () => {
     it("test msi", async () => {
         const cluster = "https://somecluster.kusto.windows.net";
         const clientId = "86f7361f-15b7-4f10-aef5-3ce66ac73766";
-        const kcsb = KustoConnectionStringBuilder.withAadManagedIdentities(cluster, "organizations", clientId, 1);
+        const kcsb = KustoConnectionStringBuilder.withAadManagedIdentities(cluster, clientId, "organizations", 1);
 
         const helper = new AadHelper(kcsb);
         try {
@@ -222,7 +222,7 @@ describe("Test providers", () => {
     manualLoginTest("TEST_MSI")("test msi", async () => {
         const cluster = "https://somecluster.kusto.windows.net";
 
-        const kcsb = KustoConnectionStringBuilder.withAadManagedIdentities(cluster, "organizations");
+        const kcsb = KustoConnectionStringBuilder.withAadManagedIdentities(cluster, undefined,"organizations");
 
         const helper = new AadHelper(kcsb);
         const token = await helper.getAuthHeader();
