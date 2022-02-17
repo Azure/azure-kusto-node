@@ -7,10 +7,10 @@ import moment from "moment";
 
 import sinon from "sinon";
 
-import {Client as KustoClient} from "azure-kusto-data";
+import { Client as KustoClient } from "azure-kusto-data";
 
-import {IngestClientResources, ResourceManager, ResourceURI} from "../source/resourceManager";
-import {KustoResponseDataSet} from "azure-kusto-data/source/response";
+import { IngestClientResources, ResourceManager, ResourceURI } from "../source/resourceManager";
+import { KustoResponseDataSet } from "azure-kusto-data/source/response";
 
 describe("ResourceURI", () => {
     describe("#fromUri()", () => {
@@ -37,33 +37,45 @@ describe("ResourceURI", () => {
             const objectName = "container";
             const sas = "sas";
 
-
             const storageUrl = new ResourceURI(accountName, objectType, objectName, sas);
 
-            assert.strictEqual(storageUrl.getSASConnectionString(), `BlobEndpoint=https://${accountName}.blob.core.windows.net/;SharedAccessSignature=${sas}`);
+            assert.strictEqual(
+                storageUrl.getSASConnectionString(),
+                `BlobEndpoint=https://${accountName}.blob.core.windows.net/;SharedAccessSignature=${sas}`
+            );
         });
     });
 });
 
-
 describe("ResourceManager", () => {
     const rows = [
-        { ResourceTypeName: "SecuredReadyForAggregationQueue", StorageRoot: "https://account.queue.core.windows.net/ready1?sas" },
+        {
+            ResourceTypeName: "SecuredReadyForAggregationQueue",
+            StorageRoot: "https://account.queue.core.windows.net/ready1?sas",
+        },
         { ResourceTypeName: "FailedIngestionsQueue", StorageRoot: "https://account.queue.core.windows.net/failed?sas" },
-        { ResourceTypeName: "SuccessfulIngestionsQueue", StorageRoot: "https://account.queue.core.windows.net/success?sas" },
-        { ResourceTypeName: "SecuredReadyForAggregationQueue", StorageRoot: "https://account.queue.core.windows.net/ready2?sas" },
+        {
+            ResourceTypeName: "SuccessfulIngestionsQueue",
+            StorageRoot: "https://account.queue.core.windows.net/success?sas",
+        },
+        {
+            ResourceTypeName: "SecuredReadyForAggregationQueue",
+            StorageRoot: "https://account.queue.core.windows.net/ready2?sas",
+        },
         { ResourceTypeName: "TempStorage", StorageRoot: "https://account.blob.core.windows.net/t1?sas" },
-        { ResourceTypeName: "TempStorage", StorageRoot: "https://account.blob.core.windows.net/t2?sas" }
+        { ResourceTypeName: "TempStorage", StorageRoot: "https://account.blob.core.windows.net/t2?sas" },
     ];
 
     const mockedResourcesResponse = {
-        primaryResults: [{
-            *rows () {
-                for (const row of rows) {
-                    yield row;
-                }
-            }
-        }]
+        primaryResults: [
+            {
+                *rows() {
+                    for (const row of rows) {
+                        yield row;
+                    }
+                },
+            },
+        ],
     };
 
     describe("#constructor()", () => {
@@ -77,7 +89,7 @@ describe("ResourceManager", () => {
 
     describe("#getIngestClientResourcesFromService()", () => {
         it("valid input", async () => {
-            const client = new KustoClient("https://cluster.kusto.windows.net")
+            const client = new KustoClient("https://cluster.kusto.windows.net");
             sinon.stub(client, "execute").returns(Promise.resolve(mockedResourcesResponse as KustoResponseDataSet));
 
             const resourceManager = new ResourceManager(client);
@@ -89,18 +101,16 @@ describe("ResourceManager", () => {
             assert.strictEqual(resources.securedReadyForAggregationQueues!.length, 2);
         });
 
-
         it("error response", async () => {
             const client = new KustoClient("https://cluster.kusto.windows.net");
             sinon.stub(client, "execute").throwsException(new Error("Kusto request erred (403)"));
 
             const resourceManager = new ResourceManager(client);
-            try{
+            try {
                 await resourceManager.getIngestClientResourcesFromService();
-            }
-            catch(ex: any){
-                assert.ok(ex instanceof Error)
-                assert(ex.message.startsWith( "Kusto request erred (403)"));
+            } catch (ex: any) {
+                assert.ok(ex instanceof Error);
+                assert(ex.message.startsWith("Kusto request erred (403)"));
                 return;
             }
             assert.fail();
@@ -111,7 +121,10 @@ describe("ResourceManager", () => {
         it("valid input", () => {
             const resourceManager = new ResourceManager(new KustoClient("https://cluster.kusto.windows.net"));
 
-            const resources = resourceManager.getResourceByName(mockedResourcesResponse.primaryResults[0], "TempStorage");
+            const resources = resourceManager.getResourceByName(
+                mockedResourcesResponse.primaryResults[0],
+                "TempStorage"
+            );
             assert.strictEqual(resources.length, 2);
         });
     });
@@ -138,4 +151,3 @@ describe("ResourceManager", () => {
         });
     });
 });
-

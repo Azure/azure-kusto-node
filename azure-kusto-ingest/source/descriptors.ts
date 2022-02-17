@@ -3,17 +3,17 @@
 
 /* eslint-disable max-classes-per-file -- We want all the Descriptors to be in this file */
 
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 import uuidValidate from "uuid-validate";
 import zlib from "zlib";
 import pathlib from "path";
 import fs from "fs";
-import { Readable } from 'stream';
+import { Readable } from "stream";
 
 export enum CompressionType {
-    ZIP= ".zip",
-    GZIP= ".gz",
-    None= "",
+    ZIP = ".zip",
+    GZIP = ".gz",
+    None = "",
 }
 
 const getSourceId = (sourceId: string | null): string => {
@@ -43,11 +43,13 @@ export class FileDescriptor {
 
     async _gzip(): Promise<string> {
         const zipper = zlib.createGzip();
-        const input = fs.createReadStream(this.filePath, {autoClose: true});
+        const input = fs.createReadStream(this.filePath, { autoClose: true });
         const output = fs.createWriteStream(this.filePath + ".gz");
 
         await new Promise((resolve, reject) => {
-            input.pipe(zipper).pipe(output)
+            input
+                .pipe(zipper)
+                .pipe(output)
                 .on("error", (err) => {
                     reject(err);
                 });
@@ -72,7 +74,6 @@ export class FileDescriptor {
             this.size = fs.statSync(this.filePath).size;
         }
         return this.filePath + ".gz";
-
     }
 }
 
@@ -81,14 +82,18 @@ export class StreamDescriptor {
     size: number | null;
     compressionType: CompressionType;
     sourceId: string;
-    constructor(readonly stream: Readable, sourceId: string | null = null, compressionType: CompressionType = CompressionType.None) {
+    constructor(
+        readonly stream: Readable,
+        sourceId: string | null = null,
+        compressionType: CompressionType = CompressionType.None
+    ) {
         this.name = "stream";
         this.size = null;
         this.compressionType = compressionType;
         this.sourceId = getSourceId(sourceId);
     }
 
-    merge (other: StreamDescriptor) {
+    merge(other: StreamDescriptor) {
         this.name = other.name;
         this.size = other.size;
         this.compressionType = other.compressionType;

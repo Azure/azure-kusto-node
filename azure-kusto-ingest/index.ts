@@ -16,9 +16,8 @@ import {
     ReportMethod,
     ValidationImplications,
     ValidationOptions,
-    ValidationPolicy
+    ValidationPolicy,
 } from "./source/ingestionProperties";
-
 
 import { BlobDescriptor, CompressionType, FileDescriptor, StreamDescriptor } from "./source/descriptors";
 import {
@@ -41,7 +40,7 @@ export const IngestClient = client;
 export const StreamingIngestClient = streamingIngestClient;
 export const ManagedStreamingIngestClient = managedStreamingIngestClient;
 export const IngestStatusQueues = KustoIngestStatusQueues;
-export { IngestionProperties } from "./source/ingestionProperties"
+export { IngestionProperties } from "./source/ingestionProperties";
 export const IngestionDescriptors = {
     BlobDescriptor,
     FileDescriptor,
@@ -67,7 +66,7 @@ export {
     SStreamColumnMapping,
     ConstantTransformation,
     FieldTransformation,
-    ColumnMapping
+    ColumnMapping,
 };
 
 /**
@@ -99,4 +98,4 @@ export const IngestionPropertiesEnums = {
     ColumnMapping,
 };
 
-export { IngestionPropertiesValidationError } from "./source/errors"
+export { IngestionPropertiesValidationError } from "./source/errors";

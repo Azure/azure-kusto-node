@@ -4,27 +4,27 @@
 // We want all the Response models to be in this file
 /* eslint-disable max-classes-per-file */
 
-import {KustoResultTable, Table, WellKnownDataSet} from "./models";
+import { KustoResultTable, Table, WellKnownDataSet } from "./models";
 
 interface V2DataSetHeaderFrame {
-    FrameType: "DataSetHeader"
-    IsProgressive: boolean
-    Version: string
+    FrameType: "DataSetHeader";
+    IsProgressive: boolean;
+    Version: string;
 }
 
 interface V2DataSetTableFrame extends Table {
-    FrameType: "DataTable"
-    TableId: number
-    TableName: string
-    TableKind: string
-    Columns: Column[]
-    Rows: any[][]
+    FrameType: "DataTable";
+    TableId: number;
+    TableName: string;
+    TableKind: string;
+    Columns: Column[];
+    Rows: any[][];
 }
 
 interface V2DataSetCompletionFrame {
-    FrameType: "DataSetCompletion"
-    HasErrors: boolean
-    Cancelled: boolean
+    FrameType: "DataSetCompletion";
+    HasErrors: boolean;
+    Cancelled: boolean;
 }
 
 export type V2Frames = (V2DataSetHeaderFrame | V2DataSetTableFrame | V2DataSetCompletionFrame)[];
@@ -32,13 +32,13 @@ export type V2Frames = (V2DataSetHeaderFrame | V2DataSetTableFrame | V2DataSetCo
 export type V1 = { Tables: Table[] };
 
 interface Column {
-    ColumnName: string
-    ColumnType: string
+    ColumnName: string;
+    ColumnType: string;
 }
 
 enum ErrorLevels {
     Warning = 3,
-    Error = 2
+    Error = 2,
 }
 
 export abstract class KustoResponseDataSet {
@@ -46,7 +46,10 @@ export abstract class KustoResponseDataSet {
     tableNames: string[];
     primaryResults: KustoResultTable[];
     statusTable?: KustoResultTable;
-    abstract dataSetCompletion: { HasErrors: boolean, OneApiErrors?: any[] } | null;
+    abstract dataSetCompletion: {
+        HasErrors: boolean;
+        OneApiErrors?: any[];
+    } | null;
 
     abstract getStatusColumn(): string;
 
@@ -77,7 +80,7 @@ export abstract class KustoResponseDataSet {
         }
     }
 
-    getErrorsCount(): { warnings: number, errors: number } {
+    getErrorsCount(): { warnings: number; errors: number } {
         let errors = 0;
         let warnings = 0;
 
@@ -101,7 +104,7 @@ export abstract class KustoResponseDataSet {
             errors += 1;
         }
 
-        return {warnings, errors};
+        return { warnings, errors };
     }
 
     private getErrorsByLevel(errorLevel: ErrorLevels) {
@@ -112,7 +115,9 @@ export abstract class KustoResponseDataSet {
             const statusColumn = this.getStatusColumn();
             for (const row of this.statusTable.rows()) {
                 if (row[errorColumn] <= errorLevel) {
-                    result.push(`Please provide the following data to Kusto: CRID=${row[cridColumn]} Description: ${row[statusColumn]}`);
+                    result.push(
+                        `Please provide the following data to Kusto: CRID=${row[cridColumn]} Description: ${row[statusColumn]}`
+                    );
                 }
             }
         }
@@ -123,7 +128,7 @@ export abstract class KustoResponseDataSet {
         const result = this.getErrorsByLevel(ErrorLevels.Error);
         if (this.dataSetCompletion && this.dataSetCompletion.HasErrors && this.dataSetCompletion.OneApiErrors) {
             for (const row of this.dataSetCompletion.OneApiErrors) {
-                result.push((row as {error: {"@message": string}}).error["@message"]);
+                result.push((row as { error: { "@message": string } }).error["@message"]);
             }
         }
         return result;
@@ -153,9 +158,9 @@ export class KustoResponseDataSetV1 extends KustoResponseDataSet {
 
     static getTablesKinds(): { [name: string]: WellKnownDataSet } {
         return {
-            "QueryResult": WellKnownDataSet.PrimaryResult,
-            "QueryProperties": WellKnownDataSet.QueryProperties,
-            "QueryStatus": WellKnownDataSet.QueryCompletionInformation,
+            QueryResult: WellKnownDataSet.PrimaryResult,
+            QueryProperties: WellKnownDataSet.QueryProperties,
+            QueryStatus: WellKnownDataSet.QueryCompletionInformation,
         };
     }
 
@@ -180,9 +185,9 @@ export class KustoResponseDataSetV1 extends KustoResponseDataSet {
             toc.id = this.tables.length - 1;
             for (let i = 0; i < this.tables.length - 1; i++) {
                 const current = toc[i] as {
-                    Name: string,
-                    Id: number,
-                    Kind: string
+                    Name: string;
+                    Id: number;
+                    Kind: string;
                 };
                 this.tables[i].name = current.Name;
                 this.tables[i].id = current.Id;
@@ -216,7 +221,7 @@ export class KustoResponseDataSetV2 extends KustoResponseDataSet {
         const dataTables: V2DataSetTableFrame[] = [];
         let dataSetHeader: V2DataSetHeaderFrame | null = null;
         let dataSetCompletion: V2DataSetCompletionFrame | null = null;
-        data.forEach(frame => {
+        data.forEach((frame) => {
             switch (frame.FrameType) {
                 case "DataTable":
                     dataTables.push(frame);

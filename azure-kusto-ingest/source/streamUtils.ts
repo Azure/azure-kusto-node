@@ -11,18 +11,17 @@ export const fileToStream = (file: FileDescriptor | string): StreamDescriptor =>
     const streamFs = fs.createReadStream(fileDescriptor.filePath);
     const compressionType = fileDescriptor.zipped ? CompressionType.GZIP : CompressionType.None;
     return new StreamDescriptor(streamFs, fileDescriptor.sourceId, compressionType);
-}
+};
 
-export const mergeStreams = (...streams: Readable[]) : Readable => {
-    let pass = new PassThrough()
-    let waiting = streams.length
+export const mergeStreams = (...streams: Readable[]): Readable => {
+    let pass = new PassThrough();
+    let waiting = streams.length;
     for (const stream of streams) {
-        pass = stream.pipe(pass, { end: false })
-        stream.once('end', () => --waiting === 0 && pass.emit('end'))
+        pass = stream.pipe(pass, { end: false });
+        stream.once("end", () => --waiting === 0 && pass.emit("end"));
     }
-    return pass
-}
-
+    return pass;
+};
 
 export const tryStreamToArray = async (stream: Readable, maxBufferSize: number): Promise<Buffer | Readable> => {
     return await new Promise<Buffer | Readable>((resolve, reject) => {
@@ -33,8 +32,8 @@ export const tryStreamToArray = async (stream: Readable, maxBufferSize: number):
                 result.push(chunk);
                 if (result.reduce((sum, b) => sum + b.length, 0) > maxBufferSize) {
                     stream.removeListener("data", dataHandler);
-                    stream.removeListener("end", endListener)
-                    resolve(mergeStreams(streamify(result), stream))
+                    stream.removeListener("end", endListener);
+                    resolve(mergeStreams(streamify(result), stream));
                 }
             } catch (e) {
                 reject(e);
@@ -43,5 +42,4 @@ export const tryStreamToArray = async (stream: Readable, maxBufferSize: number):
         stream.on("data", dataHandler);
         stream.on("end", endListener);
     });
-
-}
+};

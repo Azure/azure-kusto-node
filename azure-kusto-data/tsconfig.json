@@ -1,17 +1,17 @@
 {
-  "compilerOptions": {
-    "target": "es6",
-    "module": "commonjs",
-    "esModuleInterop": true,
-    "strict": true,
-    "incremental": true,
-    "sourceMap": true,
-    "resolveJsonModule": true,
-    "allowJs": false,
-    "allowSyntheticDefaultImports": true,
-    "declaration": true,
-    "noUnusedParameters": true,
-    "noUnusedLocals": true
-  },
-  "include": ["source/**/*.ts", "test/**/*.ts", "index.ts"]
+    "compilerOptions": {
+        "target": "es6",
+        "module": "commonjs",
+        "esModuleInterop": true,
+        "strict": true,
+        "incremental": true,
+        "sourceMap": true,
+        "resolveJsonModule": true,
+        "allowJs": false,
+        "allowSyntheticDefaultImports": true,
+        "declaration": true,
+        "noUnusedParameters": true,
+        "noUnusedLocals": true
+    },
+    "include": ["source/**/*.ts", "test/**/*.ts", "index.ts"]
 }

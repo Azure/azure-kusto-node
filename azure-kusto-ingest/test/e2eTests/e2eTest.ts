@@ -4,10 +4,14 @@
 /* eslint-disable no-console */
 
 import assert from "assert";
-import fs, { ReadStream } from 'fs';
+import fs, { ReadStream } from "fs";
 import IngestClient from "../../source/ingestClient";
 import KustoIngestStatusQueues from "../../source/status";
-import { Client, ClientRequestProperties, KustoConnectionStringBuilder as ConnectionStringBuilder, } from "azure-kusto-data";
+import {
+    Client,
+    ClientRequestProperties,
+    KustoConnectionStringBuilder as ConnectionStringBuilder,
+} from "azure-kusto-data";
 import StreamingIngestClient from "../../source/streamingIngestClient";
 import ManagedStreamingIngestClient from "../../source/managedStreamingIngestClient";
 import { CompressionType, StreamDescriptor } from "../../source/descriptors";
@@ -33,10 +37,20 @@ const main = (): void => {
         return;
     }
 
-    const engineKcsb = ConnectionStringBuilder.withAadApplicationKeyAuthentication(process.env.ENGINE_CONNECTION_STRING ?? "", appId, appKey, tenantId);
+    const engineKcsb = ConnectionStringBuilder.withAadApplicationKeyAuthentication(
+        process.env.ENGINE_CONNECTION_STRING ?? "",
+        appId,
+        appKey,
+        tenantId
+    );
     const queryClient = new Client(engineKcsb);
     const streamingIngestClient = new StreamingIngestClient(engineKcsb);
-    const dmKcsb = ConnectionStringBuilder.withAadApplicationKeyAuthentication(process.env.DM_CONNECTION_STRING ?? "", appId, appKey, tenantId);
+    const dmKcsb = ConnectionStringBuilder.withAadApplicationKeyAuthentication(
+        process.env.DM_CONNECTION_STRING ?? "",
+        appId,
+        appKey,
+        tenantId
+    );
     const ingestClient = new IngestClient(dmKcsb);
     const statusQueues = new KustoIngestStatusQueues(ingestClient);
     const managedStreamingIngestClient = new ManagedStreamingIngestClient(engineKcsb, dmKcsb);
@@ -48,52 +62,71 @@ const main = (): void => {
             public rows: number,
             public ingestionProperties: IngestionProperties,
             public testOnstreamingIngestion = true
-        ) {
-        }
+        ) {}
     }
 
     const getTestResourcePath = (name: string) => __dirname + `/e2eData/${name}`;
 
-
     const tableName = `NodeTest${Date.now()}`;
     const mappingName = "mappingRef";
-    const tableColumns = "(rownumber:int, rowguid:string, xdouble:real, xfloat:real, xbool:bool, xint16:int, xint32:int, xint64:long, xuint8:long, xuint16:long, xuint32:long, xuint64:long, xdate:datetime, xsmalltext:string, xtext:string, xnumberAsText:string, xtime:timespan, xtextWithNulls:string, xdynamicWithNulls:dynamic)";
+    const tableColumns =
+        "(rownumber:int, rowguid:string, xdouble:real, xfloat:real, xbool:bool, xint16:int, xint32:int, xint64:long, xuint8:long, xuint16:long, xuint32:long, xuint64:long, xdate:datetime, xsmalltext:string, xtext:string, xnumberAsText:string, xtime:timespan, xtextWithNulls:string, xdynamicWithNulls:dynamic)";
 
-    const mapping = fs.readFileSync(getTestResourcePath("dataset_mapping.json"), { encoding: 'utf8' });
-    const columnMapping = (JSON.parse(mapping) as ParsedJsonMapping[]).map((m: ParsedJsonMapping) => JsonColumnMapping.withPath(
-        m.column,
-        m.Properties.Path,
-        m.datatype
-    ));
+    const mapping = fs.readFileSync(getTestResourcePath("dataset_mapping.json"), { encoding: "utf8" });
+    const columnMapping = (JSON.parse(mapping) as ParsedJsonMapping[]).map((m: ParsedJsonMapping) =>
+        JsonColumnMapping.withPath(m.column, m.Properties.Path, m.datatype)
+    );
 
     const ingestionPropertiesWithoutMapping = new IngestionProperties({
         database: databaseName,
         table: tableName,
         format: DataFormat.CSV,
-        flushImmediately: true
+        flushImmediately: true,
     });
     const ingestionPropertiesWithMappingReference = new IngestionProperties({
         database: databaseName,
         table: tableName,
         format: DataFormat.JSON,
         ingestionMappingReference: mappingName,
-        flushImmediately: true
+        flushImmediately: true,
     });
     const ingestionPropertiesWithColumnMapping = new IngestionProperties({
         database: databaseName,
         table: tableName,
         format: DataFormat.JSON,
         ingestionMappingColumns: columnMapping,
-        flushImmediately: true
+        flushImmediately: true,
     });
 
     const testItems = [
         new TestDataItem("csv", getTestResourcePath("dataset.csv"), 10, ingestionPropertiesWithoutMapping),
         new TestDataItem("csv.gz", getTestResourcePath("dataset_gzip.csv.gz"), 10, ingestionPropertiesWithoutMapping),
-        new TestDataItem("json with mapping ref", getTestResourcePath("dataset.json"), 2, ingestionPropertiesWithMappingReference),
-        new TestDataItem("json.gz with mapping ref", getTestResourcePath("dataset_gzip.json.gz"), 2, ingestionPropertiesWithMappingReference),
-        new TestDataItem("json with mapping", getTestResourcePath("dataset.json"), 2, ingestionPropertiesWithColumnMapping, false),
-        new TestDataItem("json.gz with mapping", getTestResourcePath("dataset_gzip.json.gz"), 2, ingestionPropertiesWithColumnMapping, false)
+        new TestDataItem(
+            "json with mapping ref",
+            getTestResourcePath("dataset.json"),
+            2,
+            ingestionPropertiesWithMappingReference
+        ),
+        new TestDataItem(
+            "json.gz with mapping ref",
+            getTestResourcePath("dataset_gzip.json.gz"),
+            2,
+            ingestionPropertiesWithMappingReference
+        ),
+        new TestDataItem(
+            "json with mapping",
+            getTestResourcePath("dataset.json"),
+            2,
+            ingestionPropertiesWithColumnMapping,
+            false
+        ),
+        new TestDataItem(
+            "json.gz with mapping",
+            getTestResourcePath("dataset_gzip.json.gz"),
+            2,
+            ingestionPropertiesWithColumnMapping,
+            false
+        ),
     ];
 
     let currentCount = 0;
@@ -107,15 +140,18 @@ const main = (): void => {
             }
         });
 
-        before('SetUp', async () => {
+        before("SetUp", async () => {
             try {
                 await queryClient.execute(databaseName, `.create table ${tableName} ${tableColumns}`);
                 await queryClient.execute(databaseName, `.alter table ${tableName} policy streamingingestion enable`);
                 await queryClient.execute(databaseName, ".clear database cache streamingingestion schema");
 
-                console.log('Create table ingestion mapping')
+                console.log("Create table ingestion mapping");
                 try {
-                    await queryClient.execute(databaseName, `.create-or-alter table ${tableName} ingestion json mapping '${mappingName}' '${mapping}'`);
+                    await queryClient.execute(
+                        databaseName,
+                        `.create-or-alter table ${tableName} ingestion json mapping '${mappingName}' '${mapping}'`
+                    );
                 } catch (err) {
                     assert.fail("Failed to create table ingestion mapping, error: " + JSON.stringify(err));
                 }
@@ -124,20 +160,24 @@ const main = (): void => {
             }
         });
 
-        describe('cloud info', () => {
-            it('Cached cloud info', () => {
-                const cloudInfo = CloudSettings.getInstance().cloudCache[process.env.ENGINE_CONNECTION_STRING as string]; // it should be already in the cache at this point
-                assert.strictEqual(cloudInfo.KustoClientAppId, CloudSettings.getInstance().defaultCloudInfo.KustoClientAppId);
-            })
+        describe("cloud info", () => {
+            it("Cached cloud info", () => {
+                const cloudInfo =
+                    CloudSettings.getInstance().cloudCache[process.env.ENGINE_CONNECTION_STRING as string]; // it should be already in the cache at this point
+                assert.strictEqual(
+                    cloudInfo.KustoClientAppId,
+                    CloudSettings.getInstance().defaultCloudInfo.KustoClientAppId
+                );
+            });
 
-            it('cloud info 404', async () => {
+            it("cloud info 404", async () => {
                 const cloudInfo = await CloudSettings.getInstance().getCloudInfoForCluster("https://www.microsoft.com");
                 assert.strictEqual(cloudInfo, CloudSettings.getInstance().defaultCloudInfo);
-            })
+            });
         });
 
-        describe('ingestClient', () => {
-            it('ingestFromFile', async () => {
+        describe("ingestClient", () => {
+            it("ingestFromFile", async () => {
                 for (const item of testItems) {
                     try {
                         await ingestClient.ingestFromFile(item.path, item.ingestionProperties);
@@ -148,10 +188,10 @@ const main = (): void => {
                 }
             }).timeout(240000);
 
-            it('ingestFromStream', async () => {
+            it("ingestFromStream", async () => {
                 for (const item of testItems) {
                     let stream: ReadStream | StreamDescriptor = fs.createReadStream(item.path);
-                    if (item.path.endsWith('gz')) {
+                    if (item.path.endsWith("gz")) {
                         stream = new StreamDescriptor(stream, null, CompressionType.GZIP);
                     }
                     try {
@@ -164,9 +204,9 @@ const main = (): void => {
             }).timeout(240000);
         });
 
-        describe('StreamingIngestClient', () => {
-            it('ingestFromFile', async () => {
-                for (const item of testItems.filter(i => i.testOnstreamingIngestion)) {
+        describe("StreamingIngestClient", () => {
+            it("ingestFromFile", async () => {
+                for (const item of testItems.filter((i) => i.testOnstreamingIngestion)) {
                     try {
                         await streamingIngestClient.ingestFromFile(item.path, item.ingestionProperties);
                     } catch (err) {
@@ -176,10 +216,10 @@ const main = (): void => {
                 }
             }).timeout(240000);
 
-            it('ingestFromStream', async () => {
-                for (const item of testItems.filter(i => i.testOnstreamingIngestion)) {
+            it("ingestFromStream", async () => {
+                for (const item of testItems.filter((i) => i.testOnstreamingIngestion)) {
                     let stream: ReadStream | StreamDescriptor = fs.createReadStream(item.path);
-                    if (item.path.endsWith('gz')) {
+                    if (item.path.endsWith("gz")) {
                         stream = new StreamDescriptor(stream, null, CompressionType.GZIP);
                     }
                     try {
@@ -192,9 +232,9 @@ const main = (): void => {
             }).timeout(240000);
         });
 
-        describe('ManagedStreamingIngestClient', () => {
-            it('ingestFromFile', async () => {
-                for (const item of testItems.filter(i => i.testOnstreamingIngestion)) {
+        describe("ManagedStreamingIngestClient", () => {
+            it("ingestFromFile", async () => {
+                for (const item of testItems.filter((i) => i.testOnstreamingIngestion)) {
                     try {
                         await managedStreamingIngestClient.ingestFromFile(item.path, item.ingestionProperties);
                     } catch (err) {
@@ -203,10 +243,10 @@ const main = (): void => {
                     await assertRowsCount(item);
                 }
             }).timeout(240000);
-            it('ingestFromStream', async () => {
-                for (const item of testItems.filter(i => i.testOnstreamingIngestion)) {
+            it("ingestFromStream", async () => {
+                for (const item of testItems.filter((i) => i.testOnstreamingIngestion)) {
                     let stream: ReadStream | StreamDescriptor = fs.createReadStream(item.path);
-                    if (item.path.endsWith('gz')) {
+                    if (item.path.endsWith("gz")) {
                         stream = new StreamDescriptor(stream, null, CompressionType.GZIP);
                     }
                     try {
@@ -219,8 +259,8 @@ const main = (): void => {
             }).timeout(240000);
         });
 
-        describe('KustoIngestStatusQueues', () => {
-            it('CleanStatusQueues', async () => {
+        describe("KustoIngestStatusQueues", () => {
+            it("CleanStatusQueues", async () => {
                 try {
                     await cleanStatusQueues();
                 } catch (err) {
@@ -228,7 +268,7 @@ const main = (): void => {
                 }
             }).timeout(240000);
 
-            it('CheckSucceededIngestion', async () => {
+            it("CheckSucceededIngestion", async () => {
                 const item = testItems[0];
                 item.ingestionProperties.reportLevel = ReportLevel.FailuresAndSuccesses;
                 try {
@@ -241,7 +281,7 @@ const main = (): void => {
                 }
             }).timeout(240000);
 
-            it('CheckFailedIngestion', async () => {
+            it("CheckFailedIngestion", async () => {
                 const item = testItems[0];
                 item.ingestionProperties.reportLevel = ReportLevel.FailuresAndSuccesses;
                 item.ingestionProperties.database = "invalid";
@@ -256,8 +296,8 @@ const main = (): void => {
             }).timeout(240000);
         });
 
-        describe('QueryClient', () => {
-            it('General BadRequest', async () => {
+        describe("QueryClient", () => {
+            it("General BadRequest", async () => {
                 try {
                     await queryClient.executeQuery(databaseName, "invalidSyntax ");
                 } catch (ex) {
@@ -266,24 +306,22 @@ const main = (): void => {
                 assert.fail(`General BadRequest`);
             });
 
-            it('PartialQueryFailure', async () => {
+            it("PartialQueryFailure", async () => {
                 try {
                     await queryClient.executeQuery(databaseName, "invalidSyntax ");
-
                 } catch (ex) {
                     return;
                 }
                 assert.fail(`Didn't throw PartialQueryFailure`);
             });
 
-            it('executionTimeout', async () => {
+            it("executionTimeout", async () => {
                 try {
                     const properties = new ClientRequestProperties();
                     properties.setTimeout(10);
                     await queryClient.executeQuery(databaseName, `${tableName}`, properties);
-
                 } catch (ex: unknown) {
-                    assert.strictEqual((ex as { code: string }).code, 'Request execution timeout');
+                    assert.strictEqual((ex as { code: string }).code, "Request execution timeout");
                     return;
                 }
                 assert.fail(`Didn't throw executionTimeout`);
@@ -292,24 +330,24 @@ const main = (): void => {
     });
 
     const cleanStatusQueues = async () => {
-        while (!await statusQueues.failure.isEmpty()) {
+        while (!(await statusQueues.failure.isEmpty())) {
             await statusQueues.failure.pop();
         }
 
-        while (!await statusQueues.success.isEmpty()) {
+        while (!(await statusQueues.success.isEmpty())) {
             await statusQueues.success.pop();
         }
     };
 
     const waitForStatus = async () => {
-        while (await statusQueues.failure.isEmpty() && await statusQueues.success.isEmpty()) {
+        while ((await statusQueues.failure.isEmpty()) && (await statusQueues.success.isEmpty())) {
             await sleep(1000);
         }
 
         const failures = await statusQueues.failure.pop();
         const successes = await statusQueues.success.pop();
 
-        return { "SuccessCount": successes.length, "FailureCount": failures.length }
+        return { SuccessCount: successes.length, FailureCount: failures.length };
     };
 
     const assertRowsCount = async (testItem: TestDataItem) => {
@@ -324,7 +362,7 @@ const main = (): void => {
                 continue;
             }
 
-            const row = results.primaryResults[0].toJSON<{Count: number}>().data[0];
+            const row = results.primaryResults[0].toJSON<{ Count: number }>().data[0];
 
             count = row.Count - currentCount;
             if (count >= expected) {
@@ -333,7 +371,11 @@ const main = (): void => {
             await sleep(3000);
         }
         currentCount += count;
-        assert.strictEqual(count, expected, `Failed to ingest ${testItem.description} - '${count}' rows ingested, expected '${expected}'`);
+        assert.strictEqual(
+            count,
+            expected,
+            `Failed to ingest ${testItem.description} - '${count}' rows ingested, expected '${expected}'`
+        );
         console.log(`${testItem.description} - '${count}' rows ingested, expected '${expected}'`);
     };
 };

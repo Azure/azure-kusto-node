@@ -3,15 +3,18 @@
 
 /* eslint-disable max-classes-per-file -- We want all the Resources related classes in this file */
 
-
-import {Client} from "azure-kusto-data";
+import { Client } from "azure-kusto-data";
 import moment from "moment";
 
 const URI_FORMAT = /https:\/\/(\w+).(queue|blob|table).core.windows.net\/([\w,-]+)\?(.*)/;
 
 export class ResourceURI {
-    constructor(readonly storageAccountName: string, readonly objectType: string, readonly objectName: string, readonly sas: string) {
-    }
+    constructor(
+        readonly storageAccountName: string,
+        readonly objectType: string,
+        readonly objectName: string,
+        readonly sas: string
+    ) {}
 
     static fromURI(uri: string) {
         const match = URI_FORMAT.exec(uri);
@@ -29,7 +32,7 @@ export class ResourceURI {
             return `BlobEndpoint=https://${this.storageAccountName}.blob.core.windows.net/;SharedAccessSignature=${this.sas}`;
         }
 
-        throw new Error(`Can't make the current object type (${this.objectType}) to connection string`)
+        throw new Error(`Can't make the current object type (${this.objectType}) to connection string`);
     }
 }
 
@@ -39,15 +42,14 @@ export class IngestClientResources {
         readonly failedIngestionsQueues: ResourceURI[] | null = null,
         readonly successfulIngestionsQueues: ResourceURI[] | null = null,
         readonly containers: ResourceURI[] | null = null
-    ) {
-    }
+    ) {}
 
     valid() {
         const resources = [
             this.securedReadyForAggregationQueues,
             this.failedIngestionsQueues,
             this.failedIngestionsQueues,
-            this.containers
+            this.containers,
         ];
         return resources.reduce((prev, current) => !!(prev && current), true);
     }
@@ -72,10 +74,12 @@ export class ResourceManager {
 
     async refreshIngestClientResources(): Promise<IngestClientResources> {
         const now = moment();
-        if (!this.ingestClientResources ||
+        if (
+            !this.ingestClientResources ||
             !this.ingestClientResourcesLastUpdate ||
-            (this.ingestClientResourcesLastUpdate.add(this.refreshPeriod) <= now) ||
-            !this.ingestClientResources.valid()) {
+            this.ingestClientResourcesLastUpdate.add(this.refreshPeriod) <= now ||
+            !this.ingestClientResources.valid()
+        ) {
             this.ingestClientResources = await this.getIngestClientResourcesFromService();
             this.ingestClientResourcesLastUpdate = now;
         }
@@ -95,12 +99,12 @@ export class ResourceManager {
         );
     }
 
-    getResourceByName(table: { rows: () => any; }, resourceName: string): ResourceURI[] {
+    getResourceByName(table: { rows: () => any }, resourceName: string): ResourceURI[] {
         const result = [];
         for (const row of table.rows()) {
             const typedRow = row as {
-                ResourceTypeName: string,
-                StorageRoot: string
+                ResourceTypeName: string;
+                StorageRoot: string;
             };
             if (typedRow.ResourceTypeName === resourceName) {
                 result.push(ResourceURI.fromURI(typedRow.StorageRoot));
@@ -111,9 +115,11 @@ export class ResourceManager {
 
     async refreshAuthorizationContext(): Promise<string> {
         const now = moment.utc();
-        if (!this.authorizationContext?.trim() ||
+        if (
+            !this.authorizationContext?.trim() ||
             !this.authorizationContextLastUpdate ||
-            (this.authorizationContextLastUpdate.add(this.refreshPeriod)) <= now) {
+            this.authorizationContextLastUpdate.add(this.refreshPeriod) <= now
+        ) {
             this.authorizationContext = await this.getAuthorizationContextFromService();
             this.authorizationContextLastUpdate = now;
 
@@ -131,7 +137,7 @@ export class ResourceManager {
         if (next.done) {
             throw new Error("Failed to get authorization context - got empty results");
         }
-        return (next.value.toJSON<{ AuthorizationContext: string }>()).AuthorizationContext;
+        return next.value.toJSON<{ AuthorizationContext: string }>().AuthorizationContext;
     }
 
     async getIngestionQueues() {

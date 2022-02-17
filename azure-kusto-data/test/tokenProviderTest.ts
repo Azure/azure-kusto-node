@@ -2,13 +2,13 @@
 // Licensed under the MIT License.
 
 import { CloudSettings } from "../source/cloudSettings";
-import { UserPassTokenProvider } from "../source/tokenProvider"
+import { UserPassTokenProvider } from "../source/tokenProvider";
 import assert from "assert";
 
 describe("CloudInfo", () => {
     describe("#CloudInfo", () => {
         it("mfa off", async () => {
-            const fakeUri = "https://fakeurl_mfa.kusto.windows.net"
+            const fakeUri = "https://fakeurl_mfa.kusto.windows.net";
             CloudSettings.getInstance().cloudCache[fakeUri] = {
                 LoginEndpoint: process.env.AadAuthorityUri || "https://login.microsoftonline.com",
                 LoginMfaRequired: false,
@@ -18,11 +18,10 @@ describe("CloudInfo", () => {
                 FirstPartyAuthorityUrl: "https://login.microsoftonline.com/8cdef31-a31e-4b4a-93e4-5f571e91255a",
             };
 
-            const provider = new UserPassTokenProvider(fakeUri, "auth_test", "a", "b")
+            const provider = new UserPassTokenProvider(fakeUri, "auth_test", "a", "b");
             try {
                 await provider.acquireToken();
-            }
-            catch {
+            } catch {
                 // We should fail to acquire token but we want to validate the CloudSettings which acquireToken init
             }
 
@@ -30,7 +29,7 @@ describe("CloudInfo", () => {
         }).timeout(5000);
 
         it("mfa off", async () => {
-            const fakeUri2 = "https://fakeurl2.kusto.windows.net"
+            const fakeUri2 = "https://fakeurl2.kusto.windows.net";
             CloudSettings.getInstance().cloudCache[fakeUri2] = {
                 LoginEndpoint: process.env.AadAuthorityUri || "https://login.microsoftonline.com",
                 LoginMfaRequired: true,
@@ -40,11 +39,10 @@ describe("CloudInfo", () => {
                 FirstPartyAuthorityUrl: "https://login.microsoftonline.com/f8cdef31-a31e-4b4a-93e4-5f571e91255a",
             };
 
-            const provider = new UserPassTokenProvider(fakeUri2, "auth_test", "a", "b")
+            const provider = new UserPassTokenProvider(fakeUri2, "auth_test", "a", "b");
             try {
                 await provider.acquireToken();
-            }
-            catch {
+            } catch {
                 // We should fail to acquire token but we want to validate the CloudSettings which acquireToken init
             }
 

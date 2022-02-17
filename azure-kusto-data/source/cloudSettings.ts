@@ -3,12 +3,12 @@
 import axios from "axios";
 
 export type CloudInfo = {
-    LoginEndpoint: string,
-    LoginMfaRequired: boolean,
-    KustoClientAppId: string,
-    KustoClientRedirectUri: string,
-    KustoServiceResourceId: string,
-    FirstPartyAuthorityUrl: string,
+    LoginEndpoint: string;
+    LoginMfaRequired: boolean;
+    KustoClientAppId: string;
+    KustoClientRedirectUri: string;
+    KustoServiceResourceId: string;
+    FirstPartyAuthorityUrl: string;
 };
 
 /**
@@ -24,11 +24,10 @@ export class CloudSettings {
         KustoClientRedirectUri: "https://microsoft/kustoclient",
         KustoServiceResourceId: "https://kusto.kusto.windows.net",
         FirstPartyAuthorityUrl: "https://login.microsoftonline.com/f8cdef31-a31e-4b4a-93e4-5f571e91255a",
-    }
-    cloudCache: { [kustoUri: string]: CloudInfo } = {}
+    };
+    cloudCache: { [kustoUri: string]: CloudInfo } = {};
 
-    private constructor() { }
-
+    private constructor() {}
 
     static getInstance(): CloudSettings {
         if (!CloudSettings.instance) {
@@ -44,20 +43,17 @@ export class CloudSettings {
         }
 
         try {
-            const response = await axios.get<{AzureAD: CloudInfo | undefined}>(kustoUri + this.METADATA_ENDPOINT);
+            const response = await axios.get<{ AzureAD: CloudInfo | undefined }>(kustoUri + this.METADATA_ENDPOINT);
             if (response.status === 200) {
                 this.cloudCache[kustoUri] = response.data.AzureAD || this.defaultCloudInfo;
-            }
-            else {
+            } else {
                 throw new Error(`Kusto returned an invalid cloud metadata response - ${response}`);
             }
-        }
-        catch (ex) {
+        } catch (ex) {
             if (axios.isAxiosError(ex) && ex.response?.status === 404) {
                 // For now as long not all proxies implement the metadata endpoint, if no endpoint exists return public cloud data
                 this.cloudCache[kustoUri] = this.defaultCloudInfo;
-            }
-            else {
+            } else {
                 throw new Error(`Failed to get cloud info for cluster ${kustoUri} - ${ex}`);
             }
         }
@@ -65,6 +61,6 @@ export class CloudSettings {
     }
 
     static getAuthorityUri(cloudInfo: CloudInfo, authorityId?: string): string {
-        return cloudInfo.LoginEndpoint + "/" + (authorityId || "organizations")
+        return cloudInfo.LoginEndpoint + "/" + (authorityId || "organizations");
     }
 }

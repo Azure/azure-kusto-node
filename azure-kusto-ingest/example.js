@@ -5,10 +5,17 @@ const IngestClient = require("azure-kusto-ingest").IngestClient;
 const IngestStatusQueues = require("azure-kusto-ingest").IngestStatusQueues;
 const IngestionProps = require("azure-kusto-ingest").IngestionProperties;
 const KustoConnectionStringBuilder = require("azure-kusto-data").KustoConnectionStringBuilder;
-const { DataFormat, JsonColumnMapping, IngestionMappingKind, CompressionType, ReportLevel, ReportMethod  } = require("azure-kusto-ingest");
+const {
+    DataFormat,
+    JsonColumnMapping,
+    IngestionMappingKind,
+    CompressionType,
+    ReportLevel,
+    ReportMethod,
+} = require("azure-kusto-ingest");
 const { BlobDescriptor, StreamDescriptor } = require("azure-kusto-ingest").IngestionDescriptors;
 const StreamingIngestClient = require("azure-kusto-ingest").StreamingIngestClient;
-const fs = require('fs');
+const fs = require("fs");
 
 const clusterName = null;
 const appId = null;
@@ -22,17 +29,19 @@ const props = new IngestionProps({
     ingestionMapping: [
         new JsonColumnMapping("TargetColumn1", "$.sourceProp1"),
         new JsonColumnMapping("TargetColumn2", "$.sourceProp2"),
-        new JsonColumnMapping("TargetColumn3", "$.sourceProp3")
+        new JsonColumnMapping("TargetColumn3", "$.sourceProp3"),
     ],
     ingestionMappingType: IngestionMappingKind.JSON,
     reportLevel: ReportLevel.FailuresAndSuccesses,
-    reportMethod: ReportMethod.Queue
-
+    reportMethod: ReportMethod.Queue,
 });
 
 const ingestClient = new IngestClient(
     KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(
-        `https://ingest-${clusterName}.kusto.windows.net`, appId, appKey, authorityId
+        `https://ingest-${clusterName}.kusto.windows.net`,
+        appId,
+        appKey,
+        authorityId
     ),
     props
 );
@@ -46,13 +55,16 @@ const props2 = new IngestionProps({
     database: "Database",
     table: "Table",
     format: DataFormat.JSON,
-    ingestionMappingReference: "Pre-defined mapping name"
+    ingestionMappingReference: "Pre-defined mapping name",
 });
 
 // Init with engine endpoint
 const streamingIngestClient = new StreamingIngestClient(
     KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(
-        `https://${clusterName}.kusto.windows.net`, appId, appKey, authorityId
+        `https://${clusterName}.kusto.windows.net`,
+        appId,
+        appKey,
+        authorityId
     ),
     props2
 );
@@ -66,24 +78,27 @@ async function startIngestion() {
         console.log("Ingestion done?");
 
         await waitForStatus();
-    }
-    catch (err) {
+    } catch (err) {
         console.log(err);
     }
 
     try {
-        await ingestClient.ingestFromBlob(new BlobDescriptor("https://<account>.blob.core.windows.net/<container>/file.json.gz", 1024 * 50 /* 50MB file */));
+        await ingestClient.ingestFromBlob(
+            new BlobDescriptor(
+                "https://<account>.blob.core.windows.net/<container>/file.json.gz",
+                1024 * 50 /* 50MB file */
+            )
+        );
         console.log("Ingestion done?");
 
         await waitForStatus();
-    }
-    catch (err) {
+    } catch (err) {
         console.log(err);
     }
 }
 
 async function waitForStatus(numberOFIngestions = 1) {
-    while (await statusQueues.failure.isEmpty() && await statusQueues.success.isEmpty()) {
+    while ((await statusQueues.failure.isEmpty()) && (await statusQueues.success.isEmpty())) {
         console.log("Waiting for status...");
         await sleep(1000);
     }
@@ -99,17 +114,17 @@ async function waitForStatus(numberOFIngestions = 1) {
 }
 
 function sleep(ms) {
-    return new Promise((resolve) => { setTimeout(resolve, ms); });
+    return new Promise((resolve) => {
+        setTimeout(resolve, ms);
+    });
 }
 
 async function startStreamingIngestion() {
-
     // Ingest from file with either file path or FileDescriptor
     try {
         await streamingIngestClient.ingestFromFile("file.json", props2);
         console.log("Ingestion done");
-    }
-    catch (err) {
+    } catch (err) {
         console.log(err);
     }
 
@@ -118,8 +133,7 @@ async function startStreamingIngestion() {
     try {
         await streamingIngestClient.ingestFromStream(stream, props2);
         console.log("Ingestion done");
-    }
-    catch (err) {
+    } catch (err) {
         console.log(err);
     }
 
@@ -129,8 +143,7 @@ async function startStreamingIngestion() {
     try {
         await streamingIngestClient.ingestFromStream(streamDescriptor, props2);
         console.log("Ingestion done");
-    }
-    catch (err) {
+    } catch (err) {
         console.log(err);
     }
 }

@@ -3,9 +3,9 @@
 
 /* eslint-disable max-classes-per-file -- We want all the Status related classes in this file */
 
-import {StatusQueue} from "./statusQ";
+import { StatusQueue } from "./statusQ";
 import KustoIngestClient from "./ingestClient";
-import {ResourceURI} from "./resourceManager";
+import { ResourceURI } from "./resourceManager";
 
 export class StatusMessage {
     OperationId?: string;
@@ -15,11 +15,15 @@ export class StatusMessage {
     IngestionSourcePath?: string;
     RootActivityId?: string;
 
-    [other: string] : any;
+    [other: string]: any;
     constructor(raw: any, obj: any, extraProps: string[] | null) {
-        let props : string[] = [
-            "OperationId", "Database", "Table",
-            "IngestionSourceId", "IngestionSourcePath", "RootActivityId"
+        let props: string[] = [
+            "OperationId",
+            "Database",
+            "Table",
+            "IngestionSourceId",
+            "IngestionSourcePath",
+            "RootActivityId",
         ];
 
         if (extraProps && extraProps.length > 0) {
@@ -34,25 +38,21 @@ export class StatusMessage {
     }
 }
 
-
 class SuccessMessage extends StatusMessage {
     SucceededOn?: string;
 
     constructor(raw: any, obj: any) {
-        super(raw, obj, [
-            "SucceededOn"
-        ]);
+        super(raw, obj, ["SucceededOn"]);
     }
 }
 
-
 class FailureMessage extends StatusMessage {
-    FailedOn? : string;
-    Details? : string;
-    ErrorCode? : string;
-    FailureStatus? : string;
-    OriginatesFromUpdatePolicy? : string;
-    ShouldRetry? : string;
+    FailedOn?: string;
+    Details?: string;
+    ErrorCode?: string;
+    FailureStatus?: string;
+    OriginatesFromUpdatePolicy?: string;
+    ShouldRetry?: string;
     constructor(raw: any, obj: any) {
         super(raw, obj, [
             "FailedOn",
@@ -60,22 +60,21 @@ class FailureMessage extends StatusMessage {
             "ErrorCode",
             "FailureStatus",
             "OriginatesFromUpdatePolicy",
-            "ShouldRetry"
+            "ShouldRetry",
         ]);
     }
 }
-
 
 export class KustoIngestStatusQueues {
     success: StatusQueue;
     failure: StatusQueue;
     constructor(kustoIngestClient: KustoIngestClient) {
         this.success = new StatusQueue(
-            () => kustoIngestClient.resourceManager.getSuccessfulIngestionsQueues().then(r => r as ResourceURI[]),
+            () => kustoIngestClient.resourceManager.getSuccessfulIngestionsQueues().then((r) => r as ResourceURI[]),
             SuccessMessage
         );
         this.failure = new StatusQueue(
-            () => kustoIngestClient.resourceManager.getFailedIngestionsQueues().then(r => r as ResourceURI[]),
+            () => kustoIngestClient.resourceManager.getFailedIngestionsQueues().then((r) => r as ResourceURI[]),
             FailureMessage
         );
     }

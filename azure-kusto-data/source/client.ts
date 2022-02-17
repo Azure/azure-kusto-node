@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import moment from "moment";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 import AadHelper from "./security";
 import { KustoResponseDataSet, KustoResponseDataSetV1, KustoResponseDataSetV2, V1, V2Frames } from "./response";
 import ConnectionStringBuilder from "./connectionBuilder";
@@ -27,13 +27,13 @@ enum ExecutionType {
 export class KustoClient {
     connectionString: ConnectionStringBuilder;
     cluster: string;
-    endpoints: { [key in ExecutionType] : string; };
+    endpoints: { [key in ExecutionType]: string };
     aadHelper: AadHelper;
     axiosInstance: AxiosInstance;
 
     constructor(kcsb: string | ConnectionStringBuilder) {
-        this.connectionString = typeof (kcsb) === "string" ? new ConnectionStringBuilder(kcsb) : kcsb;
-        this.cluster = (this.connectionString.dataSource as string);
+        this.connectionString = typeof kcsb === "string" ? new ConnectionStringBuilder(kcsb) : kcsb;
+        this.cluster = this.connectionString.dataSource as string;
         this.endpoints = {
             [ExecutionType.Mgmt]: `${this.cluster}/v1/rest/mgmt`,
             [ExecutionType.Query]: `${this.cluster}/v2/rest/query`,
@@ -42,10 +42,10 @@ export class KustoClient {
         };
         this.aadHelper = new AadHelper(this.connectionString);
         const headers = {
-            "Accept": "application/json",
+            Accept: "application/json",
             "Accept-Encoding": "gzip,deflate",
             "x-ms-client-version": `Kusto.Node.Client:${pkg.version}`,
-            "Connection": "Keep-Alive",
+            Connection: "Keep-Alive",
         };
         this.axiosInstance = axios.create({
             headers,
@@ -54,7 +54,7 @@ export class KustoClient {
             // keepAlive pools and reuses TCP connections, so it's faster
             httpAgent: new http.Agent({ keepAlive: true }),
             httpsAgent: new https.Agent({ keepAlive: true }),
-        })
+        });
     }
 
     async execute(db: string, query: string, properties?: ClientRequestProperties) {
@@ -78,14 +78,21 @@ export class KustoClient {
         return this._execute(this.endpoints[ExecutionType.Mgmt], ExecutionType.Mgmt, db, query, null, properties);
     }
 
-    async executeStreamingIngest(db: string, table: string, stream: any, streamFormat: any, mappingName: string | null, clientRequestId?: string): Promise<KustoResponseDataSet> {
+    async executeStreamingIngest(
+        db: string,
+        table: string,
+        stream: any,
+        streamFormat: any,
+        mappingName: string | null,
+        clientRequestId?: string
+    ): Promise<KustoResponseDataSet> {
         let endpoint = `${this.endpoints[ExecutionType.Ingest]}/${db}/${table}?streamFormat=${streamFormat}`;
         if (mappingName != null) {
             endpoint += `&mappingName=${mappingName}`;
         }
         let properties: ClientRequestProperties | null = null;
         if (clientRequestId) {
-            properties = new ClientRequestProperties()
+            properties = new ClientRequestProperties();
             properties.clientRequestId = clientRequestId;
         }
         return this._execute(endpoint, ExecutionType.Ingest, db, null, stream, properties);
@@ -97,10 +104,11 @@ export class KustoClient {
         db: string,
         query: string | null,
         stream: any,
-        properties?: ClientRequestProperties | null): Promise<KustoResponseDataSet> {
+        properties?: ClientRequestProperties | null
+    ): Promise<KustoResponseDataSet> {
         const headers: { [header: string]: string } = {};
 
-        let payload: { db: string, csl: string, properties?: any };
+        let payload: { db: string; csl: string; properties?: any };
         let clientRequestPrefix = "";
         let clientRequestId;
 
@@ -109,7 +117,7 @@ export class KustoClient {
         if (query != null) {
             payload = {
                 db,
-                "csl": query
+                csl: query,
             };
 
             if (properties != null) {
@@ -149,12 +157,14 @@ export class KustoClient {
         return this._doRequest(endpoint, executionType, headers, payloadContent, timeout, properties);
     }
 
-    async _doRequest(endpoint: string,
-                     executionType: ExecutionType,
-                     headers: { [header: string]: string; },
-                     payload: any,
-                     timeout: number,
-                     properties?: ClientRequestProperties | null): Promise<KustoResponseDataSet> {
+    async _doRequest(
+        endpoint: string,
+        executionType: ExecutionType,
+        headers: { [header: string]: string },
+        payload: any,
+        timeout: number,
+        properties?: ClientRequestProperties | null
+    ): Promise<KustoResponseDataSet> {
         const axiosConfig = {
             headers,
             timeout,
@@ -174,8 +184,13 @@ export class KustoClient {
         return this._parseResponse(axiosResponse.data, executionType, properties, axiosResponse.status);
     }
 
-    _parseResponse(response: any, executionType: ExecutionType, properties?: ClientRequestProperties | null, status?: number) : KustoResponseDataSet {
-        const {raw} = properties || {};
+    _parseResponse(
+        response: any,
+        executionType: ExecutionType,
+        properties?: ClientRequestProperties | null,
+        status?: number
+    ): KustoResponseDataSet {
+        const { raw } = properties || {};
         if (raw === true || executionType === ExecutionType.Ingest) {
             return response;
         }
@@ -209,7 +224,9 @@ export class KustoClient {
             }
         }
 
-        return (executionType === ExecutionType.Query ||  executionType === ExecutionType.QueryV1) ? QUERY_TIMEOUT_IN_MILLISECS : COMMAND_TIMEOUT_IN_MILLISECS;
+        return executionType === ExecutionType.Query || executionType === ExecutionType.QueryV1
+            ? QUERY_TIMEOUT_IN_MILLISECS
+            : COMMAND_TIMEOUT_IN_MILLISECS;
     }
 }
 

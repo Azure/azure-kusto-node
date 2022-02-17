@@ -8,11 +8,7 @@
                     "DataType": "Int64"
                 }
             ],
-            "Rows": [
-                [
-                    0
-                ]
-            ]
+            "Rows": [[0]]
         },
         {
             "TableName": "Table_1",
@@ -124,27 +120,9 @@
                 }
             ],
             "Rows": [
-                [
-                    0,
-                    "QueryResult",
-                    "PrimaryResult",
-                    "905602e5-348f-445d-905e-89cd2421bf03",
-                    ""
-                ],
-                [
-                    1,
-                    "QueryProperties",
-                    "@ExtendedProperties",
-                    "72a756cf-ccc6-4eb6-94d8-b8f3856b63f5",
-                    ""
-                ],
-                [
-                    2,
-                    "QueryStatus",
-                    "QueryStatus",
-                    "00000000-0000-0000-0000-000000000000",
-                    ""
-                ]
+                [0, "QueryResult", "PrimaryResult", "905602e5-348f-445d-905e-89cd2421bf03", ""],
+                [1, "QueryProperties", "@ExtendedProperties", "72a756cf-ccc6-4eb6-94d8-b8f3856b63f5", ""],
+                [2, "QueryStatus", "QueryStatus", "00000000-0000-0000-0000-000000000000", ""]
             ]
         }
     ]

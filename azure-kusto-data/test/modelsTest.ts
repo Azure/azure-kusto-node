@@ -3,7 +3,7 @@
 
 import assert from "assert";
 import moment from "moment";
-import {KustoResultColumn, KustoResultRow, KustoResultTable} from "../source/models";
+import { KustoResultColumn, KustoResultRow, KustoResultTable } from "../source/models";
 import v2 from "./data/response/v2";
 
 const v2Response = v2;
@@ -12,42 +12,35 @@ describe("KustoResultRow", () => {
     describe("#constructor()", () => {
         const rawColumns = [
             {
-                "ColumnName": "Timestamp",
-                "ColumnType": "datetime"
+                ColumnName: "Timestamp",
+                ColumnType: "datetime",
             },
             {
-                "ColumnName": "Name",
-                "ColumnType": "string"
+                ColumnName: "Name",
+                ColumnType: "string",
             },
             {
-                "ColumnName": "Altitude",
-                "ColumnType": "long"
+                ColumnName: "Altitude",
+                ColumnType: "long",
             },
             {
-                "ColumnName": "Temperature",
-                "ColumnType": "real"
+                ColumnName: "Temperature",
+                ColumnType: "real",
             },
             {
-                "ColumnName": "IsFlying",
-                "ColumnType": "bool"
+                ColumnName: "IsFlying",
+                ColumnType: "bool",
             },
             {
-                "ColumnName": "TimeFlying",
-                "ColumnType": "timespan"
-            }
+                ColumnName: "TimeFlying",
+                ColumnType: "timespan",
+            },
         ];
 
         const inputColumns = rawColumns.map((c, i) => new KustoResultColumn(c, i));
 
         it("initialize properly", () => {
-            const inputValues = [
-                "2016-06-06T15:35:00Z",
-                "foo",
-                101,
-                3.14,
-                false,
-                3493235670000
-            ];
+            const inputValues = ["2016-06-06T15:35:00Z", "foo", 101, 3.14, false, 3493235670000];
 
             const actual = new KustoResultRow(inputColumns, inputValues);
 
@@ -55,14 +48,7 @@ describe("KustoResultRow", () => {
         });
 
         it("column ordinal affects order", () => {
-            const inputValues = [
-                "2016-06-06T15:35:00Z",
-                "foo",
-                101,
-                3.14,
-                false,
-                3493235670000
-            ];
+            const inputValues = ["2016-06-06T15:35:00Z", "foo", 101, 3.14, false, 3493235670000];
 
             const reverseOrderColumns = rawColumns.slice().reverse();
             const actual = new KustoResultRow(
@@ -84,25 +70,16 @@ describe("KustoResultRow", () => {
                 const currentActual = asJson[inputColumns[index].name as string];
                 if (inputColumns[index].type === "timespan") {
                     assert.strictEqual(Number(currentActual), Number(expectedValues[index]));
-                }
-                else if (typeof(currentActual) === "object") {
+                } else if (typeof currentActual === "object") {
                     assert.strictEqual((currentActual as object).toString(), expectedValues[index].toString());
                 } else {
                     assert.strictEqual(currentActual, expectedValues[index]);
                 }
             }
-
         });
 
         it("custom parsers", () => {
-            const inputValues = [
-                "2016-06-06T15:35:00Z",
-                "foo",
-                101,
-                3.14,
-                false,
-                3493235670000
-            ];
+            const inputValues = ["2016-06-06T15:35:00Z", "foo", 101, 3.14, false, 3493235670000];
 
             const reverseOrderColumns = rawColumns.slice().reverse();
             const actual = new KustoResultRow(
@@ -126,25 +103,16 @@ describe("KustoResultRow", () => {
                 const currentActual = asJson[inputColumns[index].name as string];
                 if (inputColumns[index].type === "timespan") {
                     assert.strictEqual(Number(currentActual), Number(expectedValues[index]));
-                }
-                else if (typeof(currentActual) === "object") {
+                } else if (typeof currentActual === "object") {
                     assert.strictEqual((currentActual as object).toString(), expectedValues[index].toString());
                 } else {
                     assert.strictEqual(currentActual, expectedValues[index]);
                 }
             }
-
         });
 
         it("mismatching data - less data than columns", () => {
-            const inputValues = [
-                "2016-06-06T15:35:00Z",
-                "foo",
-                101,
-                3.14,
-                false,
-                3493235670000
-            ];
+            const inputValues = ["2016-06-06T15:35:00Z", "foo", 101, 3.14, false, 3493235670000];
 
             const actual = new KustoResultRow(inputColumns, inputValues);
 
@@ -152,30 +120,15 @@ describe("KustoResultRow", () => {
         });
 
         it("mismatching data - less columns than data ", () => {
-            const inputValues = [
-                "2016-06-06T15:35:00Z",
-                "foo",
-                101,
-                3.14,
-                false,
-                3493235670000
-            ];
+            const inputValues = ["2016-06-06T15:35:00Z", "foo", 101, 3.14, false, 3493235670000];
 
             const actual = new KustoResultRow(inputColumns, inputValues);
 
             assert.strictEqual(actual.columns.length, inputColumns.length);
         });
 
-
         it("mismatching data - type mismatch ", () => {
-            const inputValues = [
-                "2016-06-06T15:35:00Z",
-                "foo",
-                101,
-                3.14,
-                false,
-                3493235670000
-            ];
+            const inputValues = ["2016-06-06T15:35:00Z", "foo", 101, 3.14, false, 3493235670000];
 
             const actual = new KustoResultRow(inputColumns, inputValues);
 
@@ -183,14 +136,7 @@ describe("KustoResultRow", () => {
         });
 
         it("iterate data", () => {
-            const inputValues = [
-                "2016-06-06T15:35:00Z",
-                "foo",
-                101,
-                3.14,
-                false,
-                3493235670000
-            ];
+            const inputValues = ["2016-06-06T15:35:00Z", "foo", 101, 3.14, false, 3493235670000];
 
             const actual = new KustoResultRow(inputColumns, inputValues);
 
@@ -208,14 +154,7 @@ describe("KustoResultRow", () => {
         });
 
         it("mapped props", () => {
-            const inputValues = [
-                "2016-06-06T15:35:00Z",
-                "foo",
-                101,
-                3.14,
-                false,
-                3493235670000
-            ];
+            const inputValues = ["2016-06-06T15:35:00Z", "foo", 101, 3.14, false, 3493235670000];
 
             const expectedValues = [
                 moment("2016-06-06T15:35:00Z"),
@@ -223,16 +162,16 @@ describe("KustoResultRow", () => {
                 101,
                 3.14,
                 false,
-                moment.duration(3493235670000, "ms")
+                moment.duration(3493235670000, "ms"),
             ];
 
             const actual = new KustoResultRow(inputColumns, inputValues).toJSON<{
-                Timestamp: number,
-                Name: string,
-                Altitude: number,
-                Temperature: number,
-                IsFlying: boolean,
-                TimeFlying: moment.Duration
+                Timestamp: number;
+                Name: string;
+                Altitude: number;
+                Temperature: number;
+                IsFlying: boolean;
+                TimeFlying: moment.Duration;
             }>();
 
             assert.strictEqual(actual.Timestamp.toString(), expectedValues[0].toString());
@@ -244,14 +183,7 @@ describe("KustoResultRow", () => {
         });
 
         it("value at", () => {
-            const inputValues = [
-                "2016-06-06T15:35:00Z",
-                "foo",
-                101,
-                3.14,
-                false,
-                3493235670000
-            ];
+            const inputValues = ["2016-06-06T15:35:00Z", "foo", 101, 3.14, false, 3493235670000];
 
             const expectedValues = [
                 moment("2016-06-06T15:35:00Z"),
@@ -259,49 +191,47 @@ describe("KustoResultRow", () => {
                 101,
                 3.14,
                 false,
-                moment.duration(3493235670000, "ms")
+                moment.duration(3493235670000, "ms"),
             ];
 
             const actual = new KustoResultRow(inputColumns, inputValues);
 
             for (let i = 0; i < inputValues.length; i++) {
-                if (typeof (expectedValues[i]) === "object") {
+                if (typeof expectedValues[i] === "object") {
                     assert.strictEqual(JSON.stringify(actual.getValueAt(i)), JSON.stringify(expectedValues[i]));
                 } else {
                     assert.strictEqual(actual.getValueAt(i), expectedValues[i]);
                 }
             }
         });
-
     });
 });
-
 
 describe("KustoResultColumn", () => {
     describe("#constructor()", () => {
         const rawColumns = [
             {
-                "ColumnName": "Timestamp",
-                "ColumnType": "datetime"
+                ColumnName: "Timestamp",
+                ColumnType: "datetime",
             },
             {
-                "ColumnName": "Name",
-                "ColumnType": "string"
+                ColumnName: "Name",
+                ColumnType: "string",
             },
             {
-                "ColumnName": "Altitude",
+                ColumnName: "Altitude",
             },
             {
-                "ColumnType": "real"
+                ColumnType: "real",
             },
             {
-                "ColumnName": "IsFlying",
-                "ColumnType": "bool"
+                ColumnName: "IsFlying",
+                ColumnType: "bool",
             },
             {
-                "ColumnName": "TimeFlying",
-                "ColumnType": "timespan"
-            }
+                ColumnName: "TimeFlying",
+                ColumnType: "timespan",
+            },
         ];
 
         it("valid input", () => {
@@ -317,11 +247,8 @@ describe("KustoResultColumn", () => {
             assert.strictEqual(actualMissingName.name, null);
             assert.strictEqual(actualMissingType.type, null);
         });
-
-
     });
 });
-
 
 describe("KustoResultTable", () => {
     describe("#constructor()", () => {
@@ -337,17 +264,15 @@ describe("KustoResultTable", () => {
             const rows = [];
             for (const row of actual.rows()) {
                 rows.push(row);
-                assert.strictEqual(
-                    JSON.stringify(row),
-                    JSON.stringify(new KustoResultRow(row.columns, row.raw)));
+                assert.strictEqual(JSON.stringify(row), JSON.stringify(new KustoResultRow(row.columns, row.raw)));
             }
 
             assert.strictEqual(rows.length, 3);
         });
         it("iterate over rows with custom parsers", () => {
             const actual = new KustoResultTable(v2Response[2]);
-            const dateParser =(t: string) => t + "-date";
-            const timeParser =(t: number) => t + 5;
+            const dateParser = (t: string) => t + "-date";
+            const timeParser = (t: number) => t + 5;
             actual.dateTimeParser = dateParser;
             actual.timeSpanParser = timeParser;
 
@@ -356,7 +281,8 @@ describe("KustoResultTable", () => {
                 rows.push(row);
                 assert.strictEqual(
                     JSON.stringify(row),
-                    JSON.stringify(new KustoResultRow(row.columns, row.raw, dateParser, timeParser)));
+                    JSON.stringify(new KustoResultRow(row.columns, row.raw, dateParser, timeParser))
+                );
             }
 
             assert.strictEqual(rows.length, 3);

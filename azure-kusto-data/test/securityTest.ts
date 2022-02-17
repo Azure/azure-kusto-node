@@ -10,10 +10,10 @@ import { KustoAuthenticationError } from "../source/errors";
 import { CredentialUnavailableError } from "@azure/identity";
 import { loginTest, manualLoginTest } from "./data/testUtils";
 
-
 describe("test errors", () => {
     before(() => {
-        CloudSettings.getInstance().cloudCache["https://somecluster.kusto.windows.net"] = CloudSettings.getInstance().defaultCloudInfo;
+        CloudSettings.getInstance().cloudCache["https://somecluster.kusto.windows.net"] =
+            CloudSettings.getInstance().defaultCloudInfo;
     });
 
     it("no data source", () => {
@@ -26,7 +26,12 @@ describe("test errors", () => {
     it("test user pass", async () => {
         const cluster = "https://somecluster.kusto.windows.net";
         const username = "username@microsoft.com";
-        const kcsb = KustoConnectionStringBuilder.withAadUserPasswordAuthentication(cluster, username, "password", "organizations");
+        const kcsb = KustoConnectionStringBuilder.withAadUserPasswordAuthentication(
+            cluster,
+            username,
+            "password",
+            "organizations"
+        );
 
         const helper = new AadHelper(kcsb);
         try {
@@ -35,7 +40,7 @@ describe("test errors", () => {
         } catch (e: unknown) {
             assert.ok(e instanceof KustoAuthenticationError);
             assert.ok(e.inner instanceof ServerError);
-            assert.strictEqual(e.tokenProviderName, "UserPassTokenProvider")
+            assert.strictEqual(e.tokenProviderName, "UserPassTokenProvider");
             assert.strictEqual(e.context.userName, username);
         }
     }).timeout(10000);
@@ -44,7 +49,12 @@ describe("test errors", () => {
         const cluster = "https://somecluster.kusto.windows.net";
         const appId = "86f7361f-15b7-4f10-aef5-3ce66ac73766";
         const key = "private_key";
-        const kcsb = KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(cluster, appId, key, "organizations");
+        const kcsb = KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(
+            cluster,
+            appId,
+            key,
+            "organizations"
+        );
 
         const helper = new AadHelper(kcsb);
         try {
@@ -53,7 +63,7 @@ describe("test errors", () => {
         } catch (e: unknown) {
             assert.ok(e instanceof KustoAuthenticationError);
             assert.ok(e.inner instanceof ServerError);
-            assert.strictEqual(e.tokenProviderName, "ApplicationKeyTokenProvider")
+            assert.strictEqual(e.tokenProviderName, "ApplicationKeyTokenProvider");
             assert.strictEqual(e.context.clientId, appId);
         }
     }).timeout(10000);
@@ -62,7 +72,8 @@ describe("test errors", () => {
         const cluster = "https://somecluster.kusto.windows.net";
         const appId = "86f7361f-15b7-4f10-aef5-3ce66ac73766";
         const thumb = "thumb";
-        const privateKey = "-----BEGIN RSA PRIVATE KEY-----\n" +
+        const privateKey =
+            "-----BEGIN RSA PRIVATE KEY-----\n" +
             "MIICXAIBAAKBgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4eCZ0FPqri0cb2JZfXJ/DgYSF6vUp\n" +
             "wmJG8wVQZKjeGcjDOL5UlsuusFncCzWBQ7RKNUSesmQRMSGkVb1/3j+skZ6UtW+5u09lHNsj6tQ5\n" +
             "1s1SPrCBkedbNf0Tp0GbMJDyR4e9T04ZZwIDAQABAoGAFijko56+qGyN8M0RVyaRAXz++xTqHBLh\n" +
@@ -75,7 +86,13 @@ describe("test errors", () => {
             "U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ\n" +
             "37sJ5QsW+sJyoNde3xH8vdXhzU7eT82D6X/scw9RZz+/6rCJ4p0=\n" +
             "-----END RSA PRIVATE KEY-----";
-        const kcsb = KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(cluster, appId, privateKey, thumb, "organizations");
+        const kcsb = KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(
+            cluster,
+            appId,
+            privateKey,
+            thumb,
+            "organizations"
+        );
 
         const helper = new AadHelper(kcsb);
         try {
@@ -84,7 +101,7 @@ describe("test errors", () => {
         } catch (e: unknown) {
             assert.ok(e instanceof KustoAuthenticationError);
             assert.ok(e.inner instanceof ServerError);
-            assert.strictEqual(e.tokenProviderName, "ApplicationCertificateTokenProvider")
+            assert.strictEqual(e.tokenProviderName, "ApplicationCertificateTokenProvider");
             assert.strictEqual(e.context.clientId, appId);
             assert.strictEqual(e.context.thumbprint, thumb);
         }
@@ -94,9 +111,13 @@ describe("test errors", () => {
         const kcsb = new KustoConnectionStringBuilder("https://somecluster.kusto.windows.net");
         kcsb.aadFederatedSecurity = true;
         kcsb.authorityId = "common";
-        kcsb.useDeviceCodeAuth = true
+        kcsb.useDeviceCodeAuth = true;
 
-        assert.throws(() => new AadHelper(kcsb), KustoAuthenticationError, "Device code authentication is not supported without a function");
+        assert.throws(
+            () => new AadHelper(kcsb),
+            KustoAuthenticationError,
+            "Device code authentication is not supported without a function"
+        );
     });
 
     it("test msi", async () => {
@@ -111,7 +132,7 @@ describe("test errors", () => {
         } catch (e: unknown) {
             assert.ok(e instanceof KustoAuthenticationError);
             assert.ok(e.inner instanceof CredentialUnavailableError);
-            assert.strictEqual(e.tokenProviderName, "MsiTokenProvider")
+            assert.strictEqual(e.tokenProviderName, "MsiTokenProvider");
             assert.strictEqual(e.context.clientId, clientId);
         }
     }).timeout(10000);
@@ -119,7 +140,8 @@ describe("test errors", () => {
 
 describe("Test providers", () => {
     before(() => {
-        CloudSettings.getInstance().cloudCache["https://somecluster.kusto.windows.net"] = CloudSettings.getInstance().defaultCloudInfo;
+        CloudSettings.getInstance().cloudCache["https://somecluster.kusto.windows.net"] =
+            CloudSettings.getInstance().defaultCloudInfo;
     });
 
     it("test null", async () => {
@@ -149,13 +171,17 @@ describe("Test providers", () => {
         assert.strictEqual(token, "Bearer somekey");
     });
 
-    loginTest("APP_ID", "TENANT_ID", "APP_KEY")("test app key token provider", async () => {
+    loginTest(
+        "APP_ID",
+        "TENANT_ID",
+        "APP_KEY"
+    )("test app key token provider", async () => {
         const cluster = "https://somecluster.kusto.windows.net";
         const kcsb = KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(
             cluster,
             process.env.APP_ID!,
             process.env.APP_KEY!,
-            process.env.TENANT_ID!,
+            process.env.TENANT_ID!
         );
 
         const helper = new AadHelper(kcsb);
@@ -163,7 +189,13 @@ describe("Test providers", () => {
         assert.notStrictEqual(token, null);
     }).timeout(10000);
 
-    manualLoginTest("APP_ID", "TENANT_ID", "CERT_THUMBPRINT", "CERT_PUBLIC", "CERT_PEM")("test app certificate token provider", async () => {
+    manualLoginTest(
+        "APP_ID",
+        "TENANT_ID",
+        "CERT_THUMBPRINT",
+        "CERT_PUBLIC",
+        "CERT_PEM"
+    )("test app certificate token provider", async () => {
         const cluster = "https://somecluster.kusto.windows.net";
         const kcsb = KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(
             cluster,
@@ -178,13 +210,17 @@ describe("Test providers", () => {
         assert.notStrictEqual(token, null);
     }).timeout(10000);
 
-    manualLoginTest("APP_ID", "USER_NAME", "USER_PASS")("test user pass provider", async () => {
+    manualLoginTest(
+        "APP_ID",
+        "USER_NAME",
+        "USER_PASS"
+    )("test user pass provider", async () => {
         const cluster = "https://somecluster.kusto.windows.net";
         const kcsb = KustoConnectionStringBuilder.withAadUserPasswordAuthentication(
             cluster,
             process.env.USER_NAME!,
             process.env.USER_PASS!,
-            process.env.TENANT_ID!,
+            process.env.TENANT_ID!
         );
 
         const helper = new AadHelper(kcsb);
@@ -225,7 +261,7 @@ describe("Test providers", () => {
     manualLoginTest("TEST_MSI")("test msi", async () => {
         const cluster = "https://somecluster.kusto.windows.net";
 
-        const kcsb = KustoConnectionStringBuilder.withAadManagedIdentities(cluster, undefined,"organizations");
+        const kcsb = KustoConnectionStringBuilder.withAadManagedIdentities(cluster, undefined, "organizations");
 
         const helper = new AadHelper(kcsb);
         const token = await helper.getAuthHeader();

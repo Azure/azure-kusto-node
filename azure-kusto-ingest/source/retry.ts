@@ -5,7 +5,7 @@ export const sleep = (ms: number): Promise<void> => {
     return new Promise((resolve) => {
         setTimeout(resolve, ms);
     });
-}
+};
 
 export class ExponentialRetry {
     public currentAttempt: number;
@@ -19,8 +19,8 @@ export class ExponentialRetry {
             throw new Error("Max retries exceeded");
         }
 
-        const base = this.sleepBaseSecs * Math.pow(2, this.currentAttempt)
-        const jitter = Math.floor(this.maxJitterSecs * Math.random())
+        const base = this.sleepBaseSecs * Math.pow(2, this.currentAttempt);
+        const jitter = Math.floor(this.maxJitterSecs * Math.random());
         await sleep(1000 * (base + jitter));
         this.currentAttempt++;
     }

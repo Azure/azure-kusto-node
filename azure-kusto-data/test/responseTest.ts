@@ -6,7 +6,6 @@ import assert from "assert";
 import v2Response from "./data/response/v2.json";
 import { KustoResponseDataSetV2, V2Frames } from "../source/response";
 
-
 describe("KustoResultDataSet", () => {
     describe("#constructor()", () => {
         it("valid input", () => {
