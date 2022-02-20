@@ -194,9 +194,9 @@ export class AzCliTokenProvider extends AzureIdentityProvider {
 }
 
 /**
- * AzCli Token Provider obtains a refresh token from the AzCli cache and uses it to authenticate with MSAL
+ * UserPromptProvider will pop up a login prompt to acquire a token.
  */
-export class InteractiveLoginTokenProvider extends AzureIdentityProvider {
+export class UserPromptProvider extends AzureIdentityProvider {
     // The default port is 80, which can lead to permission errors, so we'll choose another port
     readonly BrowserPort = 23145;
 
