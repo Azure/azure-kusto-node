@@ -91,7 +91,7 @@ describe("test errors", () => {
         const kcsb = new KustoConnectionStringBuilder("https://somecluster.kusto.windows.net");
         kcsb.aadFederatedSecurity = true;
         kcsb.authorityId = "common";
-        kcsb.isDeviceCode = true
+        kcsb.useDeviceCodeAuth = true
 
         assert.throws(() => new AadHelper(kcsb), KustoAuthenticationError, "Device code authentication is not supported without a function");
     });
@@ -209,10 +209,10 @@ describe("Test providers", () => {
         assert.notStrictEqual(token, null);
     }).timeout(30000);
 
-    manualLoginTest()("test interactive login", async () => {
+    manualLoginTest()("test user prompt", async () => {
         const cluster = "https://somecluster.kusto.windows.net";
 
-        const kcsb = KustoConnectionStringBuilder.withInteractiveLogin(cluster, "organizations");
+        const kcsb = KustoConnectionStringBuilder.withUserPrompt(cluster, "organizations");
 
         const helper = new AadHelper(kcsb);
         const token = await helper.getAuthHeader();

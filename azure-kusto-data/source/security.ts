@@ -20,17 +20,17 @@ export class AadHelper {
         } else if (!!kcsb.applicationClientId &&
             !!kcsb.applicationCertificateThumbprint && !!kcsb.applicationCertificatePrivateKey) {
             this.tokenProvider = new TokenProvider.ApplicationCertificateTokenProvider(kcsb.dataSource, kcsb.applicationClientId, kcsb.applicationCertificateThumbprint, kcsb.applicationCertificatePrivateKey, kcsb.applicationCertificateX5c as string | undefined, kcsb.authorityId);
-        } else if (kcsb.isManagedIdentity) {
+        } else if (kcsb.useManagedIdentityAuth) {
             this.tokenProvider = new TokenProvider.MsiTokenProvider(kcsb.dataSource, kcsb.authorityId, kcsb.msiClientId, kcsb.timeoutMs);
-        } else if (kcsb.isAzLoginIdentity) {
+        } else if (kcsb.useAzLoginAuth) {
             this.tokenProvider = new TokenProvider.AzCliTokenProvider(kcsb.dataSource, kcsb.authorityId, undefined, kcsb.timeoutMs);
         } else if (kcsb.accessToken) {
             this.tokenProvider = new TokenProvider.BasicTokenProvider(kcsb.dataSource, kcsb.accessToken as string);
-        } else if (kcsb.isInteractiveLogin) {
-            this.tokenProvider = new TokenProvider.InteractiveLoginTokenProvider(kcsb.dataSource, kcsb.authorityId, kcsb.applicationClientId, kcsb.timeoutMs, kcsb.loginHint);
+        } else if (kcsb.useUserPromptAuth) {
+            this.tokenProvider = new TokenProvider.UserPromptProvider(kcsb.dataSource, kcsb.authorityId, kcsb.applicationClientId, kcsb.timeoutMs, kcsb.loginHint);
         } else if (kcsb.tokenProvider) {
             this.tokenProvider = new TokenProvider.CallbackTokenProvider(kcsb.dataSource, kcsb.tokenProvider);
-        } else if (kcsb.isDeviceCode){
+        } else if (kcsb.useDeviceCodeAuth){
             if (kcsb.deviceCodeCallback === undefined) {
                 throw new KustoAuthenticationError("Device code authentication requires a callback function", undefined, TokenProvider.DeviceLoginTokenProvider.name, {});
             }

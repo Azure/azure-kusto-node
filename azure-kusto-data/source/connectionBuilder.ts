@@ -100,10 +100,10 @@ export class KustoConnectionStringBuilder {
     loginHint?: string;
     timeoutMs?: number;
     accessToken?: string;
-    isDeviceCode?: boolean;
-    isInteractiveLogin?: boolean;
-    isAzLoginIdentity?: boolean;
-    isManagedIdentity?: boolean;
+    useDeviceCodeAuth?: boolean;
+    useUserPromptAuth?: boolean;
+    useAzLoginAuth?: boolean;
+    useManagedIdentityAuth?: boolean;
 
     constructor(connectionString: string) {
         if (connectionString.trim().length === 0) throw new Error("Missing connection string");
@@ -211,7 +211,7 @@ export class KustoConnectionStringBuilder {
         kcsb.aadFederatedSecurity = true;
         kcsb.authorityId = authorityId;
         kcsb.deviceCodeCallback = deviceCodeCallback;
-        kcsb.isDeviceCode = true
+        kcsb.useDeviceCodeAuth = true
 
         return kcsb;
     }
@@ -224,7 +224,7 @@ export class KustoConnectionStringBuilder {
         }
         kcsb.msiClientId = msiClientId;
         kcsb.timeoutMs = timeoutMs;
-        kcsb.isManagedIdentity = true;
+        kcsb.useManagedIdentityAuth = true;
 
         return kcsb;
     }
@@ -233,7 +233,7 @@ export class KustoConnectionStringBuilder {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         kcsb.aadFederatedSecurity = true;
 
-        kcsb.isAzLoginIdentity = true;
+        kcsb.useAzLoginAuth = true;
         if (authorityId) {
             kcsb.authorityId = authorityId;
         }
@@ -261,11 +261,11 @@ export class KustoConnectionStringBuilder {
         return kcsb;
     }
 
-    static withInteractiveLogin(connectionString: string, authorityId?: string, clientId?: string, timeoutMs?: number, loginHint?: string) {
+    static withUserPrompt(connectionString: string, authorityId?: string, clientId?: string, timeoutMs?: number, loginHint?: string) {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         kcsb.aadFederatedSecurity = true;
 
-        kcsb.isInteractiveLogin = true;
+        kcsb.useUserPromptAuth = true;
         if (authorityId) {
             kcsb.authorityId = authorityId;
         }

@@ -403,7 +403,7 @@ describe("KustoConnectionStringBuilder", () => {
 
             const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
             kcsb1.aadFederatedSecurity = true;
-            kcsb1.isDeviceCode = true;
+            kcsb1.useDeviceCodeAuth = true;
             kcsb1.deviceCodeCallback = (res) => res;
 
             doComparsion(
@@ -411,7 +411,7 @@ describe("KustoConnectionStringBuilder", () => {
                 {
                     dataSource: "localhost",
                     authorityId: "common",
-                    isDeviceCode: true,
+                    useDeviceCodeAuth: true,
                     aadFederatedSecurity: true,
                     deviceCodeCallback: (res: DeviceCodeResponse) => res
                 },
@@ -428,14 +428,14 @@ describe("KustoConnectionStringBuilder", () => {
 
                 const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
                 kcsb1.aadFederatedSecurity = true;
-                kcsb1.isManagedIdentity = true;
+                kcsb1.useManagedIdentityAuth = true;
 
                 doComparsion(
                     kcsbs,
                     {
                         dataSource: "localhost",
                         authorityId: "common",
-                        isManagedIdentity: true,
+                        useManagedIdentityAuth: true,
                         aadFederatedSecurity: true,
                     },
                     "Data Source=localhost;AAD Federated Security=true;Authority Id=common",
@@ -452,7 +452,7 @@ describe("KustoConnectionStringBuilder", () => {
 
                 const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
                 kcsb1.aadFederatedSecurity = true;
-                kcsb1.isManagedIdentity = true;
+                kcsb1.useManagedIdentityAuth = true;
                 kcsb1.msiClientId = msiClientId;
                 kcsb1.timeoutMs = timeoutMs;
 
@@ -461,7 +461,7 @@ describe("KustoConnectionStringBuilder", () => {
                     {
                         dataSource: "localhost",
                         authorityId: "common",
-                        isManagedIdentity: true,
+                        useManagedIdentityAuth: true,
                         aadFederatedSecurity: true,
                         msiClientId,
                         timeoutMs
@@ -482,7 +482,7 @@ describe("KustoConnectionStringBuilder", () => {
 
             const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
             kcsb1.aadFederatedSecurity = true;
-            kcsb1.isAzLoginIdentity = true;
+            kcsb1.useAzLoginAuth = true;
             kcsb1.authorityId = authorityId;
             kcsb1.timeoutMs = timeout;
 
@@ -493,7 +493,7 @@ describe("KustoConnectionStringBuilder", () => {
                     aadFederatedSecurity: true,
                     authorityId,
                     timeoutMs: timeout,
-                    isAzLoginIdentity: true,
+                    useAzLoginAuth: true,
                 },
                 "Data Source=localhost;AAD Federated Security=true;Authority Id=common",
                 "Data Source=localhost;AAD Federated Security=true;Authority Id=common"
@@ -547,19 +547,19 @@ describe("KustoConnectionStringBuilder", () => {
         describe("interactive login", () => {
             it("without optional params", () => {
                 const kcsbs = [
-                    KustoConnectionStringBuilder.withInteractiveLogin("localhost", "common"),
+                    KustoConnectionStringBuilder.withUserPrompt("localhost", "common"),
                 ];
 
                 const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
                 kcsb1.aadFederatedSecurity = true;
-                kcsb1.isInteractiveLogin = true;
+                kcsb1.useUserPromptAuth = true;
 
                 doComparsion(
                     kcsbs,
                     {
                         dataSource: "localhost",
                         authorityId: "common",
-                        isInteractiveLogin: true,
+                        useUserPromptAuth: true,
                         aadFederatedSecurity: true,
                     },
                     "Data Source=localhost;AAD Federated Security=true;Authority Id=common",
@@ -572,12 +572,12 @@ describe("KustoConnectionStringBuilder", () => {
                 const loginHint = "myUser";
                 const timeoutMs = 10;
                 const kcsbs = [
-                    KustoConnectionStringBuilder.withInteractiveLogin("localhost", "common", clientId, timeoutMs, loginHint),
+                    KustoConnectionStringBuilder.withUserPrompt("localhost", "common", clientId, timeoutMs, loginHint),
                 ];
 
                 const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
                 kcsb1.aadFederatedSecurity = true;
-                kcsb1.isInteractiveLogin = true;
+                kcsb1.useUserPromptAuth = true;
                 kcsb1.applicationClientId = clientId;
                 kcsb1.timeoutMs = timeoutMs;
                 kcsb1.loginHint = loginHint;
@@ -587,7 +587,7 @@ describe("KustoConnectionStringBuilder", () => {
                     {
                         dataSource: "localhost",
                         authorityId: "common",
-                        isInteractiveLogin: true,
+                        useUserPromptAuth: true,
                         aadFederatedSecurity: true,
                         applicationClientId: clientId,
                         timeoutMs,
