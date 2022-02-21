@@ -35,7 +35,7 @@ interface Column {
 
 export class KustoResultRow {
     columns: KustoResultColumn[];
-    raw: any;
+    raw: { [ord: number]: any };
 
     [column: string]: any;
 
@@ -66,9 +66,8 @@ export class KustoResultRow {
     }
 
     * values() {
-        // eslint-disable-next-line guard-for-in
-        for (const item in this.rows) {
-            yield item;
+        for (let i = 0; i < this.columns.length; i++) {
+            yield this.raw[i];
         }
     }
 

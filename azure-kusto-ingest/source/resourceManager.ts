@@ -127,7 +127,11 @@ export class ResourceManager {
 
     async getAuthorizationContextFromService() {
         const response = await this.kustoClient.execute("NetDefaultDB", ".get kusto identity token");
-        return (response.primaryResults[0].rows().next().value as unknown as { AuthorizationContext: string }).AuthorizationContext;
+        const next = response.primaryResults[0].rows().next();
+        if (next.done) {
+            throw new Error("Failed to get authorization context - got empty results");
+        }
+        return (next.value.toJSON<{ AuthorizationContext: string }>()).AuthorizationContext;
     }
 
     async getIngestionQueues() {

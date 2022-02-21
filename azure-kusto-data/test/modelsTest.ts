@@ -204,6 +204,7 @@ describe("KustoResultRow", () => {
                 i++;
             }
             assert.strictEqual(actual.columns.length, inputValues.length);
+            assert.strictEqual(i, inputValues.length);
         });
 
         it("mapped props", () => {
@@ -225,14 +226,14 @@ describe("KustoResultRow", () => {
                 moment.duration(3493235670000, "ms")
             ];
 
-            const actual = new KustoResultRow(inputColumns, inputValues) as unknown as {
+            const actual = new KustoResultRow(inputColumns, inputValues).toJSON<{
                 Timestamp: number,
                 Name: string,
                 Altitude: number,
                 Temperature: number,
                 IsFlying: boolean,
                 TimeFlying: moment.Duration
-            };
+            }>();
 
             assert.strictEqual(actual.Timestamp.toString(), expectedValues[0].toString());
             assert.strictEqual(actual.Name, expectedValues[1]);
