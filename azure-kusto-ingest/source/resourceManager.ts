@@ -1,5 +1,5 @@
 // Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
+// Licensed sunder the MIT License.
 
 /* eslint-disable max-classes-per-file -- We want all the Resources related classes in this file */
 
