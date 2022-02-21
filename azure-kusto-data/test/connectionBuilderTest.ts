@@ -1,6 +1,7 @@
-/* eslint-disable no-console */
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
+/* eslint-disable no-console */
 
 import assert from "assert";
 import { v4 as uuidv4 } from 'uuid';

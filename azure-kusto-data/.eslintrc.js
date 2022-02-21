@@ -35,7 +35,8 @@ module.exports = {
     "plugins": [
         "eslint-plugin-jsdoc",
         "eslint-plugin-prefer-arrow",
-        "@typescript-eslint"
+        "@typescript-eslint",
+        "header"
     ],
     "rules": {
         "@typescript-eslint/adjacent-overload-signatures": "error",
@@ -149,7 +150,6 @@ module.exports = {
         "no-cond-assign": "error",
         "no-console": "error",
         "no-const-assign": "error",
-        "no-constant-condition": "error",
         "no-control-regex": "error",
         "no-debugger": "error",
         "no-delete-var": "error",
@@ -227,7 +227,11 @@ module.exports = {
         "use-isnan": "error",
         "valid-typeof": "off",
 
-        // Disabled rules to avoid changes, consider re-enabling in the future
+        // Rules that were added manually
+
+        "header/header": ["error", "line", " Copyright (c) Microsoft Corporation.\n Licensed under the MIT License."],
+
+        // Disabled rules to avoid too many changes, consider re-enabling in the future
         "@typescript-eslint/no-unsafe-assignment": "off",
         "@typescript-eslint/no-unsafe-argument": "off",
         "@typescript-eslint/no-unsafe-return": "off",
@@ -237,6 +241,6 @@ module.exports = {
         "no-undef":"off",
         "@typescript-eslint/no-non-null-assertion":"off",
         "@typescript-eslint/no-unnecessary-type-assertion":"off",
-
+        "no-constant-condition": "off",
     }
 };

@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 export const sleep = (ms: number): Promise<void> => {
     return new Promise((resolve) => {
         setTimeout(resolve, ms);

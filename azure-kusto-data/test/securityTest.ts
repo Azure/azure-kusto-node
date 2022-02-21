@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { KustoConnectionStringBuilder } from "../index";
 import AadHelper from "../source/security";
 import { CloudSettings } from "../source/cloudSettings";
