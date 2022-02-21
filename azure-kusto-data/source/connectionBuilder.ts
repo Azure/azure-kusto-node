@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation.
+// Copyright (c) sMicrosoft Corporation.
 // Licensed under the MIT License.
 
 import { DeviceCodeResponse } from "@azure/msal-common";
