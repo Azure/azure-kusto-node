@@ -1,9 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { AuthenticationResult, PublicClientApplication, ConfidentialClientApplication } from "@azure/msal-node";
+import { ConfidentialClientApplication, PublicClientApplication } from "@azure/msal-node";
 import { DeviceCodeResponse } from "@azure/msal-common";
-import { ManagedIdentityCredential, AzureCliCredential} from "@azure/identity";
-import { CloudSettings, CloudInfo } from "./cloudSettings"
+import { AzureCliCredential, InteractiveBrowserCredential, ManagedIdentityCredential, TokenCredentialOptions, } from "@azure/identity";
+import { CloudInfo, CloudSettings } from "./cloudSettings"
+import { TokenCredential } from "@azure/core-auth";
 
 // We want all the Token Providers in this file
 /* tslint:disable:max-classes-per-file */
@@ -12,6 +13,12 @@ export declare type TokenResponse = {
     tokenType: string;
     accessToken: string;
 }
+
+interface TokenType {
+    tokenType: string,
+    accessToken: string
+}
+
 
 const BEARER_TYPE = "Bearer";
 
@@ -25,10 +32,14 @@ export abstract class TokenProviderBase {
 
     abstract acquireToken(): Promise<TokenResponse>;
 
+    context(): Record<string, any> {
+        return {};
+    }
+
     protected constructor(kustoUri: string) {
         this.kustoUri = kustoUri;
         if (kustoUri != null) {
-            const suffix = this.kustoUri.endsWith("/") ? ".default" : "/.default";
+            const suffix = (!this.kustoUri.endsWith("/") ? "/" : "") + ".default";
             this.scopes = [kustoUri + suffix];
         }
     }
@@ -67,64 +78,26 @@ export class CallbackTokenProvider extends TokenProviderBase {
     }
 }
 
-
-// MSI Token Provider obtains a token from the MSI endpoint
-// The args parameter is a dictionary conforming with the ManagedIdentityCredential initializer API arguments
-export class MsiTokenProvider extends TokenProviderBase {
-    clientId?: string;
-    managedIdentityCredential!: ManagedIdentityCredential;
-
-    constructor(kustoUri: string, clientId?: string) {
-        super(kustoUri);
-        this.clientId = clientId;
-    }
-
-    async acquireToken(): Promise<TokenResponse> {
-        if (this.managedIdentityCredential == null) {
-            this.managedIdentityCredential = this.clientId  ? new ManagedIdentityCredential(this.clientId) : new ManagedIdentityCredential();
-        }
-        const msiToken = await this.managedIdentityCredential.getToken(this.kustoUri);
-        return { tokenType: BEARER_TYPE, accessToken: msiToken.token };
-    }
-}
-
-/**
- * AzCli Token Provider obtains a refresh token from the AzCli cache and uses it to authenticate with MSAL
- */
-export class AzCliTokenProvider extends TokenProviderBase {
-    azureCliCredentials!: AzureCliCredential;
-
-    constructor(kustoUri: string) {
-        super(kustoUri);
-    }
-
-    async acquireToken(): Promise<TokenResponse> {
-        if (this.azureCliCredentials == null) {
-            this.azureCliCredentials = new AzureCliCredential();
-        }
-        const response = await this.azureCliCredentials.getToken(this.scopes);
-        return { tokenType: BEARER_TYPE, accessToken: response.token };
-    }
-}
-
 /**
  * Acquire a token from MSAL
  */
 abstract class MsalTokenProvider extends TokenProviderBase {
     cloudInfo!: CloudInfo;
-    authorityId?: string;
+    authorityId: string;
     initialized: boolean;
-    abstract initClient(): void;
-    abstract acquireMsalToken(): Promise<AuthenticationResult | null>;
+    authorityUri!: string;
 
-    protected constructor(kustoUri: string, authorityId?: string) {
+    abstract initClient(): void;
+
+    abstract acquireMsalToken(): Promise<TokenType | null>;
+
+    protected constructor(kustoUri: string, authorityId: string) {
         super(kustoUri);
         this.initialized = false;
         this.authorityId = authorityId;
     }
 
     async acquireToken(): Promise<TokenResponse> {
-        let token;
         if (!this.initialized) {
             if (this.cloudInfo == null) {
                 this.cloudInfo = await CloudSettings.getInstance().getCloudInfoForCluster(this.kustoUri);
@@ -133,16 +106,118 @@ abstract class MsalTokenProvider extends TokenProviderBase {
                     resourceUri = resourceUri.replace(".kusto.", ".kustomfa.")
                 }
                 this.scopes = [resourceUri + "/.default"]
+                this.authorityUri = CloudSettings.getAuthorityUri(this.cloudInfo, this.authorityId);
                 this.initClient();
             }
             this.initialized = true;
         }
 
-        token = await this.acquireMsalToken();
+        const token = await this.acquireMsalToken();
         if (token) {
             return { tokenType: token.tokenType, accessToken: token.accessToken }
         }
         throw new Error("Failed to get token from msal");
+    }
+
+    context(): Record<string, any> {
+        return { ...super.context(), kustoUri: this.kustoUri, authorityId: this.authorityId };
+    }
+}
+
+export abstract class AzureIdentityProvider extends MsalTokenProvider {
+    private credential!: TokenCredential;
+    protected authorityHost!: string;
+
+    constructor(kustoUri: string, authorityId: string, protected clientId?: string, private timeoutMs?: number) {
+        super(kustoUri, authorityId);
+    }
+
+    initClient(): void {
+        this.authorityHost = this.cloudInfo.LoginEndpoint;
+        this.credential = this.getCredential();
+    }
+
+    getCommonOptions(): { authorityHost: string; clientId: string | undefined; tenantId: string } {
+        return {
+            authorityHost: this.authorityHost,
+            tenantId: this.authorityId,
+            clientId: this.clientId,
+        }
+    }
+
+    async acquireMsalToken(): Promise<TokenType | null> {
+        const response = await this.credential.getToken(this.scopes, {
+            requestOptions: {
+                timeout: this.timeoutMs
+            },
+            tenantId: this.authorityId
+        });
+        if (response === null) {
+            throw new Error("Failed to get token from msal");
+        }
+        return { tokenType: BEARER_TYPE, accessToken: response.token };
+    }
+
+    context(): Record<string, any> {
+        let base: Record<string, any> = { ...super.context(), kustoUri: this.kustoUri, authorityId: this.authorityId };
+        if (this.clientId) {
+            base = { ...base, clientId: this.clientId };
+        }
+        if (this.timeoutMs) {
+            base = { ...base, timeoutMs: this.timeoutMs };
+        }
+
+        return base;
+    }
+
+    abstract getCredential(): TokenCredential;
+}
+
+/**
+ * MSI Token Provider obtains a token from the MSI endpoint
+ * The args parameter is a dictionary conforming with the ManagedIdentityCredential initializer API arguments
+ */
+export class MsiTokenProvider extends AzureIdentityProvider {
+    getCredential(): TokenCredential {
+        const options: TokenCredentialOptions = this.getCommonOptions();
+        return this.clientId ? new ManagedIdentityCredential(this.clientId, options) : new ManagedIdentityCredential(options);
+    }
+}
+
+/**
+ * AzCli Token Provider obtains a refresh token from the AzCli cache and uses it to authenticate with MSAL
+ */
+export class AzCliTokenProvider extends AzureIdentityProvider {
+    getCredential(): TokenCredential {
+        return new AzureCliCredential(this.getCommonOptions());
+    }
+}
+
+/**
+ * UserPromptProvider will pop up a login prompt to acquire a token.
+ */
+export class UserPromptProvider extends AzureIdentityProvider {
+    // The default port is 80, which can lead to permission errors, so we'll choose another port
+    readonly BrowserPort = 23145;
+
+    constructor(kustoUri: string, authorityId: string, clientId?: string, timeoutMs?: number, private loginHint?: string) {
+        super(kustoUri, authorityId, clientId, timeoutMs);
+    }
+
+    getCredential(): TokenCredential {
+        return new InteractiveBrowserCredential({
+            ...this.getCommonOptions(),
+            loginHint: this.loginHint,
+            redirectUri: `http://localhost:${this.BrowserPort}/`
+        });
+    }
+
+    context(): Record<string, any> {
+        let base = super.context();
+        if (this.loginHint) {
+            base = { ...base, loginHint: this.loginHint };
+        }
+        return base;
     }
 }
 
@@ -155,7 +230,7 @@ export class UserPassTokenProvider extends MsalTokenProvider {
     homeAccountId?: string;
     msalClient!: PublicClientApplication;
 
-    constructor(kustoUri: string, userName: string, password: string, authorityId?: string) {
+    constructor(kustoUri: string, userName: string, password: string, authorityId: string) {
         super(kustoUri, authorityId);
         this.userName = userName;
         this.password = password;
@@ -165,13 +240,13 @@ export class UserPassTokenProvider extends MsalTokenProvider {
         const clientConfig = {
             auth: {
                 clientId: this.cloudInfo.KustoClientAppId,
-                authority: CloudSettings.getAuthorityUri(this.cloudInfo, this.authorityId),
+                authority: this.authorityUri,
             }
         };
         this.msalClient = new PublicClientApplication(clientConfig);
     }
 
-    async acquireMsalToken(): Promise<AuthenticationResult | null> {
+    async acquireMsalToken(): Promise<TokenType | null> {
         let token = null;
         if (this.homeAccountId != null) {
             const account = await this.msalClient.getTokenCache().getAccountByHomeId(this.homeAccountId)
@@ -185,6 +260,10 @@ export class UserPassTokenProvider extends MsalTokenProvider {
         }
         return token;
     }
+
+    context(): Record<string, any> {
+        return { ...super.context(), userName: this.userName, homeAccountId: this.homeAccountId };
+    }
 }
 
 /**
@@ -195,7 +274,7 @@ export class DeviceLoginTokenProvider extends MsalTokenProvider {
     homeAccountId?: string;
     msalClient!: PublicClientApplication;
 
-    constructor(kustoUri: string, deviceCodeCallback: (response: DeviceCodeResponse) => void, authorityId?: string) {
+    constructor(kustoUri: string, deviceCodeCallback: (response: DeviceCodeResponse) => void, authorityId: string) {
         super(kustoUri, authorityId);
         this.deviceCodeCallback = deviceCodeCallback;
     }
@@ -204,13 +283,13 @@ export class DeviceLoginTokenProvider extends MsalTokenProvider {
         const clientConfig = {
             auth: {
                 clientId: this.cloudInfo.KustoClientAppId,
-                authority: CloudSettings.getAuthorityUri(this.cloudInfo, this.authorityId),
+                authority: this.authorityUri,
             },
         };
         this.msalClient = new PublicClientApplication(clientConfig);
     }
 
-    async acquireMsalToken(): Promise<AuthenticationResult | null> {
+    async acquireMsalToken(): Promise<TokenType | null> {
         let token = null;
         if (this.homeAccountId != null) {
             const account = await this.msalClient.getTokenCache().getAccountByHomeId(this.homeAccountId)
@@ -234,7 +313,7 @@ export class ApplicationKeyTokenProvider extends MsalTokenProvider {
     appKey: string;
     msalClient!: ConfidentialClientApplication;
 
-    constructor(kustoUri: string, appClientId: string, appKey: string, authorityId?: string) {
+    constructor(kustoUri: string, appClientId: string, appKey: string, authorityId: string) {
         super(kustoUri, authorityId);
         this.appClientId = appClientId;
         this.appKey = appKey;
@@ -245,14 +324,18 @@ export class ApplicationKeyTokenProvider extends MsalTokenProvider {
             auth: {
                 clientId: this.appClientId,
                 clientSecret: this.appKey,
-                authority: CloudSettings.getAuthorityUri(this.cloudInfo, this.authorityId),
+                authority: this.authorityUri,
             }
         };
         this.msalClient = new ConfidentialClientApplication(clientConfig);
     }
 
-    acquireMsalToken(): Promise<AuthenticationResult | null> {
+    acquireMsalToken(): Promise<TokenType | null> {
         return this.msalClient.acquireTokenByClientCredential({ scopes: this.scopes });
+    }
+
+    context(): Record<string, any> {
+        return { ...super.context(), clientId: this.appClientId };
     }
 }
 
@@ -268,7 +351,7 @@ export class ApplicationCertificateTokenProvider extends MsalTokenProvider {
     msalClient!: ConfidentialClientApplication;
 
     constructor(kustoUri: string, appClientId: string, certThumbprint: string, certPrivateKey: string, certX5c?: string, authorityId?: string) {
-        super(kustoUri, authorityId);
+        super(kustoUri, authorityId!);
         this.appClientId = appClientId;
         this.certThumbprint = certThumbprint;
         this.certPrivateKey = certPrivateKey;
@@ -279,7 +362,7 @@ export class ApplicationCertificateTokenProvider extends MsalTokenProvider {
         const clientConfig = {
             auth: {
                 clientId: this.appClientId,
-                authority: CloudSettings.getAuthorityUri(this.cloudInfo, this.authorityId),
+                authority: this.authorityUri,
                 clientCertificate: {
                     thumbprint: this.certThumbprint,
                     privateKey: this.certPrivateKey,
@@ -290,7 +373,11 @@ export class ApplicationCertificateTokenProvider extends MsalTokenProvider {
         this.msalClient = new ConfidentialClientApplication(clientConfig);
     }
 
-    acquireMsalToken(): Promise<AuthenticationResult | null> {
+    acquireMsalToken(): Promise<TokenType | null> {
         return this.msalClient.acquireTokenByClientCredential({ scopes: this.scopes });
+    }
+
+    context(): Record<string, any> {
+        return { ...super.context(), clientId: this.appClientId, thumbprint: this.certThumbprint };
     }
 }
