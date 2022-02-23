@@ -4,4 +4,5 @@ node_modules
 !example.js
 coverage
 .nyc_output
-test/e2eTests/e2eData/dataset.json
+test/data/*
+test/e2eTests/e2eData/*

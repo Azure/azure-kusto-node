@@ -21,7 +21,7 @@
         "build": "tsc -b",
         "prepublish": "npm run build ",
         "example": "npm run build && node example.js",
-        "lint": "npm run build && npx eslint -c .eslintrc.js --ext .ts .",
+        "lint": "npx eslint -c .eslintrc.js --ext .ts .",
         "test": "npm run build && mocha --parallel",
         "testPipeline": "npm run build && nyc --reporter lcovonly mocha --reporter mocha-junit-reporter",
         "format": "npx prettier --write .",

@@ -21,7 +21,7 @@
         "build": "npm link ../azure-kusto-data && tsc -b",
         "prepublish": "npm run build",
         "example": "npm run build && node example.js",
-        "lint": "npm run build && eslint -c .eslintrc.js --ext .ts .",
+        "lint": "npx eslint -c .eslintrc.js --ext .ts .",
         "test": "npm run build && mocha --parallel --recursive test/*.js",
         "e2e": "npm run build && mocha --parallel test/e2eTests/e2eTest.ts",
         "allTests": "npm run build && mocha --parallel --timeout 240000 --recursive",
