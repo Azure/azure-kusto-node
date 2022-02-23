@@ -4,7 +4,7 @@
 import moment from "moment";
 import { v4 as uuidv4 } from 'uuid';
 import AadHelper from "./security";
-import {KustoResponseDataSet, KustoResponseDataSetV1, KustoResponseDataSetV2} from "./response";
+import { KustoResponseDataSet, KustoResponseDataSetV1, KustoResponseDataSetV2, V1, V2Frames } from "./response";
 import ConnectionStringBuilder from "./connectionBuilder";
 import ClientRequestProperties from "./clientRequestProperties";
 import pkg from "../package.json";
@@ -108,7 +108,7 @@ export class KustoClient {
         let payloadContent: any = "";
         if (query != null) {
             payload = {
-                "db": db,
+                db,
                 "csl": query
             };
 
@@ -163,9 +163,10 @@ export class KustoClient {
         let axiosResponse;
         try {
             axiosResponse = await this.axiosInstance.post(endpoint, payload, axiosConfig);
-        } catch (error: any) {
-            if (error.response) {
-                throw error.response.data.error;
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error) && error.response) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                throw error.response.data?.error || error.response.data;
             }
             throw error;
         }
@@ -182,9 +183,9 @@ export class KustoClient {
         let kustoResponse = null;
         try {
             if (executionType === ExecutionType.Query) {
-                kustoResponse = new KustoResponseDataSetV2(response);
+                kustoResponse = new KustoResponseDataSetV2(response as V2Frames);
             } else {
-                kustoResponse = new KustoResponseDataSetV1(response);
+                kustoResponse = new KustoResponseDataSetV1(response as V1);
             }
         } catch (ex) {
             throw new Error(`Failed to parse response ({${status}}) with the following error [${ex}].`);

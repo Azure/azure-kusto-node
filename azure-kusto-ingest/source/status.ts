@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-// We want all the Status related classes in this file
-/* tslint:disable:max-classes-per-file */
+/* eslint-disable max-classes-per-file -- We want all the Status related classes in this file */
 
 import {StatusQueue} from "./statusQ";
 import KustoIngestClient from "./ingestClient";
@@ -27,7 +26,7 @@ export class StatusMessage {
             props = props.concat(extraProps);
         }
 
-        const _obj = obj || JSON.parse(raw || JSON.stringify(raw));
+        const _obj: Record<string, any> = obj || JSON.parse(raw || JSON.stringify(raw));
 
         for (const prop of props) {
             this[prop] = _obj[prop];

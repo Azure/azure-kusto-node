@@ -83,10 +83,10 @@ describe("ResourceManager", () => {
             const resourceManager = new ResourceManager(client);
 
             const resources = await resourceManager.getIngestClientResourcesFromService();
-            assert.strictEqual(resources.containers!!.length, 2);
-            assert.strictEqual(resources.successfulIngestionsQueues!!.length, 1);
-            assert.strictEqual(resources.failedIngestionsQueues!!.length, 1);
-            assert.strictEqual(resources.securedReadyForAggregationQueues!!.length, 2);
+            assert.strictEqual(resources.containers!.length, 2);
+            assert.strictEqual(resources.successfulIngestionsQueues!.length, 1);
+            assert.strictEqual(resources.failedIngestionsQueues!.length, 1);
+            assert.strictEqual(resources.securedReadyForAggregationQueues!.length, 2);
         });
 
 
@@ -99,6 +99,7 @@ describe("ResourceManager", () => {
                 await resourceManager.getIngestClientResourcesFromService();
             }
             catch(ex: any){
+                assert.ok(ex instanceof Error)
                 assert(ex.message.startsWith( "Kusto request erred (403)"));
                 return;
             }

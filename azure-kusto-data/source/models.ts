@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 // We want all the Kusto table models in this file
-/* tslint:disable:max-classes-per-file */
+/* eslint-disable max-classes-per-file */
 
 import moment from "moment";
 
@@ -35,7 +35,7 @@ interface Column {
 
 export class KustoResultRow {
     columns: KustoResultColumn[];
-    raw: any;
+    raw: { [ord: number]: any };
 
     [column: string]: any;
 
@@ -66,9 +66,8 @@ export class KustoResultRow {
     }
 
     * values() {
-        // tslint:disable-next-line:forin
-        for (const item in this.rows) {
-            yield item;
+        for (let i = 0; i < this.columns.length; i++) {
+            yield this.raw[i];
         }
     }
 
@@ -83,14 +82,14 @@ export class KustoResultRow {
         return this.toJSON();
     }
 
-    toJSON() {
-        const obj: any = {};
+    toJSON<T = Record<string, any>>(): T {
+        const obj: Record<string, any> = {};
 
         for (const col of this.columns) {
             obj[col.name as string] = this[col.name as string];
         }
 
-        return obj;
+        return obj as T;
     }
 
     toString() {
@@ -171,13 +170,19 @@ export class KustoResultTable {
         return this.toJSON();
     }
 
-    toJSON() {
-        const table: any = {};
-
-        table.name = this.name;
-        table.data = [];
+    toJSON<T = Record<string, any>>(): {
+        name: string,
+        data: T[],
+    } {
+        const table: {
+            name: string,
+            data: T[],
+        } = {
+            name: this.name,
+            data: [],
+        };
         for (const row of this.rows()) {
-            table.data.push(row.toJSON());
+            table.data.push(row.toJSON<T>());
         }
 
         return table;

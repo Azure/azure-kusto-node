@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-// We want all the Resources related classes in this file
-/* tslint:disable:max-classes-per-file */
+/* eslint-disable max-classes-per-file -- We want all the Resources related classes in this file */
+
 
 import {Client} from "azure-kusto-data";
 import moment from "moment";
@@ -98,8 +98,12 @@ export class ResourceManager {
     getResourceByName(table: { rows: () => any; }, resourceName: string): ResourceURI[] {
         const result = [];
         for (const row of table.rows()) {
-            if (row.ResourceTypeName === resourceName) {
-                result.push(ResourceURI.fromURI(row.StorageRoot));
+            const typedRow = row as {
+                ResourceTypeName: string,
+                StorageRoot: string
+            };
+            if (typedRow.ResourceTypeName === resourceName) {
+                result.push(ResourceURI.fromURI(typedRow.StorageRoot));
             }
         }
         return result;
@@ -123,7 +127,11 @@ export class ResourceManager {
 
     async getAuthorizationContextFromService() {
         const response = await this.kustoClient.execute("NetDefaultDB", ".get kusto identity token");
-        return (response.primaryResults[0].rows().next().value as any).AuthorizationContext;
+        const next = response.primaryResults[0].rows().next();
+        if (next.done) {
+            throw new Error("Failed to get authorization context - got empty results");
+        }
+        return (next.value.toJSON<{ AuthorizationContext: string }>()).AuthorizationContext;
     }
 
     async getIngestionQueues() {

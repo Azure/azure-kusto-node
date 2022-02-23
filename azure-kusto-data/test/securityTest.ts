@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { KustoConnectionStringBuilder } from "../index";
 import AadHelper from "../source/security";
 import { CloudSettings } from "../source/cloudSettings";
@@ -13,7 +16,7 @@ describe("test errors", () => {
         CloudSettings.getInstance().cloudCache["https://somecluster.kusto.windows.net"] = CloudSettings.getInstance().defaultCloudInfo;
     });
 
-    it("no data source", async () => {
+    it("no data source", () => {
         const kcsb = new KustoConnectionStringBuilder("test");
         kcsb.dataSource = "";
 

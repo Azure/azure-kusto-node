@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { CompressionType, FileDescriptor, StreamDescriptor } from "./descriptors";
 import fs from "fs";
 import { PassThrough, Readable } from "stream";

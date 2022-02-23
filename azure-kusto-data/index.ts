@@ -1,4 +1,3 @@
-/* tslint:disable:no-var-requires */
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 

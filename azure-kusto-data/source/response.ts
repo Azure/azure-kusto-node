@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 // We want all the Response models to be in this file
-/* tslint:disable:max-classes-per-file */
+/* eslint-disable max-classes-per-file */
 
 import {KustoResultTable, Table, WellKnownDataSet} from "./models";
 
@@ -27,9 +27,9 @@ interface V2DataSetCompletionFrame {
     Cancelled: boolean
 }
 
-type V2Frames = (V2DataSetHeaderFrame | V2DataSetTableFrame | V2DataSetCompletionFrame)[];
+export type V2Frames = (V2DataSetHeaderFrame | V2DataSetTableFrame | V2DataSetCompletionFrame)[];
 
-type V1 = { Tables: Table[] };
+export type V1 = { Tables: Table[] };
 
 interface Column {
     ColumnName: string
@@ -123,7 +123,7 @@ export abstract class KustoResponseDataSet {
         const result = this.getErrorsByLevel(ErrorLevels.Error);
         if (this.dataSetCompletion && this.dataSetCompletion.HasErrors && this.dataSetCompletion.OneApiErrors) {
             for (const row of this.dataSetCompletion.OneApiErrors) {
-                result.push(row.error["@message"]);
+                result.push((row as {error: {"@message": string}}).error["@message"]);
             }
         }
         return result;
@@ -179,9 +179,14 @@ export class KustoResponseDataSetV1 extends KustoResponseDataSet {
             toc.kind = WellKnownDataSet.TableOfContents;
             toc.id = this.tables.length - 1;
             for (let i = 0; i < this.tables.length - 1; i++) {
-                this.tables[i].name = toc[i].Name;
-                this.tables[i].id = toc[i].Id;
-                this.tables[i].kind = KustoResponseDataSetV1.getTablesKinds()[toc[i].Kind];
+                const current = toc[i] as {
+                    Name: string,
+                    Id: number,
+                    Kind: string
+                };
+                this.tables[i].name = current.Name;
+                this.tables[i].id = current.Id;
+                this.tables[i].kind = KustoResponseDataSetV1.getTablesKinds()[current.Kind];
             }
         }
 

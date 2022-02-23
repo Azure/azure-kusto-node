@@ -44,7 +44,7 @@ export class CloudSettings {
         }
 
         try {
-            const response = await axios.get(kustoUri + this.METADATA_ENDPOINT);
+            const response = await axios.get<{AzureAD: CloudInfo | undefined}>(kustoUri + this.METADATA_ENDPOINT);
             if (response.status === 200) {
                 this.cloudCache[kustoUri] = response.data.AzureAD || this.defaultCloudInfo;
             }

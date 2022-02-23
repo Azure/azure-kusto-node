@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import IngestionProperties from "./ingestionProperties";
 import {FileDescriptor, StreamDescriptor} from "./descriptors";
 import { Readable } from "stream";

@@ -4,9 +4,9 @@
 import assert from "assert";
 import moment from "moment";
 import {KustoResultColumn, KustoResultRow, KustoResultTable} from "../source/models";
+import v2 from "./data/response/v2";
 
-// tslint:disable-next-line:no-var-requires
-const v2Response = require("./data/response/v2.json");
+const v2Response = v2;
 
 describe("KustoResultRow", () => {
     describe("#constructor()", () => {
@@ -86,7 +86,7 @@ describe("KustoResultRow", () => {
                     assert.strictEqual(Number(currentActual), Number(expectedValues[index]));
                 }
                 else if (typeof(currentActual) === "object") {
-                    assert.strictEqual(currentActual.toString(), expectedValues[index].toString());
+                    assert.strictEqual((currentActual as object).toString(), expectedValues[index].toString());
                 } else {
                     assert.strictEqual(currentActual, expectedValues[index]);
                 }
@@ -128,7 +128,7 @@ describe("KustoResultRow", () => {
                     assert.strictEqual(Number(currentActual), Number(expectedValues[index]));
                 }
                 else if (typeof(currentActual) === "object") {
-                    assert.strictEqual(currentActual.toString(), expectedValues[index].toString());
+                    assert.strictEqual((currentActual as object).toString(), expectedValues[index].toString());
                 } else {
                     assert.strictEqual(currentActual, expectedValues[index]);
                 }
@@ -204,6 +204,7 @@ describe("KustoResultRow", () => {
                 i++;
             }
             assert.strictEqual(actual.columns.length, inputValues.length);
+            assert.strictEqual(i, inputValues.length);
         });
 
         it("mapped props", () => {
@@ -225,7 +226,14 @@ describe("KustoResultRow", () => {
                 moment.duration(3493235670000, "ms")
             ];
 
-            const actual = new KustoResultRow(inputColumns, inputValues);
+            const actual = new KustoResultRow(inputColumns, inputValues).toJSON<{
+                Timestamp: number,
+                Name: string,
+                Altitude: number,
+                Temperature: number,
+                IsFlying: boolean,
+                TimeFlying: moment.Duration
+            }>();
 
             assert.strictEqual(actual.Timestamp.toString(), expectedValues[0].toString());
             assert.strictEqual(actual.Name, expectedValues[1]);

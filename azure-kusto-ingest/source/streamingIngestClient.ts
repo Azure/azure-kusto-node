@@ -13,7 +13,6 @@ import { Readable } from "stream";
 
 class KustoStreamingIngestClient extends AbstractKustoClient {
     private kustoClient: KustoClient;
-    // tslint:disable-next-line:variable-name
 
     constructor(kcsb: string | KustoConnectionStringBuilder, defaultProps: IngestionProperties | null = null) {
         super(defaultProps);

@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-// @ts-ignore
 import {Client as KustoClient, KustoConnectionStringBuilder} from "azure-kusto-data";
 
 import {BlobDescriptor, CompressionType, FileDescriptor, StreamDescriptor} from "./descriptors";
