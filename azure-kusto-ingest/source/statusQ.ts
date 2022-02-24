@@ -59,11 +59,7 @@ export class StatusQueue {
         return new this.messageCls(this.decodeContent(m.messageText), null, null);
     }
 
-    async _peek(
-        qs: QueueDetails[],
-        n: number,
-        options: PeekParams | null
-    ): Promise<{ result: Message[]; nonEmptyQs: QueueDetails[]; done: boolean }> {
+    async _peek(qs: QueueDetails[], n: number, options: PeekParams | null): Promise<{ result: Message[]; nonEmptyQs: QueueDetails[]; done: boolean }> {
         const result: Message[] = [];
         const nonEmptyQs: QueueDetails[] = [];
 

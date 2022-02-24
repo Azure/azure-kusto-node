@@ -184,12 +184,7 @@ export class KustoClient {
         return this._parseResponse(axiosResponse.data, executionType, properties, axiosResponse.status);
     }
 
-    _parseResponse(
-        response: any,
-        executionType: ExecutionType,
-        properties?: ClientRequestProperties | null,
-        status?: number
-    ): KustoResponseDataSet {
+    _parseResponse(response: any, executionType: ExecutionType, properties?: ClientRequestProperties | null, status?: number): KustoResponseDataSet {
         const { raw } = properties || {};
         if (raw === true || executionType === ExecutionType.Ingest) {
             return response;
@@ -224,9 +219,7 @@ export class KustoClient {
             }
         }
 
-        return executionType === ExecutionType.Query || executionType === ExecutionType.QueryV1
-            ? QUERY_TIMEOUT_IN_MILLISECS
-            : COMMAND_TIMEOUT_IN_MILLISECS;
+        return executionType === ExecutionType.Query || executionType === ExecutionType.QueryV1 ? QUERY_TIMEOUT_IN_MILLISECS : COMMAND_TIMEOUT_IN_MILLISECS;
     }
 }
 

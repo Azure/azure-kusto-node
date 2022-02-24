@@ -10,12 +10,7 @@
 const KustoClient = require("azure-kusto-data").Client;
 const KustoConnectionStringBuilder = require("azure-kusto-data").KustoConnectionStringBuilder;
 
-const kcsb = KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(
-    `https://${clusterName}.kusto.windows.net`,
-    "appid",
-    "appkey",
-    "authorityId"
-);
+const kcsb = KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(`https://${clusterName}.kusto.windows.net`, "appid", "appkey", "authorityId");
 const client = new KustoClient(kcsb);
 
 const results = await client.execute("db", "TableName | limit 1");
@@ -34,12 +29,7 @@ There are three ways to authenticate using AAD application:
 Option 1: Authenticating using AAD application id and corresponding key.
 
 ```javascript
-const kcsb = KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(
-    `https://${clusterName}.kusto.windows.net`,
-    "appid",
-    "appkey",
-    "authorityId"
-);
+const kcsb = KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(`https://${clusterName}.kusto.windows.net`, "appid", "appkey", "authorityId");
 ```
 
 Option 2: Authenticating using AAD application id and corresponding certificate.
@@ -57,33 +47,20 @@ const kcsb = KustoConnectionStringBuilder.withAadApplicationCertificateAuthentic
 Option 3: Authenticating using [AAD Managed Identities](https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/overview).
 
 ```javascript
-const kcsb = KustoConnectionStringBuilder.withAadManagedIdentities(
-    `https://${clusterName}.kusto.windows.net`,
-    "(Optional)msiEndpoint",
-    "(Optional)clientId"
-);
+const kcsb = KustoConnectionStringBuilder.withAadManagedIdentities(`https://${clusterName}.kusto.windows.net`, "(Optional)msiEndpoint", "(Optional)clientId");
 ```
 
 ### Username/Password
 
 ```javascript
-KustoConnectionStringBuilder.withAadUserPasswordAuthentication(
-    `https://${clusterName}.kusto.windows.net`,
-    "username",
-    "password"
-);
+KustoConnectionStringBuilder.withAadUserPasswordAuthentication(`https://${clusterName}.kusto.windows.net`, "username", "password");
 ```
 
 Authority is optional _when it can inferred from the domain_ ('user@microsoft.com' would make the authority 'microsoft.com').
 In any case it is possible to pass the authority id
 
 ```javascript
-KustoConnectionStringBuilder.withAadUserPasswordAuthentication(
-    `https://${clusterName}.kusto.windows.net`,
-    "username",
-    "password",
-    "authorityId"
-);
+KustoConnectionStringBuilder.withAadUserPasswordAuthentication(`https://${clusterName}.kusto.windows.net`, "username", "password", "authorityId");
 ```
 
 ### Device
@@ -98,16 +75,10 @@ KustoConnectionStringBuilder.withAadDeviceAuthentication(`https://${clusterName}
 
 // in case you want to do your own thing with the response, you can pass a callback
 // NOTICE: code will still block until device is authenticated
-KustoConnectionStringBuilder.withAadDeviceAuthentication(
-    `https://${clusterName}.kusto.windows.net`,
-    authId,
-    (tokenResponse) => {
-        // your code, for example copy to clipboard or open url in browser
-        console.log(
-            "Open " + tokenResponse.verificationUrl + " and use " + tokenResponse.userCode + " code to authorize."
-        );
-    }
-);
+KustoConnectionStringBuilder.withAadDeviceAuthentication(`https://${clusterName}.kusto.windows.net`, authId, (tokenResponse) => {
+    // your code, for example copy to clipboard or open url in browser
+    console.log("Open " + tokenResponse.verificationUrl + " and use " + tokenResponse.userCode + " code to authorize.");
+});
 ```
 
 ## Usage

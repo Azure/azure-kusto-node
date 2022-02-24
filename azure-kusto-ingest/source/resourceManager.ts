@@ -9,12 +9,7 @@ import moment from "moment";
 const URI_FORMAT = /https:\/\/(\w+).(queue|blob|table).core.windows.net\/([\w,-]+)\?(.*)/;
 
 export class ResourceURI {
-    constructor(
-        readonly storageAccountName: string,
-        readonly objectType: string,
-        readonly objectName: string,
-        readonly sas: string
-    ) {}
+    constructor(readonly storageAccountName: string, readonly objectType: string, readonly objectName: string, readonly sas: string) {}
 
     static fromURI(uri: string) {
         const match = URI_FORMAT.exec(uri);
@@ -45,12 +40,7 @@ export class IngestClientResources {
     ) {}
 
     valid() {
-        const resources = [
-            this.securedReadyForAggregationQueues,
-            this.failedIngestionsQueues,
-            this.failedIngestionsQueues,
-            this.containers,
-        ];
+        const resources = [this.securedReadyForAggregationQueues, this.failedIngestionsQueues, this.failedIngestionsQueues, this.containers];
         return resources.reduce((prev, current) => !!(prev && current), true);
     }
 }
@@ -115,11 +105,7 @@ export class ResourceManager {
 
     async refreshAuthorizationContext(): Promise<string> {
         const now = moment.utc();
-        if (
-            !this.authorizationContext?.trim() ||
-            !this.authorizationContextLastUpdate ||
-            this.authorizationContextLastUpdate.add(this.refreshPeriod) <= now
-        ) {
+        if (!this.authorizationContext?.trim() || !this.authorizationContextLastUpdate || this.authorizationContextLastUpdate.add(this.refreshPeriod) <= now) {
             this.authorizationContext = await this.getAuthorizationContextFromService();
             this.authorizationContextLastUpdate = now;
 

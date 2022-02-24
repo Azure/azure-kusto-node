@@ -39,10 +39,7 @@ describe("ResourceURI", () => {
 
             const storageUrl = new ResourceURI(accountName, objectType, objectName, sas);
 
-            assert.strictEqual(
-                storageUrl.getSASConnectionString(),
-                `BlobEndpoint=https://${accountName}.blob.core.windows.net/;SharedAccessSignature=${sas}`
-            );
+            assert.strictEqual(storageUrl.getSASConnectionString(), `BlobEndpoint=https://${accountName}.blob.core.windows.net/;SharedAccessSignature=${sas}`);
         });
     });
 });
@@ -121,10 +118,7 @@ describe("ResourceManager", () => {
         it("valid input", () => {
             const resourceManager = new ResourceManager(new KustoClient("https://cluster.kusto.windows.net"));
 
-            const resources = resourceManager.getResourceByName(
-                mockedResourcesResponse.primaryResults[0],
-                "TempStorage"
-            );
+            const resources = resourceManager.getResourceByName(mockedResourcesResponse.primaryResults[0], "TempStorage");
             assert.strictEqual(resources.length, 2);
         });
     });

@@ -22,10 +22,7 @@ export abstract class AbstractKustoClient {
         return this.defaultProps.merge(newProperties) || new IngestionProperties({});
     }
 
-    abstract ingestFromStream(
-        stream: StreamDescriptor | Readable,
-        ingestionProperties: IngestionProperties
-    ): Promise<any>;
+    abstract ingestFromStream(stream: StreamDescriptor | Readable, ingestionProperties: IngestionProperties): Promise<any>;
 
     abstract ingestFromFile(file: FileDescriptor | string, ingestionProperties: IngestionProperties): Promise<any>;
 }

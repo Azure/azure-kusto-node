@@ -212,8 +212,7 @@ export class IngestionProperties {
         if (!this.ingestionMappingColumns && !this.ingestionMappingReference) {
             if (this.ingestionMappingKind) {
                 throw new IngestionPropertiesValidationError(
-                    "Cannot define ingestionMappingKind without either ingestionMappingColumns or" +
-                        " ingestionMappingReference"
+                    "Cannot define ingestionMappingKind without either ingestionMappingColumns or" + " ingestionMappingReference"
                 );
             }
         } else {
@@ -225,9 +224,7 @@ export class IngestionProperties {
             }
             if (this.ingestionMappingColumns) {
                 if (this.ingestionMappingReference) {
-                    throw new IngestionPropertiesValidationError(
-                        "Cannot define both ingestionMappingColumns and ingestionMappingReference"
-                    );
+                    throw new IngestionPropertiesValidationError("Cannot define both ingestionMappingColumns and ingestionMappingReference");
                 }
 
                 if (this.ingestionMappingColumns.length === 0) {
@@ -237,8 +234,7 @@ export class IngestionProperties {
                 const wrongMappings = this.ingestionMappingColumns
                     .filter((m) => m.mappingKind !== mappingKind)
                     .map(
-                        (m) =>
-                            `Mapping kind mismatch for column '${m.columnName}' - expected data format kind -  '${mappingKind}', but was '${m.mappingKind}'`
+                        (m) => `Mapping kind mismatch for column '${m.columnName}' - expected data format kind -  '${mappingKind}', but was '${m.mappingKind}'`
                     );
                 if (wrongMappings.length > 0) {
                     throw new IngestionPropertiesValidationError(`Invalid columns:\n${wrongMappings.join("\n")}`);

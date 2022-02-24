@@ -5,14 +5,7 @@ const IngestClient = require("azure-kusto-ingest").IngestClient;
 const IngestStatusQueues = require("azure-kusto-ingest").IngestStatusQueues;
 const IngestionProps = require("azure-kusto-ingest").IngestionProperties;
 const KustoConnectionStringBuilder = require("azure-kusto-data").KustoConnectionStringBuilder;
-const {
-    DataFormat,
-    JsonColumnMapping,
-    IngestionMappingKind,
-    CompressionType,
-    ReportLevel,
-    ReportMethod,
-} = require("azure-kusto-ingest");
+const { DataFormat, JsonColumnMapping, IngestionMappingKind, CompressionType, ReportLevel, ReportMethod } = require("azure-kusto-ingest");
 const { BlobDescriptor, StreamDescriptor } = require("azure-kusto-ingest").IngestionDescriptors;
 const StreamingIngestClient = require("azure-kusto-ingest").StreamingIngestClient;
 const fs = require("fs");
@@ -37,12 +30,7 @@ const props = new IngestionProps({
 });
 
 const ingestClient = new IngestClient(
-    KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(
-        `https://ingest-${clusterName}.kusto.windows.net`,
-        appId,
-        appKey,
-        authorityId
-    ),
+    KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(`https://ingest-${clusterName}.kusto.windows.net`, appId, appKey, authorityId),
     props
 );
 
@@ -60,12 +48,7 @@ const props2 = new IngestionProps({
 
 // Init with engine endpoint
 const streamingIngestClient = new StreamingIngestClient(
-    KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(
-        `https://${clusterName}.kusto.windows.net`,
-        appId,
-        appKey,
-        authorityId
-    ),
+    KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(`https://${clusterName}.kusto.windows.net`, appId, appKey, authorityId),
     props2
 );
 
@@ -83,12 +66,7 @@ async function startIngestion() {
     }
 
     try {
-        await ingestClient.ingestFromBlob(
-            new BlobDescriptor(
-                "https://<account>.blob.core.windows.net/<container>/file.json.gz",
-                1024 * 50 /* 50MB file */
-            )
-        );
+        await ingestClient.ingestFromBlob(new BlobDescriptor("https://<account>.blob.core.windows.net/<container>/file.json.gz", 1024 * 50 /* 50MB file */));
         console.log("Ingestion done?");
 
         await waitForStatus();

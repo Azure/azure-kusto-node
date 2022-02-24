@@ -39,17 +39,13 @@ export class KustoIngestClient extends AbstractKustoClient {
         return containerClient.getBlockBlobClient(blobName);
     }
 
-    async ingestFromStream(
-        stream: StreamDescriptor | Readable,
-        ingestionProperties: IngestionProperties
-    ): Promise<QueueSendMessageResponse> {
+    async ingestFromStream(stream: StreamDescriptor | Readable, ingestionProperties: IngestionProperties): Promise<QueueSendMessageResponse> {
         const props = this._mergeProps(ingestionProperties);
         props.validate();
         const descriptor: StreamDescriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
 
         const blobName =
-            `${props.database}__${props.table}__${descriptor.sourceId}` +
-            `${this._getBlobNameSuffix(props.format ?? "", descriptor.compressionType)}`;
+            `${props.database}__${props.table}__${descriptor.sourceId}` + `${this._getBlobNameSuffix(props.format ?? "", descriptor.compressionType)}`;
 
         const blockBlobClient = await this._getBlockBlobClient(blobName);
         await blockBlobClient.uploadStream(descriptor.stream);
@@ -57,10 +53,7 @@ export class KustoIngestClient extends AbstractKustoClient {
         return this.ingestFromBlob(new BlobDescriptor(blockBlobClient.url), props); // descriptor.size?
     }
 
-    async ingestFromFile(
-        file: string | FileDescriptor,
-        ingestionProperties: IngestionProperties | null = null
-    ): Promise<QueueSendMessageResponse> {
+    async ingestFromFile(file: string | FileDescriptor, ingestionProperties: IngestionProperties | null = null): Promise<QueueSendMessageResponse> {
         const props = this._mergeProps(ingestionProperties);
         props.validate();
 
@@ -72,16 +65,10 @@ export class KustoIngestClient extends AbstractKustoClient {
         const blockBlobClient = await this._getBlockBlobClient(blobName);
         await blockBlobClient.uploadFile(fileToUpload);
 
-        return this.ingestFromBlob(
-            new BlobDescriptor(blockBlobClient.url, descriptor.size, descriptor.sourceId),
-            props
-        );
+        return this.ingestFromBlob(new BlobDescriptor(blockBlobClient.url, descriptor.size, descriptor.sourceId), props);
     }
 
-    async ingestFromBlob(
-        blob: string | BlobDescriptor,
-        ingestionProperties: IngestionProperties | null = null
-    ): Promise<QueueSendMessageResponse> {
+    async ingestFromBlob(blob: string | BlobDescriptor, ingestionProperties: IngestionProperties | null = null): Promise<QueueSendMessageResponse> {
         const props = this._mergeProps(ingestionProperties);
         props.validate();
 

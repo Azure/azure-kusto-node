@@ -10,13 +10,7 @@ export class ClientRequestProperties {
     public application: string | null;
     public raw?: boolean;
 
-    constructor(
-        options?: Record<string, unknown>,
-        parameters?: Record<string, unknown>,
-        clientRequestId?: string,
-        user?: string,
-        application?: string
-    ) {
+    constructor(options?: Record<string, unknown>, parameters?: Record<string, unknown>, clientRequestId?: string, user?: string, application?: string) {
         this._options = options || {};
         this._parameters = parameters || {};
         this.clientRequestId = clientRequestId || null;

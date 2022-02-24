@@ -12,12 +12,7 @@ const IngestionProps = require("azure-kusto-ingest").IngestionProperties;
 const KustoConnectionStringBuilder = require("azure-kusto-data").KustoConnectionStringBuilder;
 const { DataFormat, JsonColumnMapping } = require("azure-kusto-ingest");
 
-const kcsb = KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(
-    `https://ingest-${cluster}.kusto.windows.net`,
-    appId,
-    appKey,
-    authorityId
-);
+const kcsb = KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(`https://ingest-${cluster}.kusto.windows.net`, appId, appKey, authorityId);
 
 const ingestionProps = new IngestionProps({
     database: "Database",
@@ -81,23 +76,14 @@ const kcsb = KustoConnectionStringBuilder.withAadApplicationCertificateAuthentic
 ### Username/Password
 
 ```javascript
-KustoConnectionStringBuilder.withAadUserPasswordAuthentication(
-    `https://${clusterName}.kusto.windows.net`,
-    "username",
-    "password"
-);
+KustoConnectionStringBuilder.withAadUserPasswordAuthentication(`https://${clusterName}.kusto.windows.net`, "username", "password");
 ```
 
 Authority is optional _when it can be inferred from the domain_ ('user@microsoft.com' would make the authority 'microsoft.com').
 In any case it is possible to pass the authority id
 
 ```javascript
-KustoConnectionStringBuilder.withAadUserPasswordAuthentication(
-    `https://ingest-${clusterName}.kusto.windows.net`,
-    "username",
-    "password",
-    "authorityId"
-);
+KustoConnectionStringBuilder.withAadUserPasswordAuthentication(`https://ingest-${clusterName}.kusto.windows.net`, "username", "password", "authorityId");
 ```
 
 ### Device
@@ -112,16 +98,10 @@ KustoConnectionStringBuilder.withAadDeviceAuthentication(`https://${clusterName}
 
 // in case you want to do your own thing with the response, you can pass a callback
 // NOTICE: code will still block until device is authenticated
-KustoConnectionStringBuilder.withAadDeviceAuthentication(
-    `https://${clusterName}.kusto.windows.net`,
-    authId,
-    (tokenResponse) => {
-        // your code, for example copy to clipboard or open url in browser
-        console.log(
-            "Open " + tokenResponse.verificationUrl + " and use " + tokenResponse.userCode + " code to authorize."
-        );
-    }
-);
+KustoConnectionStringBuilder.withAadDeviceAuthentication(`https://${clusterName}.kusto.windows.net`, authId, (tokenResponse) => {
+    // your code, for example copy to clipboard or open url in browser
+    console.log("Open " + tokenResponse.verificationUrl + " and use " + tokenResponse.userCode + " code to authorize.");
+});
 ```
 
 ## Usage
@@ -210,21 +190,12 @@ const { DataFormat, JsonColumnMapping } = require("azure-kusto-ingest");
 const fs = require("fs");
 
 const ingestClient = new IngestClient(
-    KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(
-        `https://ingest-${clusterName}.kusto.windows.net`,
-        appId,
-        appKey,
-        authorityId
-    ),
+    KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(`https://ingest-${clusterName}.kusto.windows.net`, appId, appKey, authorityId),
     new IngestionProps(
         "db",
         "table",
         DataFormat.JSON,
-        [
-            new JsonColumnMapping("Id", "$.id"),
-            new JsonColumnMapping("Type", "$.type"),
-            new JsonColumnMapping("Value", "$.type"),
-        ],
+        [new JsonColumnMapping("Id", "$.id"), new JsonColumnMapping("Type", "$.type"), new JsonColumnMapping("Value", "$.type")],
         null,
         null,
         null,

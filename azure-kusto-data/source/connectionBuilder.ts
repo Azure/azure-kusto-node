@@ -55,12 +55,7 @@ const KeywordMapping: KeywordMappingRecordType = Object.freeze<Readonly<KeywordM
     },
     applicationCertificateX5c: {
         mappedTo: "Application Certificate x5c",
-        validNames: [
-            "application certificate x5c",
-            "Application Certificate Send Public Certificate",
-            "Application Certificate SendX5c",
-            "SendX5c",
-        ],
+        validNames: ["application certificate x5c", "Application Certificate Send Public Certificate", "Application Certificate SendX5c", "SendX5c"],
     },
     authorityId: {
         mappedTo: "Authority Id",
@@ -125,8 +120,7 @@ export class KustoConnectionStringBuilder {
             const kvp = item.split("=");
             const [mappingTypeName, mappingType] = getPropName(kvp[0]);
             if (mappingType.isBool) {
-                this[mappingTypeName as KeyOfType<KustoConnectionStringBuilder, boolean | undefined>] =
-                    kvp[1].trim().toLowerCase() === "true";
+                this[mappingTypeName as KeyOfType<KustoConnectionStringBuilder, boolean | undefined>] = kvp[1].trim().toLowerCase() === "true";
             } else {
                 this[mappingTypeName as KeyOfType<KustoConnectionStringBuilder, string | undefined>] = kvp[1]?.trim();
             }
@@ -154,12 +148,7 @@ export class KustoConnectionStringBuilder {
         return Object.assign({}, other);
     }
 
-    static withAadUserPasswordAuthentication(
-        connectionString: string,
-        userId: string,
-        password: string,
-        authorityId?: string
-    ) {
+    static withAadUserPasswordAuthentication(connectionString: string, userId: string, password: string, authorityId?: string) {
         if (userId.trim().length === 0) throw new Error("Invalid user");
         if (password.trim().length === 0) throw new Error("Invalid password");
 
@@ -174,12 +163,7 @@ export class KustoConnectionStringBuilder {
         return kcsb;
     }
 
-    static withAadApplicationKeyAuthentication(
-        connectionString: string,
-        aadAppId: string,
-        appKey: string,
-        authorityId?: string
-    ) {
+    static withAadApplicationKeyAuthentication(connectionString: string, aadAppId: string, appKey: string, authorityId?: string) {
         if (aadAppId.trim().length === 0) throw new Error("Invalid app id");
         if (appKey.trim().length === 0) throw new Error("Invalid app key");
 
@@ -234,12 +218,7 @@ export class KustoConnectionStringBuilder {
         return kcsb;
     }
 
-    static withAadManagedIdentities(
-        connectionString: string,
-        msiClientId?: string,
-        authorityId?: string,
-        timeoutMs?: number
-    ) {
+    static withAadManagedIdentities(connectionString: string, msiClientId?: string, authorityId?: string, timeoutMs?: number) {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         kcsb.aadFederatedSecurity = true;
         if (authorityId) {
@@ -283,13 +262,7 @@ export class KustoConnectionStringBuilder {
         return kcsb;
     }
 
-    static withUserPrompt(
-        connectionString: string,
-        authorityId?: string,
-        clientId?: string,
-        timeoutMs?: number,
-        loginHint?: string
-    ) {
+    static withUserPrompt(connectionString: string, authorityId?: string, clientId?: string, timeoutMs?: number, loginHint?: string) {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         kcsb.aadFederatedSecurity = true;
 

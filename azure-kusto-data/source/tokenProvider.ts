@@ -5,12 +5,7 @@
 
 import { ConfidentialClientApplication, PublicClientApplication } from "@azure/msal-node";
 import { DeviceCodeResponse } from "@azure/msal-common";
-import {
-    AzureCliCredential,
-    InteractiveBrowserCredential,
-    ManagedIdentityCredential,
-    TokenCredentialOptions,
-} from "@azure/identity";
+import { AzureCliCredential, InteractiveBrowserCredential, ManagedIdentityCredential, TokenCredentialOptions } from "@azure/identity";
 import { CloudInfo, CloudSettings } from "./cloudSettings";
 import { TokenCredential } from "@azure/core-auth";
 
@@ -199,9 +194,7 @@ export abstract class AzureIdentityProvider extends MsalTokenProvider {
 export class MsiTokenProvider extends AzureIdentityProvider {
     getCredential(): TokenCredential {
         const options: TokenCredentialOptions = this.getCommonOptions();
-        return this.clientId
-            ? new ManagedIdentityCredential(this.clientId, options)
-            : new ManagedIdentityCredential(options);
+        return this.clientId ? new ManagedIdentityCredential(this.clientId, options) : new ManagedIdentityCredential(options);
     }
 }
 
@@ -221,13 +214,7 @@ export class UserPromptProvider extends AzureIdentityProvider {
     // The default port is 80, which can lead to permission errors, so we'll choose another port
     readonly BrowserPort = 23145;
 
-    constructor(
-        kustoUri: string,
-        authorityId: string,
-        clientId?: string,
-        timeoutMs?: number,
-        private loginHint?: string
-    ) {
+    constructor(kustoUri: string, authorityId: string, clientId?: string, timeoutMs?: number, private loginHint?: string) {
         super(kustoUri, authorityId, clientId, timeoutMs);
     }
 
@@ -396,14 +383,7 @@ export class ApplicationCertificateTokenProvider extends MsalTokenProvider {
     certX5c?: string;
     msalClient!: ConfidentialClientApplication;
 
-    constructor(
-        kustoUri: string,
-        appClientId: string,
-        certThumbprint: string,
-        certPrivateKey: string,
-        certX5c?: string,
-        authorityId?: string
-    ) {
+    constructor(kustoUri: string, appClientId: string, certThumbprint: string, certPrivateKey: string, certX5c?: string, authorityId?: string) {
         super(kustoUri, authorityId!);
         this.appClientId = appClientId;
         this.certThumbprint = certThumbprint;

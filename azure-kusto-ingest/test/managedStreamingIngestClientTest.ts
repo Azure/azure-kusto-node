@@ -18,10 +18,7 @@ import assert from "assert";
 import uuidValidate from "uuid-validate";
 import { KustoConnectionStringBuilder } from "azure-kusto-data";
 
-type IngestFromStreamStub = Sinon.SinonStub<
-    [StreamDescriptor | Readable, IngestionProperties, string?],
-    Promise<QueueSendMessageResponse>
->;
+type IngestFromStreamStub = Sinon.SinonStub<[StreamDescriptor | Readable, IngestionProperties, string?], Promise<QueueSendMessageResponse>>;
 
 describe("ManagedStreamingIngestClient", () => {
     const getMockedClient = () => {
@@ -105,11 +102,7 @@ describe("ManagedStreamingIngestClient", () => {
                 streamStub.returns(Promise.resolve({}));
                 queuedStub.throws(new Error("Should not be called"));
 
-                const items = [
-                    Buffer.alloc(1024 * 1024, "a"),
-                    Buffer.alloc(1024 * 1024, "b"),
-                    Buffer.alloc(1024 * 1024, "c"),
-                ];
+                const items = [Buffer.alloc(1024 * 1024, "a"), Buffer.alloc(1024 * 1024, "b"), Buffer.alloc(1024 * 1024, "c")];
                 const stream = createStream(items);
 
                 await managedClient.ingestFromStream(
@@ -211,45 +204,29 @@ describe("ManagedStreamingIngestClient", () => {
     describe("helper methods", () => {
         /* eslint-disable @typescript-eslint/no-unsafe-member-access -- needed for checking private members */
         it("should be able to create a ManagedStreamingIngestClient from a DM URI", () => {
-            const client = KustoManagedStreamingIngestClient.fromDmConnectionString(
-                new KustoConnectionStringBuilder("https://ingest-dummy.kusto.windows.net")
-            );
+            const client = KustoManagedStreamingIngestClient.fromDmConnectionString(new KustoConnectionStringBuilder("https://ingest-dummy.kusto.windows.net"));
 
             assert.strictEqual(
                 (client as any).queuedIngestClient.resourceManager.kustoClient.connectionString.dataSource,
                 "https://ingest-dummy.kusto.windows.net"
             );
-            assert.strictEqual(
-                (client as any).streamingIngestClient.kustoClient.connectionString.dataSource,
-                "https://dummy.kusto.windows.net"
-            );
+            assert.strictEqual((client as any).streamingIngestClient.kustoClient.connectionString.dataSource, "https://dummy.kusto.windows.net");
         });
         it("should fail when trying to create a ManagedStreamingIngestClient from an invalid DM URI", () => {
-            assert.throws(() =>
-                KustoManagedStreamingIngestClient.fromDmConnectionString(
-                    new KustoConnectionStringBuilder("https://dummy.kusto.windows.net")
-                )
-            );
+            assert.throws(() => KustoManagedStreamingIngestClient.fromDmConnectionString(new KustoConnectionStringBuilder("https://dummy.kusto.windows.net")));
         });
         it("should be able to create a ManagedStreamingIngestClient from an Engine URI", () => {
-            const client = KustoManagedStreamingIngestClient.fromEngineConnectionString(
-                new KustoConnectionStringBuilder("https://dummy.kusto.windows.net")
-            );
+            const client = KustoManagedStreamingIngestClient.fromEngineConnectionString(new KustoConnectionStringBuilder("https://dummy.kusto.windows.net"));
 
             assert.strictEqual(
                 (client as any).queuedIngestClient.resourceManager.kustoClient.connectionString.dataSource,
                 "https://ingest-dummy.kusto.windows.net"
             );
-            assert.strictEqual(
-                (client as any).streamingIngestClient.kustoClient.connectionString.dataSource,
-                "https://dummy.kusto.windows.net"
-            );
+            assert.strictEqual((client as any).streamingIngestClient.kustoClient.connectionString.dataSource, "https://dummy.kusto.windows.net");
         });
         it("should fail when trying to create a ManagedStreamingIngestClient from an invalid Engine URI", () => {
             assert.throws(() =>
-                KustoManagedStreamingIngestClient.fromEngineConnectionString(
-                    new KustoConnectionStringBuilder("https://ingest-dummy.kusto.windows.net")
-                )
+                KustoManagedStreamingIngestClient.fromEngineConnectionString(new KustoConnectionStringBuilder("https://ingest-dummy.kusto.windows.net"))
             );
         });
 

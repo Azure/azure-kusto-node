@@ -82,11 +82,7 @@ export class StreamDescriptor {
     size: number | null;
     compressionType: CompressionType;
     sourceId: string;
-    constructor(
-        readonly stream: Readable,
-        sourceId: string | null = null,
-        compressionType: CompressionType = CompressionType.None
-    ) {
+    constructor(readonly stream: Readable, sourceId: string | null = null, compressionType: CompressionType = CompressionType.None) {
         this.name = "stream";
         this.size = null;
         this.compressionType = compressionType;

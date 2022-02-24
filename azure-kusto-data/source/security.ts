@@ -14,12 +14,7 @@ export class AadHelper {
         }
 
         if (!!kcsb.aadUserId && !!kcsb.password) {
-            this.tokenProvider = new TokenProvider.UserPassTokenProvider(
-                kcsb.dataSource,
-                kcsb.aadUserId,
-                kcsb.password,
-                kcsb.authorityId
-            );
+            this.tokenProvider = new TokenProvider.UserPassTokenProvider(kcsb.dataSource, kcsb.aadUserId, kcsb.password, kcsb.authorityId);
         } else if (!!kcsb.applicationClientId && !!kcsb.applicationKey) {
             this.tokenProvider = new TokenProvider.ApplicationKeyTokenProvider(
                 kcsb.dataSource,
@@ -27,11 +22,7 @@ export class AadHelper {
                 kcsb.applicationKey,
                 kcsb.authorityId
             );
-        } else if (
-            !!kcsb.applicationClientId &&
-            !!kcsb.applicationCertificateThumbprint &&
-            !!kcsb.applicationCertificatePrivateKey
-        ) {
+        } else if (!!kcsb.applicationClientId && !!kcsb.applicationCertificateThumbprint && !!kcsb.applicationCertificatePrivateKey) {
             this.tokenProvider = new TokenProvider.ApplicationCertificateTokenProvider(
                 kcsb.dataSource,
                 kcsb.applicationClientId,
@@ -41,19 +32,9 @@ export class AadHelper {
                 kcsb.authorityId
             );
         } else if (kcsb.useManagedIdentityAuth) {
-            this.tokenProvider = new TokenProvider.MsiTokenProvider(
-                kcsb.dataSource,
-                kcsb.authorityId,
-                kcsb.msiClientId,
-                kcsb.timeoutMs
-            );
+            this.tokenProvider = new TokenProvider.MsiTokenProvider(kcsb.dataSource, kcsb.authorityId, kcsb.msiClientId, kcsb.timeoutMs);
         } else if (kcsb.useAzLoginAuth) {
-            this.tokenProvider = new TokenProvider.AzCliTokenProvider(
-                kcsb.dataSource,
-                kcsb.authorityId,
-                undefined,
-                kcsb.timeoutMs
-            );
+            this.tokenProvider = new TokenProvider.AzCliTokenProvider(kcsb.dataSource, kcsb.authorityId, undefined, kcsb.timeoutMs);
         } else if (kcsb.accessToken) {
             this.tokenProvider = new TokenProvider.BasicTokenProvider(kcsb.dataSource, kcsb.accessToken as string);
         } else if (kcsb.useUserPromptAuth) {
@@ -75,11 +56,7 @@ export class AadHelper {
                     {}
                 );
             }
-            this.tokenProvider = new TokenProvider.DeviceLoginTokenProvider(
-                kcsb.dataSource,
-                kcsb.deviceCodeCallback,
-                kcsb.authorityId
-            );
+            this.tokenProvider = new TokenProvider.DeviceLoginTokenProvider(kcsb.dataSource, kcsb.deviceCodeCallback, kcsb.authorityId);
         }
     }
 

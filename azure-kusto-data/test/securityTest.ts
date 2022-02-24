@@ -12,8 +12,7 @@ import { loginTest, manualLoginTest } from "./data/testUtils";
 
 describe("test errors", () => {
     before(() => {
-        CloudSettings.getInstance().cloudCache["https://somecluster.kusto.windows.net"] =
-            CloudSettings.getInstance().defaultCloudInfo;
+        CloudSettings.getInstance().cloudCache["https://somecluster.kusto.windows.net"] = CloudSettings.getInstance().defaultCloudInfo;
     });
 
     it("no data source", () => {
@@ -26,12 +25,7 @@ describe("test errors", () => {
     it("test user pass", async () => {
         const cluster = "https://somecluster.kusto.windows.net";
         const username = "username@microsoft.com";
-        const kcsb = KustoConnectionStringBuilder.withAadUserPasswordAuthentication(
-            cluster,
-            username,
-            "password",
-            "organizations"
-        );
+        const kcsb = KustoConnectionStringBuilder.withAadUserPasswordAuthentication(cluster, username, "password", "organizations");
 
         const helper = new AadHelper(kcsb);
         try {
@@ -49,12 +43,7 @@ describe("test errors", () => {
         const cluster = "https://somecluster.kusto.windows.net";
         const appId = "86f7361f-15b7-4f10-aef5-3ce66ac73766";
         const key = "private_key";
-        const kcsb = KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(
-            cluster,
-            appId,
-            key,
-            "organizations"
-        );
+        const kcsb = KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(cluster, appId, key, "organizations");
 
         const helper = new AadHelper(kcsb);
         try {
@@ -86,13 +75,7 @@ describe("test errors", () => {
             "U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ\n" +
             "37sJ5QsW+sJyoNde3xH8vdXhzU7eT82D6X/scw9RZz+/6rCJ4p0=\n" +
             "-----END RSA PRIVATE KEY-----";
-        const kcsb = KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(
-            cluster,
-            appId,
-            privateKey,
-            thumb,
-            "organizations"
-        );
+        const kcsb = KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(cluster, appId, privateKey, thumb, "organizations");
 
         const helper = new AadHelper(kcsb);
         try {
@@ -113,11 +96,7 @@ describe("test errors", () => {
         kcsb.authorityId = "common";
         kcsb.useDeviceCodeAuth = true;
 
-        assert.throws(
-            () => new AadHelper(kcsb),
-            KustoAuthenticationError,
-            "Device code authentication is not supported without a function"
-        );
+        assert.throws(() => new AadHelper(kcsb), KustoAuthenticationError, "Device code authentication is not supported without a function");
     });
 
     it("test msi", async () => {
@@ -140,8 +119,7 @@ describe("test errors", () => {
 
 describe("Test providers", () => {
     before(() => {
-        CloudSettings.getInstance().cloudCache["https://somecluster.kusto.windows.net"] =
-            CloudSettings.getInstance().defaultCloudInfo;
+        CloudSettings.getInstance().cloudCache["https://somecluster.kusto.windows.net"] = CloudSettings.getInstance().defaultCloudInfo;
     });
 
     it("test null", async () => {

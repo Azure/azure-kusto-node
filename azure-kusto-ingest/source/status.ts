@@ -17,14 +17,7 @@ export class StatusMessage {
 
     [other: string]: any;
     constructor(raw: any, obj: any, extraProps: string[] | null) {
-        let props: string[] = [
-            "OperationId",
-            "Database",
-            "Table",
-            "IngestionSourceId",
-            "IngestionSourcePath",
-            "RootActivityId",
-        ];
+        let props: string[] = ["OperationId", "Database", "Table", "IngestionSourceId", "IngestionSourcePath", "RootActivityId"];
 
         if (extraProps && extraProps.length > 0) {
             props = props.concat(extraProps);
@@ -54,14 +47,7 @@ class FailureMessage extends StatusMessage {
     OriginatesFromUpdatePolicy?: string;
     ShouldRetry?: string;
     constructor(raw: any, obj: any) {
-        super(raw, obj, [
-            "FailedOn",
-            "Details",
-            "ErrorCode",
-            "FailureStatus",
-            "OriginatesFromUpdatePolicy",
-            "ShouldRetry",
-        ]);
+        super(raw, obj, ["FailedOn", "Details", "ErrorCode", "FailureStatus", "OriginatesFromUpdatePolicy", "ShouldRetry"]);
     }
 }
 
@@ -69,14 +55,8 @@ export class KustoIngestStatusQueues {
     success: StatusQueue;
     failure: StatusQueue;
     constructor(kustoIngestClient: KustoIngestClient) {
-        this.success = new StatusQueue(
-            () => kustoIngestClient.resourceManager.getSuccessfulIngestionsQueues().then((r) => r as ResourceURI[]),
-            SuccessMessage
-        );
-        this.failure = new StatusQueue(
-            () => kustoIngestClient.resourceManager.getFailedIngestionsQueues().then((r) => r as ResourceURI[]),
-            FailureMessage
-        );
+        this.success = new StatusQueue(() => kustoIngestClient.resourceManager.getSuccessfulIngestionsQueues().then((r) => r as ResourceURI[]), SuccessMessage);
+        this.failure = new StatusQueue(() => kustoIngestClient.resourceManager.getFailedIngestionsQueues().then((r) => r as ResourceURI[]), FailureMessage);
     }
 }
 

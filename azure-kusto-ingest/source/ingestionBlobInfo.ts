@@ -20,11 +20,7 @@ export class IngestionBlobInfo {
     Id: string;
     AdditionalProperties: { [additional: string]: any };
 
-    constructor(
-        blobDescriptor: BlobDescriptor,
-        ingestionProperties: IngestionProperties,
-        authContext: string | null = null
-    ) {
+    constructor(blobDescriptor: BlobDescriptor, ingestionProperties: IngestionProperties, authContext: string | null = null) {
         this.BlobPath = blobDescriptor.path;
         this.RawDataSize = blobDescriptor.size;
         this.DatabaseName = ingestionProperties.database ?? null;
@@ -61,9 +57,7 @@ export class IngestionBlobInfo {
 
         if (ingestionProperties.ingestionMappingColumns && ingestionProperties.ingestionMappingColumns.length > 0) {
             // server expects a string
-            additionalProperties.ingestionMapping = JSON.stringify(
-                ingestionProperties.ingestionMappingColumns.map((m) => m.toApiMapping())
-            );
+            additionalProperties.ingestionMapping = JSON.stringify(ingestionProperties.ingestionMappingColumns.map((m) => m.toApiMapping()));
         }
 
         if (ingestionProperties.ingestionMappingReference) {

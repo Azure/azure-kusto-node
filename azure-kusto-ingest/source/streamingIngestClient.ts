@@ -19,19 +19,12 @@ class KustoStreamingIngestClient extends AbstractKustoClient {
         this.kustoClient = new KustoClient(kcsb);
     }
 
-    async ingestFromStream(
-        stream: StreamDescriptor | Readable,
-        ingestionProperties: IngestionProperties,
-        clientRequestId?: string
-    ): Promise<any> {
+    async ingestFromStream(stream: StreamDescriptor | Readable, ingestionProperties: IngestionProperties, clientRequestId?: string): Promise<any> {
         const props = this._mergeProps(ingestionProperties);
         props.validate();
         const descriptor: StreamDescriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
 
-        const compressedStream =
-            descriptor.compressionType === CompressionType.None
-                ? descriptor.stream.pipe(zlib.createGzip())
-                : descriptor.stream;
+        const compressedStream = descriptor.compressionType === CompressionType.None ? descriptor.stream.pipe(zlib.createGzip()) : descriptor.stream;
         return this.kustoClient.executeStreamingIngest(
             props.database as string,
             props.table as string,
@@ -42,10 +35,7 @@ class KustoStreamingIngestClient extends AbstractKustoClient {
         );
     }
 
-    async ingestFromFile(
-        file: FileDescriptor | string,
-        ingestionProperties: IngestionProperties
-    ): Promise<KustoResponseDataSet> {
+    async ingestFromFile(file: FileDescriptor | string, ingestionProperties: IngestionProperties): Promise<KustoResponseDataSet> {
         const props = this._mergeProps(ingestionProperties);
         props.validate();
         return this.ingestFromStream(fileToStream(file), ingestionProperties);

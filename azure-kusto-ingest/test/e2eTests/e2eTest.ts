@@ -7,11 +7,7 @@ import assert from "assert";
 import fs, { ReadStream } from "fs";
 import IngestClient from "../../source/ingestClient";
 import KustoIngestStatusQueues from "../../source/status";
-import {
-    Client,
-    ClientRequestProperties,
-    KustoConnectionStringBuilder as ConnectionStringBuilder,
-} from "azure-kusto-data";
+import { Client, ClientRequestProperties, KustoConnectionStringBuilder as ConnectionStringBuilder } from "azure-kusto-data";
 import StreamingIngestClient from "../../source/streamingIngestClient";
 import ManagedStreamingIngestClient from "../../source/managedStreamingIngestClient";
 import { CompressionType, StreamDescriptor } from "../../source/descriptors";
@@ -37,20 +33,10 @@ const main = (): void => {
         return;
     }
 
-    const engineKcsb = ConnectionStringBuilder.withAadApplicationKeyAuthentication(
-        process.env.ENGINE_CONNECTION_STRING ?? "",
-        appId,
-        appKey,
-        tenantId
-    );
+    const engineKcsb = ConnectionStringBuilder.withAadApplicationKeyAuthentication(process.env.ENGINE_CONNECTION_STRING ?? "", appId, appKey, tenantId);
     const queryClient = new Client(engineKcsb);
     const streamingIngestClient = new StreamingIngestClient(engineKcsb);
-    const dmKcsb = ConnectionStringBuilder.withAadApplicationKeyAuthentication(
-        process.env.DM_CONNECTION_STRING ?? "",
-        appId,
-        appKey,
-        tenantId
-    );
+    const dmKcsb = ConnectionStringBuilder.withAadApplicationKeyAuthentication(process.env.DM_CONNECTION_STRING ?? "", appId, appKey, tenantId);
     const ingestClient = new IngestClient(dmKcsb);
     const statusQueues = new KustoIngestStatusQueues(ingestClient);
     const managedStreamingIngestClient = new ManagedStreamingIngestClient(engineKcsb, dmKcsb);
@@ -101,32 +87,10 @@ const main = (): void => {
     const testItems = [
         new TestDataItem("csv", getTestResourcePath("dataset.csv"), 10, ingestionPropertiesWithoutMapping),
         new TestDataItem("csv.gz", getTestResourcePath("dataset_gzip.csv.gz"), 10, ingestionPropertiesWithoutMapping),
-        new TestDataItem(
-            "json with mapping ref",
-            getTestResourcePath("dataset.json"),
-            2,
-            ingestionPropertiesWithMappingReference
-        ),
-        new TestDataItem(
-            "json.gz with mapping ref",
-            getTestResourcePath("dataset_gzip.json.gz"),
-            2,
-            ingestionPropertiesWithMappingReference
-        ),
-        new TestDataItem(
-            "json with mapping",
-            getTestResourcePath("dataset.json"),
-            2,
-            ingestionPropertiesWithColumnMapping,
-            false
-        ),
-        new TestDataItem(
-            "json.gz with mapping",
-            getTestResourcePath("dataset_gzip.json.gz"),
-            2,
-            ingestionPropertiesWithColumnMapping,
-            false
-        ),
+        new TestDataItem("json with mapping ref", getTestResourcePath("dataset.json"), 2, ingestionPropertiesWithMappingReference),
+        new TestDataItem("json.gz with mapping ref", getTestResourcePath("dataset_gzip.json.gz"), 2, ingestionPropertiesWithMappingReference),
+        new TestDataItem("json with mapping", getTestResourcePath("dataset.json"), 2, ingestionPropertiesWithColumnMapping, false),
+        new TestDataItem("json.gz with mapping", getTestResourcePath("dataset_gzip.json.gz"), 2, ingestionPropertiesWithColumnMapping, false),
     ];
 
     let currentCount = 0;
@@ -148,10 +112,7 @@ const main = (): void => {
 
                 console.log("Create table ingestion mapping");
                 try {
-                    await queryClient.execute(
-                        databaseName,
-                        `.create-or-alter table ${tableName} ingestion json mapping '${mappingName}' '${mapping}'`
-                    );
+                    await queryClient.execute(databaseName, `.create-or-alter table ${tableName} ingestion json mapping '${mappingName}' '${mapping}'`);
                 } catch (err) {
                     assert.fail("Failed to create table ingestion mapping, error: " + JSON.stringify(err));
                 }
@@ -162,12 +123,8 @@ const main = (): void => {
 
         describe("cloud info", () => {
             it("Cached cloud info", () => {
-                const cloudInfo =
-                    CloudSettings.getInstance().cloudCache[process.env.ENGINE_CONNECTION_STRING as string]; // it should be already in the cache at this point
-                assert.strictEqual(
-                    cloudInfo.KustoClientAppId,
-                    CloudSettings.getInstance().defaultCloudInfo.KustoClientAppId
-                );
+                const cloudInfo = CloudSettings.getInstance().cloudCache[process.env.ENGINE_CONNECTION_STRING as string]; // it should be already in the cache at this point
+                assert.strictEqual(cloudInfo.KustoClientAppId, CloudSettings.getInstance().defaultCloudInfo.KustoClientAppId);
             });
 
             it("cloud info 404", async () => {
@@ -371,11 +328,7 @@ const main = (): void => {
             await sleep(3000);
         }
         currentCount += count;
-        assert.strictEqual(
-            count,
-            expected,
-            `Failed to ingest ${testItem.description} - '${count}' rows ingested, expected '${expected}'`
-        );
+        assert.strictEqual(count, expected, `Failed to ingest ${testItem.description} - '${count}' rows ingested, expected '${expected}'`);
         console.log(`${testItem.description} - '${count}' rows ingested, expected '${expected}'`);
     };
 };

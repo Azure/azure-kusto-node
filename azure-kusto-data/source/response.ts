@@ -115,9 +115,7 @@ export abstract class KustoResponseDataSet {
             const statusColumn = this.getStatusColumn();
             for (const row of this.statusTable.rows()) {
                 if (row[errorColumn] <= errorLevel) {
-                    result.push(
-                        `Please provide the following data to Kusto: CRID=${row[cridColumn]} Description: ${row[statusColumn]}`
-                    );
+                    result.push(`Please provide the following data to Kusto: CRID=${row[cridColumn]} Description: ${row[statusColumn]}`);
                 }
             }
         }

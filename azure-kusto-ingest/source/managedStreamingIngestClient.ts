@@ -79,10 +79,7 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
         this.queuedIngestClient = new IngestClient(dmKcsb, defaultProps);
     }
 
-    async ingestFromStream(
-        stream: StreamDescriptor | Readable,
-        ingestionProperties: IngestionProperties
-    ): Promise<any> {
+    async ingestFromStream(stream: StreamDescriptor | Readable, ingestionProperties: IngestionProperties): Promise<any> {
         const props = this._mergeProps(ingestionProperties);
         props.validate();
         const descriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
@@ -112,16 +109,10 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
             result = streamify([result]);
         }
 
-        return await this.queuedIngestClient.ingestFromStream(
-            new StreamDescriptor(result).merge(descriptor),
-            ingestionProperties
-        );
+        return await this.queuedIngestClient.ingestFromStream(new StreamDescriptor(result).merge(descriptor), ingestionProperties);
     }
 
-    async ingestFromFile(
-        file: FileDescriptor | string,
-        ingestionProperties: IngestionProperties
-    ): Promise<KustoResponseDataSet | QueueSendMessageResponse> {
+    async ingestFromFile(file: FileDescriptor | string, ingestionProperties: IngestionProperties): Promise<KustoResponseDataSet | QueueSendMessageResponse> {
         const props = this._mergeProps(ingestionProperties);
         props.validate();
         return await this.ingestFromStream(fileToStream(file), ingestionProperties);
