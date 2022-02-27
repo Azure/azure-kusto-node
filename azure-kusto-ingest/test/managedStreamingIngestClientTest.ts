@@ -34,6 +34,10 @@ describe("ManagedStreamingIngestClient", () => {
                 queuedIngestClient: mockedIngestClient,
                 baseSleepTimeSecs: 0,
                 baseJitterSecs: 0,
+                defaultProps: new IngestionProperties({
+                    database: "db",
+                    table: "table",
+                }),
             },
             KustoManagedStreamingIngestClient.prototype
         );
@@ -169,6 +173,7 @@ describe("ManagedStreamingIngestClient", () => {
                         maxRetries: 1,
                         baseSleepTimeSecs: 0,
                         baseJitterSecs: 0,
+                        defaultProps: new IngestionProperties({}),
                     },
                     KustoManagedStreamingIngestClient.prototype
                 );
