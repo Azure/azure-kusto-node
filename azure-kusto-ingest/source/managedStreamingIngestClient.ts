@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import IngestionProperties from "./ingestionProperties";
+import { IngestionPropertiesInput } from "./ingestionProperties";
 
 import { FileDescriptor, StreamDescriptor } from "./descriptors";
 import { AbstractKustoClient } from "./abstractKustoClient";
@@ -35,7 +35,7 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
      */
     static fromDmConnectionString(
         dmConnectionString: KustoConnectionStringBuilder,
-        defaultProps: IngestionProperties | null = null
+        defaultProps?: IngestionPropertiesInput
     ): KustoManagedStreamingIngestClient {
         if (dmConnectionString.dataSource == null || !dmConnectionString.dataSource.startsWith(ingestPrefix)) {
             throw new Error(`DM connection string must include the prefix '${ingestPrefix}'`);
@@ -57,7 +57,7 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
      */
     static fromEngineConnectionString(
         engineConnectionString: KustoConnectionStringBuilder,
-        defaultProps: IngestionProperties | null = null
+        defaultProps?: IngestionPropertiesInput
     ): KustoManagedStreamingIngestClient {
         if (engineConnectionString.dataSource == null || engineConnectionString.dataSource.startsWith(ingestPrefix)) {
             throw new Error(`Engine connection string must not include the prefix '${ingestPrefix}'`);
@@ -69,19 +69,14 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
         return new KustoManagedStreamingIngestClient(engineConnectionString, dmConnectionString, defaultProps);
     }
 
-    constructor(
-        engineKcsb: string | KustoConnectionStringBuilder,
-        dmKcsb: string | KustoConnectionStringBuilder,
-        defaultProps: IngestionProperties | null = null
-    ) {
+    constructor(engineKcsb: string | KustoConnectionStringBuilder, dmKcsb: string | KustoConnectionStringBuilder, defaultProps?: IngestionPropertiesInput) {
         super(defaultProps);
         this.streamingIngestClient = new StreamingIngestClient(engineKcsb, defaultProps);
         this.queuedIngestClient = new IngestClient(dmKcsb, defaultProps);
     }
 
-    async ingestFromStream(stream: StreamDescriptor | Readable, ingestionProperties: IngestionProperties): Promise<any> {
-        const props = this._mergeProps(ingestionProperties);
-        props.validate();
+    async ingestFromStream(stream: StreamDescriptor | Readable, ingestionProperties?: IngestionPropertiesInput): Promise<any> {
+        const props = this._getMergedProps(ingestionProperties);
         const descriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
 
         let result = await tryStreamToArray(descriptor.stream, maxStreamSize);
@@ -92,11 +87,7 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
             while (retry.shouldTry()) {
                 try {
                     const sourceId = `KNC.executeManagedStreamingIngest;${descriptor.sourceId};${retry.currentAttempt}`;
-                    return await this.streamingIngestClient.ingestFromStream(
-                        new StreamDescriptor(streamify([result])).merge(descriptor),
-                        ingestionProperties,
-                        sourceId
-                    );
+                    return await this.streamingIngestClient.ingestFromStream(new StreamDescriptor(streamify([result])).merge(descriptor), props, sourceId);
                 } catch (err: unknown) {
                     const oneApiError = err as { "@permanent"?: boolean };
                     if (oneApiError["@permanent"]) {
@@ -112,9 +103,10 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
         return await this.queuedIngestClient.ingestFromStream(new StreamDescriptor(result).merge(descriptor), ingestionProperties);
     }
 
-    async ingestFromFile(file: FileDescriptor | string, ingestionProperties: IngestionProperties): Promise<KustoResponseDataSet | QueueSendMessageResponse> {
-        const props = this._mergeProps(ingestionProperties);
-        props.validate();
+    async ingestFromFile(
+        file: FileDescriptor | string,
+        ingestionProperties?: IngestionPropertiesInput
+    ): Promise<KustoResponseDataSet | QueueSendMessageResponse> {
         return await this.ingestFromStream(fileToStream(file), ingestionProperties);
     }
 }

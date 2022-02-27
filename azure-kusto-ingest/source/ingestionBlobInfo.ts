@@ -26,7 +26,7 @@ export class IngestionBlobInfo {
         this.DatabaseName = ingestionProperties.database ?? null;
         this.TableName = ingestionProperties.table ?? null;
         this.RetainBlobOnSuccess = true;
-        this.FlushImmediately = ingestionProperties.flushImmediately;
+        this.FlushImmediately = ingestionProperties.flushImmediately ?? false;
         this.IgnoreSizeLimit = false;
         this.ReportLevel = ingestionProperties.reportLevel ?? null;
         this.ReportMethod = ingestionProperties.reportMethod ?? null;

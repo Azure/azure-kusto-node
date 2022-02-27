@@ -8,7 +8,7 @@ import Sinon from "sinon";
 import { StreamingIngestClient } from "../index";
 import { StreamDescriptor } from "../source/descriptors";
 import { KustoIngestClient } from "../source/ingestClient";
-import { DataFormat, IngestionProperties } from "../source/ingestionProperties";
+import { DataFormat, IngestionProperties, IngestionPropertiesInput } from "../source/ingestionProperties";
 import KustoManagedStreamingIngestClient from "../source/managedStreamingIngestClient";
 import { Readable } from "stream";
 import { QueueSendMessageResponse } from "@azure/storage-queue";
@@ -18,7 +18,7 @@ import assert from "assert";
 import uuidValidate from "uuid-validate";
 import { KustoConnectionStringBuilder } from "azure-kusto-data";
 
-type IngestFromStreamStub = Sinon.SinonStub<[StreamDescriptor | Readable, IngestionProperties, string?], Promise<QueueSendMessageResponse>>;
+type IngestFromStreamStub = Sinon.SinonStub<[StreamDescriptor | Readable, IngestionPropertiesInput?, string?], Promise<QueueSendMessageResponse>>;
 
 describe("ManagedStreamingIngestClient", () => {
     const getMockedClient = () => {
@@ -132,7 +132,7 @@ describe("ManagedStreamingIngestClient", () => {
                 streamStub.throws(transientError);
                 queuedStub.returns(Promise.resolve({} as QueueSendMessageResponse));
 
-                managedClient._mergeProps();
+                managedClient._getMergedProps();
 
                 const items = [Buffer.from("string1"), Buffer.from("string2"), Buffer.from("string3")];
                 const stream = createStream(items);

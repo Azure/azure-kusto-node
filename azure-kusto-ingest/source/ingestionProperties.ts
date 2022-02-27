@@ -165,12 +165,14 @@ export enum ReportLevel {
 
 export enum ReportMethod {
     Queue = 0,
+    Table,
+    QueueAndTable,
 }
 
-export class IngestionProperties {
+export interface IngestionPropertiesFields {
     database?: string;
     table?: string;
-    format: DataFormat = DataFormat.CSV;
+    format?: DataFormat;
     /**
      * @deprecated. Use ingestionMappingColumns instead.
      */
@@ -186,13 +188,20 @@ export class IngestionProperties {
     ingestIfNotExists?: string;
     ingestByTags?: string[];
     dropByTags?: string[];
-    flushImmediately: boolean = false;
-    reportLevel: ReportLevel = ReportLevel.DoNotReport;
-    reportMethod: ReportMethod = ReportMethod.Queue;
+    flushImmediately?: boolean;
+    reportLevel?: ReportLevel;
+    reportMethod?: ReportMethod;
     validationPolicy?: ValidationPolicy;
     additionalProperties?: { [additional: string]: any } | null;
+}
 
-    constructor(data: Partial<IngestionProperties>) {
+// This trick lets us avoid duplicating all the properties from the interface. See https://github.com/microsoft/TypeScript/issues/3407
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface IngestionProperties extends IngestionPropertiesFields {}
+
+// eslint-disable-next-line no-redeclare
+export class IngestionProperties {
+    constructor(data: Partial<IngestionPropertiesFields>) {
         Object.assign(this, data);
     }
 
@@ -243,19 +252,43 @@ export class IngestionProperties {
         }
     }
 
-    merge(extraProps: IngestionProperties) {
+    merge(extraProps: IngestionPropertiesInput) {
         const merged = new IngestionProperties(this);
 
-        for (const key of Object.keys(extraProps) as (keyof IngestionProperties)[]) {
+        if (!extraProps) {
+            return merged;
+        }
+
+        const assign = <K extends keyof IngestionPropertiesFields, V extends IngestionPropertiesFields[K]>(
+            obj: IngestionPropertiesFields,
+            prop: K,
+            value: V
+        ) => {
+            obj[prop] = value;
+        };
+
+        for (const key of Object.keys(extraProps) as (keyof IngestionPropertiesFields)[]) {
             if (extraProps[key]) {
-                (<K extends keyof IngestionProperties>(k: K) => {
-                    merged[k] = extraProps[k];
-                })(key);
+                assign(merged, key, extraProps[key]);
             }
         }
 
         return merged;
     }
+
+    setDefaults() {
+        if (!this.format) {
+            this.format = DataFormat.CSV;
+        }
+        if (!this.reportLevel) {
+            this.reportLevel = ReportLevel.FailuresOnly;
+        }
+        if (!this.reportMethod) {
+            this.reportMethod = ReportMethod.Queue;
+        }
+    }
 }
+
+export type IngestionPropertiesInput = IngestionProperties | IngestionPropertiesFields | null | undefined;
 
 export default IngestionProperties;
