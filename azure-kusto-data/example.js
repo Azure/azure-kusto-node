@@ -4,7 +4,7 @@
 const KustoClient = require("azure-kusto-data").Client;
 const KustoConnectionStringBuilder = require("azure-kusto-data").KustoConnectionStringBuilder;
 const ClientRequestProperties = require("azure-kusto-data").ClientRequestProperties;
-const { v4: uuidv4 } = require('uuid');
+const { v4: uuidv4 } = require("uuid");
 
 const clusterConectionString = "https://<cluster>.<region>.kusto.windows.net";
 const database = "<databaseName>";
@@ -19,8 +19,7 @@ async function start() {
         const results = await kustoClient.execute(database, `['${table}'] | limit 1`);
         console.log(JSON.stringify(results));
         console.log(results.primaryResults[0].toString());
-    }
-    catch (error) {
+    } catch (error) {
         console.log(error);
     }
 
@@ -41,8 +40,7 @@ async function start() {
         const results = await kustoClient.execute(database, `['${table}'] | limit 1`, clientRequestProps);
         console.log(JSON.stringify(results));
         console.log(results.primaryResults[0].toString());
-    }
-    catch (error) {
+    } catch (error) {
         console.log(error);
     }
 }

@@ -23,8 +23,7 @@ export class ClientRequestProperties {
     }
 
     getOption(name: string, defaultValue?: any) {
-        if (!this._options || this._options[name] === undefined)
-            return defaultValue;
+        if (!this._options || this._options[name] === undefined) return defaultValue;
 
         return this._options[name];
     }
@@ -49,7 +48,7 @@ export class ClientRequestProperties {
         this.setOption("servertimeout", timeoutMillis);
     }
 
-    getTimeout() : number | undefined {
+    getTimeout(): number | undefined {
         return this.getOption("servertimeout");
     }
 
@@ -73,7 +72,10 @@ export class ClientRequestProperties {
     }
 
     toJSON() {
-        const json: { Options?: { [option: string]: any }, Parameters?: { [option: string]: any } } = {};
+        const json: {
+            Options?: { [option: string]: any };
+            Parameters?: { [option: string]: any };
+        } = {};
 
         if (Object.keys(this._options).length !== 0) {
             json.Options = this._options;
@@ -99,9 +101,9 @@ export class ClientRequestProperties {
         const minutes = Math.floor((duration / (1000 * 60)) % 60);
         const hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
 
-        const hoursStr = (hours < 10) ? `0${hours}` : String(hours);
-        const minutesStr = (minutes < 10) ? `0${minutes}` : String(minutes);
-        const secondsStr = (seconds < 10) ? `0${seconds}` : String(seconds);
+        const hoursStr = hours < 10 ? `0${hours}` : String(hours);
+        const minutesStr = minutes < 10 ? `0${minutes}` : String(minutes);
+        const secondsStr = seconds < 10 ? `0${seconds}` : String(seconds);
 
         return `${hoursStr}:${minutesStr}:${secondsStr}.${milliseconds}`;
     }

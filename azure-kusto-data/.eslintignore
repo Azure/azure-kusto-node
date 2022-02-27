@@ -1,3 +1,5 @@
 node_modules
 **/*.d.ts
 **/*.js
+coverage
+.nyc_output

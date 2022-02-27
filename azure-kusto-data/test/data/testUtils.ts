@@ -5,7 +5,7 @@ const loginTestEnv = "LOGIN_TEST";
 const autoTestEnv = "AUTO_TEST";
 
 export const testIfEnv = (definedEnv: string[], undefinedEnv: string[]) => {
-    if (definedEnv.filter(x => process.env[x]).length === definedEnv.length && undefinedEnv.filter(x => !process.env[x]).length === undefinedEnv.length) {
+    if (definedEnv.filter((x) => process.env[x]).length === definedEnv.length && undefinedEnv.filter((x) => !process.env[x]).length === undefinedEnv.length) {
         return it;
     } else {
         return it.skip;

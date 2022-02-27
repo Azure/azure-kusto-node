@@ -3,15 +3,13 @@
 
 /* eslint-disable max-classes-per-file -- QueueDetails is a very small class, so we don't need it in a different file */
 
-import {PeekedMessageItem, QueueClient} from "@azure/storage-queue";
-import {ResourceURI} from "./resourceManager"
-import {StatusMessage} from "./status";
+import { PeekedMessageItem, QueueClient } from "@azure/storage-queue";
+import { ResourceURI } from "./resourceManager";
+import { StatusMessage } from "./status";
 
 class QueueDetails {
-    constructor(readonly name: string, readonly service: QueueClient) {
-    }
+    constructor(readonly name: string, readonly service: QueueClient) {}
 }
-
 
 const shuffle = <T>(a: T[]): T[] => {
     for (let i = a.length - 1; i > 0; i--) {
@@ -36,22 +34,20 @@ interface PopParams {
 type Message = PeekedMessageItem | StatusMessage;
 
 export class StatusQueue {
-    constructor(readonly getQueuesFunc: () => Promise<ResourceURI[]>, readonly messageCls: typeof StatusMessage) {
-    }
+    constructor(readonly getQueuesFunc: () => Promise<ResourceURI[]>, readonly messageCls: typeof StatusMessage) {}
 
     _getQServices(queuesDetails: ResourceURI[]) {
-        return queuesDetails.map(q => {
+        return queuesDetails.map((q) => {
             const sasConnectionString = q.getSASConnectionString();
             if (!sasConnectionString) {
                 throw new Error("Empty or null connection string");
             }
-            return new QueueDetails(q.objectName,
-                new QueueClient(sasConnectionString, q.objectName));
+            return new QueueDetails(q.objectName, new QueueClient(sasConnectionString, q.objectName));
         });
     }
 
     async isEmpty() {
-        const result = await this.peek(1, {raw: true});
+        const result = await this.peek(1, { raw: true });
         return !result || result.length === 0;
     }
 
@@ -80,12 +76,12 @@ export class StatusQueue {
                     result.push(options && options.raw ? m : this.deserializeMessage(m));
 
                     if (result.length === n) {
-                        return {done: true, nonEmptyQs, result};
+                        return { done: true, nonEmptyQs, result };
                     }
                 }
             }
         }
-        return {done: nonEmptyQs.length === 0, nonEmptyQs, result};
+        return { done: nonEmptyQs.length === 0, nonEmptyQs, result };
     }
 
     async peek(n = 1, options: PeekParams | null = null): Promise<Message[]> {
@@ -105,13 +101,16 @@ export class StatusQueue {
         return (await this._peek(partial.nonEmptyQs, messagesLeftToPeek, options)).result;
     }
 
-    async _pop(qs: QueueDetails[], n: number, options: PopParams | null):
-        Promise<{ result: Message[] & {nonEmptyQs?: QueueDetails[]}; nonEmptyQs: any[]; done: boolean }> {
+    async _pop(
+        qs: QueueDetails[],
+        n: number,
+        options: PopParams | null
+    ): Promise<{ result: Message[] & { nonEmptyQs?: QueueDetails[] }; nonEmptyQs: any[]; done: boolean }> {
         const nonEmptyQs: any[] = [];
         const result = [];
 
         for (const q of qs) {
-            const response = await q.service.receiveMessages({numOfMessages: n});
+            const response = await q.service.receiveMessages({ numOfMessages: n });
             const messages = response.receivedMessageItems;
             for (const m of messages) {
                 if (m && Object.keys(m).length > 0) {
@@ -121,15 +120,14 @@ export class StatusQueue {
                         await q.service.deleteMessage(m.messageId, m.popReceipt);
                     }
                     if (result.length === n) {
-                        return {done: true, nonEmptyQs, result};
+                        return { done: true, nonEmptyQs, result };
                     }
                 }
             }
         }
 
-        return {done: nonEmptyQs.length === 0, nonEmptyQs, result};
+        return { done: nonEmptyQs.length === 0, nonEmptyQs, result };
     }
-
 
     async pop(n = 1, options: PopParams | null = null): Promise<Message[]> {
         const queues = await this.getQueuesFunc();

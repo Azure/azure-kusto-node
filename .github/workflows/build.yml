@@ -23,6 +23,7 @@ jobs:
       - working-directory: ./azure-kusto-data
         run: |
           npm i
+          npm run checkFormat
           npm run lint
           npm run testPipeline
         env:
@@ -32,6 +33,7 @@ jobs:
         run: |
           npm i
           npm link ../azure-kusto-data
+          npm run checkFormat
           npm run lint
           npm run testPipeline
         env:

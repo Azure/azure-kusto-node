@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 import moment from "moment";
 import { BlobDescriptor } from "./descriptors";
 import IngestionProperties, { ReportLevel, ReportMethod } from "./ingestionProperties";
@@ -18,7 +18,7 @@ export class IngestionBlobInfo {
     ReportMethod: ReportMethod | null;
     SourceMessageCreationTime: moment.Moment;
     Id: string;
-    AdditionalProperties: { [additional: string]: any; };
+    AdditionalProperties: { [additional: string]: any };
 
     constructor(blobDescriptor: BlobDescriptor, ingestionProperties: IngestionProperties, authContext: string | null = null) {
         this.BlobPath = blobDescriptor.path;
@@ -41,10 +41,10 @@ export class IngestionBlobInfo {
             tags.concat(ingestionProperties.additionalTags);
         }
         if (ingestionProperties.dropByTags) {
-            tags.concat(ingestionProperties.dropByTags.map(t => "drop-by:" + t));
+            tags.concat(ingestionProperties.dropByTags.map((t) => "drop-by:" + t));
         }
         if (ingestionProperties.ingestByTags) {
-            tags.concat(ingestionProperties.ingestByTags.map(t => "ingest-by:" + t));
+            tags.concat(ingestionProperties.ingestByTags.map((t) => "ingest-by:" + t));
         }
 
         if (tags && tags.length > 0) {
@@ -57,7 +57,7 @@ export class IngestionBlobInfo {
 
         if (ingestionProperties.ingestionMappingColumns && ingestionProperties.ingestionMappingColumns.length > 0) {
             // server expects a string
-            additionalProperties.ingestionMapping = JSON.stringify(ingestionProperties.ingestionMappingColumns.map(m => m.toApiMapping()));
+            additionalProperties.ingestionMapping = JSON.stringify(ingestionProperties.ingestionMappingColumns.map((m) => m.toApiMapping()));
         }
 
         if (ingestionProperties.ingestionMappingReference) {

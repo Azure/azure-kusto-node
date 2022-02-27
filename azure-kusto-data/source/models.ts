@@ -10,14 +10,14 @@ export enum WellKnownDataSet {
     PrimaryResult = "PrimaryResult",
     QueryCompletionInformation = "QueryCompletionInformation",
     TableOfContents = "TableOfContents",
-    QueryProperties = "QueryProperties"
+    QueryProperties = "QueryProperties",
 }
 
 type DateTimeParser = (value: string) => any;
 type TimeSpanParser = (value: number) => any;
 
-const defaultDatetimeParser: DateTimeParser = (t:string) => moment(t);
-const defaultTimespanParser: TimeSpanParser = (t:number) => moment.duration(t);
+const defaultDatetimeParser: DateTimeParser = (t: string) => moment(t);
+const defaultTimespanParser: TimeSpanParser = (t: number) => moment.duration(t);
 
 export interface Table {
     TableKind?: string;
@@ -28,9 +28,9 @@ export interface Table {
 }
 
 interface Column {
-    ColumnName: string,
-    ColumnType?: string,
-    DateType?: string
+    ColumnName: string;
+    ColumnType?: string;
+    DateType?: string;
 }
 
 export class KustoResultRow {
@@ -39,7 +39,12 @@ export class KustoResultRow {
 
     [column: string]: any;
 
-    constructor(columns: KustoResultColumn[], row: { [ord: number]: any }, dateTimeParser: DateTimeParser = defaultDatetimeParser, timeSpanParser: TimeSpanParser = defaultTimespanParser) {
+    constructor(
+        columns: KustoResultColumn[],
+        row: { [ord: number]: any },
+        dateTimeParser: DateTimeParser = defaultDatetimeParser,
+        timeSpanParser: TimeSpanParser = defaultTimespanParser
+    ) {
         this.columns = columns.sort((a, b) => a.ordinal - b.ordinal);
         this.raw = row;
 
@@ -65,7 +70,7 @@ export class KustoResultRow {
         }
     }
 
-    * values() {
+    *values() {
         for (let i = 0; i < this.columns.length; i++) {
             yield this.raw[i];
         }
@@ -98,11 +103,11 @@ export class KustoResultRow {
 }
 
 export class KustoResultColumn {
-    name: string | null
+    name: string | null;
     type: string | null;
     ordinal: number;
 
-    constructor(columnObj: { ColumnName?: string, ColumnType?: string, DateType?: string }, ordinal: number) {
+    constructor(columnObj: { ColumnName?: string; ColumnType?: string; DateType?: string }, ordinal: number) {
         this.name = columnObj.ColumnName ?? null;
         // TODO: should validate type? should coarse value to type?
         this.type = (columnObj.ColumnType || columnObj.DateType) ?? null;
@@ -136,7 +141,7 @@ export class KustoResultTable {
 
         if (this._rows && this._rows.length > 0) {
             for (let i = 0; i < tableObj.Rows.length; i++) {
-                Object.defineProperty(this, i, {get: () => new KustoResultRow(this.columns, this._rows[i])});
+                Object.defineProperty(this, i, { get: () => new KustoResultRow(this.columns, this._rows[i]) });
             }
         }
     }
@@ -156,12 +161,11 @@ export class KustoResultTable {
         this._dateTimeParser = value;
     }
 
-    * rows() {
+    *rows() {
         for (const row of this._rows) {
             yield new KustoResultRow(this.columns, row, this._dateTimeParser, this._timeSpanParser);
         }
     }
-
 
     /**
      * @deprecated use the compliant toJSON() instead
@@ -171,12 +175,12 @@ export class KustoResultTable {
     }
 
     toJSON<T = Record<string, any>>(): {
-        name: string,
-        data: T[],
+        name: string;
+        data: T[];
     } {
         const table: {
-            name: string,
-            data: T[],
+            name: string;
+            data: T[];
         } = {
             name: this.name,
             data: [],

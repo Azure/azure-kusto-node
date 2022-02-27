@@ -2,9 +2,8 @@
 // Licensed under the MIT License.
 
 import assert from "assert";
-import {KustoIngestClient} from "../source/ingestClient";
-import {DataFormat, IngestionProperties} from "../source/ingestionProperties";
-
+import { KustoIngestClient } from "../source/ingestClient";
+import { DataFormat, IngestionProperties } from "../source/ingestionProperties";
 
 describe("KustoIngestClient", () => {
     describe("#constructor()", () => {
@@ -12,7 +11,7 @@ describe("KustoIngestClient", () => {
             const ingestClient = new KustoIngestClient("https://cluster.kusto.windows.net", {
                 database: "db",
                 table: "table",
-                format: "csv"
+                format: "csv",
             } as IngestionProperties);
 
             assert.notStrictEqual(ingestClient.defaultProps, null);
@@ -28,10 +27,10 @@ describe("KustoIngestClient", () => {
             const newProps = new IngestionProperties({
                 database: "db",
                 table: "table",
-                format: DataFormat.CSV
+                format: DataFormat.CSV,
             });
             // TODO: not sure a unit test will be useful here
-            const client = new KustoIngestClient('https://cluster.region.kusto.windows.net');
+            const client = new KustoIngestClient("https://cluster.region.kusto.windows.net");
             const actual = client._mergeProps(newProps);
 
             assert.strictEqual(actual.database, "db");
@@ -44,10 +43,10 @@ describe("KustoIngestClient", () => {
             const defaultProps = new IngestionProperties({
                 database: "db",
                 table: "table",
-                format: DataFormat.CSV
+                format: DataFormat.CSV,
             });
             // TODO: not sure a unit test will be useful here
-            const client = new KustoIngestClient('https://cluster.region.kusto.windows.net', defaultProps);
+            const client = new KustoIngestClient("https://cluster.region.kusto.windows.net", defaultProps);
             const actual = client._mergeProps(null);
 
             assert.strictEqual(actual.database, "db");
@@ -59,13 +58,13 @@ describe("KustoIngestClient", () => {
             const defaultProps = new IngestionProperties({
                 database: "db",
                 table: "table",
-                format: DataFormat.CSV
+                format: DataFormat.CSV,
             });
             const newProps = new IngestionProperties({});
             newProps.database = "db2";
             newProps.ingestionMappingReference = "MappingRef";
 
-            const client = new KustoIngestClient('https://cluster.region.kusto.windows.net', defaultProps);
+            const client = new KustoIngestClient("https://cluster.region.kusto.windows.net", defaultProps);
             const actual = client._mergeProps(newProps);
 
             assert.strictEqual(actual.database, "db2");
@@ -75,7 +74,7 @@ describe("KustoIngestClient", () => {
         });
 
         it("empty both", () => {
-            const client = new KustoIngestClient('https://cluster.region.kusto.windows.net');
+            const client = new KustoIngestClient("https://cluster.region.kusto.windows.net");
 
             const actual = client._mergeProps();
             assert.deepStrictEqual(actual, new IngestionProperties({}));

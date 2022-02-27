@@ -2,12 +2,11 @@
 // Licensed under the MIT License.
 
 import IngestionProperties from "./ingestionProperties";
-import {FileDescriptor, StreamDescriptor} from "./descriptors";
+import { FileDescriptor, StreamDescriptor } from "./descriptors";
 import { Readable } from "stream";
 
 export abstract class AbstractKustoClient {
-    protected constructor(public defaultProps: IngestionProperties | null = null) {
-    }
+    protected constructor(public defaultProps: IngestionProperties | null = null) {}
 
     _mergeProps(newProperties?: IngestionProperties | null): IngestionProperties {
         // no default props

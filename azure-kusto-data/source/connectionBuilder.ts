@@ -5,10 +5,10 @@ import { DeviceCodeResponse } from "@azure/msal-common";
 import { KeyOfType } from "./typeUtilts";
 
 interface MappingType {
-    mappedTo: string,
-    validNames: string[],
-    isSecret?: boolean,
-    isBool?: boolean,
+    mappedTo: string;
+    validNames: string[];
+    isSecret?: boolean;
+    isBool?: boolean;
 }
 
 type KcsbMappedKeys = KeyOfType<KustoConnectionStringBuilder, string | boolean | undefined>;
@@ -71,13 +71,12 @@ const getPropName = (key: string): [string, MappingType] => {
         if (!k) {
             continue;
         }
-        if (k.validNames.map(n => n.trim().toLowerCase()).indexOf(_key) >= 0) {
+        if (k.validNames.map((n) => n.trim().toLowerCase()).indexOf(_key) >= 0) {
             return [keyword, k];
         }
     }
     throw new Error("Failed to get prop: " + key);
 };
-
 
 export class KustoConnectionStringBuilder {
     static readonly SecretReplacement = "****";
@@ -128,21 +127,22 @@ export class KustoConnectionStringBuilder {
         }
     }
 
-
     toString(removeSecrets: boolean = true): string {
-        return Object.entries(KeywordMapping).map(([key, mappingType]) => {
-            const value = this[key as KcsbMappedKeys];
-            if (!mappingType || value === undefined) {
-                return "";
-            }
-            if (mappingType.isSecret && removeSecrets) {
-                return `${mappingType.mappedTo}=${KustoConnectionStringBuilder.SecretReplacement}`;
-            }
+        return Object.entries(KeywordMapping)
+            .map(([key, mappingType]) => {
+                const value = this[key as KcsbMappedKeys];
+                if (!mappingType || value === undefined) {
+                    return "";
+                }
+                if (mappingType.isSecret && removeSecrets) {
+                    return `${mappingType.mappedTo}=${KustoConnectionStringBuilder.SecretReplacement}`;
+                }
 
-            return `${mappingType.mappedTo}=${value.toString()}`;
-        }).filter(x => x !== "").join(";");
+                return `${mappingType.mappedTo}=${value.toString()}`;
+            })
+            .filter((x) => x !== "")
+            .join(";");
     }
-
 
     static fromExisting(other: KustoConnectionStringBuilder): KustoConnectionStringBuilder {
         return Object.assign({}, other);
@@ -175,7 +175,6 @@ export class KustoConnectionStringBuilder {
             kcsb.authorityId = authorityId;
         }
 
-
         return kcsb;
     }
 
@@ -185,7 +184,7 @@ export class KustoConnectionStringBuilder {
         applicationCertificatePrivateKey: string,
         applicationCertificateThumbprint: string,
         authorityId?: string,
-        applicationCertificateX5c?: string,
+        applicationCertificateX5c?: string
     ) {
         if (aadAppId.trim().length === 0) throw new Error("Invalid app id");
         if (applicationCertificatePrivateKey.trim().length === 0) throw new Error("Invalid certificate");
@@ -205,13 +204,16 @@ export class KustoConnectionStringBuilder {
         return kcsb;
     }
 
-
-    static withAadDeviceAuthentication(connectionString: string, authorityId: string = "common", deviceCodeCallback: (response: DeviceCodeResponse) => void = KustoConnectionStringBuilder.defaultDeviceCallback) {
+    static withAadDeviceAuthentication(
+        connectionString: string,
+        authorityId: string = "common",
+        deviceCodeCallback: (response: DeviceCodeResponse) => void = KustoConnectionStringBuilder.defaultDeviceCallback
+    ) {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         kcsb.aadFederatedSecurity = true;
         kcsb.authorityId = authorityId;
         kcsb.deviceCodeCallback = deviceCodeCallback;
-        kcsb.useDeviceCodeAuth = true
+        kcsb.useDeviceCodeAuth = true;
 
         return kcsb;
     }
@@ -229,7 +231,7 @@ export class KustoConnectionStringBuilder {
         return kcsb;
     }
 
-    static withAzLoginIdentity(connectionString: string, authorityId?: string, timeoutMs?: number,) {
+    static withAzLoginIdentity(connectionString: string, authorityId?: string, timeoutMs?: number) {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         kcsb.aadFederatedSecurity = true;
 
@@ -238,7 +240,6 @@ export class KustoConnectionStringBuilder {
             kcsb.authorityId = authorityId;
         }
         kcsb.timeoutMs = timeoutMs;
-
 
         return kcsb;
     }

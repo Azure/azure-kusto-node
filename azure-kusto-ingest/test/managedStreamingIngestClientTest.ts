@@ -18,8 +18,7 @@ import assert from "assert";
 import uuidValidate from "uuid-validate";
 import { KustoConnectionStringBuilder } from "azure-kusto-data";
 
-
-type IngestFromStreamStub = Sinon.SinonStub<[(StreamDescriptor | Readable), IngestionProperties, string?], Promise<QueueSendMessageResponse>>;
+type IngestFromStreamStub = Sinon.SinonStub<[StreamDescriptor | Readable, IngestionProperties, string?], Promise<QueueSendMessageResponse>>;
 
 describe("ManagedStreamingIngestClient", () => {
     const getMockedClient = () => {
@@ -29,11 +28,15 @@ describe("ManagedStreamingIngestClient", () => {
         const streamStub = sinon.stub(mockedStreamingIngestClient, "ingestFromStream");
         const queuedStub = sinon.stub(mockedIngestClient, "ingestFromStream");
 
-        const managedClient: KustoManagedStreamingIngestClient =
-            Object.setPrototypeOf({
+        const managedClient: KustoManagedStreamingIngestClient = Object.setPrototypeOf(
+            {
                 streamingIngestClient: mockedStreamingIngestClient,
-                queuedIngestClient: mockedIngestClient, baseSleepTimeSecs: 0, baseJitterSecs: 0
-            }, KustoManagedStreamingIngestClient.prototype);
+                queuedIngestClient: mockedIngestClient,
+                baseSleepTimeSecs: 0,
+                baseJitterSecs: 0,
+            },
+            KustoManagedStreamingIngestClient.prototype
+        );
 
         return { sandbox, streamStub, queuedStub, managedClient };
     };
@@ -47,7 +50,7 @@ describe("ManagedStreamingIngestClient", () => {
             stream.push(null);
         };
 
-        stream.on('data', (data: Buffer) => {
+        stream.on("data", (data: Buffer) => {
             console.debug(data.toString("utf-8").substring(0, 100));
         });
         return stream;
@@ -75,16 +78,15 @@ describe("ManagedStreamingIngestClient", () => {
                 return;
             }
 
-            assert(call.args[2])
+            assert(call.args[2]);
             const [prefix, actualSourceId, attemptCount] = call.args[2].split(";");
-            assert.strictEqual(prefix, "KNC.executeManagedStreamingIngest")
+            assert.strictEqual(prefix, "KNC.executeManagedStreamingIngest");
             if (sourceId) {
                 assert.strictEqual(actualSourceId, sourceId);
             } else {
                 assert(uuidValidate(actualSourceId));
             }
             assert.strictEqual(Number(attemptCount), i);
-
         }
     };
 
@@ -100,19 +102,17 @@ describe("ManagedStreamingIngestClient", () => {
                 streamStub.returns(Promise.resolve({}));
                 queuedStub.throws(new Error("Should not be called"));
 
+                const items = [Buffer.alloc(1024 * 1024, "a"), Buffer.alloc(1024 * 1024, "b"), Buffer.alloc(1024 * 1024, "c")];
+                const stream = createStream(items);
 
-                const items = [
-                    Buffer.alloc(1024 * 1024, "a"),
-                    Buffer.alloc(1024 * 1024, "b"),
-                    Buffer.alloc(1024 * 1024, "c"),
-                ];
-                const stream = createStream(items)
-
-                await managedClient.ingestFromStream(new StreamDescriptor(stream, sourceId), new IngestionProperties({
-                    database: 'db',
-                    table: 't1',
-                    format: DataFormat.CSV,
-                }));
+                await managedClient.ingestFromStream(
+                    new StreamDescriptor(stream, sourceId),
+                    new IngestionProperties({
+                        database: "db",
+                        table: "t1",
+                        format: DataFormat.CSV,
+                    })
+                );
 
                 sandbox.assert.calledOnce(streamStub);
                 sandbox.assert.notCalled(queuedStub);
@@ -120,7 +120,6 @@ describe("ManagedStreamingIngestClient", () => {
                 validateStream(streamStub, items, sourceId);
             });
         }
-
     });
 
     describe("fallback", () => {
@@ -133,16 +132,19 @@ describe("ManagedStreamingIngestClient", () => {
                 streamStub.throws(transientError);
                 queuedStub.returns(Promise.resolve({} as QueueSendMessageResponse));
 
-                managedClient._mergeProps()
+                managedClient._mergeProps();
 
                 const items = [Buffer.from("string1"), Buffer.from("string2"), Buffer.from("string3")];
                 const stream = createStream(items);
 
-                await managedClient.ingestFromStream(new StreamDescriptor(stream, sourceId), new IngestionProperties({
-                    database: 'db',
-                    table: 't1',
-                    format: DataFormat.CSV,
-                }));
+                await managedClient.ingestFromStream(
+                    new StreamDescriptor(stream, sourceId),
+                    new IngestionProperties({
+                        database: "db",
+                        table: "t1",
+                        format: DataFormat.CSV,
+                    })
+                );
 
                 sandbox.assert.calledThrice(streamStub);
                 sandbox.assert.calledOnce(queuedStub);
@@ -151,7 +153,7 @@ describe("ManagedStreamingIngestClient", () => {
                 validateStream(queuedStub, items, sourceId);
             });
 
-            it('should fallback when size is too big', async () => {
+            it("should fallback when size is too big", async () => {
                 // Mock ManagedStreamingIngestClient with mocked streamingIngestClient
                 const mockedStreamingIngestClient = new StreamingIngestClient("engine");
                 const mockedIngestClient = new KustoIngestClient("engine");
@@ -160,11 +162,16 @@ describe("ManagedStreamingIngestClient", () => {
                 streamStub.throws(new Error("Should not be called"));
                 const queuedStub = sinon.stub(mockedIngestClient, "ingestFromStream");
                 queuedStub.returns(Promise.resolve({} as QueueSendMessageResponse));
-                const mockedManagedStreamingIngestClient: KustoManagedStreamingIngestClient =
-                    Object.setPrototypeOf({
+                const mockedManagedStreamingIngestClient: KustoManagedStreamingIngestClient = Object.setPrototypeOf(
+                    {
                         streamingIngestClient: mockedStreamingIngestClient,
-                        queuedIngestClient: mockedIngestClient, maxRetries: 1, baseSleepTimeSecs: 0, baseJitterSecs: 0
-                    }, KustoManagedStreamingIngestClient.prototype);
+                        queuedIngestClient: mockedIngestClient,
+                        maxRetries: 1,
+                        baseSleepTimeSecs: 0,
+                        baseJitterSecs: 0,
+                    },
+                    KustoManagedStreamingIngestClient.prototype
+                );
 
                 const singleBufferSize = 1023 * 1024;
                 const buffers = [
@@ -175,14 +182,16 @@ describe("ManagedStreamingIngestClient", () => {
                     Buffer.alloc(singleBufferSize, "e"),
                 ];
 
-                const stream = createStream(buffers)
+                const stream = createStream(buffers);
 
-                await mockedManagedStreamingIngestClient.ingestFromStream(new StreamDescriptor(stream), new IngestionProperties({
-                    database: 'db',
-                    table: 't1',
-                    format: DataFormat.CSV,
-                }));
-
+                await mockedManagedStreamingIngestClient.ingestFromStream(
+                    new StreamDescriptor(stream),
+                    new IngestionProperties({
+                        database: "db",
+                        table: "t1",
+                        format: DataFormat.CSV,
+                    })
+                );
 
                 validateStream(queuedStub, buffers, sourceId);
 
@@ -201,10 +210,7 @@ describe("ManagedStreamingIngestClient", () => {
                 (client as any).queuedIngestClient.resourceManager.kustoClient.connectionString.dataSource,
                 "https://ingest-dummy.kusto.windows.net"
             );
-            assert.strictEqual(
-                (client as any).streamingIngestClient.kustoClient.connectionString.dataSource,
-                "https://dummy.kusto.windows.net"
-            );
+            assert.strictEqual((client as any).streamingIngestClient.kustoClient.connectionString.dataSource, "https://dummy.kusto.windows.net");
         });
         it("should fail when trying to create a ManagedStreamingIngestClient from an invalid DM URI", () => {
             assert.throws(() => KustoManagedStreamingIngestClient.fromDmConnectionString(new KustoConnectionStringBuilder("https://dummy.kusto.windows.net")));
@@ -216,14 +222,12 @@ describe("ManagedStreamingIngestClient", () => {
                 (client as any).queuedIngestClient.resourceManager.kustoClient.connectionString.dataSource,
                 "https://ingest-dummy.kusto.windows.net"
             );
-            assert.strictEqual(
-                (client as any).streamingIngestClient.kustoClient.connectionString.dataSource,
-                "https://dummy.kusto.windows.net"
-            );
+            assert.strictEqual((client as any).streamingIngestClient.kustoClient.connectionString.dataSource, "https://dummy.kusto.windows.net");
         });
         it("should fail when trying to create a ManagedStreamingIngestClient from an invalid Engine URI", () => {
-            assert.throws(() => KustoManagedStreamingIngestClient.fromEngineConnectionString(new KustoConnectionStringBuilder(
-                "https://ingest-dummy.kusto.windows.net")));
+            assert.throws(() =>
+                KustoManagedStreamingIngestClient.fromEngineConnectionString(new KustoConnectionStringBuilder("https://ingest-dummy.kusto.windows.net"))
+            );
         });
 
         /* eslint-enable @typescript-eslint/no-unsafe-member-access */

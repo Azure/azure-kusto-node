@@ -1,0 +1,7 @@
+node_modules
+**/*.d.ts
+**/*.js
+!example.js
+coverage
+.nyc_output
+test/data/response/*
