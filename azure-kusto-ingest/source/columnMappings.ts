@@ -24,7 +24,7 @@ interface MappingProperties {
     Field?: string;
     Path?: string;
     Ordinal?: number;
-    ConstValue?: HasToString;
+    ConstValue?: unknown;
     Transform?: Transformation;
 }
 
@@ -36,10 +36,6 @@ interface ApiColumnMapping {
     Column: string;
     DataType?: string;
     Properties?: MappingPropertiesStrings;
-}
-
-interface HasToString {
-    toString(): string;
 }
 
 export abstract class ColumnMapping {
@@ -64,7 +60,7 @@ export abstract class ColumnMapping {
 
                     // We don't do if (property) because we '0' is a legitimate value
                     if (property !== undefined && property !== null) {
-                        result.Properties[typedKey] = property.toString();
+                        result.Properties[typedKey] = `${property}`;
                     }
                 }
             }
@@ -77,7 +73,7 @@ export class CsvColumnMapping extends ColumnMapping {
     /**
      * @deprecated Use the factory methods instead.
      */
-    protected constructor(readonly columnName: string, readonly cslDataType?: string, readonly ordinal?: string, constantValue?: HasToString) {
+    protected constructor(readonly columnName: string, readonly cslDataType?: string, readonly ordinal?: string, constantValue?: unknown) {
         super(columnName, cslDataType, {
             Ordinal: ordinal === undefined ? undefined : parseInt(ordinal, 10),
             ConstValue: constantValue,
@@ -88,7 +84,7 @@ export class CsvColumnMapping extends ColumnMapping {
         return new CsvColumnMapping(columnName, cslDataType, ordinal.toString());
     }
 
-    public static withConstantValue(columnName: string, constantValue: HasToString, cslDataType?: string): CsvColumnMapping {
+    public static withConstantValue(columnName: string, constantValue: unknown, cslDataType?: string): CsvColumnMapping {
         return new CsvColumnMapping(columnName, cslDataType, undefined, constantValue);
     }
 
@@ -103,7 +99,7 @@ export class JsonColumnMapping extends ColumnMapping {
         readonly columnName: string,
         readonly jsonPath?: string,
         cslDataType: string | null = null,
-        constantValue?: HasToString,
+        constantValue?: unknown,
         transform?: Transformation
     ) {
         super(columnName, cslDataType ?? undefined, {
@@ -117,7 +113,7 @@ export class JsonColumnMapping extends ColumnMapping {
         return new JsonColumnMapping(columnName, path, cslDataType, undefined, transform);
     }
 
-    public static withConstantValue(columnName: string, constantValue: HasToString, cslDataType?: string): JsonColumnMapping {
+    public static withConstantValue(columnName: string, constantValue: unknown, cslDataType?: string): JsonColumnMapping {
         return new JsonColumnMapping(columnName, undefined, cslDataType, constantValue);
     }
 
@@ -129,14 +125,7 @@ export class JsonColumnMapping extends ColumnMapping {
 }
 
 export class AvroColumnMapping extends ColumnMapping {
-    private constructor(
-        readonly columnName: string,
-        cslDataType?: string,
-        path?: string,
-        field?: string,
-        constantValue?: HasToString,
-        transform?: Transformation
-    ) {
+    private constructor(readonly columnName: string, cslDataType?: string, path?: string, field?: string, constantValue?: unknown, transform?: Transformation) {
         super(columnName, cslDataType ?? undefined, {
             Path: path,
             Field: field,
@@ -153,7 +142,7 @@ export class AvroColumnMapping extends ColumnMapping {
         return new AvroColumnMapping(columnName, cslDataType, undefined, field, undefined, transform);
     }
 
-    public static withConstantValue(columnName: string, constantValue: HasToString, cslDataType?: string): AvroColumnMapping {
+    public static withConstantValue(columnName: string, constantValue: unknown, cslDataType?: string): AvroColumnMapping {
         return new AvroColumnMapping(columnName, cslDataType, undefined, undefined, constantValue);
     }
 
@@ -165,14 +154,7 @@ export class AvroColumnMapping extends ColumnMapping {
 }
 
 export class ApacheAvroColumnMapping extends ColumnMapping {
-    private constructor(
-        readonly columnName: string,
-        cslDataType?: string,
-        path?: string,
-        field?: string,
-        constantValue?: HasToString,
-        transform?: Transformation
-    ) {
+    private constructor(readonly columnName: string, cslDataType?: string, path?: string, field?: string, constantValue?: unknown, transform?: Transformation) {
         super(columnName, cslDataType ?? undefined, {
             Path: path,
             Field: field,
@@ -189,7 +171,7 @@ export class ApacheAvroColumnMapping extends ColumnMapping {
         return new ApacheAvroColumnMapping(columnName, cslDataType, undefined, field, undefined, transform);
     }
 
-    public static withConstantValue(columnName: string, constantValue: HasToString, cslDataType?: string): ApacheAvroColumnMapping {
+    public static withConstantValue(columnName: string, constantValue: unknown, cslDataType?: string): ApacheAvroColumnMapping {
         return new ApacheAvroColumnMapping(columnName, cslDataType, undefined, undefined, constantValue);
     }
 
@@ -201,14 +183,7 @@ export class ApacheAvroColumnMapping extends ColumnMapping {
 }
 
 export class SStreamColumnMapping extends ColumnMapping {
-    private constructor(
-        readonly columnName: string,
-        cslDataType?: string,
-        path?: string,
-        field?: string,
-        constantValue?: HasToString,
-        transform?: Transformation
-    ) {
+    private constructor(readonly columnName: string, cslDataType?: string, path?: string, field?: string, constantValue?: unknown, transform?: Transformation) {
         super(columnName, cslDataType ?? undefined, {
             Path: path,
             Field: field,
@@ -225,7 +200,7 @@ export class SStreamColumnMapping extends ColumnMapping {
         return new SStreamColumnMapping(columnName, cslDataType, undefined, field, undefined, transform);
     }
 
-    public static withConstantValue(columnName: string, constantValue: HasToString, cslDataType?: string): SStreamColumnMapping {
+    public static withConstantValue(columnName: string, constantValue: unknown, cslDataType?: string): SStreamColumnMapping {
         return new SStreamColumnMapping(columnName, cslDataType, undefined, undefined, constantValue);
     }
 
@@ -237,14 +212,7 @@ export class SStreamColumnMapping extends ColumnMapping {
 }
 
 export class ParquetColumnMapping extends ColumnMapping {
-    private constructor(
-        readonly columnName: string,
-        cslDataType?: string,
-        path?: string,
-        field?: string,
-        constantValue?: HasToString,
-        transform?: Transformation
-    ) {
+    private constructor(readonly columnName: string, cslDataType?: string, path?: string, field?: string, constantValue?: unknown, transform?: Transformation) {
         super(columnName, cslDataType ?? undefined, {
             Path: path,
             Field: field,
@@ -261,7 +229,7 @@ export class ParquetColumnMapping extends ColumnMapping {
         return new ParquetColumnMapping(columnName, cslDataType, undefined, field, undefined, transform);
     }
 
-    public static withConstantValue(columnName: string, constantValue: HasToString, cslDataType?: string): ParquetColumnMapping {
+    public static withConstantValue(columnName: string, constantValue: unknown, cslDataType?: string): ParquetColumnMapping {
         return new ParquetColumnMapping(columnName, cslDataType, undefined, undefined, constantValue);
     }
 
@@ -273,14 +241,7 @@ export class ParquetColumnMapping extends ColumnMapping {
 }
 
 export class OrcColumnMapping extends ColumnMapping {
-    private constructor(
-        readonly columnName: string,
-        cslDataType?: string,
-        path?: string,
-        field?: string,
-        constantValue?: HasToString,
-        transform?: Transformation
-    ) {
+    private constructor(readonly columnName: string, cslDataType?: string, path?: string, field?: string, constantValue?: unknown, transform?: Transformation) {
         super(columnName, cslDataType ?? undefined, {
             Path: path,
             Field: field,
@@ -297,7 +258,7 @@ export class OrcColumnMapping extends ColumnMapping {
         return new OrcColumnMapping(columnName, cslDataType, undefined, field, undefined, transform);
     }
 
-    public static withConstantValue(columnName: string, constantValue: HasToString, cslDataType?: string): OrcColumnMapping {
+    public static withConstantValue(columnName: string, constantValue: unknown, cslDataType?: string): OrcColumnMapping {
         return new OrcColumnMapping(columnName, cslDataType, undefined, undefined, constantValue);
     }
 
@@ -309,7 +270,7 @@ export class OrcColumnMapping extends ColumnMapping {
 }
 
 export class W3CLogFileMapping extends ColumnMapping {
-    private constructor(readonly columnName: string, cslDataType?: string, field?: string, constantValue?: HasToString, transform?: Transformation) {
+    private constructor(readonly columnName: string, cslDataType?: string, field?: string, constantValue?: unknown, transform?: Transformation) {
         super(columnName, cslDataType ?? undefined, { Field: field, ConstValue: constantValue, Transform: transform });
     }
 
@@ -317,7 +278,7 @@ export class W3CLogFileMapping extends ColumnMapping {
         return new W3CLogFileMapping(columnName, cslDataType, field, undefined, transform);
     }
 
-    public static withConstantValue(columnName: string, constantValue: HasToString, cslDataType?: string): W3CLogFileMapping {
+    public static withConstantValue(columnName: string, constantValue: unknown, cslDataType?: string): W3CLogFileMapping {
         return new W3CLogFileMapping(columnName, cslDataType, undefined, constantValue);
     }
 

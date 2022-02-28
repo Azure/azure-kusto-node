@@ -206,6 +206,40 @@ describe("IngestionProperties", () => {
             });
         });
 
+        describe("Should return the correct mapping when passing ConstantValue with different types", () => {
+            const types = [
+                JsonColumnMapping,
+                CsvColumnMapping,
+                AvroColumnMapping,
+                ApacheAvroColumnMapping,
+                SStreamColumnMapping,
+                ParquetColumnMapping,
+                OrcColumnMapping,
+                W3CLogFileMapping,
+            ];
+            const obj = {
+                toString: () => {
+                    return "custom toString";
+                },
+            };
+
+            types.forEach((type) => {
+                it(`should handle correctly for type ${type}`, () => {
+                    const result = [
+                        { Column: "a", Properties: { ConstValue: "custom toString" } },
+                        {
+                            Column: "b",
+                            Properties: { ConstValue: "5" },
+                        },
+                    ];
+                    assert.deepStrictEqual(
+                        [type.withConstantValue("a", obj), type.withConstantValue("b", 5)].map((m) => m.toApiMapping()),
+                        result
+                    );
+                });
+            });
+        });
+
         describe("Should return the correct mapping when passing Transform", () => {
             const types = [
                 JsonColumnMapping,
