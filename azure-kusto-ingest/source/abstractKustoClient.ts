@@ -1,28 +1,31 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import IngestionProperties from "./ingestionProperties";
+import { IngestionProperties, IngestionPropertiesInput } from "./ingestionProperties";
 import { FileDescriptor, StreamDescriptor } from "./descriptors";
 import { Readable } from "stream";
 
 export abstract class AbstractKustoClient {
-    protected constructor(public defaultProps: IngestionProperties | null = null) {}
+    public defaultProps: IngestionProperties;
 
-    _mergeProps(newProperties?: IngestionProperties | null): IngestionProperties {
-        // no default props
-        if (!newProperties || Object.keys(newProperties).length === 0) {
-            return this.defaultProps || new IngestionProperties({});
+    protected constructor(defaultProps: IngestionPropertiesInput) {
+        if (!defaultProps) {
+            this.defaultProps = new IngestionProperties({});
+        } else if (!(defaultProps instanceof IngestionProperties)) {
+            this.defaultProps = new IngestionProperties(defaultProps);
+        } else {
+            this.defaultProps = defaultProps;
         }
-
-        // no new props
-        if (this.defaultProps == null || Object.keys(this.defaultProps).length === 0) {
-            return newProperties || new IngestionProperties({});
-        }
-        // both exist - merge
-        return this.defaultProps.merge(newProperties) || new IngestionProperties({});
     }
 
-    abstract ingestFromStream(stream: StreamDescriptor | Readable, ingestionProperties: IngestionProperties): Promise<any>;
+    _getMergedProps(newProperties?: IngestionPropertiesInput): IngestionProperties {
+        const props = this.defaultProps.merge(newProperties);
+        props.setDefaults();
+        props.validate();
+        return props;
+    }
 
-    abstract ingestFromFile(file: FileDescriptor | string, ingestionProperties: IngestionProperties): Promise<any>;
+    abstract ingestFromStream(stream: StreamDescriptor | Readable, ingestionProperties: IngestionPropertiesInput): Promise<any>;
+
+    abstract ingestFromFile(file: FileDescriptor | string, ingestionProperties: IngestionPropertiesInput): Promise<any>;
 }
