@@ -61,6 +61,10 @@ const KeywordMapping: KeywordMappingRecordType = Object.freeze<Readonly<KeywordM
         mappedTo: "Authority Id",
         validNames: ["authority id", "authorityid", "authority", "tenantid", "tenant", "tid"],
     },
+    initialCatalog: {
+        mappedTo: "Initial Catalog",
+        validNames: ["initial catalog", "initialcatalog"],
+    },
 });
 
 const getPropName = (key: string): [string, MappingType] => {
@@ -84,6 +88,7 @@ export class KustoConnectionStringBuilder {
     static defaultDeviceCallback: (response: DeviceCodeResponse) => void = (response) => console.log(response.message);
 
     dataSource?: string;
+    initialCatalog?: string;
     aadFederatedSecurity?: boolean;
     aadUserId?: string;
     password?: string;
