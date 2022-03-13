@@ -81,6 +81,22 @@ KustoConnectionStringBuilder.withAadDeviceAuthentication(`https://${clusterName}
 });
 ```
 
+### Az Login
+
+You will need to [install the azure-cli](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli) and run the following command:
+
+```bash
+az login
+```
+
+Using this method will store a token locally allowing access
+
+**<!>It is likewise, not meant for production purposes<!>**
+
+```javascript
+const kcsb = KustoConnectionStringBuilder.withAzLoginIdentity(`https://${clusterName}.kusto.windows.net`, authId);
+```
+
 ## Usage
 
 Query language docs can be found at https://docs.microsoft.com/en-us/azure/data-explorer/write-queries#overview-of-the-query-language
