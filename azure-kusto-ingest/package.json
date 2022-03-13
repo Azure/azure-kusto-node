@@ -23,7 +23,7 @@
         "example": "npm run build && node example.js",
         "lint": "npx eslint -c .eslintrc.js --ext .ts .",
         "test": "npm run build && mocha --parallel --recursive test/*.js",
-        "e2e": "npm run build && mocha --parallel test/e2eTests/e2eTest.ts",
+        "e2e": "npm run build && mocha --parallel --timeout 240000 test/e2eTests/e2eTest.js",
         "allTests": "npm run build && mocha --parallel --timeout 240000 --recursive",
         "testPipeline": "npm run build && nyc --reporter lcovonly mocha --timeout 240000 --recursive --reporter mocha-junit-reporter ",
         "format": "npx prettier --write .",
