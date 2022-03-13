@@ -20,17 +20,42 @@ These include testing related packages as well as styling ([eslint](https://esli
 
 This project uses [mocha](https://mochajs.org/) for testing.
 
+First, enter the directory of the package to run the tests on:
+```bash
+cd azure-kusto-data
+# or:
+cd azure-kusto-ingest
+```
+
 In order to run unittests execute:
 
 ```bash
 npm test 
 ```
 
+Tests that need credentials to run will not run by default. 
+To run them, set the enviornment variable `LOGIN_TEST=1`
+These tests will usually need more credentials, which will be passed via enviornment variables.
+See tests that are declared with `loginTest` or `manualLoginTest` for their requirements.
+
 In order to check coding style compliance excute:
 
 ```bash
 npm run lint
 npm run checkFormat
+```
+
+To run end to end tests from the `azure-kusto-ingest` packge, you will need to set up environment variables:
+```bash
+# The following instructions are for bash. When using a different shell, use the syntax for setting environment variables.
+export ENGINE_CONNECTION_STRING=https://<your-cluster>.kusto.windows.net
+export DM_CONNECTION_STRING=https://ingest-<your-cluster>.kusto.windows.net
+export TEST_DATABASE=<your-database>
+export APP_ID=<your-app-id>
+export APP_KEY=<your-app-key>
+export TENANT_ID=<your-tenant-id>
+
+npm run e2e
 ```
 
 On creating PR or pushing a commit there is an automated validation which runs lint, unittests and end2end tests.
