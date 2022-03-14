@@ -89,12 +89,12 @@ You will need to [install the azure-cli](https://docs.microsoft.com/en-us/cli/az
 az login
 ```
 
-Using this method will store a token locally allowing access
+This method uses the token stored in azure cli for authentication.
 
-**<!>It is likewise, not meant for production purposes<!>**
+**<!>This is not recommeneded for unattended authentication<!>**
 
 ```javascript
-const kcsb = KustoConnectionStringBuilder.withAzLoginIdentity(`https://${clusterName}.kusto.windows.net`, authId);
+const kcsb = KustoConnectionStringBuilder.withAzLoginIdentity(`https://${clusterName}.kusto.windows.net`); // optionally also pass authorityId
 ```
 
 ## Usage
