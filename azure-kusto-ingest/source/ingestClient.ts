@@ -21,7 +21,9 @@ export class KustoIngestClient extends AbstractKustoClient {
 
     constructor(kcsb: string | KustoConnectionStringBuilder, defaultProps?: IngestionPropertiesInput) {
         super(defaultProps);
-        this.resourceManager = new ResourceManager(new KustoClient(kcsb));
+        const kustoClient = new KustoClient(kcsb);
+        this.resourceManager = new ResourceManager(kustoClient);
+        this.defaultDatabase = kustoClient.defaultDatabase;
     }
 
     _getBlobNameSuffix(format: string | null, compressionType: CompressionType) {

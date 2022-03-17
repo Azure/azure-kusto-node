@@ -26,6 +26,10 @@ const KeywordMapping: KeywordMappingRecordType = Object.freeze<Readonly<KeywordM
         validNames: ["aad federated security", "federated security", "federated", "fed", "aadfed"],
         isBool: true,
     },
+    initialCatalog: {
+        mappedTo: "Initial Catalog",
+        validNames: ["initial catalog", "database"],
+    },
     aadUserId: {
         mappedTo: "AAD User ID",
         validNames: ["aad user id"],
@@ -85,6 +89,7 @@ export class KustoConnectionStringBuilder {
 
     dataSource?: string;
     aadFederatedSecurity?: boolean;
+    initialCatalog?: string;
     aadUserId?: string;
     password?: string;
     applicationClientId?: string;

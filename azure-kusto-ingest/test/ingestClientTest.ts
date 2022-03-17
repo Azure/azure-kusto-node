@@ -3,8 +3,11 @@
 
 import assert from "assert";
 import { KustoIngestClient } from "../source/ingestClient";
-import { DataFormat, IngestionProperties, ReportLevel, ReportMethod } from "../source/ingestionProperties";
+import { DataFormat, IngestionProperties, IngestionPropertiesInput, ReportLevel, ReportMethod } from "../source/ingestionProperties";
 import { IngestionPropertiesValidationError } from "../source/errors";
+import KustoStreamingIngestClient from "../source/streamingIngestClient";
+import KustoManagedStreamingIngestClient from "../source/managedStreamingIngestClient";
+import { KustoConnectionStringBuilder } from "azure-kusto-data";
 
 describe("KustoIngestClient", () => {
     describe("#constructor()", () => {
@@ -58,7 +61,6 @@ describe("KustoIngestClient", () => {
                 table: "table",
                 format: DataFormat.JSON,
             });
-            // TODO: not sure a unit test will be useful here
             const client = new KustoIngestClient("https://cluster.region.kusto.windows.net", defaultProps);
             const actual = client._getMergedProps(null);
 
@@ -147,6 +149,75 @@ describe("KustoIngestClient", () => {
             assert.strictEqual(actual.format, "csv");
             assert.strictEqual(actual.reportLevel, ReportLevel.FailuresOnly);
             assert.strictEqual(actual.reportMethod, ReportMethod.Queue);
+        });
+
+        describe("test default database", () => {
+            [
+                (s: string, p: IngestionPropertiesInput) => new KustoIngestClient(s, p),
+                (s: string, p: IngestionPropertiesInput) => new KustoStreamingIngestClient(s, p),
+                (s: string, p: IngestionPropertiesInput) =>
+                    KustoManagedStreamingIngestClient.fromEngineConnectionString(new KustoConnectionStringBuilder(s), p),
+            ].forEach((clientType) => {
+                it(`${clientType} - test default database`, () => {
+                    const defaultProps: IngestionPropertiesInput = {
+                        table: "table",
+                    };
+                    const newProps: IngestionPropertiesInput = {
+                        ingestionMappingReference: "MappingRef",
+                    };
+
+                    const client = clientType("Data Source=https://cluster.region.kusto.windows.net;Initial Catalog=db3", defaultProps);
+                    const actual = client._getMergedProps(newProps);
+
+                    assert.strictEqual(actual.database, "db3");
+                    assert.strictEqual(actual.table, "table");
+                    assert.strictEqual(actual.ingestionMappingReference, "MappingRef");
+                    assert.strictEqual(actual.format, "csv");
+                    assert.strictEqual(actual.reportLevel, ReportLevel.FailuresOnly);
+                    assert.strictEqual(actual.reportMethod, ReportMethod.Queue);
+                });
+
+                it(`${clientType} - test default database with defaultProps`, () => {
+                    const defaultProps: IngestionPropertiesInput = {
+                        table: "table",
+                        database: "db",
+                    };
+                    const newProps: IngestionPropertiesInput = {
+                        ingestionMappingReference: "MappingRef",
+                    };
+
+                    const client = clientType("Data Source=https://cluster.region.kusto.windows.net;Initial Catalog=db3", defaultProps);
+                    const actual = client._getMergedProps(newProps);
+
+                    assert.strictEqual(actual.database, "db");
+                    assert.strictEqual(actual.table, "table");
+                    assert.strictEqual(actual.ingestionMappingReference, "MappingRef");
+                    assert.strictEqual(actual.format, "csv");
+                    assert.strictEqual(actual.reportLevel, ReportLevel.FailuresOnly);
+                    assert.strictEqual(actual.reportMethod, ReportMethod.Queue);
+                });
+
+                it(`${clientType} - test default database with given props`, () => {
+                    const defaultProps: IngestionPropertiesInput = {
+                        table: "table",
+                        database: "db",
+                    };
+                    const newProps: IngestionPropertiesInput = {
+                        ingestionMappingReference: "MappingRef",
+                        database: "db2",
+                    };
+
+                    const client = clientType("Data Source=https://cluster.region.kusto.windows.net;Initial Catalog=db3", defaultProps);
+                    const actual = client._getMergedProps(newProps);
+
+                    assert.strictEqual(actual.database, "db2");
+                    assert.strictEqual(actual.table, "table");
+                    assert.strictEqual(actual.ingestionMappingReference, "MappingRef");
+                    assert.strictEqual(actual.format, "csv");
+                    assert.strictEqual(actual.reportLevel, ReportLevel.FailuresOnly);
+                    assert.strictEqual(actual.reportMethod, ReportMethod.Queue);
+                });
+            });
         });
 
         it("empty both", () => {

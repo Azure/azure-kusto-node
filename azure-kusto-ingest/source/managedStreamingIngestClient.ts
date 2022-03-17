@@ -73,6 +73,14 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
         super(defaultProps);
         this.streamingIngestClient = new StreamingIngestClient(engineKcsb, defaultProps);
         this.queuedIngestClient = new IngestClient(dmKcsb, defaultProps);
+
+        if (this.streamingIngestClient.defaultDatabase && this.streamingIngestClient.defaultDatabase !== this.queuedIngestClient.defaultDatabase) {
+            throw new Error(
+                `Default database for streaming ingest client (${this.streamingIngestClient.defaultDatabase}) must match default database for queued ingest client (${this.queuedIngestClient.defaultDatabase})`
+            );
+        }
+
+        this.defaultDatabase = this.streamingIngestClient.defaultDatabase;
     }
 
     async ingestFromStream(stream: StreamDescriptor | Readable, ingestionProperties?: IngestionPropertiesInput): Promise<any> {

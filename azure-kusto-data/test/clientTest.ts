@@ -209,5 +209,139 @@ describe("KustoClient", () => {
 
             await client.executeQueryV1("Database", "Table | count");
         });
+
+        describe("client default database tests", () => {
+            const client = new KustoClient("Data Source=https://cluster.kusto.windows.net;Initial Catalog=db1");
+            const noDbClient = new KustoClient("Data Source=https://cluster.kusto.windows.net");
+
+            [client.execute.bind(client), client.executeMgmt.bind(client), client.executeQuery.bind(client), client.executeQueryV1.bind(client)].forEach(
+                (method) => {
+                    it(`${method.name} should have a default database`, async () => {
+                        client._doRequest = (_endpoint, _executionType, _headers, payload) => {
+                            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                            assert.strictEqual(JSON.parse(payload).db, "db1");
+                            return Promise.resolve(new KustoResponseDataSetV2([]));
+                        };
+                        await method(null, "Table | count");
+                    });
+
+                    it(`${method.name} provided db should overwrite database`, async () => {
+                        client._doRequest = (_endpoint, _executionType, _headers, payload) => {
+                            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                            assert.strictEqual(JSON.parse(payload).db, "db2");
+                            return Promise.resolve(new KustoResponseDataSetV2([]));
+                        };
+                        await method("db2", "Table | count");
+                    });
+                }
+            );
+
+            [
+                client.execute.bind(noDbClient),
+                client.executeMgmt.bind(noDbClient),
+                client.executeQuery.bind(noDbClient),
+                client.executeQueryV1.bind(noDbClient),
+            ].forEach((method) => {
+                it(`${method.name} without db should not have a default database`, async () => {
+                    noDbClient._doRequest = (_endpoint, _executionType, _headers, payload) => {
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                        assert.strictEqual(JSON.parse(payload).db, "db1");
+                        return Promise.resolve(new KustoResponseDataSetV2([]));
+                    };
+                    await assert.rejects(
+                        async () => await method(null, "Table | count"),
+                        "Error: No database provided, and no default database specified in connection string"
+                    );
+                });
+
+                it(`${method.name} without db provided db should overwrite database`, async () => {
+                    noDbClient._doRequest = (_endpoint, _executionType, _headers, payload) => {
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                        assert.strictEqual(JSON.parse(payload).db, "db2");
+                        return Promise.resolve(new KustoResponseDataSetV2([]));
+                    };
+                    await method("db2", "Table | count");
+                });
+            });
+
+            [
+                client.executeWithDefaultDatabase.bind(client),
+                client.executeMgmtWithDefaultDatabase.bind(client),
+                client.executeQueryWithDefaultDatabase.bind(client),
+                client.executeQueryV1WithDefaultDatabase.bind(client),
+            ].forEach((method) => {
+                it(`${method.name} should have a default database`, async () => {
+                    client._doRequest = (_endpoint, _executionType, _headers, payload) => {
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                        assert.strictEqual(JSON.parse(payload).db, "db1");
+                        return Promise.resolve(new KustoResponseDataSetV2([]));
+                    };
+                    await method("Table | count");
+                });
+            });
+
+            [
+                client.executeWithDefaultDatabase.bind(noDbClient),
+                client.executeMgmtWithDefaultDatabase.bind(noDbClient),
+                client.executeQueryWithDefaultDatabase.bind(noDbClient),
+                client.executeQueryV1WithDefaultDatabase.bind(noDbClient),
+            ].forEach((method) => {
+                it(`${method.name} without db should not have a default database`, async () => {
+                    noDbClient._doRequest = (_endpoint, _executionType, _headers, payload) => {
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                        assert.strictEqual(JSON.parse(payload).db, "db1");
+                        return Promise.resolve(new KustoResponseDataSetV2([]));
+                    };
+                    await assert.rejects(
+                        async () => await method("Table | count"),
+                        "Error: No database provided, and no default database specified in connection string"
+                    );
+                });
+            });
+
+            it(`executeStreamingIngest should have a default database`, async () => {
+                const sClient = new KustoClient("Data Source=https://cluster.kusto.windows.net;Initial Catalog=db1");
+                sClient._doRequest = (endpoint) => {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                    assert.ok(endpoint.indexOf("/db1/") > 0);
+                    return Promise.resolve(new KustoResponseDataSetV2([]));
+                };
+                await sClient.executeStreamingIngest(null, "Table", null, null, null);
+            });
+
+            it(`executeStreamingIngest provided db should overwrite database`, async () => {
+                const sClient = new KustoClient("Data Source=https://cluster.kusto.windows.net;Initial Catalog=db1");
+                sClient._doRequest = (endpoint) => {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                    assert.ok(endpoint.indexOf("/db2/") > 0);
+                    return Promise.resolve(new KustoResponseDataSetV2([]));
+                };
+                await sClient.executeStreamingIngest("db2", "Table", null, null, null);
+            });
+
+            it(`executeStreamingIngest without db should have a default database`, async () => {
+                const sNoDbClient = new KustoClient("Data Source=https://cluster.kusto.windows.net");
+                sNoDbClient._doRequest = (endpoint) => {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                    assert.ok(endpoint.indexOf("/db1/") > 0);
+                    return Promise.resolve(new KustoResponseDataSetV2([]));
+                };
+
+                await assert.rejects(
+                    async () => await sNoDbClient.executeStreamingIngest(null, "Table", null, null, null),
+                    "Error: No database provided, and no default database specified in connection string"
+                );
+            });
+
+            it(`executeStreamingIngest without db provided db should overwrite database`, async () => {
+                const sNoDbClient = new KustoClient("Data Source=https://cluster.kusto.windows.net");
+                sNoDbClient._doRequest = (endpoint) => {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                    assert.ok(endpoint.indexOf("/db2/") > 0);
+                    return Promise.resolve(new KustoResponseDataSetV2([]));
+                };
+                await sNoDbClient.executeStreamingIngest("db2", "Table", null, null, null);
+            });
+        });
     });
 });

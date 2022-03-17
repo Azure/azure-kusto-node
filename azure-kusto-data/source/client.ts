@@ -27,6 +27,7 @@ enum ExecutionType {
 export class KustoClient {
     connectionString: ConnectionStringBuilder;
     cluster: string;
+    defaultDatabase?: string;
     endpoints: { [key in ExecutionType]: string };
     aadHelper: AadHelper;
     axiosInstance: AxiosInstance;
@@ -34,6 +35,7 @@ export class KustoClient {
     constructor(kcsb: string | ConnectionStringBuilder) {
         this.connectionString = typeof kcsb === "string" ? new ConnectionStringBuilder(kcsb) : kcsb;
         this.cluster = this.connectionString.dataSource as string;
+        this.defaultDatabase = this.connectionString.initialCatalog;
         this.endpoints = {
             [ExecutionType.Mgmt]: `${this.cluster}/v1/rest/mgmt`,
             [ExecutionType.Query]: `${this.cluster}/v2/rest/query`,
@@ -57,7 +59,7 @@ export class KustoClient {
         });
     }
 
-    async execute(db: string, query: string, properties?: ClientRequestProperties) {
+    async execute(db: string | null, query: string, properties?: ClientRequestProperties) {
         query = query.trim();
         if (query.startsWith(MGMT_PREFIX)) {
             return this.executeMgmt(db, query, properties);
@@ -66,27 +68,27 @@ export class KustoClient {
         return this.executeQuery(db, query, properties);
     }
 
-    async executeQuery(db: string, query: string, properties?: ClientRequestProperties) {
+    async executeQuery(db: string | null, query: string, properties?: ClientRequestProperties) {
         return this._execute(this.endpoints[ExecutionType.Query], ExecutionType.Query, db, query, null, properties);
     }
 
-    async executeQueryV1(db: string, query: string, properties?: ClientRequestProperties) {
+    async executeQueryV1(db: string | null, query: string, properties?: ClientRequestProperties) {
         return this._execute(this.endpoints[ExecutionType.QueryV1], ExecutionType.QueryV1, db, query, null, properties);
     }
 
-    async executeMgmt(db: string, query: string, properties?: ClientRequestProperties) {
+    async executeMgmt(db: string | null, query: string, properties?: ClientRequestProperties) {
         return this._execute(this.endpoints[ExecutionType.Mgmt], ExecutionType.Mgmt, db, query, null, properties);
     }
 
     async executeStreamingIngest(
-        db: string,
+        db: string | null,
         table: string,
         stream: any,
         streamFormat: any,
         mappingName: string | null,
         clientRequestId?: string
     ): Promise<KustoResponseDataSet> {
-        let endpoint = `${this.endpoints[ExecutionType.Ingest]}/${db}/${table}?streamFormat=${streamFormat}`;
+        let endpoint = `${this.endpoints[ExecutionType.Ingest]}/${this.getDb(db)}/${table}?streamFormat=${streamFormat}`;
         if (mappingName != null) {
             endpoint += `&mappingName=${mappingName}`;
         }
@@ -98,14 +100,41 @@ export class KustoClient {
         return this._execute(endpoint, ExecutionType.Ingest, db, null, stream, properties);
     }
 
+    executeWithDefaultDatabase(query: string, properties?: ClientRequestProperties) {
+        return this.execute(null, query, properties);
+    }
+
+    executeQueryWithDefaultDatabase(query: string, properties?: ClientRequestProperties) {
+        return this.executeQuery(null, query, properties);
+    }
+
+    executeQueryV1WithDefaultDatabase(query: string, properties?: ClientRequestProperties) {
+        return this.executeQueryV1(null, query, properties);
+    }
+
+    executeMgmtWithDefaultDatabase(query: string, properties?: ClientRequestProperties) {
+        return this.executeMgmt(null, query, properties);
+    }
+
+    executeStreamingIngestWithDefaultDatabase(
+        table: string,
+        stream: any,
+        streamFormat: any,
+        mappingName: string | null,
+        clientRequestId?: string
+    ): Promise<KustoResponseDataSet> {
+        return this.executeStreamingIngest(null, table, stream, streamFormat, mappingName, clientRequestId);
+    }
+
     async _execute(
         endpoint: string,
         executionType: ExecutionType,
-        db: string,
+        db: string | null,
         query: string | null,
         stream: any,
         properties?: ClientRequestProperties | null
     ): Promise<KustoResponseDataSet> {
+        db = this.getDb(db);
         const headers: { [header: string]: string } = {};
 
         let payload: { db: string; csl: string; properties?: any };
@@ -155,6 +184,16 @@ export class KustoClient {
         }
 
         return this._doRequest(endpoint, executionType, headers, payloadContent, timeout, properties);
+    }
+
+    private getDb(db: string | null) {
+        if (db == null) {
+            if (this.defaultDatabase == null) {
+                throw new Error("No database provided, and no default database specified in connection string");
+            }
+            db = this.defaultDatabase;
+        }
+        return db;
     }
 
     async _doRequest(
