@@ -217,11 +217,19 @@ export class KustoClient {
         } catch (error: unknown) {
             if (axios.isAxiosError(error) && error.response) {
                 // eslint-disable-next-line no-console
+                console.log("Starting error logging: ");
+                // eslint-disable-next-line no-console
+                console.log("endpoint: " + endpoint);
+                // eslint-disable-next-line no-console
+                console.log("headers: " + JSON.stringify(headers));
+                // eslint-disable-next-line no-console
                 console.log(error.response.data);
                 // eslint-disable-next-line no-console
                 console.log(error.response.status);
                 // eslint-disable-next-line no-console
                 console.log(error.response.headers);
+                // eslint-disable-next-line no-console
+                console.log("End error logging");
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 throw error.response.data?.error || error.response.data;
             }
