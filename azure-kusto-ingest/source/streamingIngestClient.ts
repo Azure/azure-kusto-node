@@ -10,7 +10,6 @@ import { Client as KustoClient, KustoConnectionStringBuilder } from "azure-kusto
 import { KustoResponseDataSet } from "azure-kusto-data/source/response";
 import { fileToStream } from "./streamUtils";
 import { Readable } from "stream";
-import { readFileSync } from "fs";
 
 class KustoStreamingIngestClient extends AbstractKustoClient {
     private kustoClient: KustoClient;
@@ -37,13 +36,6 @@ class KustoStreamingIngestClient extends AbstractKustoClient {
     }
 
     async ingestFromFile(file: FileDescriptor | string, ingestionProperties?: IngestionPropertiesInput): Promise<KustoResponseDataSet> {
-        // eslint-disable-next-line no-console
-        console.log(
-            "Ingesting from file: " +
-                (file instanceof FileDescriptor ? file.name : file) +
-                "content : " +
-                readFileSync(file instanceof FileDescriptor ? file.name : file).toString()
-        );
         return this.ingestFromStream(fileToStream(file), ingestionProperties);
     }
 }

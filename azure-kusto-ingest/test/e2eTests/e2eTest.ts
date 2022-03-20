@@ -94,7 +94,7 @@ const main = (): void => {
     fs.writeFileSync(jsonGzip, gzipSync(fs.readFileSync(jsonFile)));
 
     const testItems = [
-        new TestDataItem("csv", csvFile, 10, ingestionPropertiesWithoutMapping),
+        new TestDataItem("csv", csvFile, 10, ingestionPropertiesWithoutMapping, false),
         new TestDataItem("csv.gz", csvGzip, 10, ingestionPropertiesWithoutMapping),
         new TestDataItem("json with mapping ref", jsonFile, 2, ingestionPropertiesWithMappingReference),
         new TestDataItem("json.gz with mapping ref", jsonGzip, 2, ingestionPropertiesWithMappingReference),
