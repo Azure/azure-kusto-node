@@ -163,7 +163,7 @@ export class KustoClient {
             headers["Content-Encoding"] = "gzip";
             headers["Content-Type"] = "text/plain";
         } else {
-            throw new Error("Invalid parameters");
+            throw new Error("Invalid parameters - expected query or streaming ingest");
         }
 
         if (properties != null) {
@@ -216,20 +216,6 @@ export class KustoClient {
             axiosResponse = await this.axiosInstance.post(endpoint, payload, axiosConfig);
         } catch (error: unknown) {
             if (axios.isAxiosError(error) && error.response) {
-                // eslint-disable-next-line no-console
-                console.log("Starting error logging: ");
-                // eslint-disable-next-line no-console
-                console.log("endpoint: " + endpoint);
-                // eslint-disable-next-line no-console
-                console.log("headers: " + JSON.stringify(headers));
-                // eslint-disable-next-line no-console
-                console.log(error.response.data);
-                // eslint-disable-next-line no-console
-                console.log(error.response.status);
-                // eslint-disable-next-line no-console
-                console.log(error.response.headers);
-                // eslint-disable-next-line no-console
-                console.log("End error logging");
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 throw error.response.data?.error || error.response.data;
             }
