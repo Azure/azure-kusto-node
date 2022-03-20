@@ -15,6 +15,7 @@ import v2Response from "./data/response/v2.json";
 import v2ResponseError from "./data/response/v2error.json";
 import v1Response from "./data/response/v1.json";
 import v1_2Response from "./data/response/v1_2.json";
+import { Readable } from "stream";
 
 enum ExecutionType {
     Mgmt = "mgmt",
@@ -306,7 +307,7 @@ describe("KustoClient", () => {
                     assert.ok(endpoint.indexOf("/db1/") > 0);
                     return Promise.resolve(new KustoResponseDataSetV2([]));
                 };
-                await sClient.executeStreamingIngest(null, "Table", null, null, null);
+                await sClient.executeStreamingIngest(null, "Table", Readable.from(""), null, null);
             });
 
             it(`executeStreamingIngest provided db should overwrite database`, async () => {
@@ -316,7 +317,7 @@ describe("KustoClient", () => {
                     assert.ok(endpoint.indexOf("/db2/") > 0);
                     return Promise.resolve(new KustoResponseDataSetV2([]));
                 };
-                await sClient.executeStreamingIngest("db2", "Table", null, null, null);
+                await sClient.executeStreamingIngest("db2", "Table", Readable.from(""), "csv", null);
             });
 
             it(`executeStreamingIngest without db should have a default database`, async () => {
@@ -328,7 +329,7 @@ describe("KustoClient", () => {
                 };
 
                 await assert.rejects(
-                    async () => await sNoDbClient.executeStreamingIngest(null, "Table", null, null, null),
+                    async () => await sNoDbClient.executeStreamingIngest(null, "Table", Readable.from(""), "csv", null),
                     "Error: No database provided, and no default database specified in connection string"
                 );
             });
@@ -340,7 +341,7 @@ describe("KustoClient", () => {
                     assert.ok(endpoint.indexOf("/db2/") > 0);
                     return Promise.resolve(new KustoResponseDataSetV2([]));
                 };
-                await sNoDbClient.executeStreamingIngest("db2", "Table", null, null, null);
+                await sNoDbClient.executeStreamingIngest("db2", "Table", Readable.from(""), "csv", null);
             });
         });
     });
