@@ -15,6 +15,7 @@ import { DataFormat, IngestionProperties, ReportLevel } from "../../source/inges
 import { CloudSettings } from "azure-kusto-data/source/cloudSettings";
 import { sleep } from "../../source/retry";
 import { JsonColumnMapping } from "../../source/columnMappings";
+import { deflateSync } from "zlib";
 
 interface ParsedJsonMapping {
     Properties: { Path: string };
@@ -84,13 +85,21 @@ const main = (): void => {
         flushImmediately: true,
     });
 
+    const csvFile = getTestResourcePath("dataset.csv");
+    const csvGzip = getTestResourcePath("dataset_gzip.csv.gz");
+    fs.writeFileSync(csvGzip, deflateSync(fs.readFileSync(csvFile)));
+
+    const jsonFile = getTestResourcePath("dataset.json");
+    const jsonGzip = getTestResourcePath("dataset_gzip.json.gz");
+    fs.writeFileSync(jsonGzip, deflateSync(fs.readFileSync(jsonFile)));
+
     const testItems = [
-        new TestDataItem("csv", getTestResourcePath("dataset.csv"), 10, ingestionPropertiesWithoutMapping),
-        new TestDataItem("csv.gz", getTestResourcePath("dataset_gzip.csv.gz"), 10, ingestionPropertiesWithoutMapping),
-        new TestDataItem("json with mapping ref", getTestResourcePath("dataset.json"), 2, ingestionPropertiesWithMappingReference),
-        new TestDataItem("json.gz with mapping ref", getTestResourcePath("dataset_gzip.json.gz"), 2, ingestionPropertiesWithMappingReference),
-        new TestDataItem("json with mapping", getTestResourcePath("dataset.json"), 2, ingestionPropertiesWithColumnMapping, false),
-        new TestDataItem("json.gz with mapping", getTestResourcePath("dataset_gzip.json.gz"), 2, ingestionPropertiesWithColumnMapping, false),
+        new TestDataItem("csv", csvFile, 10, ingestionPropertiesWithoutMapping),
+        new TestDataItem("csv.gz", csvGzip, 10, ingestionPropertiesWithoutMapping),
+        new TestDataItem("json with mapping ref", jsonFile, 2, ingestionPropertiesWithMappingReference),
+        new TestDataItem("json.gz with mapping ref", jsonGzip, 2, ingestionPropertiesWithMappingReference),
+        new TestDataItem("json with mapping", jsonFile, 2, ingestionPropertiesWithColumnMapping, false),
+        new TestDataItem("json.gz with mapping", jsonGzip, 2, ingestionPropertiesWithColumnMapping, false),
     ];
 
     let currentCount = 0;
