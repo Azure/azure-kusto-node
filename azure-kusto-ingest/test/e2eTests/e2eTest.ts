@@ -15,7 +15,7 @@ import { DataFormat, IngestionProperties, ReportLevel } from "../../source/inges
 import { CloudSettings } from "azure-kusto-data/source/cloudSettings";
 import { sleep } from "../../source/retry";
 import { JsonColumnMapping } from "../../source/columnMappings";
-import { deflateSync } from "zlib";
+import { gzipSync } from "zlib";
 
 interface ParsedJsonMapping {
     Properties: { Path: string };
@@ -87,11 +87,11 @@ const main = (): void => {
 
     const csvFile = getTestResourcePath("dataset.csv");
     const csvGzip = getTestResourcePath("dataset_gzip.csv.gz");
-    fs.writeFileSync(csvGzip, deflateSync(fs.readFileSync(csvFile)));
+    fs.writeFileSync(csvGzip, gzipSync(fs.readFileSync(csvFile)));
 
     const jsonFile = getTestResourcePath("dataset.json");
     const jsonGzip = getTestResourcePath("dataset_gzip.json.gz");
-    fs.writeFileSync(jsonGzip, deflateSync(fs.readFileSync(jsonFile)));
+    fs.writeFileSync(jsonGzip, gzipSync(fs.readFileSync(jsonFile)));
 
     const testItems = [
         new TestDataItem("csv", csvFile, 10, ingestionPropertiesWithoutMapping),
