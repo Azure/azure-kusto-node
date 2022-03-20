@@ -162,6 +162,8 @@ export class KustoClient {
             clientRequestPrefix = "KNC.executeStreamingIngest;";
             headers["Content-Encoding"] = "gzip";
             headers["Content-Type"] = "multipart/form-data";
+        } else {
+            throw new Error("Invalid parameters");
         }
 
         if (properties != null) {
