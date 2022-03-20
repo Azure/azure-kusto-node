@@ -213,8 +213,11 @@ export class KustoClient {
 
         let axiosResponse;
         try {
+            // eslint-disable-next-line no-console
+            console.log(`Executing ${executionType} request to ${endpoint}, axiosConfig: ${JSON.stringify(axiosConfig)}`);
             axiosResponse = await this.axiosInstance.post(endpoint, payload, axiosConfig);
         } catch (error: unknown) {
+            // eslint-disable-next-line no-console
             if (axios.isAxiosError(error) && error.response) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 throw error.response.data?.error || error.response.data;
