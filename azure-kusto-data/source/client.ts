@@ -161,7 +161,7 @@ export class KustoClient {
             payloadContent = stream;
             clientRequestPrefix = "KNC.executeStreamingIngest;";
             headers["Content-Encoding"] = "gzip";
-            headers["Content-Type"] = "text/plain";
+            headers["Content-Type"] = "application/octet-stream";
         } else {
             throw new Error("Invalid parameters - expected query or streaming ingest");
         }
