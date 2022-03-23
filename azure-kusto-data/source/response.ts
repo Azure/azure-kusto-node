@@ -69,13 +69,15 @@ export abstract class KustoResponseDataSet {
         this.primaryResults = [];
         for (const table of _tables) {
             const resultTable = new KustoResultTable(table);
-            this.tables.push(resultTable);
-            this.tableNames.push(resultTable.name);
-
+            
             if (resultTable.kind === WellKnownDataSet.PrimaryResult) {
                 this.primaryResults.push(resultTable);
             } else if (resultTable.kind === WellKnownDataSet.QueryCompletionInformation) {
                 this.statusTable = resultTable;
+            }
+            else{
+                this.tables.push(resultTable);
+                this.tableNames.push(resultTable.name);
             }
         }
     }
