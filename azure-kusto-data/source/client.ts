@@ -100,32 +100,6 @@ export class KustoClient {
         return this._execute(endpoint, ExecutionType.Ingest, db, null, stream, properties);
     }
 
-    executeWithDefaultDatabase(query: string, properties?: ClientRequestProperties) {
-        return this.execute(null, query, properties);
-    }
-
-    executeQueryWithDefaultDatabase(query: string, properties?: ClientRequestProperties) {
-        return this.executeQuery(null, query, properties);
-    }
-
-    executeQueryV1WithDefaultDatabase(query: string, properties?: ClientRequestProperties) {
-        return this.executeQueryV1(null, query, properties);
-    }
-
-    executeMgmtWithDefaultDatabase(query: string, properties?: ClientRequestProperties) {
-        return this.executeMgmt(null, query, properties);
-    }
-
-    executeStreamingIngestWithDefaultDatabase(
-        table: string,
-        stream: any,
-        streamFormat: any,
-        mappingName: string | null,
-        clientRequestId?: string
-    ): Promise<KustoResponseDataSet> {
-        return this.executeStreamingIngest(null, table, stream, streamFormat, mappingName, clientRequestId);
-    }
-
     async _execute(
         endpoint: string,
         executionType: ExecutionType,

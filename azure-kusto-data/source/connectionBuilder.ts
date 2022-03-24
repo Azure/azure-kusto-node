@@ -83,6 +83,7 @@ const getPropName = (key: string): [string, MappingType] => {
 };
 
 export class KustoConnectionStringBuilder {
+    static readonly DefaultDatabaseName = "NetDefaultDB";
     static readonly SecretReplacement = "****";
     // eslint-disable-next-line no-console
     static defaultDeviceCallback: (response: DeviceCodeResponse) => void = (response) => console.log(response.message);
@@ -129,6 +130,10 @@ export class KustoConnectionStringBuilder {
             } else {
                 this[mappingTypeName as KeyOfType<KustoConnectionStringBuilder, string | undefined>] = kvp[1]?.trim();
             }
+        }
+
+        if (!this.initialCatalog) {
+            this.initialCatalog = KustoConnectionStringBuilder.DefaultDatabaseName;
         }
     }
 
