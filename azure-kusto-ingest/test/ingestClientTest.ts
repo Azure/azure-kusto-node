@@ -220,8 +220,14 @@ describe("KustoIngestClient", () => {
             });
         });
 
+        it("default both", () => {
+            const client = new KustoIngestClient("https://cluster.region.kusto.windows.net");
+
+            assert.throws(() => client._getMergedProps(), new IngestionPropertiesValidationError("Must define a target table"));
+        });
         it("empty both", () => {
             const client = new KustoIngestClient("https://cluster.region.kusto.windows.net");
+            client.defaultDatabase = undefined;
 
             assert.throws(() => client._getMergedProps(), new IngestionPropertiesValidationError("Must define a target database"));
         });
