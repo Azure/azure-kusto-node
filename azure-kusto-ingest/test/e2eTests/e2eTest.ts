@@ -167,7 +167,7 @@ const main = (): void => {
                     try {
                         await streamingIngestClient.ingestFromFile(item.path, item.ingestionProperties);
                     } catch (err) {
-                        assert.fail(`Failed to ingest ${item.description}`);
+                        assert.fail(`Failed to ingest ${item.description} - ${JSON.stringify(err)}`);
                     }
                     await assertRowsCount(item);
                 }
@@ -182,7 +182,7 @@ const main = (): void => {
                     try {
                         await streamingIngestClient.ingestFromStream(stream, item.ingestionProperties);
                     } catch (err) {
-                        assert.fail(`Failed to ingest ${item.description}`);
+                        assert.fail(`Failed to ingest ${item.description} - ${JSON.stringify(err)}`);
                     }
                     await assertRowsCount(item);
                 }
@@ -209,7 +209,7 @@ const main = (): void => {
                     try {
                         await managedStreamingIngestClient.ingestFromStream(stream, item.ingestionProperties);
                     } catch (err) {
-                        assert.fail(`Failed to ingest ${item.description}`);
+                        assert.fail(`Failed to ingest ${item.description} - ${JSON.stringify(err)}`);
                     }
                     await assertRowsCount(item);
                 }
