@@ -17,6 +17,7 @@ class KustoStreamingIngestClient extends AbstractKustoClient {
     constructor(kcsb: string | KustoConnectionStringBuilder, defaultProps?: IngestionPropertiesInput) {
         super(defaultProps);
         this.kustoClient = new KustoClient(kcsb);
+        this.defaultDatabase = this.kustoClient.defaultDatabase;
     }
 
     async ingestFromStream(stream: StreamDescriptor | Readable, ingestionProperties?: IngestionPropertiesInput, clientRequestId?: string): Promise<any> {

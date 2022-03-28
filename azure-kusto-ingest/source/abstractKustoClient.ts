@@ -7,6 +7,7 @@ import { Readable } from "stream";
 
 export abstract class AbstractKustoClient {
     public defaultProps: IngestionProperties;
+    public defaultDatabase?: string;
 
     protected constructor(defaultProps: IngestionPropertiesInput) {
         if (!defaultProps) {
@@ -14,13 +15,16 @@ export abstract class AbstractKustoClient {
         } else if (!(defaultProps instanceof IngestionProperties)) {
             this.defaultProps = new IngestionProperties(defaultProps);
         } else {
-            this.defaultProps = defaultProps;
+            this.defaultProps = new IngestionProperties(defaultProps);
         }
     }
 
     _getMergedProps(newProperties?: IngestionPropertiesInput): IngestionProperties {
         const props = this.defaultProps.merge(newProperties);
         props.setDefaults();
+        if (!props.database) {
+            props.database = this.defaultDatabase;
+        }
         props.validate();
         return props;
     }

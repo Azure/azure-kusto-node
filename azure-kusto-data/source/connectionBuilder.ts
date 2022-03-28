@@ -26,6 +26,10 @@ const KeywordMapping: KeywordMappingRecordType = Object.freeze<Readonly<KeywordM
         validNames: ["aad federated security", "federated security", "federated", "fed", "aadfed"],
         isBool: true,
     },
+    initialCatalog: {
+        mappedTo: "Initial Catalog",
+        validNames: ["initial catalog", "database"],
+    },
     aadUserId: {
         mappedTo: "AAD User ID",
         validNames: ["aad user id"],
@@ -79,12 +83,14 @@ const getPropName = (key: string): [string, MappingType] => {
 };
 
 export class KustoConnectionStringBuilder {
+    static readonly DefaultDatabaseName = "NetDefaultDB";
     static readonly SecretReplacement = "****";
     // eslint-disable-next-line no-console
     static defaultDeviceCallback: (response: DeviceCodeResponse) => void = (response) => console.log(response.message);
 
     dataSource?: string;
     aadFederatedSecurity?: boolean;
+    initialCatalog?: string;
     aadUserId?: string;
     password?: string;
     applicationClientId?: string;
@@ -124,6 +130,10 @@ export class KustoConnectionStringBuilder {
             } else {
                 this[mappingTypeName as KeyOfType<KustoConnectionStringBuilder, string | undefined>] = kvp[1]?.trim();
             }
+        }
+
+        if (!this.initialCatalog) {
+            this.initialCatalog = KustoConnectionStringBuilder.DefaultDatabaseName;
         }
     }
 
