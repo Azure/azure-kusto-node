@@ -1,0 +1,55 @@
+name: Bump and create release draft
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version in format x.x.x'
+        required: true
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      - name: Update data
+        run: npm version ${{ github.event.inputs.version }}
+        working-directory: azure-kusto-data
+      - name: Update ingest
+        run: npm version ${{ github.event.inputs.version }}
+        working-directory: azure-kusto-ingest
+      - name: Pin version
+        run: npm install azure-kusto-data@${{ github.event.inputs.version }} --save-exact
+        working-directory: azure-kusto-ingest
+      - name: Commit Pin
+        run: |
+          git config --global user.name 'Asaf mahlev'
+          git config --global user.email 'AsafMah@users.noreply.github.com'
+          git commit -am "Bump ${{ github.event.inputs.version }} and Pin"
+      - name: Pushing to the protected branch 'master'
+        uses: CasperWA/push-protected@v2
+        with:
+          token: ${{ secrets.PUSH_TOKEN }}
+          branch: master
+          unprotect_reviews: true
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "v${{ github.event.inputs.version }}"
+          draft: true
+          title: "${{ github.event.inputs.version }}"
+      - name: Unpin version
+        run: npm install "file:../azure-kusto-data" --save-exact
+        working-directory: azure-kusto-ingest
+      - name: Commit UnPin
+        run: |
+          git config --global user.name 'Asaf mahlev'
+          git config --global user.email 'AsafMah@users.noreply.github.com'
+          git commit -am "Unpin ${{ github.event.inputs.version }}"
+      - name: Pushing to the protected branch 'master'
+        uses: CasperWA/push-protected@v2
+        with:
+          token: ${{ secrets.PUSH_TOKEN }}
+          branch: master
+          unprotect_reviews: true
