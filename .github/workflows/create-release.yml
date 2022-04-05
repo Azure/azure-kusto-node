@@ -20,9 +20,7 @@ jobs:
         run: npm version ${{ github.event.inputs.version }}
         working-directory: azure-kusto-ingest
       - name: Pin version
-        run: sed -i 's/file:\.\.\/azure-kusto-data/${{ github.event.inputs.version }}/g' package.json # A bit hacky, but we can't install
-        before
-          # the package is published
+        run: npm install azure-kusto-data@${{ github.event.inputs.version }} --save-exact
         working-directory: azure-kusto-ingest
       - name: Commit Pin
         run: |
