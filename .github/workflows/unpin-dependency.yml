@@ -1,4 +1,4 @@
-name: Pin azure-kusto-data dependency
+name: Unpin azure-kusto-data dependency
 on: workflow_dispatch
 jobs:
   report:
