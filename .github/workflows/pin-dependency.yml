@@ -1,0 +1,21 @@
+name: Pin azure-kusto-data dependency
+on: workflow_dispatch
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+          cache: 'npm'
+      - name: Create report file
+        run: npm install azure-kusto-data@$(npm pkg get version | tr -d '"') --save-exact
+        working-directory: azure-kusto-ingest
+      - name: Commit report
+        run: |
+          cat azure-kusto-ingest/package.json azure-kusto-ingest/package-lock.json
+          git config --global user.name 'Asaf mahlev'
+          git config --global user.email 'AsafMah@users.noreply.github.com'
+          git commit -am "Pin azure-kusto-ingest version to azure-kusto-data@$(npm pkg get version | tr -d '"')"
+          git push
