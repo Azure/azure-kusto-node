@@ -8,7 +8,6 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: '16'
-          cache: 'npm'
       - name: Create report file
         run: npm install azure-kusto-data@$(npm pkg get version | tr -d '"') --save-exact
         working-directory: azure-kusto-ingest
