@@ -9,8 +9,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-        with:
-          ref: master
       - uses: actions/setup-node@v1
         with:
           node-version: 14
@@ -21,6 +19,6 @@ jobs:
           npm install -g npm@latest
           npm ci
           npx lerna bootstrap --hoist
-          npx lerna publish --yes
+          npx lerna publish from-git --yes
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
