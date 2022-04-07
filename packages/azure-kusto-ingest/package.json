@@ -1,6 +1,6 @@
 {
     "name": "azure-kusto-ingest",
-    "version": "3.3.0",
+    "version": "3.3.1",
     "description": "Azure Data Explorer Ingestion SDK",
     "main": "index.js",
     "types": "index.d.ts",
@@ -45,7 +45,7 @@
         "@types/stream-to-array": "^2.3.0",
         "@types/uuid": "^8.3.0",
         "@types/uuid-validate": "0.0.1",
-        "azure-kusto-data": "^3.3.0",
+        "azure-kusto-data": "^3.3.1",
         "moment": "^2.22.2",
         "stream-array": "^1.1.0",
         "stream-to-array": "^2.3.0",
