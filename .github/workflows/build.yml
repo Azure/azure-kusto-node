@@ -18,13 +18,13 @@ jobs:
           cache: 'npm'
           cache-dependency-path: |
             package-lock.json
-            azure-kusto-data/package-lock.json
-            azure-kusto-ingest/package-lock.json
+            packages/azure-kusto-data/package-lock.json
+            packages/azure-kusto-ingest/package-lock.json
       - run: |
           npm install -g npm@latest
           npm ci
           npx lerna bootstrap --hoist
-      - working-directory: ./azure-kusto-data
+      - working-directory: ./packages/azure-kusto-data
         run: |
           npm run checkFormat
           npm run lint
@@ -32,7 +32,7 @@ jobs:
         env:
           AUTO_TEST: true
           LOGIN_TEST: true
-      - working-directory: ./azure-kusto-ingest
+      - working-directory: ./packages/azure-kusto-ingest
         run: |
           npm run checkFormat
           npm run lint
@@ -53,5 +53,5 @@ jobs:
         if: always()
         with:
           files: |
-            azure-kusto-data/test-results.xml
-            azure-kusto-ingest/test-results.xml
+            packages/azure-kusto-data/test-results.xml
+            packages/azure-kusto-ingest/test-results.xml
