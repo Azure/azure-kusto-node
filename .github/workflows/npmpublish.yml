@@ -13,22 +13,12 @@ jobs:
         with:
           node-version: 14
           registry-url: https://registry.npmjs.org/
-        
-      - name: Publish new version azure-kusto-data
-        working-directory: ./azure-kusto-data
-        run: |
-          npm install
-          npm run build
-          npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
-      
-      - name: Publish new version azure-kusto-ingest
-        working-directory: ./azure-kusto-ingest
-        run: |
-          npm install
-          npm run build
-          npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
 
+      - name: Publish new versions
+        run: |
+          npm install -g npm@latest
+          npm ci
+          npx lerna bootstrap --hoist
+          npx lerna publish --yes --hoist
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}

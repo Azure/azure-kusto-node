@@ -2,8 +2,8 @@
 ![Github Actions Build](https://github.com/Azure/azure-kusto-node/actions/workflows/build.yml/badge.svg)
 
 This repository contains the following SDKs:
-* **Azure Kusto Data SDK**: Execute queries against a Kusto Cluster. [docs](./azure-kusto-data/README.md)
-* **Azure Kusto Ingest SDK**: Ingest Data into a Kusto Cluster. [docs](./azure-kusto-ingest/README.md)
+* **Azure Kusto Data SDK**: Execute queries against a Kusto Cluster. [docs](./packages/azure-kusto-data/README.md)
+* **Azure Kusto Ingest SDK**: Ingest Data into a Kusto Cluster. [docs](./packages/azure-kusto-ingest/README.md)
 
 
 General docs are located at https://docs.microsoft.com/en-us/azure/data-explorer/
@@ -25,8 +25,8 @@ The SDK team publishes the SDKs as [npm](https://npmjs.org) packages:
 ## Examples
 
 In the repository, you will find a set of simple samples that will help you get started:
-- [Data SDK samples](./azure-kusto-data/example.js)
-- [Ingestion SDK samples](./azure-kusto-ingest/example.js)
+- [Data SDK samples](./packages/azure-kusto-data/example.js)
+- [Ingestion SDK samples](./packages/azure-kusto-ingest/example.js)
 
 ## Best Practices
 See the SDK [best practices guide](https://docs.microsoft.com/azure/data-explorer/kusto/api/netfx/kusto-ingest-best-practices), which though written for the .NET SDK, applies similarly here.

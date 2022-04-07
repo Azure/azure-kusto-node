@@ -17,22 +17,23 @@ jobs:
           registry-url: https://registry.npmjs.org/
           cache: 'npm'
           cache-dependency-path: |
-            azure-kusto-data/package-lock.json
-            azure-kusto-ingest/package-lock.json
-      - run: npm install -g npm@latest
-      - working-directory: ./azure-kusto-data
+            package-lock.json
+            packages/azure-kusto-data/package-lock.json
+            packages/azure-kusto-ingest/package-lock.json
+      - run: |
+          npm install -g npm@latest
+          npm ci
+          npx lerna bootstrap --hoist
+      - working-directory: ./packages/azure-kusto-data
         run: |
-          npm i
           npm run checkFormat
           npm run lint
           npm run testPipeline
         env:
           AUTO_TEST: true
           LOGIN_TEST: true
-      - working-directory: ./azure-kusto-ingest
+      - working-directory: ./packages/azure-kusto-ingest
         run: |
-          npm i
-          npm link ../azure-kusto-data
           npm run checkFormat
           npm run lint
           npm run testPipeline
@@ -52,5 +53,5 @@ jobs:
         if: always()
         with:
           files: |
-            azure-kusto-data/test-results.xml
-            azure-kusto-ingest/test-results.xml
+            packages/azure-kusto-data/test-results.xml
+            packages/azure-kusto-ingest/test-results.xml

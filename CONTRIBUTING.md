@@ -8,10 +8,7 @@ follow the instructions provided in [Microsoft Azure Projects Contribution Guide
 In order to work on this project, we recommend using the both production and dev dependencies:
 
 ```bash
-cd azure-kusto-data
-npm install
-cd ../azure-kusto-ingest
-npm install
+npx lerna bootstrap --hoist
 ```
 
 These include testing related packages as well as styling ([eslint](https://eslint.org/))
@@ -22,9 +19,9 @@ This project uses [mocha](https://mochajs.org/) for testing.
 
 First, enter the directory of the package to run the tests on:
 ```bash
-cd azure-kusto-data
+cd packages/azure-kusto-data
 # or:
-cd azure-kusto-ingest
+cd packages/azure-kusto-ingest
 ```
 
 In order to run unittests execute:
