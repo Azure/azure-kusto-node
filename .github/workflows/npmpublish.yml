@@ -19,6 +19,6 @@ jobs:
           npm install -g npm@latest
           npm ci
           npx lerna bootstrap --hoist
-          npx lerna publish --yes --hoist
+          npx lerna publish --yes
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
