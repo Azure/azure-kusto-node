@@ -17,6 +17,7 @@ jobs:
           registry-url: https://registry.npmjs.org/
           cache: 'npm'
           cache-dependency-path: |
+            package-lock.json
             azure-kusto-data/package-lock.json
             azure-kusto-ingest/package-lock.json
       - run: |
