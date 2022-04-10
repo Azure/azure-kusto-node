@@ -23,7 +23,6 @@ jobs:
       - run: |
           npm install -g npm@latest
           npm ci
-          npx lerna bootstrap --hoist
       - working-directory: ./packages/azure-kusto-data
         run: |
           npm run checkFormat
