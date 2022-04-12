@@ -2,10 +2,20 @@
     "name": "azure-kusto-ingest",
     "version": "3.3.1",
     "description": "Azure Data Explorer Ingestion SDK",
-    "main": "index.js",
-    "types": "index.d.ts",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
     "engines": {
         "node": ">= 14.0.0"
+    },
+    "directories": {
+        "dist": "dist"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "scripts": {
+        "tsc": "tsc",
+        "test": "echo \"Error: run tests from root\" && exit 1"
     },
     "tags": [
         "azure",
@@ -22,6 +32,7 @@
         "url": "https://github.com/Azure/azure-kusto-node.git",
         "directory": "azure-kusto-ingest"
     },
+    "files": ["dist"],
     "author": "",
     "license": "ISC",
     "dependencies": {
