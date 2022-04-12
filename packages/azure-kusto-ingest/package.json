@@ -34,7 +34,6 @@
     "files": [
         "source/**/*",
         "index.*",
-        "package.json",
         "tsconfig.tsbuildinfo"
     ],
     "author": "",
