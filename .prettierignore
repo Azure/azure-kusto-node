@@ -1,9 +1,11 @@
 node_modules
 **/*.d.ts
-**/*.jsk
+**/*.js
 !example.js
-**/coverage
-**/.nyc_output
+coverage
+.nyc_output
 **/test/data/*
 **/test/e2eTests/e2eData/*
-dist
+**/coverage
+**/.nyc_output
+lerna.json

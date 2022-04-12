@@ -18,7 +18,7 @@ module.exports = {
         node: true,
     },
     extends: ["eslint:recommended", "plugin:@typescript-eslint/recommended", "plugin:@typescript-eslint/recommended-requiring-type-checking", "prettier"],
-    ignorePatterns: ["node_modules", "**/*.d.ts", "**/*.js", "dist"],
+    ignorePatterns: ["node_modules", "**/*.d.ts", "**/*.js"],
     parser: "@typescript-eslint/parser",
     parserOptions: {
         project: ["./packages/*/tsconfig.json"],

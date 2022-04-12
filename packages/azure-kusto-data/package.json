@@ -10,11 +10,6 @@
     "publishConfig": {
         "access": "public"
     },
-    "scripts": {
-        "tsc": "tsc",
-        "prepublish": "npx copyfiles package.json README.md example.js dist",
-        "test": "echo \"Error: run tests from root\" && exit 1"
-    },
     "tags": [
         "azure",
         "kusto",

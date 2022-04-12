@@ -3,4 +3,3 @@ node_modules
 **/*.js
 coverage
 .nyc_output
-dist

@@ -334,5 +334,3 @@ __main.js
 **/test-results.xml
 
 !**/.eslintrc.js
-
-dist/
