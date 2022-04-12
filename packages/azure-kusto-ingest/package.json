@@ -8,13 +8,7 @@
         "node": ">= 14.0.0"
     },
     "publishConfig": {
-        "access": "public",
-        "directory": "dist"
-    },
-    "scripts": {
-        "tsc": "tsc",
-        "prepublish": "npx copyfiles package.json README.md example.js dist",
-        "test": "echo \"Error: run tests from root\" && exit 1"
+        "access": "public"
     },
     "tags": [
         "azure",
@@ -32,8 +26,10 @@
         "directory": "azure-kusto-ingest"
     },
     "files": [
-        "source/**/*",
-        "index.*",
+        "source/**/*.js",
+        "source/**/*.d.ts",
+        "index.js",
+        "index.d.ts",
         "tsconfig.tsbuildinfo"
     ],
     "author": "",

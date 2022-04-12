@@ -17,9 +17,6 @@
         "format": "npx prettier --write .",
         "checkFormat": "npx prettier --check --end-of-line lf ."
     },
-    "files": [
-        "dist/**/*"
-    ],
     "devDependencies": {
         "@types/mocha": "^8.2.0",
         "@typescript-eslint/eslint-plugin": "^5.12.0",
