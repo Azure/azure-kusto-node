@@ -32,7 +32,9 @@
         "url": "https://github.com/Azure/azure-kusto-node.git",
         "directory": "azure-kusto-data"
     },
-    "files": ["dist"],
+    "files": [
+        "dist"
+    ],
     "author": "",
     "license": "ISC",
     "homepage": "https://github.com/Azure/azure-kusto-node/blob/master/azure-kusto-data/README.md",
