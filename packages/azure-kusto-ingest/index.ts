@@ -99,3 +99,7 @@ export const IngestionPropertiesEnums = {
 };
 
 export { IngestionPropertiesValidationError } from "./source/errors";
+
+
+import { Wewlad } from "azure-kusto-data/source/models";
+export { Wewlad };
