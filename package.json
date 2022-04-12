@@ -1,6 +1,16 @@
 {
   "name": "root",
   "private": true,
+  "scripts": {
+    "build": "tsc -b",
+    "prepublish": "npm run build ",
+    "example": "npm run build && node example.js",
+    "lint": "npx eslint -c .eslintrc.js --ext .ts .",
+    "test": "npm run build && mocha --parallel",
+    "testPipeline": "npm run build && nyc --reporter lcovonly mocha --reporter mocha-junit-reporter",
+    "format": "npx prettier --write .",
+    "checkFormat": "npx prettier --check --end-of-line lf ."
+  },
   "devDependencies": {
     "@types/mocha": "^8.2.0",
     "@typescript-eslint/eslint-plugin": "^5.12.0",

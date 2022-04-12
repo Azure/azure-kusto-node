@@ -1,0 +1,8 @@
+node_modules
+**/*.d.ts
+**/*.jsk
+!example.js
+**/coverage
+**/.nyc_output
+**/test/data/*
+**/test/e2eTests/e2eData/*

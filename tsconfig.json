@@ -8,10 +8,10 @@
         "sourceMap": true,
         "resolveJsonModule": true,
         "allowJs": false,
-        "allowSyntheticDefaultImports": true,
         "declaration": true,
         "noUnusedParameters": true,
         "noUnusedLocals": true
     },
-    "include": ["source/**/*.ts", "test/**/*.ts", "index.ts"]
+    "include": ["**/source/**/*.ts", "**/test/**/*.ts", "index.ts"],
+    "exclude": ["dist"]
 }
