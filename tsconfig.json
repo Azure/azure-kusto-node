@@ -10,7 +10,8 @@
         "allowJs": false,
         "declaration": true,
         "noUnusedParameters": true,
-        "noUnusedLocals": true
+        "noUnusedLocals": true,
+        "outDir": "./dist"
     },
     "include": ["**/source/**/*.ts", "**/test/**/*.ts", "index.ts"],
     "exclude": ["dist"]

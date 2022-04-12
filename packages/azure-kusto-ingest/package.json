@@ -37,6 +37,7 @@
         "moment": "^2.22.2",
         "stream-array": "^1.1.0",
         "stream-to-array": "^2.3.0",
+        "ts-node": "^10.7.0",
         "uuid": "^8.3.2",
         "uuid-validate": "0.0.3"
     }

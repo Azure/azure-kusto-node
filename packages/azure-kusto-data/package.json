@@ -33,6 +33,7 @@
         "axios": "^0.24.0",
         "follow-redirects": "^1.14.8",
         "moment": "^2.25.3",
+        "ts-node": "^10.7.0",
         "uuid": "^8.3.2"
     }
 }

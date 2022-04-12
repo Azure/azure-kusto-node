@@ -1,23 +1,23 @@
 name: Node.js Package
 
 on:
-  release:
-    types: [published]
+    release:
+        types: [published]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v1
-        with:
-          node-version: 14
-          registry-url: https://registry.npmjs.org/
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - uses: actions/setup-node@v1
+              with:
+                  node-version: 14
+                  registry-url: https://registry.npmjs.org/
 
-      - name: Publish new versions
-        run: |
-          npm install -g npm@latest
-          npm ci
-          npx lerna publish from-git --yes
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+            - name: Publish new versions
+              run: |
+                  npm install -g npm@latest
+                  npm ci
+                  npx lerna publish from-git --yes
+              env:
+                  NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
