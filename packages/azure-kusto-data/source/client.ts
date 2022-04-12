@@ -7,6 +7,7 @@ import AadHelper from "./security";
 import { KustoResponseDataSet, KustoResponseDataSetV1, KustoResponseDataSetV2, V1, V2Frames } from "./response";
 import ConnectionStringBuilder from "./connectionBuilder";
 import ClientRequestProperties from "./clientRequestProperties";
+import { ThrottlingError } from "./errors";
 import pkg from "../package.json";
 import axios, { AxiosInstance } from "axios";
 import http from "http";
@@ -190,6 +191,9 @@ export class KustoClient {
             axiosResponse = await this.axiosInstance.post(endpoint, payload, axiosConfig);
         } catch (error: unknown) {
             if (axios.isAxiosError(error) && error.response) {
+                if (error.response.status === 429) {
+                    throw new ThrottlingError("POST request failed with status 429 (Too Many Requests)", error);
+                }
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 throw error.response.data?.error || error.response.data;
             }
