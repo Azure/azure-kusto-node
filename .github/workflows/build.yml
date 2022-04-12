@@ -43,5 +43,4 @@ jobs:
               if: always()
               with:
                   files: |
-                      packages/azure-kusto-data/test-results.xml
-                      packages/azure-kusto-ingest/test-results.xml
+                      test-results.xml
