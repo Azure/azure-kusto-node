@@ -13,5 +13,5 @@
         "noUnusedLocals": true
     },
     "include": ["**/source/**/*.ts", "**/test/**/*.ts", "**/index.ts"],
-    "exclude": ["dist"]
+    "exclude": ["dist/**/*", "**/dist/**/*"]
 }
