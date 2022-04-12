@@ -4,8 +4,7 @@
     "scripts": {
         "setup": "npx lerna bootstrap --hoist",
         "build": "lerna run tsc",
-        "prepare": "npm run build",
-        "prepublish": "npm run build ",
+        "prepublish": "npm run build",
         "exampleData": "npm run build && node packages/azure-kusto-data/example.js",
         "exampleIngest": "npm run build && node packages/azure-kusto-ingest/example.js",
         "lint": "eslint -c .eslintrc.js --ext .ts .",
@@ -42,5 +41,8 @@
     "dependencies": {
         "azure-kusto-data": "file:packages\\azure-kusto-data",
         "azure-kusto-ingest": "file:packages\\azure-kusto-ingest"
+    },
+    "publishConfig": {
+        "directory": "dist"
     }
 }
