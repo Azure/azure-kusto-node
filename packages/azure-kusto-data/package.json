@@ -31,9 +31,12 @@
         "directory": "azure-kusto-data"
     },
     "files": [
-        "source/**/*",
-        "index.*",
-        "tsconfig.tsbuildinfo"
+        "source/**/*.js",
+        "source/**/*.d.ts",
+        "index.js",
+        "index.d.ts",
+        "tsconfig.tsbuildinfo",
+        "example.js"
     ],
     "author": "",
     "license": "ISC",

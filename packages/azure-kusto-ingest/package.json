@@ -30,7 +30,8 @@
         "source/**/*.d.ts",
         "index.js",
         "index.d.ts",
-        "tsconfig.tsbuildinfo"
+        "tsconfig.tsbuildinfo",
+        "example.js"
     ],
     "author": "",
     "license": "ISC",
