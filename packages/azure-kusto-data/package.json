@@ -33,7 +33,10 @@
         "directory": "azure-kusto-data"
     },
     "files": [
-        "dist"
+        "dist/source/**/*",
+        "dist/index.*",
+        "dist/package.json",
+        "dist/tsconfig.tsbuildinfo"
     ],
     "author": "",
     "license": "ISC",

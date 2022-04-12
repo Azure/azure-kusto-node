@@ -33,7 +33,10 @@
         "directory": "azure-kusto-ingest"
     },
     "files": [
-        "dist"
+        "dist/source/**/*",
+        "dist/index.*",
+        "dist/package.json",
+        "dist/tsconfig.tsbuildinfo"
     ],
     "author": "",
     "license": "ISC",
