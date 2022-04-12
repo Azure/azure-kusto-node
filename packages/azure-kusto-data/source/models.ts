@@ -13,9 +13,6 @@ export enum WellKnownDataSet {
     QueryProperties = "QueryProperties",
 }
 
-export const Wewlad = 3;
-
-
 type DateTimeParser = (value: string) => any;
 type TimeSpanParser = (value: number) => any;
 
