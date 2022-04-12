@@ -41,8 +41,5 @@
     "dependencies": {
         "azure-kusto-data": "file:packages\\azure-kusto-data",
         "azure-kusto-ingest": "file:packages\\azure-kusto-ingest"
-    },
-    "publishConfig": {
-        "directory": "dist"
     }
 }

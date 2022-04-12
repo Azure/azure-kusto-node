@@ -2,16 +2,14 @@
     "name": "azure-kusto-data",
     "version": "3.3.1",
     "description": "Azure Data Explorer Query SDK",
-    "main": "dist/index.js",
-    "types": "dist/index.d.ts",
+    "main": "index.js",
+    "types": "index.d.ts",
     "engines": {
         "node": ">= 14.0.0"
     },
-    "directories": {
-        "dist": "dist"
-    },
     "publishConfig": {
-        "access": "public"
+        "access": "public",
+        "directory": "dist"
     },
     "scripts": {
         "tsc": "tsc",
