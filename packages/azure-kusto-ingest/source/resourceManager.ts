@@ -3,11 +3,12 @@
 
 /* eslint-disable max-classes-per-file -- We want all the Resources related classes in this file */
 
-import { Client } from "azure-kusto-data";
+import { Client, KustoDataErrors } from "azure-kusto-data";
+import { ExponentialRetry } from "./retry";
 import moment from "moment";
 
 const URI_FORMAT = /https:\/\/(\w+).(queue|blob|table).core.windows.net\/([\w,-]+)\?(.*)/;
-
+const ATTEMPT_COUNT = 4;
 export class ResourceURI {
     constructor(readonly storageAccountName: string, readonly objectType: string, readonly objectName: string, readonly sas: string) {}
 
@@ -52,6 +53,9 @@ export class ResourceManager {
     public authorizationContext: string | null;
     public authorizationContextLastUpdate: moment.Moment | null;
 
+    private baseSleepTimeSecs = 1;
+    private baseJitterSecs = 1;
+
     constructor(readonly kustoClient: Client) {
         this.refreshPeriod = moment.duration(1, "h");
 
@@ -78,15 +82,25 @@ export class ResourceManager {
     }
 
     async getIngestClientResourcesFromService(): Promise<IngestClientResources> {
-        const response = await this.kustoClient.execute("NetDefaultDB", ".get ingestion resources");
-        const table = response.primaryResults[0];
-
-        return new IngestClientResources(
-            this.getResourceByName(table, "SecuredReadyForAggregationQueue"),
-            this.getResourceByName(table, "FailedIngestionsQueue"),
-            this.getResourceByName(table, "SuccessfulIngestionsQueue"),
-            this.getResourceByName(table, "TempStorage")
-        );
+        const retry = new ExponentialRetry(ATTEMPT_COUNT, this.baseSleepTimeSecs, this.baseJitterSecs);
+        while (retry.shouldTry()) {
+            try {
+                const response = await this.kustoClient.execute("NetDefaultDB", ".get ingestion resources");
+                const table = response.primaryResults[0];
+                return new IngestClientResources(
+                    this.getResourceByName(table, "SecuredReadyForAggregationQueue"),
+                    this.getResourceByName(table, "FailedIngestionsQueue"),
+                    this.getResourceByName(table, "SuccessfulIngestionsQueue"),
+                    this.getResourceByName(table, "TempStorage")
+                );
+            } catch (error: unknown) {
+                if (!(error instanceof KustoDataErrors.ThrottlingError)) {
+                    throw error;
+                }
+                await retry.backoff();
+            }
+        }
+        throw new Error(`Failed to get ingestion resources from server - the request was throttled ${ATTEMPT_COUNT} times.`);
     }
 
     getResourceByName(table: { rows: () => any }, resourceName: string): ResourceURI[] {
@@ -118,12 +132,23 @@ export class ResourceManager {
     }
 
     async getAuthorizationContextFromService() {
-        const response = await this.kustoClient.execute("NetDefaultDB", ".get kusto identity token");
-        const next = response.primaryResults[0].rows().next();
-        if (next.done) {
-            throw new Error("Failed to get authorization context - got empty results");
+        const retry = new ExponentialRetry(ATTEMPT_COUNT, this.baseSleepTimeSecs, this.baseJitterSecs);
+        while (retry.shouldTry()) {
+            try {
+                const response = await this.kustoClient.execute("NetDefaultDB", ".get kusto identity token");
+                const next = response.primaryResults[0].rows().next();
+                if (next.done) {
+                    throw new Error("Failed to get authorization context - got empty results");
+                }
+                return next.value.toJSON<{ AuthorizationContext: string }>().AuthorizationContext;
+            } catch (error: unknown) {
+                if (!(error instanceof KustoDataErrors.ThrottlingError)) {
+                    throw error;
+                }
+                await retry.backoff();
+            }
         }
-        return next.value.toJSON<{ AuthorizationContext: string }>().AuthorizationContext;
+        throw new Error(`Failed to get identity token from server - the request was throttled ${ATTEMPT_COUNT} times.`);
     }
 
     async getIngestionQueues() {

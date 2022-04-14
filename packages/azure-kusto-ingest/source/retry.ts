@@ -19,10 +19,16 @@ export class ExponentialRetry {
             throw new Error("Max retries exceeded");
         }
 
-        const base = this.sleepBaseSecs * Math.pow(2, this.currentAttempt);
+        this.currentAttempt++;
+
+        if (!this.shouldTry()) {
+            // This was the last retry - no need to sleep
+            return;
+        }
+
+        const base = this.sleepBaseSecs * Math.pow(2, this.currentAttempt - 1);
         const jitter = Math.floor(this.maxJitterSecs * Math.random());
         await sleep(1000 * (base + jitter));
-        this.currentAttempt++;
     }
 
     public shouldTry(): boolean {
