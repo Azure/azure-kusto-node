@@ -26,6 +26,23 @@ enum ExecutionType {
 }
 
 describe("KustoClient", () => {
+    describe("url test", () => {
+        const tests = {
+            "https://kusto.test.com": "https://kusto.test.com",
+            "https://kusto.test.com/": "https://kusto.test.com",
+            "https://kusto.test.com/test": "https://kusto.test.com",
+            "https://kusto.test.com:4242": "https://kusto.test.com:4242",
+            "https://kusto.test.com:4242/": "https://kusto.test.com:4242",
+            "https://kusto.test.com:4242/test": "https://kusto.test.com:4242",
+        };
+
+        for (const [url, expected] of Object.entries(tests)) {
+            it(`should return ${expected} for ${url}`, () => {
+                const client = new KustoClient(url);
+                assert.strictEqual(client.cluster, expected);
+            });
+        }
+    });
     describe("#constructor", () => {
         it("valid", () => {
             const url = "https://cluster.kusto.windows.net";
