@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-
 import { IngestionPropertiesValidationError } from "./errors";
 import { ColumnMapping } from "./columnMappings";
 

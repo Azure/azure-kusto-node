@@ -20,3 +20,5 @@ codecov.yml
 package.json
 package-lock.json
 tsconfig.json
+.idea
+.mocharc.json
