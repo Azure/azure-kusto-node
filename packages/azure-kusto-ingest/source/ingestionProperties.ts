@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-/* eslint-disable max-classes-per-file -- the main class is IngestionProperties, ValidationPolicy is a tiny class */
 
 import { IngestionPropertiesValidationError } from "./errors";
 import { ColumnMapping } from "./columnMappings";

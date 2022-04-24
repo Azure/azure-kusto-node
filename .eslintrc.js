@@ -12,52 +12,66 @@ https://github.com/typescript-eslint/tslint-to-eslint-config/blob/master/docs/FA
 Happy linting! 💖
 */
 module.exports = {
-    env: {
-        browser: true,
-        es6: true,
-        node: true,
+    "env": {
+        "browser": true,
+        "es6": true,
+        "node": true
     },
-    extends: ["eslint:recommended", "plugin:@typescript-eslint/recommended", "plugin:@typescript-eslint/recommended-requiring-type-checking", "prettier"],
-    ignorePatterns: ["node_modules", "**/*.d.ts", "**/*.js"],
-    parser: "@typescript-eslint/parser",
-    parserOptions: {
-        project: ["./packages/*/tsconfig.json"],
-        sourceType: "module",
+    "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:@typescript-eslint/recommended-requiring-type-checking",
+        "prettier"
+    ],
+    "ignorePatterns": [
+        "node_modules",
+        "**/*.d.ts",
+        "**/*.js"
+    ],
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "project": "tsconfig.json",
+        "sourceType": "module"
     },
-    plugins: ["eslint-plugin-jsdoc", "eslint-plugin-prefer-arrow", "@typescript-eslint", "header"],
-    rules: {
+    "plugins": [
+        "eslint-plugin-jsdoc",
+        "eslint-plugin-prefer-arrow",
+        "@typescript-eslint",
+        "header"
+    ],
+    "rules": {
         "@typescript-eslint/adjacent-overload-signatures": "error",
         "@typescript-eslint/array-type": [
             "error",
             {
-                default: "array",
-            },
+                "default": "array"
+            }
         ],
         "@typescript-eslint/ban-ts-comment": "error",
         "@typescript-eslint/ban-types": [
             "error",
             {
-                types: {
-                    Object: {
-                        message: "Avoid using the `Object` type. Did you mean `object`?",
+                "types": {
+                    "Object": {
+                        "message": "Avoid using the `Object` type. Did you mean `object`?"
                     },
-                    Function: {
-                        message: "Avoid using the `Function` type. Prefer a specific function type, like `() => void`.",
+                    "Function": {
+                        "message": "Avoid using the `Function` type. Prefer a specific function type, like `() => void`."
                     },
-                    Boolean: {
-                        message: "Avoid using the `Boolean` type. Did you mean `boolean`?",
+                    "Boolean": {
+                        "message": "Avoid using the `Boolean` type. Did you mean `boolean`?"
                     },
-                    Number: {
-                        message: "Avoid using the `Number` type. Did you mean `number`?",
+                    "Number": {
+                        "message": "Avoid using the `Number` type. Did you mean `number`?"
                     },
-                    String: {
-                        message: "Avoid using the `String` type. Did you mean `string`?",
+                    "String": {
+                        "message": "Avoid using the `String` type. Did you mean `string`?"
                     },
-                    Symbol: {
-                        message: "Avoid using the `Symbol` type. Did you mean `symbol`?",
-                    },
-                },
-            },
+                    "Symbol": {
+                        "message": "Avoid using the `Symbol` type. Did you mean `symbol`?"
+                    }
+                }
+            }
         ],
         "@typescript-eslint/consistent-type-assertions": "error",
         "@typescript-eslint/dot-notation": "error",
@@ -74,8 +88,8 @@ module.exports = {
         "@typescript-eslint/no-shadow": [
             "error",
             {
-                hoist: "all",
-            },
+                "hoist": "all"
+            }
         ],
         "@typescript-eslint/no-this-alias": "error",
         "@typescript-eslint/no-unnecessary-type-constraint": "error",
@@ -90,25 +104,38 @@ module.exports = {
         "@typescript-eslint/triple-slash-reference": [
             "error",
             {
-                path: "always",
-                types: "prefer-import",
-                lib: "always",
-            },
+                "path": "always",
+                "types": "prefer-import",
+                "lib": "always"
+            }
         ],
         "@typescript-eslint/unified-signatures": "error",
-        complexity: "off",
+        "complexity": "off",
         "constructor-super": "error",
         "dot-notation": "error",
-        eqeqeq: ["error", "smart"],
+        "eqeqeq": [
+            "error",
+            "smart"
+        ],
         "for-direction": "error",
         "getter-return": "error",
         "guard-for-in": "error",
-        "id-denylist": ["error", "any", "Number", "number", "String", "string", "Boolean", "boolean", "Undefined", "undefined"],
+        "id-denylist": [
+            "error",
+            "any",
+            "Number",
+            "number",
+            "String",
+            "string",
+            "Boolean",
+            "boolean",
+            "Undefined",
+            "undefined"
+        ],
         "id-match": "error",
         "jsdoc/check-alignment": "error",
         "jsdoc/check-indentation": "error",
         "jsdoc/newline-after-description": "error",
-        "max-classes-per-file": ["error", 1],
         "new-parens": "error",
         "no-array-constructor": "off",
         "no-async-promise-executor": "error",
@@ -177,17 +204,22 @@ module.exports = {
         "no-var": "error",
         "no-with": "error",
         "object-shorthand": "error",
-        "one-var": ["error", "never"],
+        "one-var": [
+            "error",
+            "never"
+        ],
         "prefer-arrow/prefer-arrow-functions": "error",
         "prefer-const": "error",
-        radix: "error",
+        "radix": "error",
         "require-yield": "error",
         "spaced-comment": [
             "error",
             "always",
             {
-                markers: ["/"],
-            },
+                "markers": [
+                    "/"
+                ]
+            }
         ],
         "use-isnan": "error",
         "valid-typeof": "off",
@@ -203,9 +235,9 @@ module.exports = {
         "@typescript-eslint/restrict-template-expressions": "off",
         "@typescript-eslint/no-empty-function": "off",
         "@typescript-eslint/no-inferrable-types": "off",
-        "no-undef": "off",
-        "@typescript-eslint/no-non-null-assertion": "off",
-        "@typescript-eslint/no-unnecessary-type-assertion": "off",
+        "no-undef":"off",
+        "@typescript-eslint/no-non-null-assertion":"off",
+        "@typescript-eslint/no-unnecessary-type-assertion":"off",
         "no-constant-condition": "off",
-    },
+    }
 };

@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-/* eslint-disable max-classes-per-file -- QueueDetails is a very small class, so we don't need it in a different file */
-
 import { PeekedMessageItem, QueueClient } from "@azure/storage-queue";
 import { ResourceURI } from "./resourceManager";
 import { StatusMessage } from "./status";

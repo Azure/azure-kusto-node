@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-// We want all the Kusto table models in this file
-/* eslint-disable max-classes-per-file */
 
 import moment from "moment";
 

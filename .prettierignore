@@ -9,3 +9,14 @@ coverage
 **/coverage
 **/.nyc_output
 lerna.json
+.github
+.eslintignore
+.eslintrc.js
+README.md
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+codecov.yml
+.prettierrc.json
+package.json
+package-lock.json
+tsconfig.json
