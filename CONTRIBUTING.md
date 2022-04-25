@@ -8,7 +8,7 @@ follow the instructions provided in [Microsoft Azure Projects Contribution Guide
 In order to work on this project, we recommend using the both production and dev dependencies:
 
 ```bash
-npx lerna bootstrap --hoist
+npm i
 ```
 
 These include testing related packages as well as styling ([eslint](https://eslint.org/))
