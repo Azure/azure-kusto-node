@@ -78,14 +78,14 @@ export class ClientRequestProperties {
         } = {};
 
         if (Object.keys(this._options).length !== 0) {
-            json.Options = this._options;
+            json.Options = { ...this._options };
             if (json.Options.servertimeout) {
                 json.Options.servertimeout = this._msToTimespan(json.Options.servertimeout as number);
             }
         }
 
         if (Object.keys(this._parameters).length !== 0) {
-            json.Parameters = this._parameters;
+            json.Parameters = { ...this._parameters };
         }
 
         return Object.keys(json).length !== 0 ? json : null;

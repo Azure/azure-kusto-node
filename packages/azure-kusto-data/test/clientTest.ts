@@ -53,6 +53,29 @@ describe("KustoClient", () => {
         });
     });
 
+    describe("timeout", () => {
+        it("ClientRequestProperties.ToJSON doesn't affect results", () => {
+            const url = "https://cluster.kusto.windows.net";
+            const client = new KustoClient(url);
+            const clientRequestProps = new ClientRequestProperties();
+            const timeout = moment.duration(3.53, "minutes");
+            const clientServerDelta = moment.duration(0.5, "minutes");
+            const totalTimeout = timeout.clone().add(clientServerDelta);
+
+            clientRequestProps.setTimeout(timeout.asMilliseconds());
+            assert.strictEqual(client._getClientTimeout(ExecutionType.Query, clientRequestProps), totalTimeout.asMilliseconds());
+
+            const json = clientRequestProps.toJSON();
+            assert.strictEqual(json?.Options?.servertimeout, "00:03:31.8");
+
+            client._getClientTimeout(ExecutionType.Query, clientRequestProps);
+            assert.strictEqual(client._getClientTimeout(ExecutionType.Query, clientRequestProps), totalTimeout.asMilliseconds());
+
+            const json2 = clientRequestProps.toJSON();
+            assert.strictEqual(json2?.Options?.servertimeout, "00:03:31.8");
+        });
+    });
+
     describe("#_parseResponse()", () => {
         it("valid v1", () => {
             const url = "https://cluster.kusto.windows.net";
