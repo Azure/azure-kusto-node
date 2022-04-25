@@ -2,7 +2,7 @@
     "name": "root",
     "private": true,
     "scripts": {
-        "build": "lerna run tsc",
+        "build": "lerna run build",
         "prepublish": "npm run build",
         "exampleData": "npm run build && node packages/azure-kusto-data/example.js",
         "exampleIngest": "npm run build && node packages/azure-kusto-ingest/example.js",

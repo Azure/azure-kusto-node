@@ -4,6 +4,9 @@
     "description": "Azure Data Explorer Ingestion SDK",
     "main": "index.js",
     "types": "index.d.ts",
+    "scripts": {
+        "build": "tsc"
+    },
     "engines": {
         "node": ">= 14.0.0"
     },
