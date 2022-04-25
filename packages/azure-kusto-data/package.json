@@ -7,6 +7,9 @@
     "engines": {
         "node": ">= 14.0.0"
     },
+    "publishConfig": {
+        "access": "public"
+    },
     "tags": [
         "azure",
         "kusto",
@@ -17,21 +20,19 @@
         "azure",
         "kusto"
     ],
-    "scripts": {
-        "build": "tsc -b",
-        "prepublish": "npm run build ",
-        "example": "npm run build && node example.js",
-        "lint": "npx eslint -c .eslintrc.js --ext .ts .",
-        "test": "npm run build && mocha --parallel",
-        "testPipeline": "npm run build && nyc --reporter lcovonly mocha --reporter mocha-junit-reporter",
-        "format": "npx prettier --write .",
-        "checkFormat": "npx prettier --check --end-of-line lf ."
-    },
     "repository": {
         "type": "git",
         "url": "https://github.com/Azure/azure-kusto-node.git",
         "directory": "azure-kusto-data"
     },
+    "files": [
+        "source/**/*.js",
+        "source/**/*.d.ts",
+        "index.js",
+        "index.d.ts",
+        "tsconfig.tsbuildinfo",
+        "example.js"
+    ],
     "author": "",
     "license": "ISC",
     "homepage": "https://github.com/Azure/azure-kusto-node/blob/master/azure-kusto-data/README.md",
@@ -43,6 +44,8 @@
         "axios": "^0.24.0",
         "follow-redirects": "^1.14.8",
         "moment": "^2.25.3",
+        "ts-node": "^10.7.0",
         "uuid": "^8.3.2"
-    }
+    },
+    "gitHead": "f8a5dae26d6d2ca2ab8b95953bb9b88a02e8e35d"
 }

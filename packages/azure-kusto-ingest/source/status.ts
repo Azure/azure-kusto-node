@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-/* eslint-disable max-classes-per-file -- We want all the Status related classes in this file */
-
 import { StatusQueue } from "./statusQ";
 import KustoIngestClient from "./ingestClient";
 import { ResourceURI } from "./resourceManager";

@@ -7,6 +7,9 @@
     "engines": {
         "node": ">= 14.0.0"
     },
+    "publishConfig": {
+        "access": "public"
+    },
     "tags": [
         "azure",
         "kusto",
@@ -17,23 +20,19 @@
         "azure",
         "kusto"
     ],
-    "scripts": {
-        "build": "tsc -b",
-        "prepublish": "npm run build",
-        "example": "npm run build && node example.js",
-        "lint": "npx eslint -c .eslintrc.js --ext .ts .",
-        "test": "npm run build && mocha --parallel --recursive test/*.js",
-        "e2e": "npm run build && mocha --parallel --timeout 240000 test/e2eTests/e2eTest.js",
-        "allTests": "npm run build && mocha --parallel --timeout 240000 --recursive",
-        "testPipeline": "npm run build && nyc --reporter lcovonly mocha --timeout 240000 --recursive --reporter mocha-junit-reporter ",
-        "format": "npx prettier --write .",
-        "checkFormat": "npx prettier --check  --end-of-line lf ."
-    },
     "repository": {
         "type": "git",
         "url": "https://github.com/Azure/azure-kusto-node.git",
         "directory": "azure-kusto-ingest"
     },
+    "files": [
+        "source/**/*.js",
+        "source/**/*.d.ts",
+        "index.js",
+        "index.d.ts",
+        "tsconfig.tsbuildinfo",
+        "example.js"
+    ],
     "author": "",
     "license": "ISC",
     "dependencies": {
@@ -49,7 +48,9 @@
         "moment": "^2.22.2",
         "stream-array": "^1.1.0",
         "stream-to-array": "^2.3.0",
+        "ts-node": "^10.7.0",
         "uuid": "^8.3.2",
         "uuid-validate": "0.0.3"
-    }
+    },
+    "gitHead": "f8a5dae26d6d2ca2ab8b95953bb9b88a02e8e35d"
 }

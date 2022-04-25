@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-/* eslint-disable max-classes-per-file -- We want all the Descriptors to be in this file */
-
 import { v4 as uuidv4 } from "uuid";
 import uuidValidate from "uuid-validate";
 import zlib from "zlib";
