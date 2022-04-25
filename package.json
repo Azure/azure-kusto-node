@@ -1,26 +1,42 @@
 {
-  "name": "root",
-  "private": true,
-  "devDependencies": {
-    "@types/mocha": "^8.2.0",
-    "@typescript-eslint/eslint-plugin": "^5.12.0",
-    "@typescript-eslint/parser": "^5.12.0",
-    "eslint": "^8.9.0",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-header": "^3.1.1",
-    "eslint-plugin-jsdoc": "^37.9.1",
-    "eslint-plugin-prefer-arrow": "^1.2.3",
-    "lerna": "^4.0.0",
-    "mocha": "^9.2.0",
-    "mocha-junit-reporter": "^2.0.2",
-    "nyc": "^15.1.0",
-    "prettier": "2.5.1",
-    "sinon": "^7.2.3",
-    "ts-node": "^9.1.1",
-    "typescript": "^4.1.3"
-  },
-  "dependencies": {
-    "azure-kusto-data": "file:packages\\azure-kusto-data",
-    "azure-kusto-ingest": "file:packages\\azure-kusto-ingest"
-  }
+    "name": "root",
+    "private": true,
+    "scripts": {
+        "setup": "npx lerna bootstrap --hoist",
+        "build": "lerna run tsc",
+        "prepublish": "npm run build",
+        "exampleData": "npm run build && node packages/azure-kusto-data/example.js",
+        "exampleIngest": "npm run build && node packages/azure-kusto-ingest/example.js",
+        "lint": "eslint -c .eslintrc.js --ext .ts .",
+        "test": "mocha --parallel",
+        "testNoE2E": "npm run test -- --exclude **/e2eTest.ts",
+        "testData": "npm run test -- --exclude !packages/azure-kusto-data/**",
+        "testIngest": "npm run test -- --exclude !packages/azure-kusto-ingest/**",
+        "testIngestNoE2E": "npm run testNoE2E -- --exclude !packages/azure-kusto-ingest/**",
+        "testPipeline": "nyc --reporter lcovonly mocha --reporter mocha-junit-reporter",
+        "format": "npx prettier --write .",
+        "checkFormat": "npx prettier --check --end-of-line lf ."
+    },
+    "devDependencies": {
+        "@types/mocha": "^8.2.0",
+        "@typescript-eslint/eslint-plugin": "^5.12.0",
+        "@typescript-eslint/parser": "^5.12.0",
+        "eslint": "^8.9.0",
+        "eslint-config-prettier": "^8.3.0",
+        "eslint-plugin-header": "^3.1.1",
+        "eslint-plugin-jsdoc": "^37.9.1",
+        "eslint-plugin-prefer-arrow": "^1.2.3",
+        "lerna": "^4.0.0",
+        "mocha": "^9.2.0",
+        "mocha-junit-reporter": "^2.0.2",
+        "nyc": "^15.1.0",
+        "prettier": "2.5.1",
+        "sinon": "^7.2.3",
+        "ts-node": "^9.1.1",
+        "typescript": "^4.1.3"
+    },
+    "dependencies": {
+        "azure-kusto-data": "file:packages\\azure-kusto-data",
+        "azure-kusto-ingest": "file:packages\\azure-kusto-ingest"
+    }
 }

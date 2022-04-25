@@ -35,7 +35,11 @@ export class KustoClient {
 
     constructor(kcsb: string | ConnectionStringBuilder) {
         this.connectionString = typeof kcsb === "string" ? new ConnectionStringBuilder(kcsb) : kcsb;
-        this.cluster = this.connectionString.dataSource as string;
+        if (!this.connectionString.dataSource) {
+            throw new Error("Cluster url is required");
+        }
+        const url = new URL(this.connectionString.dataSource);
+        this.cluster = `${url.protocol}//${url.hostname}${url.port ? `:${url.port}` : ""}`;
         this.defaultDatabase = this.connectionString.initialCatalog;
         this.endpoints = {
             [ExecutionType.Mgmt]: `${this.cluster}/v1/rest/mgmt`,

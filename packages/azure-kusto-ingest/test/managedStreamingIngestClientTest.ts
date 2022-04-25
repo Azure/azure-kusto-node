@@ -23,8 +23,8 @@ type IngestFromStreamStub = Sinon.SinonStub<[StreamDescriptor | Readable, Ingest
 describe("ManagedStreamingIngestClient", () => {
     const getMockedClient = () => {
         const sandbox = sinon.createSandbox();
-        const mockedStreamingIngestClient = new StreamingIngestClient("engine");
-        const mockedIngestClient = new KustoIngestClient("engine");
+        const mockedStreamingIngestClient = new StreamingIngestClient("http://test.kusto.com");
+        const mockedIngestClient = new KustoIngestClient("http://test.kusto.com");
         const streamStub = sinon.stub(mockedStreamingIngestClient, "ingestFromStream");
         const queuedStub = sinon.stub(mockedIngestClient, "ingestFromStream");
 
@@ -159,8 +159,8 @@ describe("ManagedStreamingIngestClient", () => {
 
             it("should fallback when size is too big", async () => {
                 // Mock ManagedStreamingIngestClient with mocked streamingIngestClient
-                const mockedStreamingIngestClient = new StreamingIngestClient("engine");
-                const mockedIngestClient = new KustoIngestClient("engine");
+                const mockedStreamingIngestClient = new StreamingIngestClient("http://test.kusto.com");
+                const mockedIngestClient = new KustoIngestClient("http://test.kusto.com");
                 const sandbox = sinon.createSandbox();
                 const streamStub = sinon.stub(mockedStreamingIngestClient, "ingestFromStream");
                 streamStub.throws(new Error("Should not be called"));

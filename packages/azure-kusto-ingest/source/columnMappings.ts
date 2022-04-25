@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-/* eslint-disable max-classes-per-file -- We want all the Column Mappings to be in this file */
 /* eslint-disable @typescript-eslint/ban-types -- We legitimately want to use {} as a "any non-nullable type" */
 
 import { IngestionMappingKind } from "./ingestionProperties";

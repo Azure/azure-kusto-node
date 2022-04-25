@@ -1,9 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-// We want all the Response models to be in this file
-/* eslint-disable max-classes-per-file */
-
 import { KustoResultTable, Table, WellKnownDataSet } from "./models";
 
 interface V2DataSetHeaderFrame {
