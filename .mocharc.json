@@ -1,0 +1,6 @@
+{
+    "require": ["ts-node/register"],
+    "enable-source-maps": true,
+    "timeout": 240000,
+    "spec": ["**/test/**/*Test.ts"]
+}

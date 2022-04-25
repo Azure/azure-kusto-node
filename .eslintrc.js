@@ -136,10 +136,6 @@ module.exports = {
         "jsdoc/check-alignment": "error",
         "jsdoc/check-indentation": "error",
         "jsdoc/newline-after-description": "error",
-        "max-classes-per-file": [
-            "error",
-            1
-        ],
         "new-parens": "error",
         "no-array-constructor": "off",
         "no-async-promise-executor": "error",
