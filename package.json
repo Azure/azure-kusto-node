@@ -35,7 +35,8 @@
     },
     "workspaces": [
         "packages\\azure-kusto-data",
-        "packages\\azure-kusto-ingest"
+        "packages\\azure-kusto-ingest",
+        "packages\\quick_start"
     ],
     "dependencies": {
         "@lerna-lite/cli": "^1.0.5",

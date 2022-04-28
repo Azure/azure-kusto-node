@@ -1,0 +1,28 @@
+{
+  "name": "quick_start",
+  "version": "1.0.0",
+  "description": "Quick start Node sample app",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "ts-node": "^10.7.0",
+    "diff": "^4.0.2",
+    "azure-kusto-data": "^3.3.2",
+    "azure-kusto-ingest": "^3.3.2",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Azure/azure-kusto-node.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Azure/azure-kusto-node/issues"
+  },
+  "homepage": "https://github.com/Azure/azure-kusto-node#readme"
+}
