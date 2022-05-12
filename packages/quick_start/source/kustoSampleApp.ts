@@ -118,6 +118,9 @@ class KustoSampleApp {
                 }
                 await this.waitForIngestionToComplete();
             }
+            if (config.queryData) {
+                await this.executeValidationQueries(kustoClient, config.databaseName, config.tableName, config.ingestData);
+            }
         }
         Console.log("\nKusto sample app done");
     }
@@ -494,6 +497,26 @@ class KustoSampleApp {
             await new Promise(res => setTimeout(res, 500))
 
         }
+    }
+
+    /**
+     * End-Of-Script simple queries, to validate the hopefully successful run of the script.
+     *
+     * @param kustoClient Client to run commands
+     * @param databaseName DB Name
+     * @param tableName Table Name
+     * @param ingestData Flag noting whether any data was ingested by the script
+     */
+    private static async executeValidationQueries(kustoClient: KustoClient, databaseName: string, tableName: string, ingestData: boolean) {
+        const optionalPostIngestionPrompt = ingestData ? "post-ingestion " : "";
+
+        await this.waitForUserToProceed(`Get ${optionalPostIngestionPrompt}row count for '${databaseName}.${tableName}':`);
+        await this.queryExistingNumberOfRows(kustoClient, databaseName, tableName)
+
+        await this.waitForUserToProceed(`Get sample (2 records) of ${optionalPostIngestionPrompt}data:`);
+        const query = `${tableName} | take 2`;
+        await this.executeCommand(kustoClient, databaseName, query, "Node_SampleApp_Query")
+
     }
 
     /**
