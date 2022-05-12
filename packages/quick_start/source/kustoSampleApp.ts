@@ -9,6 +9,9 @@ import KustoClient from "azure-kusto-data/source/client";
 import IngestClient from "azure-kusto-ingest/source/ingestClient";
 import ClientRequestProperties from "azure-kusto-data/source/clientRequestProperties";
 import {v4 as uuidv4} from "uuid";
+import {DataFormat, dataFormatMappingKind} from "azure-kusto-ingest/source/ingestionProperties";
+import IngestionProperties from "azure-kusto-ingest/source/ingestionProperties";
+import {BlobDescriptor, FileDescriptor} from "azure-kusto-ingest/source/descriptors";
 
 // TODO (config - optional): Change the authentication method from "User Prompt" to any of the other options
 //  Some of the auth modes require additional environment variables to be set in order to work (see usage in generate_connection_string below).
@@ -23,8 +26,7 @@ const WAIT_FOR_USER = true;
 //  If this quickstart app was downloaded from GitHub, edit kusto_sample_config.json and modify the cluster URL and database fields appropriately.
 const CONFIG_FILE_NAME = "packages/quick_start/source/kusto_sample_config.json";
 const BATCHING_POLICY = '{ "MaximumBatchingTimeSpan": "00:00:10", "MaximumNumberOfItems": 500, "MaximumRawDataSizeMB": 1024 }';
-
-// const WAIT_FOR_INGEST_SECONDS = 20;
+const WAIT_FOR_INGEST_SECONDS = 20;
 
 
 interface ConfigData {
@@ -72,7 +74,7 @@ class KustoSampleApp {
             this.errorHandler(`Connection String error. Please validate your configuration file.`);
         } else {
             const kustoClient = new KustoClient(kustoConnectionString);
-            const ingestClient = new IngestClient(kustoConnectionString);
+            const ingestClient = new IngestClient(ingestConnectionString);
             if (config.useExistingTable) {
                 if (config.alterTable) {
                     // Tip: Usually table was originally created with a schema appropriate for the data being ingested, so this wouldn't be needed.
@@ -91,6 +93,30 @@ class KustoSampleApp {
                 // Learn More: For more information about creating tables, see: https://docs.microsoft.com/azure/data-explorer/one-click-table
                 await this.waitForUserToProceed(`Creating table '${config.databaseName}.${config.tableName}'`);
                 await this.createNewTable(kustoClient, config.databaseName, config.tableName, config.tableSchema);
+            }
+
+            if (config.ingestData) {
+
+                for (const dataFile of config.data) {
+                    const dfVal: string = dataFile.format.toLowerCase();
+                    let dataFormat: DataFormat;
+                    if (Object.values(DataFormat).some((val: string) => val === dfVal)) {
+                        dataFormat = dfVal as DataFormat;
+                    } else {
+                        this.errorHandler(`Invalid data format: ${dfVal}`);
+                    }
+                    const mappingName = dataFile.mappingName;
+
+                    // Tip: This is generally a one-time configuration. Learn More: For more information about providing inline mappings and mapping references,
+                    // see: https://docs.microsoft.com/azure/data-explorer/kusto/management/mappings
+                    if (!await this.createIngestionMappings(dataFile.useExistingMapping, kustoClient, config.databaseName, config.tableName, mappingName, dataFile.mappingValue, dataFormat)) {
+                        continue;
+                    }
+                    // Learn More: For more information about ingesting data to Kusto in C#,
+                    // see: https://docs.microsoft.com/en-us/azure/data-explorer/net-sdk-ingest-data
+                    await this.ingestAsync(dataFile, dataFormat, ingestClient, config.databaseName, config.tableName, mappingName);
+                }
+                await this.waitForIngestionToComplete();
             }
         }
         Console.log("\nKusto sample app done");
@@ -134,6 +160,7 @@ class KustoSampleApp {
             case "UserPrompt": {
                 // Prompt user for credentials
                 return KustoConnectionStringBuilder.withUserPrompt(clusterUri);
+                // return KustoConnectionStringBuilder.withAzLoginIdentity(clusterUri)
             }
             case "ManagedIdentity": {
                 // Authenticate using a System-Assigned managed identity provided to an azure service, or using a User-Assigned managed identity.
@@ -325,6 +352,148 @@ class KustoSampleApp {
             clientRequestProperties.setTimeout(timeout);
         }
         return clientRequestProperties;
+    }
+
+    /**
+     * Creates Ingestion Mappings (if required) based on given values.
+     *
+     * @param useExistingMapping Flag noting if we should the existing mapping or create a new one
+     * @param kustoClient Client to run commands
+     * @param databaseName DB name
+     * @param tableName Table name
+     * @param mappingName Desired mapping name
+     * @param mappingValue Values of the new mappings to create
+     * @param dataFormat Given data format
+     * @returns True if Ingestion Mappings exists (whether by us, or the already existing one)
+     */
+    private static async createIngestionMappings(useExistingMapping: boolean, kustoClient: KustoClient, databaseName: string, tableName: string, mappingName: string, mappingValue: string, dataFormat: DataFormat): Promise<boolean> {
+        if (useExistingMapping || !mappingValue) {
+            return true;
+        }
+        const ingestionMappingKind = dataFormatMappingKind(dataFormat);
+        await this.waitForUserToProceed(`Create a '${ingestionMappingKind}' mapping reference named '${mappingName}'`);
+        mappingName = mappingName ? mappingName : "DefaultQuickstartMapping" + uuidv4().substring(0, 4);
+        const command = `.create-or-alter table ${tableName} ingestion ${ingestionMappingKind.toLowerCase()} mapping '${mappingName}' '${mappingValue}'`;
+        await this.executeCommand(kustoClient, databaseName, command, "Node_SampleApp_ControlCommand")
+        return true;
+    }
+
+    /**
+     * Ingest data from given source.
+     *
+     * @param dataFile Given data source
+     * @param dataFormat Given data format
+     * @param ingestClient Client to ingest data
+     * @param databaseName DB name
+     * @param tableName Table name
+     * @param mappingName Desired mapping name
+     */
+    private static async ingestAsync(dataFile: ConfigData, dataFormat: DataFormat, ingestClient: IngestClient, databaseName: string, tableName: string, mappingName: string) {
+        const sourceType = dataFile.sourceType.toLowerCase();
+        const sourceUri = dataFile.dataSourceUri;
+        mappingName = mappingName ? mappingName : "DefaultQuickstartMapping" + uuidv4().substring(0, 4);
+        await this.waitForUserToProceed(`Ingest '${sourceUri}' from '${sourceType}'`)
+
+        // Tip: When ingesting json files, if each line represents a single-line json, use MULTIJSON format even if the file only contains one line.
+        // If the json contains whitespace formatting, use SINGLEJSON. In this case, only one data row json object is allowed per file.
+        dataFormat = dataFormat === DataFormat.JSON ? DataFormat.MULTIJSON : dataFormat;
+
+        // Tip: Kusto's C# SDK can ingest data from files, blobs and open streams.See the SDK's samples and the E2E tests in azure.kusto.ingest for
+        // additional references.
+        switch (sourceType) {
+            case "localfilesource":
+                await this.ingestFromFileAsync(ingestClient, databaseName, tableName, sourceUri, dataFormat, mappingName);
+                break;
+            case "blobsource":
+                await this.ingestFromBlobAsync(ingestClient, databaseName, tableName, sourceUri, dataFormat, mappingName);
+                break;
+            default:
+                this.errorHandler(`Unknown source '${sourceType}' for file '${sourceUri}'`);
+                break;
+        }
+
+    }
+
+    /**
+     * Ingest Data from a given file path.
+     *
+     * @param ingestClient Client to ingest data
+     * @param databaseName DB name
+     * @param tableName Table name
+     * @param filePath File path
+     * @param dataFormat Given data format
+     * @param mappingName Desired mapping name
+     */
+    private static async ingestFromFileAsync(ingestClient: IngestClient, databaseName: string, tableName: string, filePath: string, dataFormat: DataFormat, mappingName: string) {
+        const ingestionProp = this.createIngestionProperties(databaseName, tableName, dataFormat, mappingName);
+        // Tip 1: For optimal ingestion batching and performance, specify the uncompressed data size in the file descriptor instead of the default below of
+        // 0. Otherwise, the service will determine the file size, requiring an additional s2s call, and may not be accurate for compressed files.
+        // Tip 2: To correlate between ingestion operations in your applications and Kusto, set the source ID and log it somewhere.
+        const fileDescriptor = new FileDescriptor(`${__dirname}\\${filePath}`, uuidv4(), 0)
+        await ingestClient.ingestFromFile(fileDescriptor, ingestionProp)
+    }
+
+    /**
+     * Ingest Data from a Blob.
+     *
+     * @param ingestClient Client to ingest data
+     * @param databaseName DB name
+     * @param tableName Table name
+     * @param blobUri Blob Uri
+     * @param dataFormat Given data format
+     * @param mappingName Desired mapping name
+     */
+    private static async ingestFromBlobAsync(ingestClient: IngestClient, databaseName: string, tableName: string, blobUri: string, dataFormat: DataFormat, mappingName: string) {
+        const ingestionProp = this.createIngestionProperties(databaseName, tableName, dataFormat, mappingName);
+        // Tip 1: For optimal ingestion batching and performance, specify the uncompressed data size in the file descriptor instead of the default below of
+        // 0. Otherwise, the service will determine the file size, requiring an additional s2s call, and may not be accurate for compressed files.
+        // Tip 2: To correlate between ingestion operations in your applications and Kusto, set the source ID and log it somewhere.
+        const blobDescriptor = new BlobDescriptor(blobUri, 0, uuidv4())
+        await ingestClient.ingestFromBlob(blobDescriptor, ingestionProp)
+    }
+
+    /**
+     * Creates a fitting KustoIngestionProperties object, to be used when executing ingestion commands.
+     *
+     * @param databaseName DB name
+     * @param tableName Table name
+     * @param dataFormat Given data format
+     * @param mappingName Desired mapping name
+     * @returns IngestionProperties object
+     */
+    private static createIngestionProperties(databaseName: string, tableName: string, dataFormat: DataFormat, mappingName: string): IngestionProperties {
+        return new IngestionProperties({
+            database: databaseName,
+            table: tableName,
+            // Learn More: For more information about supported data formats, see: https://docs.microsoft.com/azure/data-explorer/ingestion-supported-formats
+            format: dataFormat,
+            ingestionMappingReference: mappingName,
+            ingestionMappingKind: dataFormatMappingKind(dataFormat),
+            // TODO (config - optional): Setting the ingestion batching policy takes up to 5 minutes to take effect.
+            //  We therefore set Flush-Immediately for the sake of the sample, but it generally shouldn't be used in practice.
+            //  Comment out the line below after running the sample the first few times.
+            flushImmediately: true
+        })
+    }
+
+    /**
+     * Halts the program for WaitForIngestSeconds, allowing the queued ingestion process to complete.
+     */
+    private static async waitForIngestionToComplete() {
+        Console.log(
+            `Sleeping ${WAIT_FOR_INGEST_SECONDS} seconds for queued ingestion to complete. Note: This may take longer depending on the file size and ingestion batching policy.`);
+        Console.log();
+        Console.log();
+
+        for (let i = 0; i <= 20; i++) {
+            const dots = ".".repeat(i)
+            const left = 20 - i
+            const empty = " ".repeat(left)
+
+            process.stdout.write(`\r[${dots}${empty}] ${i * 5}%`)
+            await new Promise(res => setTimeout(res, 500))
+
+        }
     }
 
     /**
