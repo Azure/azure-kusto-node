@@ -7,6 +7,8 @@ import zlib from "zlib";
 import pathlib from "path";
 import fs from "fs";
 import { Readable } from "stream";
+import { file as tmpFile } from "tmp-promise";
+import { promisify } from "util";
 
 export enum CompressionType {
     ZIP = ".zip",
@@ -30,19 +32,30 @@ export class FileDescriptor {
     size: number | null;
     sourceId: string;
     zipped: boolean;
+    compressionType: CompressionType;
+    cleanupTmp?: () => Promise<void>;
 
-    constructor(readonly filePath: string, sourceId: string | null = null, size: number | null = null) {
+    constructor(
+        readonly filePath: string,
+        sourceId: string | null = null,
+        size: number | null = null,
+        compressionType: CompressionType = CompressionType.None
+    ) {
+        this.compressionType = compressionType;
         this.name = pathlib.basename(this.filePath);
         this.extension = pathlib.extname(this.filePath).toLowerCase();
         this.size = size;
-        this.zipped = this.extension === ".gz" || this.extension === ".zip";
+        this.zipped = compressionType !== CompressionType.None || this.extension === ".gz" || this.extension === ".zip";
         this.sourceId = getSourceId(sourceId);
     }
 
     async _gzip(): Promise<string> {
+        const { fd, path, cleanup } = await tmpFile({ postfix: ".gz", keep: false });
+        this.cleanupTmp = cleanup;
+
         const zipper = zlib.createGzip();
         const input = fs.createReadStream(this.filePath, { autoClose: true });
-        const output = fs.createWriteStream(this.filePath + ".gz");
+        const output = fs.createWriteStream(path, { fd });
 
         await new Promise((resolve, reject) => {
             input
@@ -56,22 +69,32 @@ export class FileDescriptor {
             });
         });
 
-        return this.filePath + ".gz";
+        return path;
     }
 
     async prepare(): Promise<string> {
         if (this.zipped) {
-            if (this.size == null || this.size <= 0) {
-                this.size = fs.statSync(this.filePath).size * 11;
-            }
+            const estimatedCompressionModifier = 11;
+            await this.calculateSize(estimatedCompressionModifier);
             return this.filePath;
         }
 
-        await this._gzip();
+        const path = await this._gzip();
+        await this.calculateSize();
+        return path;
+    }
+
+    private async calculateSize(modifier: number = 1): Promise<void> {
         if (this.size == null || this.size <= 0) {
-            this.size = fs.statSync(this.filePath).size;
+            const asyncStat = promisify(fs.stat);
+            this.size = (await asyncStat(this.filePath)).size * modifier;
         }
-        return this.filePath + ".gz";
+    }
+
+    async cleanup(): Promise<void> {
+        if (this.cleanupTmp) {
+            await this.cleanupTmp();
+        }
     }
 }
 
@@ -80,6 +103,7 @@ export class StreamDescriptor {
     size: number | null;
     compressionType: CompressionType;
     sourceId: string;
+
     constructor(readonly stream: Readable, sourceId: string | null = null, compressionType: CompressionType = CompressionType.None) {
         this.name = "stream";
         this.size = null;
@@ -99,6 +123,7 @@ export class StreamDescriptor {
 export class BlobDescriptor {
     size: number | null;
     sourceId: string;
+
     constructor(readonly path: string, size: number | null = null, sourceId: string | null = null) {
         this.size = size;
         this.sourceId = getSourceId(sourceId);

@@ -51,9 +51,13 @@
         "moment": "^2.22.2",
         "stream-array": "^1.1.0",
         "stream-to-array": "^2.3.0",
+        "tmp-promise": "^3.0.3",
         "ts-node": "^10.7.0",
         "uuid": "^8.3.2",
         "uuid-validate": "0.0.3"
     },
-    "gitHead": "f8a5dae26d6d2ca2ab8b95953bb9b88a02e8e35d"
+    "gitHead": "f8a5dae26d6d2ca2ab8b95953bb9b88a02e8e35d",
+    "devDependencies": {
+        "@types/tmp": "^0.2.3"
+    }
 }
