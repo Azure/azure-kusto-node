@@ -50,7 +50,7 @@ export class FileDescriptor {
     }
 
     async _gzip(): Promise<string> {
-        const { fd, path, cleanup } = await tmpFile({ postfix: ".gz", keep: false });
+        const { fd, path, cleanup } = await tmpFile({ postfix: ".gz" });
         this.cleanupTmp = cleanup;
 
         const zipper = zlib.createGzip();
@@ -95,15 +95,17 @@ export class FileDescriptor {
         }
     }
 
-    async cleanup(): Promise<void> {
+    cleanup(): Promise<void> {
+        return Promise.resolve();
+        /*
         try {
-            if (this.cleanupTmp) {
-                await this.cleanupTmp();
-            }
+                        if (this.cleanupTmp) {
+                            await this.cleanupTmp();
+                        }
         } catch (e) {
             // eslint-disable-next-line no-console
             console.error(`Failed to cleanup tmp file: ${e}`);
-        }
+        }*/
     }
 }
 
