@@ -55,19 +55,23 @@ export class FileDescriptor {
 
         const zipper = zlib.createGzip();
         const input = fs.createReadStream(this.filePath, { autoClose: true });
-        const output = fs.createWriteStream(null as any, { fd });
+        try {
+            const output = fs.createWriteStream(null as any, { fd });
 
-        await new Promise((resolve, reject) => {
-            input
-                .pipe(zipper)
-                .pipe(output)
-                .on("error", (err) => {
-                    reject(err);
+            await new Promise((resolve, reject) => {
+                input
+                    .pipe(zipper)
+                    .pipe(output)
+                    .on("error", (err) => {
+                        reject(err);
+                    });
+                output.once("close", () => {
+                    resolve(null);
                 });
-            output.once("close", () => {
-                resolve(null);
             });
-        });
+        } catch (e) {
+            throw new Error(`Failed to gzip file ${this.filePath}: ${e}`);
+        }
 
         return path;
     }
@@ -92,8 +96,13 @@ export class FileDescriptor {
     }
 
     async cleanup(): Promise<void> {
-        if (this.cleanupTmp) {
-            await this.cleanupTmp();
+        try {
+            if (this.cleanupTmp) {
+                await this.cleanupTmp();
+            }
+        } catch (e) {
+            // eslint-disable-next-line no-console
+            console.error(`Failed to cleanup tmp file: ${e}`);
         }
     }
 }

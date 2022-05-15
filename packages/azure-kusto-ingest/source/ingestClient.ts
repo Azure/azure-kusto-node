@@ -64,10 +64,18 @@ export class KustoIngestClient extends AbstractKustoClient {
             const blobName = `${props.database}__${props.table}__${descriptor.sourceId}__${descriptor.name}__${descriptor.extension}`;
 
             const blockBlobClient = await this._getBlockBlobClient(blobName);
+            // eslint-disable-next-line no-console
+            console.log("a");
             await blockBlobClient.uploadFile(fileToUpload);
+            // eslint-disable-next-line no-console
+            console.log("b");
             return this.ingestFromBlob(new BlobDescriptor(blockBlobClient.url, descriptor.size, descriptor.sourceId), props);
         } finally {
+            // eslint-disable-next-line no-console
+            console.log("c");
             await descriptor.cleanup();
+            // eslint-disable-next-line no-console
+            console.log("d");
         }
     }
 
