@@ -55,7 +55,7 @@ export class FileDescriptor {
 
         const zipper = zlib.createGzip();
         const input = fs.createReadStream(this.filePath, { autoClose: true });
-        const output = fs.createWriteStream(path, { fd });
+        const output = fs.createWriteStream(null as any, { fd });
 
         await new Promise((resolve, reject) => {
             input
