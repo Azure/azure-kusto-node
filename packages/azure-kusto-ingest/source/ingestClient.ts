@@ -81,41 +81,23 @@ export class KustoIngestClient extends AbstractKustoClient {
     }
 
     async ingestFromBlob(blob: string | BlobDescriptor, ingestionProperties?: IngestionPropertiesInput): Promise<QueueSendMessageResponse> {
-        // eslint-disable-next-line no-console
-        console.log("e");
         const props = this._getMergedProps(ingestionProperties);
-        // eslint-disable-next-line no-console
-        console.log("f");
+
         const descriptor = blob instanceof BlobDescriptor ? blob : new BlobDescriptor(blob);
-        // eslint-disable-next-line no-console
-        console.log("g");
         const queues = await this.resourceManager.getIngestionQueues();
-        // eslint-disable-next-line no-console
-        console.log("h");
         if (queues == null) {
             throw new Error("Failed to get queues");
         }
-        // eslint-disable-next-line no-console
-        console.log("i");
 
         const authorizationContext = await this.resourceManager.getAuthorizationContext();
-        // eslint-disable-next-line no-console
-        console.log("j");
+
         const queueDetails = queues[Math.floor(Math.random() * queues.length)];
-        // eslint-disable-next-line no-console
-        console.log("k");
+
         const queueClient = new QueueClient(queueDetails.getSASConnectionString(), queueDetails.objectName);
-        // eslint-disable-next-line no-console
-        console.log("l");
+
         const ingestionBlobInfo = new IngestionBlobInfo(descriptor, props, authorizationContext);
-        // eslint-disable-next-line no-console
-        console.log("m");
         const ingestionBlobInfoJson = JSON.stringify(ingestionBlobInfo);
-        // eslint-disable-next-line no-console
-        console.log("n");
         const encoded = Buffer.from(ingestionBlobInfoJson).toString("base64");
-        // eslint-disable-next-line no-console
-        console.log("p");
 
         return queueClient.sendMessage(encoded);
     }
