@@ -15,6 +15,7 @@ import { ContainerClient } from "@azure/storage-blob";
 import { IngestionPropertiesInput } from "./ingestionProperties";
 import { AbstractKustoClient } from "./abstractKustoClient";
 import { Readable } from "stream";
+import pathlib from "path";
 
 export class KustoIngestClient extends AbstractKustoClient {
     resourceManager: ResourceManager;
@@ -61,7 +62,7 @@ export class KustoIngestClient extends AbstractKustoClient {
 
         try {
             const fileToUpload = await descriptor.prepare();
-            const blobName = `${props.database}__${props.table}__${descriptor.sourceId}__${descriptor.name}__${descriptor.extension}`;
+            const blobName = `${props.database}__${props.table}__${descriptor.sourceId}__${descriptor.name}__.${pathlib.extname(fileToUpload)}`;
 
             const blockBlobClient = await this._getBlockBlobClient(blobName);
             // eslint-disable-next-line no-console
