@@ -50,12 +50,12 @@ export class FileDescriptor {
     }
 
     async _gzip(): Promise<string> {
-        const { fd, path, cleanup } = await tmpFile({ postfix: ".gz", keep: false, dir: "." });
+        const { path, cleanup } = await tmpFile({ postfix: ".gz", keep: false});
         this.cleanupTmp = cleanup;
 
         const zipper = zlib.createGzip();
         const input = fs.createReadStream(this.filePath, { autoClose: true });
-        const output = fs.createWriteStream(null as any, { fd });
+        const output = fs.createWriteStream(path);
 
         await new Promise((resolve, reject) => {
             input
