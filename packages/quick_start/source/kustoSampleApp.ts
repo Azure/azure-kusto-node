@@ -163,7 +163,6 @@ class KustoSampleApp {
             case "UserPrompt": {
                 // Prompt user for credentials
                 return KustoConnectionStringBuilder.withUserPrompt(clusterUri);
-                // return KustoConnectionStringBuilder.withAzLoginIdentity(clusterUri)
             }
             case "ManagedIdentity": {
                 // Authenticate using a System-Assigned managed identity provided to an azure service, or using a User-Assigned managed identity.
@@ -401,7 +400,7 @@ class KustoSampleApp {
         // If the json contains whitespace formatting, use SINGLEJSON. In this case, only one data row json object is allowed per file.
         dataFormat = dataFormat === DataFormat.JSON ? DataFormat.MULTIJSON : dataFormat;
 
-        // Tip: Kusto's C# SDK can ingest data from files, blobs and open streams.See the SDK's samples and the E2E tests in azure.kusto.ingest for
+        // Tip: Kusto's Node SDK can ingest data from files, blobs and open streams.See the SDK's samples and the E2E tests in azure.kusto.ingest for
         // additional references.
         switch (sourceType) {
             case "localfilesource":
