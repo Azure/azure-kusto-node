@@ -33,7 +33,7 @@ See the SDK [best practices guide](https://docs.microsoft.com/azure/data-explore
 
 ## Platforms compatibility
 
-The Azure Kusto SDK for Node.js was build for Node.js **v6.14.x and** above.
+The Azure Kusto SDK for Node.js was build for Node.js **v14.x.x and** above.
 
 
 ## Looking for SDKs for other languages/platforms?

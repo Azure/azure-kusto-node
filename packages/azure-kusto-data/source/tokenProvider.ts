@@ -210,7 +210,8 @@ export class AzCliTokenProvider extends AzureIdentityProvider {
  */
 export class UserPromptProvider extends AzureIdentityProvider {
     // The default port is 80, which can lead to permission errors, so we'll choose another port
-    readonly BrowserPort = 23145;
+    readonly MinPort = 20000;
+    readonly MaxPort = 65536;
 
     constructor(kustoUri: string, authorityId: string, clientId?: string, timeoutMs?: number, private loginHint?: string) {
         super(kustoUri, authorityId, clientId, timeoutMs);
@@ -220,8 +221,12 @@ export class UserPromptProvider extends AzureIdentityProvider {
         return new InteractiveBrowserCredential({
             ...this.getCommonOptions(),
             loginHint: this.loginHint,
-            redirectUri: `http://localhost:${this.BrowserPort}/`,
+            redirectUri: `http://localhost:${this.getRandomPortInRange()}/`,
         });
+    }
+
+    private getRandomPortInRange() {
+        return Math.floor(Math.random() * (this.MaxPort - this.MinPort) + this.MinPort);
     }
 
     context(): Record<string, any> {
