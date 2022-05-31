@@ -56,7 +56,7 @@ interface ConfigJson {
 }
 
 class KustoSampleApp {
-    private static _step = 1;
+    private static step = 1;
 
     public static async start() {
         Console.log("Kusto sample app is starting...");
@@ -524,8 +524,8 @@ class KustoSampleApp {
      * @param promptMsg Prompt to display to user
      */
     private static waitForUserToProceed(promptMsg: string): Promise<any> | undefined {
-        Console.log(`\nStep ${this._step}: ${promptMsg}`);
-        this._step++;
+        Console.log(`\nStep ${this.step}: ${promptMsg}`);
+        this.step++;
         if (WAIT_FOR_USER) {
             const rl = readline.createInterface({
                 input: process.stdin,
