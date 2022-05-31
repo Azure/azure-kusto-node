@@ -13,6 +13,7 @@ const KustoConnectionStringBuilder = require("azure-kusto-data").KustoConnection
 const kcsb = KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(`https://${clusterName}.kusto.windows.net`, "appid", "appkey", "authorityId");
 const client = new KustoClient(kcsb);
 
+// `execute()` infers the type of command from the query, although you can also specify the type explicitly using the methods `excuteQuery()`,`executeQueryV1()` or `executeMgmt()`
 const results = await client.execute("db", "TableName | limit 1");
 console.log(JSON.stringify(results));
 console.log(results.primaryResults[0].toString());
