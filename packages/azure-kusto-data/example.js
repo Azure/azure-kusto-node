@@ -37,6 +37,7 @@ async function start() {
     clientRequestProps.clientRequestId = `MyApp.MyActivity;${uuidv4()}`;
 
     try {
+        // `execute()` infers the type of command from the query, although you can also specify the type explicitly using the methods `excuteQuery()`,`executeQueryV1()` or `executeMgmt()`
         const results = await kustoClient.execute(database, `['${table}'] | limit 1`, clientRequestProps);
         console.log(JSON.stringify(results));
         console.log(results.primaryResults[0].toString());
