@@ -151,8 +151,8 @@ describe("KustoConnectionStringBuilder", () => {
                     dataSource: "localhost",
                     authorityId: "organizations",
                 },
-                "Data Source=localhost;Initial Catalog=NetDefaultDB;Authority Id=common",
-                "Data Source=localhost;Initial Catalog=NetDefaultDB;Authority Id=common"
+                "Data Source=localhost;Initial Catalog=NetDefaultDB;Authority Id=organizations",
+                "Data Source=localhost;Initial Catalog=NetDefaultDB;Authority Id=organizations"
             );
         });
 
@@ -189,8 +189,8 @@ describe("KustoConnectionStringBuilder", () => {
                         password: expectedPassword,
                         aadFederatedSecurity: true,
                     },
-                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;AAD User ID=${expectedUser};Password=****;Authority Id=common`,
-                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;AAD User ID=${expectedUser};Password=${expectedPassword};Authority Id=common`
+                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;AAD User ID=${expectedUser};Password=****;Authority Id=organizations`,
+                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;AAD User ID=${expectedUser};Password=${expectedPassword};Authority Id=organizations`
                 );
             });
 
@@ -268,8 +268,8 @@ describe("KustoConnectionStringBuilder", () => {
                         applicationKey: expectedKey,
                         aadFederatedSecurity: true,
                     },
-                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${expectedUuid};Application Key=****;Authority Id=common`,
-                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${expectedUuid};Application Key=${expectedKey};Authority Id=common`
+                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${expectedUuid};Application Key=****;Authority Id=organizations`,
+                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${expectedUuid};Application Key=${expectedKey};Authority Id=organizations`
                 );
             });
 
@@ -400,8 +400,8 @@ describe("KustoConnectionStringBuilder", () => {
                         applicationCertificateX5c: cert5xc,
                         aadFederatedSecurity: true,
                     },
-                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${appId};Application Certificate PrivateKey=****;Application Certificate Thumbprint=${thumbPrint};Application Certificate x5c=${cert5xc};Authority Id=common`,
-                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${appId};Application Certificate PrivateKey=${privateKey};Application Certificate Thumbprint=${thumbPrint};Application Certificate x5c=${cert5xc};Authority Id=common`
+                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${appId};Application Certificate PrivateKey=****;Application Certificate Thumbprint=${thumbPrint};Application Certificate x5c=${cert5xc};Authority Id=organizations`,
+                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${appId};Application Certificate PrivateKey=${privateKey};Application Certificate Thumbprint=${thumbPrint};Application Certificate x5c=${cert5xc};Authority Id=organizations`
                 );
             });
 
@@ -433,8 +433,8 @@ describe("KustoConnectionStringBuilder", () => {
                         authorityId: "organizations",
                         aadFederatedSecurity: true,
                     },
-                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${appId};Application Certificate PrivateKey=****;Application Certificate Thumbprint=${thumbPrint};Authority Id=common`,
-                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${appId};Application Certificate PrivateKey=${privateKey};Application Certificate Thumbprint=${thumbPrint};Authority Id=common`
+                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${appId};Application Certificate PrivateKey=****;Application Certificate Thumbprint=${thumbPrint};Authority Id=organizations`,
+                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${appId};Application Certificate PrivateKey=${privateKey};Application Certificate Thumbprint=${thumbPrint};Authority Id=organizations`
                 );
             });
         });
@@ -459,8 +459,8 @@ describe("KustoConnectionStringBuilder", () => {
                     aadFederatedSecurity: true,
                     deviceCodeCallback: (res: DeviceCodeResponse) => res,
                 },
-                "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=common",
-                "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=common"
+                "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations",
+                "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations"
             );
         });
 
@@ -480,8 +480,8 @@ describe("KustoConnectionStringBuilder", () => {
                         useManagedIdentityAuth: true,
                         aadFederatedSecurity: true,
                     },
-                    "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=common",
-                    "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=common"
+                    "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations",
+                    "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations"
                 );
             });
 
@@ -506,8 +506,8 @@ describe("KustoConnectionStringBuilder", () => {
                         msiClientId,
                         timeoutMs,
                     },
-                    "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=common",
-                    "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=common"
+                    "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations",
+                    "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations"
                 );
             });
         });
@@ -535,8 +535,8 @@ describe("KustoConnectionStringBuilder", () => {
                     timeoutMs: timeout,
                     useAzLoginAuth: true,
                 },
-                "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=common",
-                "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=common"
+                "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations",
+                "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations"
             );
         });
 
@@ -555,8 +555,8 @@ describe("KustoConnectionStringBuilder", () => {
                     aadFederatedSecurity: true,
                     accessToken: token,
                 },
-                "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=common",
-                "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=common"
+                "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations",
+                "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations"
             );
         });
 
@@ -575,8 +575,8 @@ describe("KustoConnectionStringBuilder", () => {
                     aadFederatedSecurity: true,
                     tokenProvider,
                 },
-                "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=common",
-                "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=common"
+                "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations",
+                "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations"
             );
         });
 
@@ -596,8 +596,8 @@ describe("KustoConnectionStringBuilder", () => {
                         useUserPromptAuth: true,
                         aadFederatedSecurity: true,
                     },
-                    "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=common",
-                    "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=common"
+                    "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations",
+                    "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations"
                 );
             });
 
@@ -625,8 +625,8 @@ describe("KustoConnectionStringBuilder", () => {
                         timeoutMs,
                         loginHint,
                     },
-                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${clientId};Authority Id=common`,
-                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${clientId};Authority Id=common`
+                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${clientId};Authority Id=organizations`,
+                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${clientId};Authority Id=organizations`
                 );
             });
         });
