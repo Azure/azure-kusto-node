@@ -93,7 +93,7 @@ describe("test errors", () => {
     it("device code without function", () => {
         const kcsb = new KustoConnectionStringBuilder("https://somecluster.kusto.windows.net");
         kcsb.aadFederatedSecurity = true;
-        kcsb.authorityId = "common";
+        kcsb.authorityId = "organizations";
         kcsb.useDeviceCodeAuth = true;
 
         assert.throws(() => new AadHelper(kcsb), KustoAuthenticationError, "Device code authentication is not supported without a function");
