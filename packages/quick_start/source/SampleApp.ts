@@ -78,7 +78,6 @@ class SampleApp {
 
             if (config.queryData) {
                 await this.postIngestionQueryingAsync(kustoClient, config.databaseName, config.tableName, config.ingestData);
-                // await this.executeValidationQueries(kustoClient, config.databaseName, config.tableName, config.ingestData);
             }
         }
         Console.log("\nKusto sample app done");
@@ -171,6 +170,18 @@ class SampleApp {
         await Utils.executeCommandAsync(kustoClient, databaseName, query, "Node_SampleApp_Query")
     }
 
+    /**
+     * Queries the first two rows of the table.
+     *
+     * @param kustoClient Client to run commands
+     * @param databaseName DB name
+     * @param tableName Table name
+     * @private
+     */
+    private static async queryFirstTwoRowsAsync(kustoClient: KustoClient, databaseName: string, tableName: string) {
+        const query = `${tableName} | take 2`;
+        await Utils.executeCommandAsync(kustoClient, databaseName, query, "Node_SampleApp_Query")
+    }
 
     /**
      * Creates a new table.
@@ -300,6 +311,24 @@ class SampleApp {
 
     }
 
+    /**
+     * Third and final phase - simple queries to validate the hopefully successful run of the script.
+     *
+     * @param kustoClient Client to run commands
+     * @param databaseName DB name
+     * @param tableName Table name
+     * @param ingestData Flag noting whether any data was ingested by the script
+     * @private
+     */
+    private static async postIngestionQueryingAsync(kustoClient: KustoClient, databaseName: string, tableName: string, ingestData: boolean) {
+        const optionalPostIngestionPrompt = ingestData ? "post-ingestion " : "";
+
+        await this.waitForUserToProceedAsync(`Get ${optionalPostIngestionPrompt}row count for '${databaseName}.${tableName}':`);
+        await this.queryExistingNumberOfRows(kustoClient, databaseName, tableName)
+
+        await this.waitForUserToProceedAsync(`Get sample (2 records) of ${optionalPostIngestionPrompt}data:`);
+        await this.queryFirstTwoRowsAsync(kustoClient, databaseName, tableName)
+    }
 
     /**
      * Handles UX on prompts and flow of program
@@ -321,3 +350,5 @@ class SampleApp {
         }
     }
 }
+
+void SampleApp.start();
