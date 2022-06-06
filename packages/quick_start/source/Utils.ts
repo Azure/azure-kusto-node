@@ -15,7 +15,7 @@ import {BlobDescriptor, FileDescriptor} from "azure-kusto-ingest/source/descript
 /**
  * Util static class - Handles the communication with the API, and provides generic and simple "plug-n-play" functions to use in different programs.
  */
-class Utils {
+export default class Utils {
 
     /**
      * Generates Kusto Connection String based on given Authentication Mode.

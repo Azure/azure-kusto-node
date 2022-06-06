@@ -49,10 +49,10 @@ interface ConfigJson {
     ingestData: boolean;
     tableSchema: string;
     data: ConfigData[];
-    CertificatePath: string;
-    CertificatePassword: string;
-    ApplicationId: string;
-    TenantId: string;
+    certificatePath: string;
+    certificatePassword: string;
+    applicationId: string;
+    tenantId: string;
 }
 
 class KustoSampleApp {
@@ -64,10 +64,10 @@ class KustoSampleApp {
         if (AUTHENTICATION_MODE === "UserPrompt") {
             await this.waitForUserToProceed("You will be prompted *twice* for credentials during this script. Please return to the console after authenticating.");
         }
-        const kustoConnectionString = await this.generateConnectionString(config.kustoUri, AUTHENTICATION_MODE, config?.CertificatePath, config?.CertificatePassword,
-            config?.ApplicationId, config?.TenantId);
-        const ingestConnectionString = await this.generateConnectionString(config.ingestUri, AUTHENTICATION_MODE, config?.CertificatePath, config?.CertificatePassword,
-            config?.ApplicationId, config?.TenantId);
+        const kustoConnectionString = await this.generateConnectionString(config.kustoUri, AUTHENTICATION_MODE, config?.certificatePath, config?.certificatePassword,
+            config?.applicationId, config?.tenantId);
+        const ingestConnectionString = await this.generateConnectionString(config.ingestUri, AUTHENTICATION_MODE, config?.certificatePath, config?.certificatePassword,
+            config?.applicationId, config?.tenantId);
 
         // Tip: Avoid creating a new Kusto/ingest client for each use.Instead, create the clients once and reuse them.
         if (!kustoConnectionString || !ingestConnectionString) {
