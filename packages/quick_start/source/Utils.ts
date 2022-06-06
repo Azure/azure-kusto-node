@@ -61,6 +61,7 @@ export default class Utils {
         }
     }
 
+
     /**
      * Generates Kusto Connection String based on 'AppKey' Authentication Mode.
      *
@@ -78,6 +79,7 @@ export default class Utils {
         }
     }
 
+
     /**
      * Generates Kusto Connection String based on 'AppCertificate' Authentication Mode.
      *
@@ -88,8 +90,9 @@ export default class Utils {
      * @param TenantId Given tenant id
      * @returns AppCertificate Kusto Connection String
      */
-    public static async createAppCertificateConnectionStringAsync(clusterUri: string, CertificatePath: string | undefined, CertificatePassword: string | undefined,
-                                                                  ApplicationId: string | undefined, TenantId: string | undefined): Promise<KustoConnectionStringBuilder> {
+    public static async createAppCertificateConnectionStringAsync(clusterUri: string, CertificatePath: string | undefined,
+                                                                  CertificatePassword: string | undefined, ApplicationId: string | undefined,
+                                                                  TenantId: string | undefined): Promise<KustoConnectionStringBuilder> {
         const appId: string | undefined = process.env.APP_ID;
         const appTenant: string | undefined = process.env.APP_TENANT;
         const privateKeyPemFilePath: string | undefined = process.env.PRIVATE_KEY_PEM_FILE_PATH;
@@ -105,16 +108,19 @@ export default class Utils {
                 const pemCertificate: string = await fs.promises.readFile(privateKeyPemFilePath, "utf8")
                 if (publicCertFilePath) {
                     const publicCertificate: string = await fs.promises.readFile(publicCertFilePath, "utf8")
-                    return KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(clusterUri, appId, pemCertificate, publicCertificate, appTenant)
+                    return KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(clusterUri, appId, pemCertificate, publicCertificate,
+                        appTenant)
                 }
                 if (!certThumbprint) {
                     this.errorHandler(`"Missing required field: "certThumbprint" in environment in order to authenticate using a certificate."`);
                 } else {
-                    return KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(clusterUri, appId, pemCertificate, certThumbprint, appTenant)
+                    return KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(clusterUri, appId, pemCertificate, certThumbprint,
+                        appTenant)
                 }
             }
         }
     }
+
 
     /**
      * Creates a fitting ClientRequestProperties object, to be used when executing control commands or queries.
@@ -136,6 +142,7 @@ export default class Utils {
         }
         return clientRequestProperties;
     }
+
 
     /**
      * Executes a command using the kustoClient
@@ -159,6 +166,7 @@ export default class Utils {
             this.errorHandler(`Failed to execute command: '${command}'`, ex);
         }
     }
+
 
     /**
      * Creates a fitting KustoIngestionProperties object, to be used when executing ingestion commands.
@@ -184,6 +192,7 @@ export default class Utils {
         })
     }
 
+
     /**
      * Ingest Data from a given file path.
      *
@@ -194,7 +203,8 @@ export default class Utils {
      * @param dataFormat Given data format
      * @param mappingName Desired mapping name
      */
-    public static async ingestFromFileAsync(ingestClient: IngestClient, databaseName: string, tableName: string, filePath: string, dataFormat: DataFormat, mappingName: string) {
+    public static async ingestFromFileAsync(ingestClient: IngestClient, databaseName: string, tableName: string, filePath: string, dataFormat: DataFormat,
+                                            mappingName: string) {
         const ingestionProp = this.createIngestionProperties(databaseName, tableName, dataFormat, mappingName);
         // Tip 1: For optimal ingestion batching and performance, specify the uncompressed data size in the file descriptor instead of the default below of
         // 0. Otherwise, the service will determine the file size, requiring an additional s2s call, and may not be accurate for compressed files.
@@ -202,6 +212,7 @@ export default class Utils {
         const fileDescriptor = new FileDescriptor(`${__dirname}\\${filePath}`, uuidv4(), 0)
         await ingestClient.ingestFromFile(fileDescriptor, ingestionProp)
     }
+
 
     /**
      * Ingest Data from a Blob.
@@ -213,7 +224,8 @@ export default class Utils {
      * @param dataFormat Given data format
      * @param mappingName Desired mapping name
      */
-    public static async ingestFromBlobAsync(ingestClient: IngestClient, databaseName: string, tableName: string, blobUri: string, dataFormat: DataFormat, mappingName: string) {
+    public static async ingestFromBlobAsync(ingestClient: IngestClient, databaseName: string, tableName: string, blobUri: string, dataFormat: DataFormat,
+                                            mappingName: string) {
         const ingestionProp = this.createIngestionProperties(databaseName, tableName, dataFormat, mappingName);
         // Tip 1: For optimal ingestion batching and performance, specify the uncompressed data size in the file descriptor instead of the default below of
         // 0. Otherwise, the service will determine the file size, requiring an additional s2s call, and may not be accurate for compressed files.
@@ -222,12 +234,14 @@ export default class Utils {
         await ingestClient.ingestFromBlob(blobDescriptor, ingestionProp)
     }
 
+
     /**
      * Halts the program for WaitForIngestSeconds, allowing the queued ingestion process to complete.
      */
     public static async waitForIngestionToCompleteAsync(waitForIngestSeconds: number) {
         Console.log(
-            `Sleeping ${waitForIngestSeconds} seconds for queued ingestion to complete. Note: This may take longer depending on the file size and ingestion batching policy.`);
+            `Sleeping ${waitForIngestSeconds} seconds for queued ingestion to complete. Note: This may take longer depending on the file size and ingestion 
+            batching policy.`);
         Console.log();
         Console.log();
 
@@ -241,6 +255,7 @@ export default class Utils {
 
         }
     }
+
 
     /**
      * Error handling function. Will mention the appropriate error message (and the exception itself if exists), and will quit the program.

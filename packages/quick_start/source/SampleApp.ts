@@ -56,12 +56,13 @@ class SampleApp {
         const config = await this.loadConfigsAsync(CONFIG_FILE_NAME);
         this.waitForUser = config.waitForUser;
         if (config.authenticationMode === "UserPrompt") {
-            await this.waitForUserToProceedAsync("You will be prompted *twice* for credentials during this script. Please return to the console after authenticating.");
+            await this.waitForUserToProceedAsync("You will be prompted *twice* for credentials during this script. Please return to the console after" +
+                " authenticating.");
         }
-        const kustoConnectionString = await Utils.generateConnectionStringAsync(config.kustoUri, config.authenticationMode, config?.certificatePath, config?.certificatePassword,
-            config?.applicationId, config?.tenantId);
-        const ingestConnectionString = await Utils.generateConnectionStringAsync(config.ingestUri, config.authenticationMode, config?.certificatePath, config?.certificatePassword,
-            config?.applicationId, config?.tenantId);
+        const kustoConnectionString = await Utils.generateConnectionStringAsync(config.kustoUri, config.authenticationMode, config?.certificatePath,
+            config?.certificatePassword, config?.applicationId, config?.tenantId);
+        const ingestConnectionString = await Utils.generateConnectionStringAsync(config.ingestUri, config.authenticationMode, config?.certificatePath,
+            config?.certificatePassword, config?.applicationId, config?.tenantId);
 
         // Tip: Avoid creating a new Kusto/ingest client for each use.Instead, create the clients once and reuse them.
         if (!kustoConnectionString || !ingestConnectionString) {
@@ -170,6 +171,7 @@ class SampleApp {
         await Utils.executeCommandAsync(kustoClient, databaseName, query, "Node_SampleApp_Query")
     }
 
+
     /**
      * Queries the first two rows of the table.
      *
@@ -182,6 +184,7 @@ class SampleApp {
         const query = `${tableName} | take 2`;
         await Utils.executeCommandAsync(kustoClient, databaseName, query, "Node_SampleApp_Query")
     }
+
 
     /**
      * Creates a new table.
@@ -215,6 +218,7 @@ class SampleApp {
         await Utils.executeCommandAsync(kustoClient, databaseName, command, "Node_SampleApp_ControlCommand")
     }
 
+
     /**
      * Second phase - The ingestion process.
      *
@@ -236,7 +240,8 @@ class SampleApp {
 
             // Tip: This is generally a one-time configuration. Learn More: For more information about providing inline mappings and mapping references,
             // see: https://docs.microsoft.com/azure/data-explorer/kusto/management/mappings
-            if (!await this.createIngestionMappings(dataFile.useExistingMapping, kustoClient, config.databaseName, config.tableName, mappingName, dataFile.mappingValue, dataFormat)) {
+            if (!await this.createIngestionMappings(dataFile.useExistingMapping, kustoClient, config.databaseName, config.tableName, mappingName,
+                dataFile.mappingValue, dataFormat)) {
                 continue;
             }
             // Learn More: For more information about ingesting data to Kusto in C#,
@@ -245,6 +250,7 @@ class SampleApp {
         }
         await Utils.waitForIngestionToCompleteAsync(config.waitForIngestSeconds);
     }
+
 
     /**
      * Creates Ingestion Mappings (if required) based on given values.
@@ -311,6 +317,7 @@ class SampleApp {
 
     }
 
+
     /**
      * Third and final phase - simple queries to validate the hopefully successful run of the script.
      *
@@ -329,6 +336,7 @@ class SampleApp {
         await this.waitForUserToProceedAsync(`Get sample (2 records) of ${optionalPostIngestionPrompt}data:`);
         await this.queryFirstTwoRowsAsync(kustoClient, databaseName, tableName)
     }
+
 
     /**
      * Handles UX on prompts and flow of program
