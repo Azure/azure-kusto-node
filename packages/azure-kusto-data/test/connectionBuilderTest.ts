@@ -61,6 +61,8 @@ const doComparsion = (
     }
 };
 
+const DEFAULT_AUTHORITY = "organizations";
+
 describe("KustoConnectionStringBuilder", () => {
     describe("validation tests", () => {
         it("throws when empty connection string is provided", () => {
@@ -149,7 +151,7 @@ describe("KustoConnectionStringBuilder", () => {
                 kcsbs,
                 {
                     dataSource: "localhost",
-                    authorityId: "organizations",
+                    authorityId: DEFAULT_AUTHORITY,
                 },
                 "Data Source=localhost;Initial Catalog=NetDefaultDB;Authority Id=organizations",
                 "Data Source=localhost;Initial Catalog=NetDefaultDB;Authority Id=organizations"
@@ -184,7 +186,7 @@ describe("KustoConnectionStringBuilder", () => {
                     kcsbs,
                     {
                         dataSource: "localhost",
-                        authorityId: "organizations",
+                        authorityId: DEFAULT_AUTHORITY,
                         aadUserId: expectedUser,
                         password: expectedPassword,
                         aadFederatedSecurity: true,
@@ -376,7 +378,7 @@ describe("KustoConnectionStringBuilder", () => {
                         appId,
                         privateKey,
                         thumbPrint,
-                        "organizations",
+                        DEFAULT_AUTHORITY,
                         cert5xc
                     ),
                 ];
@@ -396,7 +398,7 @@ describe("KustoConnectionStringBuilder", () => {
                         applicationClientId: appId,
                         applicationCertificatePrivateKey: privateKey,
                         applicationCertificateThumbprint: thumbPrint,
-                        authorityId: "organizations",
+                        authorityId: DEFAULT_AUTHORITY,
                         applicationCertificateX5c: cert5xc,
                         aadFederatedSecurity: true,
                     },
@@ -413,7 +415,7 @@ describe("KustoConnectionStringBuilder", () => {
                     new KustoConnectionStringBuilder(
                         `localhost;AppClientId=${appId};Application Certificate PrivateKey=${privateKey};appcert=${thumbPrint};AAD Federated Security=True`
                     ),
-                    KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication("localhost", appId, privateKey, thumbPrint, "organizations"),
+                    KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication("localhost", appId, privateKey, thumbPrint, DEFAULT_AUTHORITY),
                 ];
 
                 const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
@@ -430,7 +432,7 @@ describe("KustoConnectionStringBuilder", () => {
                         applicationClientId: appId,
                         applicationCertificatePrivateKey: privateKey,
                         applicationCertificateThumbprint: thumbPrint,
-                        authorityId: "organizations",
+                        authorityId: DEFAULT_AUTHORITY,
                         aadFederatedSecurity: true,
                     },
                     `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${appId};Application Certificate PrivateKey=****;Application Certificate Thumbprint=${thumbPrint};Authority Id=organizations`,
@@ -441,8 +443,8 @@ describe("KustoConnectionStringBuilder", () => {
 
         it("from aad device auth", () => {
             const kcsbs = [
-                KustoConnectionStringBuilder.withAadDeviceAuthentication("localhost", "organizations"),
-                KustoConnectionStringBuilder.withAadDeviceAuthentication("localhost", "organizations", (res) => res),
+                KustoConnectionStringBuilder.withAadDeviceAuthentication("localhost", DEFAULT_AUTHORITY),
+                KustoConnectionStringBuilder.withAadDeviceAuthentication("localhost", DEFAULT_AUTHORITY, (res) => res),
             ];
 
             const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
@@ -454,7 +456,7 @@ describe("KustoConnectionStringBuilder", () => {
                 kcsbs,
                 {
                     dataSource: "localhost",
-                    authorityId: "organizations",
+                    authorityId: DEFAULT_AUTHORITY,
                     useDeviceCodeAuth: true,
                     aadFederatedSecurity: true,
                     deviceCodeCallback: (res: DeviceCodeResponse) => res,
@@ -476,7 +478,7 @@ describe("KustoConnectionStringBuilder", () => {
                     kcsbs,
                     {
                         dataSource: "localhost",
-                        authorityId: "organizations",
+                        authorityId: DEFAULT_AUTHORITY,
                         useManagedIdentityAuth: true,
                         aadFederatedSecurity: true,
                     },
@@ -488,7 +490,7 @@ describe("KustoConnectionStringBuilder", () => {
             it("with clientId and timeout", () => {
                 const msiClientId = "clientId";
                 const timeoutMs = 10;
-                const kcsbs = [KustoConnectionStringBuilder.withAadManagedIdentities("localhost", msiClientId, "organizations", timeoutMs)];
+                const kcsbs = [KustoConnectionStringBuilder.withAadManagedIdentities("localhost", msiClientId, DEFAULT_AUTHORITY, timeoutMs)];
 
                 const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
                 kcsb1.aadFederatedSecurity = true;
@@ -500,7 +502,7 @@ describe("KustoConnectionStringBuilder", () => {
                     kcsbs,
                     {
                         dataSource: "localhost",
-                        authorityId: "organizations",
+                        authorityId: DEFAULT_AUTHORITY,
                         useManagedIdentityAuth: true,
                         aadFederatedSecurity: true,
                         msiClientId,
@@ -514,7 +516,7 @@ describe("KustoConnectionStringBuilder", () => {
 
         describe("from az cli", () => {
             const timeout = 10000;
-            const authorityId = "organizations";
+            const authorityId = DEFAULT_AUTHORITY;
             const kcsbs = [
                 KustoConnectionStringBuilder.withAzLoginIdentity("localhost", authorityId, timeout),
                 KustoConnectionStringBuilder.withAzLoginIdentity("localhost", undefined, timeout),
@@ -582,7 +584,7 @@ describe("KustoConnectionStringBuilder", () => {
 
         describe("interactive login", () => {
             it("without optional params", () => {
-                const kcsbs = [KustoConnectionStringBuilder.withUserPrompt("localhost", "organizations")];
+                const kcsbs = [KustoConnectionStringBuilder.withUserPrompt("localhost", DEFAULT_AUTHORITY)];
 
                 const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
                 kcsb1.aadFederatedSecurity = true;
@@ -592,7 +594,7 @@ describe("KustoConnectionStringBuilder", () => {
                     kcsbs,
                     {
                         dataSource: "localhost",
-                        authorityId: "organizations",
+                        authorityId: DEFAULT_AUTHORITY,
                         useUserPromptAuth: true,
                         aadFederatedSecurity: true,
                     },
@@ -605,7 +607,7 @@ describe("KustoConnectionStringBuilder", () => {
                 const clientId = "clientId";
                 const loginHint = "myUser";
                 const timeoutMs = 10;
-                const kcsbs = [KustoConnectionStringBuilder.withUserPrompt("localhost", "organizations", clientId, timeoutMs, loginHint)];
+                const kcsbs = [KustoConnectionStringBuilder.withUserPrompt("localhost", DEFAULT_AUTHORITY, clientId, timeoutMs, loginHint)];
 
                 const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
                 kcsb1.aadFederatedSecurity = true;
@@ -618,7 +620,7 @@ describe("KustoConnectionStringBuilder", () => {
                     kcsbs,
                     {
                         dataSource: "localhost",
-                        authorityId: "organizations",
+                        authorityId: DEFAULT_AUTHORITY,
                         useUserPromptAuth: true,
                         aadFederatedSecurity: true,
                         applicationClientId: clientId,
