@@ -48,7 +48,7 @@ describe("KustoClient", () => {
             const url = "https://cluster.kusto.windows.net";
             const client = new KustoClient(url);
 
-            assert.strictEqual(client.connectionString.authorityId, "common");
+            assert.strictEqual(client.connectionString.authorityId, "organizations");
             assert.strictEqual(client.connectionString.dataSource, url);
         });
     });
