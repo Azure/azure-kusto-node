@@ -11,6 +11,7 @@ import Console from "console";
 import KustoClient from "azure-kusto-data/source/client";
 import IngestClient from "azure-kusto-ingest/source/ingestClient";
 import {BlobDescriptor, FileDescriptor} from "azure-kusto-ingest/source/descriptors";
+import {AuthenticationModeOptions} from "./SampleApp"
 
 /**
  * Util static class - Handles the communication with the API, and provides generic and simple "plug-n-play" functions to use in different programs.
@@ -28,30 +29,30 @@ export default class Utils {
      * @param TenantId Given tenant id
      * @returns A connection string to be used when creating a Client
      */
-    public static async generateConnectionStringAsync(clusterUri: string, authenticationMode: string, CertificatePath: string | undefined,
+    public static async generateConnectionStringAsync(clusterUri: string, authenticationMode: AuthenticationModeOptions, CertificatePath: string | undefined,
                                                       CertificatePassword: string | undefined, ApplicationId: string | undefined, TenantId: string | undefined):
         Promise<KustoConnectionStringBuilder> {
         // Learn More: For additional information on how to authorize users and apps in Kusto see:
         // https://docs.microsoft.com/azure/data-explorer/manage-database-permissions
         switch (authenticationMode) {
-            case "UserPrompt": {
+            case AuthenticationModeOptions.UserPrompt: {
                 // Prompt user for credentials
                 return KustoConnectionStringBuilder.withUserPrompt(clusterUri);
             }
-            case "ManagedIdentity": {
+            case AuthenticationModeOptions.ManagedIdentity: {
                 // Authenticate using a System-Assigned managed identity provided to an azure service, or using a User-Assigned managed identity.
                 // For more information, see https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/overview
                 // Connect using the system - or user-assigned managed identity (Azure service only)
                 // TODO (config - optional): Managed identity client ID if you are using a user-assigned managed identity
                 return KustoConnectionStringBuilder.withAadManagedIdentities(clusterUri, process.env.MANAGED_IDENTITY_CLIENT_ID);
             }
-            case "AppKey": {
+            case AuthenticationModeOptions.AppKey: {
                 // Learn More: For information about how to procure an AAD Application,
                 // see: https://docs.microsoft.com/azure/data-explorer/provision-azure-ad-app
                 // TODO (config - optional): App ID & tenant, and App Key to authenticate with
                 return this.createAppKeyConnectionString(clusterUri);
             }
-            case "AppCertificate": {
+            case AuthenticationModeOptions.AppCertificate: {
                 // Authenticate using a certificate file.
                 return await this.createAppCertificateConnectionStringAsync(clusterUri, CertificatePath, CertificatePassword, ApplicationId, TenantId);
             }
