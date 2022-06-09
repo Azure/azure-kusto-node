@@ -5,7 +5,11 @@
   "main": "index.js",
   "types": "index.d.ts",
   "scripts": {
-    "build": "tsc"
+    "build": "lerna run build",
+    "prepublish": "npm run build",
+    "lint": "eslint -c .eslintrc.js --ext .ts .",
+    "format": "npx prettier --write .",
+    "checkFormat": "npx prettier --check --end-of-line lf ."
   },
   "dependencies": {
     "ts-node": "^10.7.0",
