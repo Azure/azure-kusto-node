@@ -1,11 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { ConfidentialClientApplication, PublicClientApplication } from "@azure/msal-node";
-import { DeviceCodeResponse } from "@azure/msal-common";
-import { AzureCliCredential, InteractiveBrowserCredential, ManagedIdentityCredential, TokenCredentialOptions } from "@azure/identity";
 import { CloudInfo, CloudSettings } from "./cloudSettings";
 import { TokenCredential } from "@azure/core-auth";
+import { PublicClientApplication } from "@azure/msal-browser";
+import { DeviceCodeResponse } from "@azure/msal-common";
 
 export declare type TokenResponse = {
     tokenType: string;
@@ -186,71 +185,14 @@ export abstract class AzureIdentityProvider extends MsalTokenProvider {
 }
 
 /**
- * MSI Token Provider obtains a token from the MSI endpoint
- * The args parameter is a dictionary conforming with the ManagedIdentityCredential initializer API arguments
- */
-export class MsiTokenProvider extends AzureIdentityProvider {
-    getCredential(): TokenCredential {
-        const options: TokenCredentialOptions = this.getCommonOptions();
-        return this.clientId ? new ManagedIdentityCredential(this.clientId, options) : new ManagedIdentityCredential(options);
-    }
-}
-
-/**
- * AzCli Token Provider obtains a refresh token from the AzCli cache and uses it to authenticate with MSAL
- */
-export class AzCliTokenProvider extends AzureIdentityProvider {
-    getCredential(): TokenCredential {
-        return new AzureCliCredential(this.getCommonOptions());
-    }
-}
-
-/**
- * UserPromptProvider will pop up a login prompt to acquire a token.
- */
-export class UserPromptProvider extends AzureIdentityProvider {
-    // The default port is 80, which can lead to permission errors, so we'll choose another port
-    readonly MinPort = 20000;
-    readonly MaxPort = 65536;
-
-    constructor(kustoUri: string, authorityId: string, clientId?: string, timeoutMs?: number, private loginHint?: string) {
-        super(kustoUri, authorityId, clientId, timeoutMs);
-    }
-
-    getCredential(): TokenCredential {
-        return new InteractiveBrowserCredential({
-            ...this.getCommonOptions(),
-            loginHint: this.loginHint,
-            redirectUri: `http://localhost:${this.getRandomPortInRange()}/`,
-        });
-    }
-
-    private getRandomPortInRange() {
-        return Math.floor(Math.random() * (this.MaxPort - this.MinPort) + this.MinPort);
-    }
-
-    context(): Record<string, any> {
-        let base = super.context();
-        if (this.loginHint) {
-            base = { ...base, loginHint: this.loginHint };
-        }
-        return base;
-    }
-}
-
-/**
  * Acquire a token from MSAL with username and password
  */
-export class UserPassTokenProvider extends MsalTokenProvider {
-    userName: string;
-    password: string;
+export class UserPromptProvider extends MsalTokenProvider {
     homeAccountId?: string;
     msalClient!: PublicClientApplication;
 
-    constructor(kustoUri: string, userName: string, password: string, authorityId: string) {
+    constructor(kustoUri: string, authorityId: string) {
         super(kustoUri, authorityId);
-        this.userName = userName;
-        this.password = password;
     }
 
     initClient(): void {
@@ -266,7 +208,7 @@ export class UserPassTokenProvider extends MsalTokenProvider {
     async acquireMsalToken(): Promise<TokenType | null> {
         let token = null;
         if (this.homeAccountId != null) {
-            const account = await this.msalClient.getTokenCache().getAccountByHomeId(this.homeAccountId);
+            const account = this.msalClient.getAccountByHomeId(this.homeAccountId);
             if (account) {
                 token = await this.msalClient.acquireTokenSilent({
                     account,
@@ -275,10 +217,8 @@ export class UserPassTokenProvider extends MsalTokenProvider {
             }
         }
         if (token == null) {
-            token = await this.msalClient.acquireTokenByUsernamePassword({
+            token = await this.msalClient.acquireTokenPopup({
                 scopes: this.scopes,
-                username: this.userName,
-                password: this.password,
             });
             this.homeAccountId = token?.account?.homeAccountId;
         }
@@ -288,7 +228,6 @@ export class UserPassTokenProvider extends MsalTokenProvider {
     context(): Record<string, any> {
         return {
             ...super.context(),
-            userName: this.userName,
             homeAccountId: this.homeAccountId,
         };
     }
@@ -320,7 +259,7 @@ export class DeviceLoginTokenProvider extends MsalTokenProvider {
     async acquireMsalToken(): Promise<TokenType | null> {
         let token = null;
         if (this.homeAccountId != null) {
-            const account = await this.msalClient.getTokenCache().getAccountByHomeId(this.homeAccountId);
+            const account = this.msalClient.getAccountByHomeId(this.homeAccountId);
             if (account) {
                 token = await this.msalClient.acquireTokenSilent({
                     account,
@@ -329,97 +268,12 @@ export class DeviceLoginTokenProvider extends MsalTokenProvider {
             }
         }
         if (token == null) {
-            token = await this.msalClient.acquireTokenByDeviceCode({
+            token = await this.msalClient.acquireTokenByCode({
                 scopes: this.scopes,
-                deviceCodeCallback: this.deviceCodeCallback,
+                // deviceCodeCallback: this.deviceCodeCallback,
             });
             this.homeAccountId = token?.account?.homeAccountId;
         }
         return token;
-    }
-}
-
-/**
- * Acquire a token from MSAL with application Id and Key
- */
-export class ApplicationKeyTokenProvider extends MsalTokenProvider {
-    appClientId: string;
-    appKey: string;
-    msalClient!: ConfidentialClientApplication;
-
-    constructor(kustoUri: string, appClientId: string, appKey: string, authorityId: string) {
-        super(kustoUri, authorityId);
-        this.appClientId = appClientId;
-        this.appKey = appKey;
-    }
-
-    initClient(): void {
-        const clientConfig = {
-            auth: {
-                clientId: this.appClientId,
-                clientSecret: this.appKey,
-                authority: this.authorityUri,
-            },
-        };
-        this.msalClient = new ConfidentialClientApplication(clientConfig);
-    }
-
-    acquireMsalToken(): Promise<TokenType | null> {
-        return this.msalClient.acquireTokenByClientCredential({
-            scopes: this.scopes,
-        });
-    }
-
-    context(): Record<string, any> {
-        return { ...super.context(), clientId: this.appClientId };
-    }
-}
-
-/**
- * Acquire a token from MSAL using application certificate
- * Passing the public certificate is optional and will result in Subject Name & Issuer Authentication
- */
-export class ApplicationCertificateTokenProvider extends MsalTokenProvider {
-    appClientId: string;
-    certThumbprint: string;
-    certPrivateKey: string;
-    certX5c?: string;
-    msalClient!: ConfidentialClientApplication;
-
-    constructor(kustoUri: string, appClientId: string, certThumbprint: string, certPrivateKey: string, certX5c?: string, authorityId?: string) {
-        super(kustoUri, authorityId!);
-        this.appClientId = appClientId;
-        this.certThumbprint = certThumbprint;
-        this.certPrivateKey = certPrivateKey;
-        this.certX5c = certX5c;
-    }
-
-    initClient(): void {
-        const clientConfig = {
-            auth: {
-                clientId: this.appClientId,
-                authority: this.authorityUri,
-                clientCertificate: {
-                    thumbprint: this.certThumbprint,
-                    privateKey: this.certPrivateKey,
-                    x5c: this.certX5c,
-                },
-            },
-        };
-        this.msalClient = new ConfidentialClientApplication(clientConfig);
-    }
-
-    acquireMsalToken(): Promise<TokenType | null> {
-        return this.msalClient.acquireTokenByClientCredential({
-            scopes: this.scopes,
-        });
-    }
-
-    context(): Record<string, any> {
-        return {
-            ...super.context(),
-            clientId: this.appClientId,
-            thumbprint: this.certThumbprint,
-        };
     }
 }

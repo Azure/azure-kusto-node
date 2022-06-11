@@ -50,9 +50,9 @@ export class KustoClient {
         this.aadHelper = new AadHelper(this.connectionString);
         const headers = {
             Accept: "application/json",
-            "Accept-Encoding": "gzip,deflate",
+            // "Accept-Encoding": "gzip,deflate",
             "x-ms-client-version": `Kusto.Node.Client:${pkg.version}`,
-            Connection: "Keep-Alive",
+            // Connection: "Keep-Alive",
         };
         this.axiosInstance = axios.create({
             headers,

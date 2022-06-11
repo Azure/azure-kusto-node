@@ -40,8 +40,8 @@
     "license": "ISC",
     "homepage": "https://github.com/Azure/azure-kusto-node/blob/master/azure-kusto-data/README.md",
     "dependencies": {
-        "@azure/identity": "^2.0.1",
-        "@azure/msal-node": "^1.5.0",
+        "@azure/msal-browser": "^2.25.0",
+        "@azure/msal-common": "^6.4.0",
         "@types/node": "^14.14.13",
         "@types/uuid": "^8.3.0",
         "axios": "^0.24.0",
@@ -50,5 +50,8 @@
         "ts-node": "^10.7.0",
         "uuid": "^8.3.2"
     },
-    "gitHead": "f8a5dae26d6d2ca2ab8b95953bb9b88a02e8e35d"
+    "gitHead": "f8a5dae26d6d2ca2ab8b95953bb9b88a02e8e35d",
+    "devDependencies": {
+        "@rollup/plugin-commonjs": "^22.0.0"
+    }
 }
