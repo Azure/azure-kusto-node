@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import fs from "fs";
-import Utils from "./Utils";
+import Utils, {Authentication, Ingestion, Queries} from "./Utils";
 import Console from "console";
 import KustoClient from "azure-kusto-data/source/client";
 import IngestClient, {KustoIngestClient} from "azure-kusto-ingest/source/ingestClient";
@@ -71,9 +71,9 @@ class SampleApp {
             await this.waitForUserToProceedAsync("You will be prompted *twice* for credentials during this script. Please return to the console after" +
                 " authenticating.");
         }
-        const kustoConnectionString = await Utils.generateConnectionStringAsync(config.kustoUri, config.authenticationMode, config?.certificatePath,
+        const kustoConnectionString = await Authentication.generateConnectionStringAsync(config.kustoUri, config.authenticationMode, config?.certificatePath,
             config?.certificatePassword, config?.applicationId, config?.tenantId);
-        const ingestConnectionString = await Utils.generateConnectionStringAsync(config.ingestUri, config.authenticationMode, config?.certificatePath,
+        const ingestConnectionString = await Authentication.generateConnectionStringAsync(config.ingestUri, config.authenticationMode, config?.certificatePath,
             config?.certificatePassword, config?.applicationId, config?.tenantId);
 
         // Tip: Avoid creating a new Kusto/ingest client for each use.Instead, create the clients once and reuse them.
@@ -167,7 +167,7 @@ class SampleApp {
      */
     private static async alterMergeExistingTableToProvidedSchemaAsync(kustoClient: KustoClient, databaseName: string, tableName: string, tableSchema: string) {
         const command = `.alter-merge table ${tableName} ${tableSchema}`;
-        await Utils.executeCommandAsync(kustoClient, databaseName, command, "Node_SampleApp_ControlCommand")
+        await Queries.executeCommandAsync(kustoClient, databaseName, command, "Node_SampleApp_ControlCommand")
     }
 
 
@@ -180,7 +180,7 @@ class SampleApp {
      */
     private static async queryExistingNumberOfRowsAsync(kustoClient: KustoClient, databaseName: string, tableName: string) {
         const query = `${tableName} | count`;
-        await Utils.executeCommandAsync(kustoClient, databaseName, query, "Node_SampleApp_Query")
+        await Queries.executeCommandAsync(kustoClient, databaseName, query, "Node_SampleApp_Query")
     }
 
 
@@ -194,7 +194,7 @@ class SampleApp {
      */
     private static async queryFirstTwoRowsAsync(kustoClient: KustoClient, databaseName: string, tableName: string) {
         const query = `${tableName} | take 2`;
-        await Utils.executeCommandAsync(kustoClient, databaseName, query, "Node_SampleApp_Query")
+        await Queries.executeCommandAsync(kustoClient, databaseName, query, "Node_SampleApp_Query")
     }
 
 
@@ -208,7 +208,7 @@ class SampleApp {
      */
     private static async createNewTableAsync(kustoClient: KustoClient, databaseName: string, tableName: string, tableSchema: string) {
         const command = `.create table ${tableName} ${tableSchema}`;
-        await Utils.executeCommandAsync(kustoClient, databaseName, command, "Node_SampleApp_ControlCommand")
+        await Queries.executeCommandAsync(kustoClient, databaseName, command, "Node_SampleApp_ControlCommand")
     }
 
 
@@ -227,7 +227,7 @@ class SampleApp {
         // Tip 3: You can also skip the batching for some files using the Flush-Immediately property, though this option should be used with care as it is
         // inefficient.
         const command = `.alter table ${tableName} policy ingestionbatching @'${batchingPolicy}'`;
-        await Utils.executeCommandAsync(kustoClient, databaseName, command, "Node_SampleApp_ControlCommand")
+        await Queries.executeCommandAsync(kustoClient, databaseName, command, "Node_SampleApp_ControlCommand")
     }
 
 
@@ -258,7 +258,7 @@ class SampleApp {
             // see: https://docs.microsoft.com/en-us/azure/data-explorer/net-sdk-ingest-data
             await this.ingestDataAsync(dataFile, dataFormat, ingestClient, config.databaseName, config.tableName, mappingName);
         }
-        await Utils.waitForIngestionToCompleteAsync(config.waitForIngestSeconds);
+        await Ingestion.waitForIngestionToCompleteAsync(config.waitForIngestSeconds);
     }
 
 
@@ -284,7 +284,7 @@ class SampleApp {
         mappingName = mappingName ? mappingName : "DefaultQuickstartMapping" + uuidv4().substring(0, 4);
 
         const command = `.create-or-alter table ${tableName} ingestion ${ingestionMappingKind.toLowerCase()} mapping '${mappingName}' '${mappingValue}'`;
-        await Utils.executeCommandAsync(kustoClient, databaseName, command, "Node_SampleApp_ControlCommand")
+        await Queries.executeCommandAsync(kustoClient, databaseName, command, "Node_SampleApp_ControlCommand")
     }
 
 
@@ -313,10 +313,10 @@ class SampleApp {
         // additional references.
         switch (sourceType) {
             case SourceType.LocalFileSource:
-                await Utils.ingestFromFileAsync(ingestClient, databaseName, tableName, sourceUri, dataFormat, mappingName);
+                await Ingestion.ingestFromFileAsync(ingestClient, databaseName, tableName, sourceUri, dataFormat, mappingName);
                 break;
             case SourceType.BlobSource:
-                await Utils.ingestFromBlobAsync(ingestClient, databaseName, tableName, sourceUri, dataFormat, mappingName);
+                await Ingestion.ingestFromBlobAsync(ingestClient, databaseName, tableName, sourceUri, dataFormat, mappingName);
                 break;
             default:
                 Utils.errorHandler(`Unknown source '${sourceType}' for file '${sourceUri}'`);

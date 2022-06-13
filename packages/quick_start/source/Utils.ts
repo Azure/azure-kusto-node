@@ -16,7 +16,29 @@ import {AuthenticationModeOptions} from "./SampleApp"
 /**
  * Util static class - Handles the communication with the API, and provides generic and simple "plug-n-play" functions to use in different programs.
  */
-export default class Utils {
+export default abstract class Utils {
+
+    /**
+     * Error handling function. Will mention the appropriate error message (and the exception itself if exists), and will quit the program.
+     *
+     * @param error Appropriate error message received from calling function
+     * @param ex Thrown exception
+     */
+    public static errorHandler(error: string, ex: any = null): never {
+        Console.log(`Script failed with error: ${error}`);
+        if (!ex) {
+            Console.log(`Exception: ${ex}`);
+        }
+
+        process.exit(1);
+    }
+
+}
+
+/**
+ * Authentication module of Utils - in charge of authenticating the user with the system
+ */
+export class Authentication extends Utils {
 
     /**
      * Generates Kusto Connection String based on given Authentication Mode.
@@ -121,7 +143,12 @@ export default class Utils {
             }
         }
     }
+}
 
+/**
+ * Queries module of Utils - in charge of querying the data - either with management queries, or data queries
+ */
+export class Queries extends Utils {
 
     /**
      * Creates a fitting ClientRequestProperties object, to be used when executing control commands or queries.
@@ -168,6 +195,12 @@ export default class Utils {
         }
     }
 
+}
+
+/**
+ * Ingestion module of Utils - in charge of ingesting the given data - based on the configuration file.
+ */
+export class Ingestion extends Utils {
 
     /**
      * Creates a fitting KustoIngestionProperties object, to be used when executing ingestion commands.
@@ -257,20 +290,5 @@ export default class Utils {
         }
     }
 
-
-    /**
-     * Error handling function. Will mention the appropriate error message (and the exception itself if exists), and will quit the program.
-     *
-     * @param error Appropriate error message received from calling function
-     * @param ex Thrown exception
-     */
-    public static errorHandler(error: string, ex: any = null): never {
-        Console.log(`Script failed with error: ${error}`);
-        if (!ex) {
-            Console.log(`Exception: ${ex}`);
-        }
-
-        process.exit(1);
-    }
 
 }

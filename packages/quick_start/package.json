@@ -5,7 +5,7 @@
   "main": "index.js",
   "types": "index.d.ts",
   "scripts": {
-    "build": "lerna run build",
+    "build": "tsc",
     "prepublish": "npm run build",
     "lint": "eslint -c .eslintrc.js --ext .ts .",
     "format": "npx prettier --write .",
@@ -18,7 +18,23 @@
     "azure-kusto-ingest": "^3.3.2",
     "uuid": "^8.3.2"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@types/mocha": "^8.2.0",
+    "@typescript-eslint/eslint-plugin": "^5.12.0",
+    "@typescript-eslint/parser": "^5.12.0",
+    "eslint": "^8.9.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-header": "^3.1.1",
+    "eslint-plugin-jsdoc": "^37.9.1",
+    "eslint-plugin-prefer-arrow": "^1.2.3",
+    "mocha": "^9.2.0",
+    "mocha-junit-reporter": "^2.0.2",
+    "nyc": "^15.1.0",
+    "prettier": "2.5.1",
+    "sinon": "^7.2.3",
+    "ts-node": "^10.7.0",
+    "typescript": "^4.1.3"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Azure/azure-kusto-node.git"
