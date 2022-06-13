@@ -4,20 +4,19 @@
 import KustoConnectionStringBuilder from "azure-kusto-data/source/connectionBuilder";
 import fs from "fs";
 import ClientRequestProperties from "azure-kusto-data/source/clientRequestProperties";
-import {v4 as uuidv4} from "uuid";
-import {DataFormat} from "azure-kusto-ingest";
-import IngestionProperties, {dataFormatMappingKind} from "azure-kusto-ingest/source/ingestionProperties";
+import { v4 as uuidv4 } from "uuid";
+import { DataFormat } from "azure-kusto-ingest";
+import IngestionProperties, { dataFormatMappingKind } from "azure-kusto-ingest/source/ingestionProperties";
 import Console from "console";
 import KustoClient from "azure-kusto-data/source/client";
 import IngestClient from "azure-kusto-ingest/source/ingestClient";
-import {BlobDescriptor, FileDescriptor} from "azure-kusto-ingest/source/descriptors";
-import {AuthenticationModeOptions} from "./SampleApp"
+import { BlobDescriptor, FileDescriptor } from "azure-kusto-ingest/source/descriptors";
+import { AuthenticationModeOptions } from "./SampleApp";
 
 /**
  * Util static class - Handles the communication with the API, and provides generic and simple "plug-n-play" functions to use in different programs.
  */
 export default abstract class Utils {
-
     /**
      * Error handling function. Will mention the appropriate error message (and the exception itself if exists), and will quit the program.
      *
@@ -32,14 +31,12 @@ export default abstract class Utils {
 
         process.exit(1);
     }
-
 }
 
 /**
  * Authentication module of Utils - in charge of authenticating the user with the system
  */
 export class Authentication extends Utils {
-
     /**
      * Generates Kusto Connection String based on given Authentication Mode.
      *
@@ -51,9 +48,14 @@ export class Authentication extends Utils {
      * @param TenantId Given tenant id
      * @returns A connection string to be used when creating a Client
      */
-    public static async generateConnectionStringAsync(clusterUri: string, authenticationMode: AuthenticationModeOptions, CertificatePath: string | undefined,
-                                                      CertificatePassword: string | undefined, ApplicationId: string | undefined, TenantId: string | undefined):
-        Promise<KustoConnectionStringBuilder> {
+    public static async generateConnectionStringAsync(
+        clusterUri: string,
+        authenticationMode: AuthenticationModeOptions,
+        CertificatePath: string | undefined,
+        CertificatePassword: string | undefined,
+        ApplicationId: string | undefined,
+        TenantId: string | undefined
+    ): Promise<KustoConnectionStringBuilder> {
         // Learn More: For additional information on how to authorize users and apps in Kusto see:
         // https://docs.microsoft.com/azure/data-explorer/manage-database-permissions
         switch (authenticationMode) {
@@ -84,7 +86,6 @@ export class Authentication extends Utils {
         }
     }
 
-
     /**
      * Generates Kusto Connection String based on 'AppKey' Authentication Mode.
      *
@@ -102,7 +103,6 @@ export class Authentication extends Utils {
         }
     }
 
-
     /**
      * Generates Kusto Connection String based on 'AppCertificate' Authentication Mode.
      *
@@ -113,9 +113,13 @@ export class Authentication extends Utils {
      * @param TenantId Given tenant id
      * @returns AppCertificate Kusto Connection String
      */
-    public static async createAppCertificateConnectionStringAsync(clusterUri: string, CertificatePath: string | undefined,
-                                                                  CertificatePassword: string | undefined, ApplicationId: string | undefined,
-                                                                  TenantId: string | undefined): Promise<KustoConnectionStringBuilder> {
+    public static async createAppCertificateConnectionStringAsync(
+        clusterUri: string,
+        CertificatePath: string | undefined,
+        CertificatePassword: string | undefined,
+        ApplicationId: string | undefined,
+        TenantId: string | undefined
+    ): Promise<KustoConnectionStringBuilder> {
         const appId: string | undefined = process.env.APP_ID;
         const appTenant: string | undefined = process.env.APP_TENANT;
         const privateKeyPemFilePath: string | undefined = process.env.PRIVATE_KEY_PEM_FILE_PATH;
@@ -128,17 +132,27 @@ export class Authentication extends Utils {
             if (!privateKeyPemFilePath) {
                 this.errorHandler(`"Failed to load PEM file from ${privateKeyPemFilePath}"`);
             } else {
-                const pemCertificate: string = await fs.promises.readFile(privateKeyPemFilePath, "utf8")
+                const pemCertificate: string = await fs.promises.readFile(privateKeyPemFilePath, "utf8");
                 if (publicCertFilePath) {
-                    const publicCertificate: string = await fs.promises.readFile(publicCertFilePath, "utf8")
-                    return KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(clusterUri, appId, pemCertificate, publicCertificate,
-                        appTenant)
+                    const publicCertificate: string = await fs.promises.readFile(publicCertFilePath, "utf8");
+                    return KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(
+                        clusterUri,
+                        appId,
+                        pemCertificate,
+                        publicCertificate,
+                        appTenant
+                    );
                 }
                 if (!certThumbprint) {
                     this.errorHandler(`"Missing required field: "certThumbprint" in environment in order to authenticate using a certificate."`);
                 } else {
-                    return KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(clusterUri, appId, pemCertificate, certThumbprint,
-                        appTenant)
+                    return KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(
+                        clusterUri,
+                        appId,
+                        pemCertificate,
+                        certThumbprint,
+                        appTenant
+                    );
                 }
             }
         }
@@ -149,7 +163,6 @@ export class Authentication extends Utils {
  * Queries module of Utils - in charge of querying the data - either with management queries, or data queries
  */
 export class Queries extends Utils {
-
     /**
      * Creates a fitting ClientRequestProperties object, to be used when executing control commands or queries.
      *
@@ -161,16 +174,15 @@ export class Queries extends Utils {
         // It is strongly recommended that each request has its own unique request identifier.
         // This is mandatory for some scenarios (such as cancelling queries) and will make troubleshooting easier in others
         const clientRequestProperties: ClientRequestProperties = new ClientRequestProperties({
-            application: 'kustoSampleApp.js',
-            clientRequestId: `${scope};${uuidv4()}`
-        })
+            application: "kustoSampleApp.js",
+            clientRequestId: `${scope};${uuidv4()}`,
+        });
         // Tip: Though uncommon, you can alter the request default command timeout using the below command, e.g. to set the timeout to 10 minutes, use "10m"
         if (timeout != null) {
             clientRequestProperties.setTimeout(timeout);
         }
         return clientRequestProperties;
     }
-
 
     /**
      * Executes a command using the kustoClient
@@ -194,14 +206,12 @@ export class Queries extends Utils {
             this.errorHandler(`Failed to execute command: '${command}'`, ex);
         }
     }
-
 }
 
 /**
  * Ingestion module of Utils - in charge of ingesting the given data - based on the configuration file.
  */
 export class Ingestion extends Utils {
-
     /**
      * Creates a fitting KustoIngestionProperties object, to be used when executing ingestion commands.
      *
@@ -222,10 +232,9 @@ export class Ingestion extends Utils {
             // TODO (config - optional): Setting the ingestion batching policy takes up to 5 minutes to take effect.
             // We therefore set Flush-Immediately for the sake of the sample, but it generally shouldn't be used in practice.
             // Comment out the line below after running the sample the first few times.
-            flushImmediately: true
-        })
+            flushImmediately: true,
+        });
     }
-
 
     /**
      * Ingest Data from a given file path.
@@ -237,16 +246,21 @@ export class Ingestion extends Utils {
      * @param dataFormat Given data format
      * @param mappingName Desired mapping name
      */
-    public static async ingestFromFileAsync(ingestClient: IngestClient, databaseName: string, tableName: string, filePath: string, dataFormat: DataFormat,
-                                            mappingName: string) {
+    public static async ingestFromFileAsync(
+        ingestClient: IngestClient,
+        databaseName: string,
+        tableName: string,
+        filePath: string,
+        dataFormat: DataFormat,
+        mappingName: string
+    ) {
         const ingestionProp = this.createIngestionProperties(databaseName, tableName, dataFormat, mappingName);
         // Tip 1: For optimal ingestion batching and performance, specify the uncompressed data size in the file descriptor instead of the default below of
         // 0. Otherwise, the service will determine the file size, requiring an additional s2s call, and may not be accurate for compressed files.
         // Tip 2: To correlate between ingestion operations in your applications and Kusto, set the source ID and log it somewhere.
-        const fileDescriptor = new FileDescriptor(`${__dirname}\\${filePath}`, uuidv4(), 0)
-        await ingestClient.ingestFromFile(fileDescriptor, ingestionProp)
+        const fileDescriptor = new FileDescriptor(`${__dirname}\\${filePath}`, uuidv4(), 0);
+        await ingestClient.ingestFromFile(fileDescriptor, ingestionProp);
     }
-
 
     /**
      * Ingest Data from a Blob.
@@ -258,16 +272,21 @@ export class Ingestion extends Utils {
      * @param dataFormat Given data format
      * @param mappingName Desired mapping name
      */
-    public static async ingestFromBlobAsync(ingestClient: IngestClient, databaseName: string, tableName: string, blobUri: string, dataFormat: DataFormat,
-                                            mappingName: string) {
+    public static async ingestFromBlobAsync(
+        ingestClient: IngestClient,
+        databaseName: string,
+        tableName: string,
+        blobUri: string,
+        dataFormat: DataFormat,
+        mappingName: string
+    ) {
         const ingestionProp = this.createIngestionProperties(databaseName, tableName, dataFormat, mappingName);
         // Tip 1: For optimal ingestion batching and performance, specify the uncompressed data size in the file descriptor instead of the default below of
         // 0. Otherwise, the service will determine the file size, requiring an additional s2s call, and may not be accurate for compressed files.
         // Tip 2: To correlate between ingestion operations in your applications and Kusto, set the source ID and log it somewhere.
-        const blobDescriptor = new BlobDescriptor(blobUri, 0, uuidv4())
-        await ingestClient.ingestFromBlob(blobDescriptor, ingestionProp)
+        const blobDescriptor = new BlobDescriptor(blobUri, 0, uuidv4());
+        await ingestClient.ingestFromBlob(blobDescriptor, ingestionProp);
     }
-
 
     /**
      * Halts the program for WaitForIngestSeconds, allowing the queued ingestion process to complete.
@@ -275,20 +294,18 @@ export class Ingestion extends Utils {
     public static async waitForIngestionToCompleteAsync(waitForIngestSeconds: number) {
         Console.log(
             `Sleeping ${waitForIngestSeconds} seconds for queued ingestion to complete. Note: This may take longer depending on the file size and ingestion 
-            batching policy.`);
+            batching policy.`
+        );
         Console.log();
         Console.log();
 
         for (let i = 0; i <= waitForIngestSeconds; i++) {
-            const dots = ".".repeat(i)
-            const left = waitForIngestSeconds - i
-            const empty = " ".repeat(left)
+            const dots = ".".repeat(i);
+            const left = waitForIngestSeconds - i;
+            const empty = " ".repeat(left);
 
-            process.stdout.write(`\r[${dots}${empty}] ${i * 5}%`)
-            await new Promise(res => setTimeout(res, 500))
-
+            process.stdout.write(`\r[${dots}${empty}] ${i * 5}%`);
+            await new Promise((res) => setTimeout(res, 500));
         }
     }
-
-
 }
