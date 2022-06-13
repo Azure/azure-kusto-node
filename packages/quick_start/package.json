@@ -5,7 +5,7 @@
   "main": "index.js",
   "types": "index.d.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "lerna run build",
     "prepublish": "npm run build",
     "lint": "eslint -c .eslintrc.js --ext .ts .",
     "format": "npx prettier --write .",

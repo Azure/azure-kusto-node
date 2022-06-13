@@ -18,6 +18,7 @@ jobs:
                   cache: "npm"
                   cache-dependency-path: |
                       package-lock.json
+                      packages/quick_start/package-lock.json
                       packages/azure-kusto-data/package-lock.json
                       packages/azure-kusto-ingest/package-lock.json
             - run: |
