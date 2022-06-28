@@ -99,7 +99,7 @@ export class KustoConnectionStringBuilder {
     applicationCertificatePrivateKey?: string;
     applicationCertificateThumbprint?: string;
     applicationCertificateX5c?: string;
-    authorityId: string = "common";
+    authorityId: string = "organizations";
     deviceCodeCallback?: (response: DeviceCodeResponse) => void;
     tokenProvider?: () => Promise<string>;
     loginHint?: string;
@@ -216,12 +216,14 @@ export class KustoConnectionStringBuilder {
 
     static withAadDeviceAuthentication(
         connectionString: string,
-        authorityId: string = "common",
+        authorityId?: string,
         deviceCodeCallback: (response: DeviceCodeResponse) => void = KustoConnectionStringBuilder.defaultDeviceCallback
     ) {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         kcsb.aadFederatedSecurity = true;
-        kcsb.authorityId = authorityId;
+        if (authorityId) {
+            kcsb.authorityId = authorityId;
+        }
         kcsb.deviceCodeCallback = deviceCodeCallback;
         kcsb.useDeviceCodeAuth = true;
 
