@@ -269,7 +269,7 @@ const main = (): void => {
                 } catch (ex) {
                     return;
                 }
-                assert.fail(`Didn't throw PartialQueryFailure`);
+                assert.fail(`Didn't throw PartialQueryFailure `);
             });
 
             it("executionTimeout", async () => {
@@ -278,7 +278,7 @@ const main = (): void => {
                     properties.setTimeout(10);
                     await queryClient.executeQuery(databaseName, `${tableName}`, properties);
                 } catch (ex: unknown) {
-                    assert.match((ex as { code: string }).code, /.*Query is expired.*/, JSON.stringify(ex));
+                    assert.match((ex as { code: string }).code, /.*Query is expired.*/, `ex json: ${JSON.stringify(ex)}, ex: ${ex}`);
                     return;
                 }
                 assert.fail(`Didn't throw executionTimeout`);
