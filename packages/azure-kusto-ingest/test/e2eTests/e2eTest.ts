@@ -278,7 +278,7 @@ const main = (): void => {
                     properties.setTimeout(10);
                     await queryClient.executeQuery(databaseName, `${tableName}`, properties);
                 } catch (ex: unknown) {
-                    assert.strictEqual((ex as { code: string }).code, "Request execution timeout", `Unexpected error: ${ex}`);
+                    assert.match((ex as { code: string }).code, /.*Query is expired.*/);
                     return;
                 }
                 assert.fail(`Didn't throw executionTimeout`);
