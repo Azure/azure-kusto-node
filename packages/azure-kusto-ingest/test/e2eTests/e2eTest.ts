@@ -269,7 +269,7 @@ const main = (): void => {
                 } catch (ex) {
                     return;
                 }
-                assert.fail(`Didn't throw PartialQueryFailure `);
+                assert.fail(`Didn't throw PartialQueryFailure`);
             });
 
             it("executionTimeout", async () => {
