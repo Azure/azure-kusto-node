@@ -42,19 +42,19 @@ export class Authentication extends Utils {
      *
      * @param clusterUri Cluster to connect to.
      * @param authenticationMode User Authentication Mode, Options: (UserPrompt|ManagedIdentity|AppKey|AppCertificate)
-     * @param CertificatePath Given certificate path
-     * @param CertificatePassword Given certificate password
-     * @param ApplicationId Given application id
-     * @param TenantId Given tenant id
+     * @param certificatePath Given certificate path
+     * @param certificatePassword Given certificate password
+     * @param applicationId Given application id
+     * @param tenantId Given tenant id
      * @returns A connection string to be used when creating a Client
      */
     public static async generateConnectionStringAsync(
         clusterUri: string,
         authenticationMode: AuthenticationModeOptions,
-        CertificatePath: string | undefined,
-        CertificatePassword: string | undefined,
-        ApplicationId: string | undefined,
-        TenantId: string | undefined
+        certificatePath: string | undefined,
+        certificatePassword: string | undefined,
+        applicationId: string | undefined,
+        tenantId: string | undefined
     ): Promise<KustoConnectionStringBuilder> {
         // Learn More: For additional information on how to authorize users and apps in Kusto see:
         // https://docs.microsoft.com/azure/data-explorer/manage-database-permissions
@@ -78,7 +78,7 @@ export class Authentication extends Utils {
             }
             case AuthenticationModeOptions.AppCertificate: {
                 // Authenticate using a certificate file.
-                return await this.createAppCertificateConnectionStringAsync(clusterUri, CertificatePath, CertificatePassword, ApplicationId, TenantId);
+                return await this.createAppCertificateConnectionStringAsync(clusterUri, certificatePath, certificatePassword, applicationId, tenantId);
             }
             default: {
                 this.errorHandler(`Authentication mode '${authenticationMode}' is not supported`);
@@ -107,18 +107,18 @@ export class Authentication extends Utils {
      * Generates Kusto Connection String based on 'AppCertificate' Authentication Mode.
      *
      * @param clusterUri Url of cluster to connect to
-     * @param CertificatePath Given certificate path
-     * @param CertificatePassword Given certificate password
-     * @param ApplicationId Given application id
-     * @param TenantId Given tenant id
+     * @param certificatePath Given certificate path
+     * @param certificatePassword Given certificate password
+     * @param applicationId Given application id
+     * @param tenantId Given tenant id
      * @returns AppCertificate Kusto Connection String
      */
     public static async createAppCertificateConnectionStringAsync(
         clusterUri: string,
-        CertificatePath: string | undefined,
-        CertificatePassword: string | undefined,
-        ApplicationId: string | undefined,
-        TenantId: string | undefined
+        certificatePath: string | undefined,
+        certificatePassword: string | undefined,
+        applicationId: string | undefined,
+        tenantId: string | undefined
     ): Promise<KustoConnectionStringBuilder> {
         const appId: string | undefined = process.env.APP_ID;
         const appTenant: string | undefined = process.env.APP_TENANT;
@@ -126,7 +126,7 @@ export class Authentication extends Utils {
         const certThumbprint: string | undefined = process.env.CERT_THUMBPRINT;
         const publicCertFilePath: string | undefined = process.env.PUBLIC_CERT_FILE_PATH;
 
-        if (!CertificatePath || !CertificatePassword || !ApplicationId || !TenantId || !appId) {
+        if (!certificatePath || !certificatePassword || !applicationId || !tenantId || !appId) {
             this.errorHandler(`"Missing some required field/s in environment in order to authenticate using a certificate."`);
         } else {
             if (!privateKeyPemFilePath) {
