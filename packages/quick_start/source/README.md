@@ -31,7 +31,7 @@ You can use it as a baseline to write your own first kusto client application, a
 
 1. Open a command line window and navigate to the folder where you extracted the app.
 2. Either use an IDE of choice to build and run the project, or do the following using the command line window:
-   1. Run `npm install in the folder`
+   1. Run `npm install` in the folder
    2. Run `npm run quick_start`
 
 #### Troubleshooting
