@@ -198,8 +198,6 @@ export class KustoClient {
                 if (error.response.status === 429) {
                     throw new ThrottlingError("POST request failed with status 429 (Too Many Requests)", error);
                 }
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                throw error.response.data?.error || error.response.data;
             }
             throw error;
         }
