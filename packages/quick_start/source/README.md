@@ -1,6 +1,6 @@
 # Quickstart App
 
-The quickstart application is a **self-contained and runnable** example app that demonstrates authenticating, connecting to, administering, ingesting data 
+The quickstart application is a **self-contained and runnable** example app that demonstrates authenticating, connecting to, administering, ingesting data
 into and querying Azure Data Explorer using the azure-kusto-node SDK.
 You can use it as a baseline to write your own first kusto client application, altering the code as you go, or copy code sections out of it into your app.
 
@@ -10,13 +10,13 @@ You can use it as a baseline to write your own first kusto client application, a
 
 ### Prerequisites
 
-1. Set up NodeJS version 14.9 and npm on your machine. For instructions, consult a setup tutorial, like [this](https://docs.microsoft.
+1. Set up NodeJS version 14+ and npm on your machine. For instructions, consult a setup tutorial, like [this](https://docs.microsoft.
    com/en-us/windows/dev-environment/javascript/nodejs-on-windows)
 
 ### Retrieving the app from GitHub
 
 1. Download the app files from this GitHub repo.
-2. Modify the `kusto_sample_config.json` file, changing `KustoUri`, `IngestUri` and `DatabaseName` appropriately for your cluster.
+2. Modify the `kusto_sample_config.json` file, changing `kustoUri`, `ingestUri` and `databaseName` appropriately for your cluster.
 
 ### Retrieving the app from OneClick
 
@@ -30,9 +30,9 @@ You can use it as a baseline to write your own first kusto client application, a
 ### Run the app
 
 1. Open a command line window and navigate to the folder where you extracted the app.
-2. Either use an IDE of choice to build and run the project, or do the following using the command line window:
-   1. Run `npm install` in the folder
-   2. Run `npm run quick_start`
+2. Either use an IDE of your choice, or do the following using the command line window:
+    1. Run `npm install` in the folder
+    2. Run `npm run quick_start`
 
 #### Troubleshooting
 

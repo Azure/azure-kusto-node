@@ -1,6 +1,6 @@
 ### Prerequisites
 
-1. Set up NodeJS version 14.9 and npm on your machine. For instructions, consult a setup tutorial, like [this](https://docs.microsoft.
+1. Set up NodeJS version 14+ and npm on your machine. For instructions, consult a setup tutorial, like [this](https://docs.microsoft.
    com/en-us/windows/dev-environment/javascript/nodejs-on-windows)
 
 ### Instructions
@@ -12,7 +12,7 @@
 3. Open a command line window and navigate to the folder where you extracted the app.
 4. Either use an IDE of choice to build and run the project, or do the following using the command line window:
     1. Open a command line window and navigate to the folder where you extracted the app.
-    2. Either use an IDE of choice to build and run the project, or do the following using the command line window:
+    2. Either use an IDE of your choice, or do the following using the command line window:
         1. Run `npm install` in the folder
         2. Run `npm run quick_start`
 
