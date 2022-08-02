@@ -2,8 +2,8 @@
     "name": "quick_start",
     "version": "1.0.0",
     "description": "Quick start Node sample app",
-    "main": "SampleApp.js",
-    "types": "SampleApp.d.ts",
+    "main": "source/SampleApp.js",
+    "types": "source/SampleApp.d.ts",
     "scripts": {
         "build": "tsc",
         "quick_start": "npx ts-node source/SampleApp.ts"

@@ -65,45 +65,45 @@ class SampleApp {
     public static async start() {
         Console.log("Kusto sample app is starting...");
 
-        const config = await this.loadConfigsAsync(CONFIG_FILE_NAME);
+        const config = await this.loadConfigs(CONFIG_FILE_NAME);
         this.waitForUser = config.waitForUser;
         if (config.authenticationMode === AuthenticationModeOptions.UserPrompt) {
-            await this.waitForUserToProceedAsync(
+            await this.waitForUserToProceed(
                 "You will be prompted *twice* for credentials during this script. Please return to the console after" + " authenticating."
             );
         }
-        const kustoConnectionString = await Authentication.generateConnectionStringAsync(
+        const kustoConnectionString = await Authentication.generateConnectionString(
             config.kustoUri,
             config.authenticationMode,
-            config?.certificatePath,
-            config?.certificatePassword,
-            config?.applicationId,
-            config?.tenantId
+            config.certificatePath,
+            config.certificatePassword,
+            config.applicationId,
+            config.tenantId
         );
-        const ingestConnectionString = await Authentication.generateConnectionStringAsync(
+        const ingestConnectionString = await Authentication.generateConnectionString(
             config.ingestUri,
             config.authenticationMode,
-            config?.certificatePath,
-            config?.certificatePassword,
-            config?.applicationId,
-            config?.tenantId
+            config.certificatePath,
+            config.certificatePassword,
+            config.applicationId,
+            config.tenantId
         );
 
         // Tip: Avoid creating a new Kusto/ingest client for each use.Instead, create the clients once and reuse them.
         if (!kustoConnectionString || !ingestConnectionString) {
-            Utils.errorHandler(`Connection String error. Please validate your configuration file.`);
+            Utils.errorHandler("Connection String error. Please validate your configuration file.");
         } else {
             const kustoClient = new KustoClient(kustoConnectionString);
             const ingestClient = new KustoIngestClient(ingestConnectionString);
 
-            await this.preIngestionQueryingAsync(config, kustoClient);
+            await this.preIngestionQuerying(config, kustoClient);
 
             if (config.ingestData) {
-                await this.ingestionAsync(config, kustoClient, ingestClient);
+                await this.ingestion(config, kustoClient, ingestClient);
             }
 
             if (config.queryData) {
-                await this.postIngestionQueryingAsync(kustoClient, config.databaseName, config.tableName, config.ingestData);
+                await this.postIngestionQuerying(kustoClient, config.databaseName, config.tableName, config.ingestData);
             }
         }
         Console.log("\nKusto sample app done");
@@ -115,7 +115,7 @@ class SampleApp {
      * @param configFilePath Configuration file path.
      * @return ConfigJson object, allowing access to the metadata fields.
      */
-    private static async loadConfigsAsync(configFilePath: string): Promise<ConfigJson> {
+    private static async loadConfigs(configFilePath: string): Promise<ConfigJson> {
         try {
             const config: ConfigJson = JSON.parse(await fs.promises.readFile(configFilePath, "utf8"));
             if (!config.databaseName || !config.tableName || !config.tableSchema || !config.kustoUri || !config.ingestUri || !config.data) {
@@ -133,27 +133,25 @@ class SampleApp {
      * @param config ConfigJson object containing the SampleApp configuration
      * @param kustoClient Client to run commands
      */
-    private static async preIngestionQueryingAsync(config: ConfigJson, kustoClient: KustoClient) {
+    private static async preIngestionQuerying(config: ConfigJson, kustoClient: KustoClient) {
         if (config.useExistingTable) {
             if (config.alterTable) {
                 // Tip: Usually table was originally created with a schema appropriate for the data being ingested, so this wouldn't be needed.
                 // Learn More: For more information about altering table schemas, see:
                 // https://docs.microsoft.com/azure/data-explorer/kusto/management/alter-table-command
-                await this.waitForUserToProceedAsync(
-                    `Alter-merge existing table '${config.databaseName}.${config.tableName}' to align with the provided schema`
-                );
-                await this.alterMergeExistingTableToProvidedSchemaAsync(kustoClient, config.databaseName, config.tableName, config.tableSchema);
+                await this.waitForUserToProceed(`Alter-merge existing table '${config.databaseName}.${config.tableName}' to align with the provided schema`);
+                await this.alterMergeExistingTableToProvidedSchema(kustoClient, config.databaseName, config.tableName, config.tableSchema);
             }
             if (config.queryData) {
                 // Learn More: For more information about Kusto Query Language (KQL), see: https://docs.microsoft.com/azure/data-explorer/write-queries
-                await this.waitForUserToProceedAsync(`Get existing row count in '${config.databaseName}.${config.tableName}'`);
-                await this.queryExistingNumberOfRowsAsync(kustoClient, config.databaseName, config.tableName);
+                await this.waitForUserToProceed(`Get existing row count in '${config.databaseName}.${config.tableName}'`);
+                await this.queryExistingNumberOfRows(kustoClient, config.databaseName, config.tableName);
             }
         } else {
             // Tip: This is generally a one-time configuration
             // Learn More: For more information about creating tables, see: https://docs.microsoft.com/azure/data-explorer/one-click-table
-            await this.waitForUserToProceedAsync(`Creating table '${config.databaseName}.${config.tableName}'`);
-            await this.createNewTableAsync(kustoClient, config.databaseName, config.tableName, config.tableSchema);
+            await this.waitForUserToProceed(`Creating table '${config.databaseName}.${config.tableName}'`);
+            await this.createNewTable(kustoClient, config.databaseName, config.tableName, config.tableSchema);
         }
 
         // Learn More: Kusto batches data for ingestion efficiency. The default batching policy ingests data when one of the following conditions are met:
@@ -164,8 +162,8 @@ class SampleApp {
         // https://docs.microsoft.com/azure/data-explorer/kusto/management/batchingpolicy
         // TODO: Change if needed. Disabled to prevent an existing batching policy from being unintentionally changed
         if (false && config.batchingPolicy != null) {
-            await this.waitForUserToProceedAsync(`Alter the batching policy for table '${config.databaseName}.${config.tableName}'`);
-            await this.alterBatchingPolicyAsync(kustoClient, config.databaseName, config.tableName, config.batchingPolicy);
+            await this.waitForUserToProceed(`Alter the batching policy for table '${config.databaseName}.${config.tableName}'`);
+            await this.alterBatchingPolicy(kustoClient, config.databaseName, config.tableName, config.batchingPolicy);
         }
     }
 
@@ -177,9 +175,9 @@ class SampleApp {
      * @param tableName Table name
      * @param tableSchema Table schema
      */
-    private static async alterMergeExistingTableToProvidedSchemaAsync(kustoClient: KustoClient, databaseName: string, tableName: string, tableSchema: string) {
+    private static async alterMergeExistingTableToProvidedSchema(kustoClient: KustoClient, databaseName: string, tableName: string, tableSchema: string) {
         const command = `.alter-merge table ${tableName} ${tableSchema}`;
-        await Queries.executeCommandAsync(kustoClient, databaseName, command, "Node_SampleApp_ControlCommand");
+        await Queries.executeCommand(kustoClient, databaseName, command, "Node_SampleApp_ControlCommand");
     }
 
     /**
@@ -189,9 +187,9 @@ class SampleApp {
      * @param databaseName DB name
      * @param tableName Table name
      */
-    private static async queryExistingNumberOfRowsAsync(kustoClient: KustoClient, databaseName: string, tableName: string) {
+    private static async queryExistingNumberOfRows(kustoClient: KustoClient, databaseName: string, tableName: string) {
         const query = `${tableName} | count`;
-        await Queries.executeCommandAsync(kustoClient, databaseName, query, "Node_SampleApp_Query");
+        await Queries.executeCommand(kustoClient, databaseName, query, "Node_SampleApp_Query");
     }
 
     /**
@@ -202,9 +200,9 @@ class SampleApp {
      * @param tableName Table name
      * @private
      */
-    private static async queryFirstTwoRowsAsync(kustoClient: KustoClient, databaseName: string, tableName: string) {
+    private static async queryFirstTwoRows(kustoClient: KustoClient, databaseName: string, tableName: string) {
         const query = `${tableName} | take 2`;
-        await Queries.executeCommandAsync(kustoClient, databaseName, query, "Node_SampleApp_Query");
+        await Queries.executeCommand(kustoClient, databaseName, query, "Node_SampleApp_Query");
     }
 
     /**
@@ -215,9 +213,9 @@ class SampleApp {
      * @param tableName Table name
      * @param tableSchema Table schema
      */
-    private static async createNewTableAsync(kustoClient: KustoClient, databaseName: string, tableName: string, tableSchema: string) {
+    private static async createNewTable(kustoClient: KustoClient, databaseName: string, tableName: string, tableSchema: string) {
         const command = `.create table ${tableName} ${tableSchema}`;
-        await Queries.executeCommandAsync(kustoClient, databaseName, command, "Node_SampleApp_ControlCommand");
+        await Queries.executeCommand(kustoClient, databaseName, command, "Node_SampleApp_ControlCommand");
     }
 
     /**
@@ -228,14 +226,14 @@ class SampleApp {
      * @param tableName Table name
      * @param batchingPolicy Ingestion batching policy
      */
-    private static async alterBatchingPolicyAsync(kustoClient: KustoClient, databaseName: string, tableName: string, batchingPolicy: string) {
+    private static async alterBatchingPolicy(kustoClient: KustoClient, databaseName: string, tableName: string, batchingPolicy: string) {
         // Tip 1: Though most users should be fine with the defaults, to speed up ingestion, such as during development and in this sample app, we opt to
         // modify the default ingestion policy to ingest data after at most 10 seconds.
         // Tip 2: This is generally a one-time configuration.
         // Tip 3: You can also skip the batching for some files using the Flush-Immediately property, though this option should be used with care as it is
         // inefficient.
         const command = `.alter table ${tableName} policy ingestionbatching @'${batchingPolicy}'`;
-        await Queries.executeCommandAsync(kustoClient, databaseName, command, "Node_SampleApp_ControlCommand");
+        await Queries.executeCommand(kustoClient, databaseName, command, "Node_SampleApp_ControlCommand");
     }
 
     /**
@@ -246,7 +244,7 @@ class SampleApp {
      * @param ingestClient Client to ingest data
      * @private
      */
-    private static async ingestionAsync(config: ConfigJson, kustoClient: KustoClient, ingestClient: KustoIngestClient) {
+    private static async ingestion(config: ConfigJson, kustoClient: KustoClient, ingestClient: KustoIngestClient) {
         for (const dataFile of config.data) {
             const dfVal: string = dataFile.format.toLowerCase();
             let dataFormat: DataFormat;
@@ -259,7 +257,7 @@ class SampleApp {
 
             // Tip: This is generally a one-time configuration. Learn More: For more information about providing inline mappings and mapping references,
             // see: https://docs.microsoft.com/azure/data-explorer/kusto/management/mappings
-            await this.createIngestionMappingsAsync(
+            await this.createIngestionMappings(
                 dataFile.useExistingMapping,
                 kustoClient,
                 config.databaseName,
@@ -270,9 +268,9 @@ class SampleApp {
             );
             // Learn More: For more information about ingesting data to Kusto in C#,
             // see: https://docs.microsoft.com/en-us/azure/data-explorer/net-sdk-ingest-data
-            await this.ingestDataAsync(dataFile, dataFormat, ingestClient, config.databaseName, config.tableName, mappingName);
+            await this.ingestData(dataFile, dataFormat, ingestClient, config.databaseName, config.tableName, mappingName);
         }
-        await Ingestion.waitForIngestionToCompleteAsync(config.waitForIngestSeconds);
+        await Ingestion.waitForIngestionToComplete(config.waitForIngestSeconds);
     }
 
     /**
@@ -287,7 +285,7 @@ class SampleApp {
      * @param dataFormat Given data format
      * @returns True if Ingestion Mappings exists (whether by us, or the already existing one)
      */
-    private static async createIngestionMappingsAsync(
+    private static async createIngestionMappings(
         useExistingMapping: boolean,
         kustoClient: KustoClient,
         databaseName: string,
@@ -300,11 +298,11 @@ class SampleApp {
             return;
         }
         const ingestionMappingKind = dataFormatMappingKind(dataFormat);
-        await this.waitForUserToProceedAsync(`Create a '${ingestionMappingKind}' mapping reference named '${mappingName}'`);
+        await this.waitForUserToProceed(`Create a '${ingestionMappingKind}' mapping reference named '${mappingName}'`);
         mappingName = mappingName ? mappingName : "DefaultQuickstartMapping" + uuidv4().substring(0, 4);
 
         const command = `.create-or-alter table ${tableName} ingestion ${ingestionMappingKind.toLowerCase()} mapping '${mappingName}' '${mappingValue}'`;
-        await Queries.executeCommandAsync(kustoClient, databaseName, command, "Node_SampleApp_ControlCommand");
+        await Queries.executeCommand(kustoClient, databaseName, command, "Node_SampleApp_ControlCommand");
     }
 
     /**
@@ -317,7 +315,7 @@ class SampleApp {
      * @param tableName Table name
      * @param mappingName Desired mapping name
      */
-    private static async ingestDataAsync(
+    private static async ingestData(
         dataFile: ConfigData,
         dataFormat: DataFormat,
         ingestClient: IngestClient,
@@ -328,7 +326,7 @@ class SampleApp {
         const sourceType = dataFile.sourceType.toLowerCase();
         const sourceUri = dataFile.dataSourceUri;
         mappingName = mappingName ? mappingName : "DefaultQuickstartMapping" + uuidv4().substring(0, 4);
-        await this.waitForUserToProceedAsync(`Ingest '${sourceUri}' from '${sourceType}'`);
+        await this.waitForUserToProceed(`Ingest '${sourceUri}' from '${sourceType}'`);
 
         // Tip: When ingesting json files, if each line represents a single-line json, use MULTIJSON format even if the file only contains one line.
         // If the json contains whitespace formatting, use SINGLEJSON. In this case, only one data row json object is allowed per file.
@@ -338,10 +336,10 @@ class SampleApp {
         // additional references.
         switch (sourceType) {
             case SourceType.LocalFileSource:
-                await Ingestion.ingestFromFileAsync(ingestClient, databaseName, tableName, sourceUri, dataFormat, mappingName);
+                await Ingestion.ingestFromFile(ingestClient, databaseName, tableName, sourceUri, dataFormat, mappingName);
                 break;
             case SourceType.BlobSource:
-                await Ingestion.ingestFromBlobAsync(ingestClient, databaseName, tableName, sourceUri, dataFormat, mappingName);
+                await Ingestion.ingestFromBlob(ingestClient, databaseName, tableName, sourceUri, dataFormat, mappingName);
                 break;
             default:
                 Utils.errorHandler(`Unknown source '${sourceType}' for file '${sourceUri}'`);
@@ -358,14 +356,14 @@ class SampleApp {
      * @param ingestData Flag noting whether any data was ingested by the script
      * @private
      */
-    private static async postIngestionQueryingAsync(kustoClient: KustoClient, databaseName: string, tableName: string, ingestData: boolean) {
+    private static async postIngestionQuerying(kustoClient: KustoClient, databaseName: string, tableName: string, ingestData: boolean) {
         const optionalPostIngestionPrompt = ingestData ? "post-ingestion " : "";
 
-        await this.waitForUserToProceedAsync(`Get ${optionalPostIngestionPrompt}row count for '${databaseName}.${tableName}':`);
-        await this.queryExistingNumberOfRowsAsync(kustoClient, databaseName, tableName);
+        await this.waitForUserToProceed(`Get ${optionalPostIngestionPrompt}row count for '${databaseName}.${tableName}':`);
+        await this.queryExistingNumberOfRows(kustoClient, databaseName, tableName);
 
-        await this.waitForUserToProceedAsync(`Get sample (2 records) of ${optionalPostIngestionPrompt}data:`);
-        await this.queryFirstTwoRowsAsync(kustoClient, databaseName, tableName);
+        await this.waitForUserToProceed(`Get sample (2 records) of ${optionalPostIngestionPrompt}data:`);
+        await this.queryFirstTwoRows(kustoClient, databaseName, tableName);
     }
 
     /**
@@ -373,7 +371,7 @@ class SampleApp {
      *
      * @param promptMsg Prompt to display to user
      */
-    private static async waitForUserToProceedAsync(promptMsg: string): Promise<any> {
+    private static async waitForUserToProceed(promptMsg: string): Promise<any> {
         Console.log(`\nStep ${this.step}: ${promptMsg}`);
         this.step++;
         if (this.waitForUser) {

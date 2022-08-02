@@ -48,7 +48,7 @@ export class Authentication extends Utils {
      * @param tenantId Given tenant id
      * @returns A connection string to be used when creating a Client
      */
-    public static async generateConnectionStringAsync(
+    public static async generateConnectionString(
         clusterUri: string,
         authenticationMode: AuthenticationModeOptions,
         certificatePath: string | undefined,
@@ -78,7 +78,7 @@ export class Authentication extends Utils {
             }
             case AuthenticationModeOptions.AppCertificate: {
                 // Authenticate using a certificate file.
-                return await this.createAppCertificateConnectionStringAsync(clusterUri, certificatePath, certificatePassword, applicationId, tenantId);
+                return await this.createAppCertificateConnectionString(clusterUri, certificatePath, certificatePassword, applicationId, tenantId);
             }
             default: {
                 this.errorHandler(`Authentication mode '${authenticationMode}' is not supported`);
@@ -113,7 +113,7 @@ export class Authentication extends Utils {
      * @param tenantId Given tenant id
      * @returns AppCertificate Kusto Connection String
      */
-    public static async createAppCertificateConnectionStringAsync(
+    public static async createAppCertificateConnectionString(
         clusterUri: string,
         certificatePath: string | undefined,
         certificatePassword: string | undefined,
@@ -192,7 +192,7 @@ export class Queries extends Utils {
      * @param command The command to run. can either be management(control) command or query.
      * @param scope Working scope
      */
-    public static async executeCommandAsync(kustoClient: KustoClient, databaseName: string, command: string, scope: string) {
+    public static async executeCommand(kustoClient: KustoClient, databaseName: string, command: string, scope: string) {
         try {
             const clientRequestProperties = this.createClientRequestProperties(scope);
             const responseDataSet = await kustoClient.execute(databaseName, command, clientRequestProperties);
@@ -246,7 +246,7 @@ export class Ingestion extends Utils {
      * @param dataFormat Given data format
      * @param mappingName Desired mapping name
      */
-    public static async ingestFromFileAsync(
+    public static async ingestFromFile(
         ingestClient: IngestClient,
         databaseName: string,
         tableName: string,
@@ -272,7 +272,7 @@ export class Ingestion extends Utils {
      * @param dataFormat Given data format
      * @param mappingName Desired mapping name
      */
-    public static async ingestFromBlobAsync(
+    public static async ingestFromBlob(
         ingestClient: IngestClient,
         databaseName: string,
         tableName: string,
@@ -291,7 +291,7 @@ export class Ingestion extends Utils {
     /**
      * Halts the program for WaitForIngestSeconds, allowing the queued ingestion process to complete.
      */
-    public static async waitForIngestionToCompleteAsync(waitForIngestSeconds: number) {
+    public static async waitForIngestionToComplete(waitForIngestSeconds: number) {
         Console.log(
             `Sleeping ${waitForIngestSeconds} seconds for queued ingestion to complete. Note: This may take longer depending on the file size and ingestion 
             batching policy.`
