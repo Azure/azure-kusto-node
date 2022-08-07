@@ -106,6 +106,8 @@ const main = (): void => {
 
         before("SetUp", async () => {
             try {
+                console.log(`Creating table ${tableName}, with columns ${tableColumns}`);
+
                 await queryClient.execute(databaseName, `.create table ${tableName} ${tableColumns}`);
                 await queryClient.execute(databaseName, `.alter table ${tableName} policy streamingingestion enable`);
                 await queryClient.execute(databaseName, ".clear database cache streamingingestion schema");
@@ -117,6 +119,8 @@ const main = (): void => {
                     assert.fail("Failed to create table ingestion mapping, error: " + JSON.stringify(err));
                 }
             } catch (err) {
+                console.log(`Creating table ${tableName}, with columns ${tableColumns}`);
+
                 assert.fail("Failed to create table, error: " + JSON.stringify(err));
             }
         });
