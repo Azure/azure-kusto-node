@@ -117,7 +117,9 @@ const main = (): void => {
                     assert.fail("Failed to create table ingestion mapping, error: " + JSON.stringify(err));
                 }
             } catch (err) {
-                assert.fail("Failed to create table, error: " + JSON.stringify(err));
+                console.log(`Creating table ${tableName}, with columns ${tableColumns}`);
+
+                assert.fail(`Failed to create table ${tableName} ${err} ${databaseName}, error: ${JSON.stringify(err)}`);
             }
         });
 

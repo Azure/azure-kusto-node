@@ -1,1 +1,32 @@
-{"id":"987654321","type":"PushEvent","actor":{"id":20370617,"login":"sm5duck","display_login":"sm5duck","gravatar_id":"","url":"https://api.github.com/users/sm5duck","avatar_url":"https://avatars.githubusercontent.com/u/20370617?"},"repo":{"id":68104861,"name":"ParkMinHyun/TapCorder_pb","url":"https://api.github.com/repos/ParkMinHyun/TapCorder_pb"},"payload":{"push_id":1353593325,"size":1,"distinct_size":1,"ref":"refs/heads/feature/AppUI","head":"f5c64bc07442ac755acfe3107e7b8a5801127ec3","before":"7bc4da63c640f330129a82171d9b8eedbd2a65be","commits":[{"sha":"f5c64bc07442ac755acfe3107e7b8a5801127ec3","author":{"name":"오성민","email":"3a4b7456c9c6dc53c45c5bd3270b7b802b91156a@gmail.com"},"message":"[성민] 모드변경 다이알로그 문구 수정","distinct":true,"url":"https://api.github.com/repos/ParkMinHyun/TapCorder_pb/commits/f5c64bc07442ac755acfe3107e7b8a5801127ec3"}]},"public":true,"created_at":"2016-10-18T00:00:00Z"}
+{
+    "id": "987654321",
+    "type": "PushEvent",
+    "actor": {
+        "id": 20370617,
+        "login": "sm5duck",
+        "display_login": "sm5duck",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/sm5duck",
+        "avatar_url": "https://avatars.githubusercontent.com/u/20370617?"
+    },
+    "repo": { "id": 68104861, "name": "ParkMinHyun/TapCorder_pb", "url": "https://api.github.com/repos/ParkMinHyun/TapCorder_pb" },
+    "payload": {
+        "push_id": 1353593325,
+        "size": 1,
+        "distinct_size": 1,
+        "ref": "refs/heads/feature/AppUI",
+        "head": "f5c64bc07442ac755acfe3107e7b8a5801127ec3",
+        "before": "7bc4da63c640f330129a82171d9b8eedbd2a65be",
+        "commits": [
+            {
+                "sha": "f5c64bc07442ac755acfe3107e7b8a5801127ec3",
+                "author": { "name": "오성민", "email": "3a4b7456c9c6dc53c45c5bd3270b7b802b91156a@gmail.com" },
+                "message": "[성민] 모드변경 다이알로그 문구 수정",
+                "distinct": true,
+                "url": "https://api.github.com/repos/ParkMinHyun/TapCorder_pb/commits/f5c64bc07442ac755acfe3107e7b8a5801127ec3"
+            }
+        ]
+    },
+    "public": true,
+    "created_at": "2016-10-18T00:00:00Z"
+}
