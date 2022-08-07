@@ -96,18 +96,25 @@ const main = (): void => {
 
     let currentCount = 0;
 
+    interface TestWithOutput {
+        consoleOutputs: string[];
+        consoleErrors: string[];
+    }
+
     describe(`E2E Tests`, () => {
         let originalLogFunction = console.log;
         let originalErrorFunction = console.error;
         beforeEach(function _mockConsoleFunctions() {
             const currentTest = this.currentTest;
-            console.log = function captureLog() {
-                const formattedMessage = util.format.apply(util, arguments);
-                currentTest.consoleOutputs = (currentTest.consoleOutputs || []).concat(formattedMessage);
+            console.log = function captureLog(message?: any, ...optionalParams: any[]) {
+                const formattedMessage = util.format(message, ...optionalParams);
+                const tw = <TestWithOutput>currentTest;
+                tw.consoleOutputs = (tw.consoleOutputs || []).concat(formattedMessage);
             };
-            console.error = function captureError() {
-                const formattedMessage = util.format.apply(util, arguments);
-                currentTest.consoleErrors = (currentTest.consoleErrors || []).concat(formattedMessage);
+            console.error = function captureError(message?: any, ...optionalParams: any[]) {
+                const formattedMessage = util.format(message, ...optionalParams);
+                const tw = <TestWithOutput>currentTest;
+                tw.consoleErrors = (tw.consoleErrors || []).concat(formattedMessage);
             };
         });
         afterEach(function _restoreConsoleFunctions() {
