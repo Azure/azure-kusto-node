@@ -107,13 +107,19 @@ const main = (): void => {
         beforeEach(function _mockConsoleFunctions() {
             const currentTest = this.currentTest;
             console.log = function captureLog(message?: any, ...optionalParams: any[]) {
+                if (currentTest === undefined) {
+                    throw new Error("test is undefined");
+                }
                 const formattedMessage = util.format(message, ...optionalParams);
-                const tw = <TestWithOutput>currentTest;
+                const tw = <TestWithOutput>(<unknown>currentTest);
                 tw.consoleOutputs = (tw.consoleOutputs || []).concat(formattedMessage);
             };
             console.error = function captureError(message?: any, ...optionalParams: any[]) {
+                if (currentTest === undefined) {
+                    throw new Error("test is undefined");
+                }
                 const formattedMessage = util.format(message, ...optionalParams);
-                const tw = <TestWithOutput>currentTest;
+                const tw = <TestWithOutput>(<unknown>currentTest);
                 tw.consoleErrors = (tw.consoleErrors || []).concat(formattedMessage);
             };
         });
