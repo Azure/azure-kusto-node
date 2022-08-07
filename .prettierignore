@@ -5,7 +5,7 @@ node_modules
 coverage
 .nyc_output
 **/test/data/*
-**/test/e2eTests/e2eData/*
+**/test/**/e2eData/*
 **/coverage
 **/.nyc_output
 lerna.json
@@ -22,3 +22,4 @@ package-lock.json
 tsconfig.json
 .idea
 .mocharc.json
+**/test/data/**/*
