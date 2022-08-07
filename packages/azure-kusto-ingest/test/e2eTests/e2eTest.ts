@@ -15,6 +15,7 @@ import { DataFormat, IngestionProperties, ReportLevel } from "../../source/inges
 import { CloudSettings } from "azure-kusto-data/source/cloudSettings";
 import { sleep } from "../../source/retry";
 import { JsonColumnMapping } from "../../source/columnMappings";
+import * as util from "util";
 
 interface ParsedJsonMapping {
     Properties: { Path: string };
@@ -96,6 +97,23 @@ const main = (): void => {
     let currentCount = 0;
 
     describe(`E2E Tests`, () => {
+        let originalLogFunction = console.log;
+        let originalErrorFunction = console.error;
+        beforeEach(function _mockConsoleFunctions() {
+            const currentTest = this.currentTest;
+            console.log = function captureLog() {
+                const formattedMessage = util.format.apply(util, arguments);
+                currentTest.consoleOutputs = (currentTest.consoleOutputs || []).concat(formattedMessage);
+            };
+            console.error = function captureError() {
+                const formattedMessage = util.format.apply(util, arguments);
+                currentTest.consoleErrors = (currentTest.consoleErrors || []).concat(formattedMessage);
+            };
+        });
+        afterEach(function _restoreConsoleFunctions() {
+            console.log = originalLogFunction;
+            console.error = originalErrorFunction;
+        });
         after(async () => {
             try {
                 await queryClient.execute(databaseName, `.drop table ${tableName} ifexists`);
@@ -121,7 +139,7 @@ const main = (): void => {
             } catch (err) {
                 console.log(`Creating table ${tableName}, with columns ${tableColumns}`);
 
-                assert.fail("Failed to create table, error: " + JSON.stringify(err));
+                assert.fail(`Failed to create table ${tableName} ${err} ${databaseName}, error: ${JSON.stringify(err)}`);
             }
         });
 
