@@ -12,7 +12,7 @@
         "testData": "npm run test -- --exclude !packages/azure-kusto-data/**",
         "testIngest": "npm run test -- --exclude !packages/azure-kusto-ingest/**",
         "testIngestNoE2E": "npm run testNoE2E -- --exclude !packages/azure-kusto-ingest/**",
-        "testPipeline": "nyc --all true npm run test -- --reporter mocha-junit-reporter --reporter-options outputs=true",
+        "testPipeline": "nyc --reporter lcovonly mocha --reporter mocha-junit-reporter --exclude **/e2eTest.ts --reporter-options outputs=true",
         "format": "npx prettier --write .",
         "checkFormat": "npx prettier --check --end-of-line lf ."
     },
