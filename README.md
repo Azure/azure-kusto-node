@@ -7,7 +7,7 @@ This repository contains the following SDKs:
 
 
 General docs are located at https://docs.microsoft.com/en-us/azure/data-explorer/
-
+*ignore*
 
 The SDK team publishes the SDKs as [npm](https://npmjs.org) packages:
 - **Azure Kusto Data SDK**
