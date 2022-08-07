@@ -139,9 +139,21 @@ const main = (): void => {
             try {
                 console.log(`Creating table ${tableName}, with columns ${tableColumns}`);
 
-                await queryClient.execute(databaseName, `.create table ${tableName} ${tableColumns}`);
-                await queryClient.execute(databaseName, `.alter table ${tableName} policy streamingingestion enable`);
-                await queryClient.execute(databaseName, ".clear database cache streamingingestion schema");
+                await queryClient.execute(
+                    databaseName,
+                    `.create table ${tableName} ${tableColumns}`,
+                    new ClientRequestProperties(undefined, undefined, "pleasesaysomething")
+                );
+                await queryClient.execute(
+                    databaseName,
+                    `.alter table ${tableName} policy streamingingestion enable`,
+                    new ClientRequestProperties(undefined, undefined, "pleasesaysomething2")
+                );
+                await queryClient.execute(
+                    databaseName,
+                    ".clear database cache streamingingestion schema",
+                    new ClientRequestProperties(undefined, undefined, "pleasesaysomething3")
+                );
 
                 console.log("Create table ingestion mapping");
                 try {
