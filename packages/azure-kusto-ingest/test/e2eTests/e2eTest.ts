@@ -102,8 +102,8 @@ const main = (): void => {
     }
 
     describe(`E2E Tests`, () => {
-        let originalLogFunction = console.log;
-        let originalErrorFunction = console.error;
+        const originalLogFunction = console.log;
+        const originalErrorFunction = console.error;
         beforeEach(function _mockConsoleFunctions() {
             const currentTest = this.currentTest;
             console.log = function captureLog(message?: any, ...optionalParams: any[]) {
@@ -111,7 +111,7 @@ const main = (): void => {
                     throw new Error("test is undefined");
                 }
                 const formattedMessage = util.format(message, ...optionalParams);
-                const tw = <TestWithOutput>(<unknown>currentTest);
+                const tw = currentTest as unknown as TestWithOutput;
                 tw.consoleOutputs = (tw.consoleOutputs || []).concat(formattedMessage);
             };
             console.error = function captureError(message?: any, ...optionalParams: any[]) {
@@ -119,7 +119,7 @@ const main = (): void => {
                     throw new Error("test is undefined");
                 }
                 const formattedMessage = util.format(message, ...optionalParams);
-                const tw = <TestWithOutput>(<unknown>currentTest);
+                const tw = currentTest as unknown as TestWithOutput;
                 tw.consoleErrors = (tw.consoleErrors || []).concat(formattedMessage);
             };
         });
