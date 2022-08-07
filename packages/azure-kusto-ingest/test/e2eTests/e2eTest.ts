@@ -15,7 +15,6 @@ import { DataFormat, IngestionProperties, ReportLevel } from "../../source/inges
 import { CloudSettings } from "azure-kusto-data/source/cloudSettings";
 import { sleep } from "../../source/retry";
 import { JsonColumnMapping } from "../../source/columnMappings";
-import * as util from "util";
 
 interface ParsedJsonMapping {
     Properties: { Path: string };
@@ -96,37 +95,7 @@ const main = (): void => {
 
     let currentCount = 0;
 
-    interface TestWithOutput {
-        consoleOutputs: string[];
-        consoleErrors: string[];
-    }
-
     describe(`E2E Tests`, () => {
-        const originalLogFunction = console.log;
-        const originalErrorFunction = console.error;
-        beforeEach(function _mockConsoleFunctions() {
-            const currentTest = this.currentTest;
-            console.log = function captureLog(message?: any, ...optionalParams: any[]) {
-                if (currentTest === undefined) {
-                    throw new Error("test is undefined");
-                }
-                const formattedMessage = util.format(message, ...optionalParams);
-                const tw = currentTest as unknown as TestWithOutput;
-                tw.consoleOutputs = (tw.consoleOutputs || []).concat(formattedMessage);
-            };
-            console.error = function captureError(message?: any, ...optionalParams: any[]) {
-                if (currentTest === undefined) {
-                    throw new Error("test is undefined");
-                }
-                const formattedMessage = util.format(message, ...optionalParams);
-                const tw = currentTest as unknown as TestWithOutput;
-                tw.consoleErrors = (tw.consoleErrors || []).concat(formattedMessage);
-            };
-        });
-        afterEach(function _restoreConsoleFunctions() {
-            console.log = originalLogFunction;
-            console.error = originalErrorFunction;
-        });
         after(async () => {
             try {
                 await queryClient.execute(databaseName, `.drop table ${tableName} ifexists`);
@@ -137,23 +106,9 @@ const main = (): void => {
 
         before("SetUp", async () => {
             try {
-                console.log(`Creating table ${tableName}, with columns ${tableColumns}`);
-
-                await queryClient.execute(
-                    databaseName,
-                    `.create table ${tableName} ${tableColumns}`,
-                    new ClientRequestProperties(undefined, undefined, "pleasesaysomething")
-                );
-                await queryClient.execute(
-                    databaseName,
-                    `.alter table ${tableName} policy streamingingestion enable`,
-                    new ClientRequestProperties(undefined, undefined, "pleasesaysomething2")
-                );
-                await queryClient.execute(
-                    databaseName,
-                    ".clear database cache streamingingestion schema",
-                    new ClientRequestProperties(undefined, undefined, "pleasesaysomething3")
-                );
+                await queryClient.execute(databaseName, `.create table ${tableName} ${tableColumns}`);
+                await queryClient.execute(databaseName, `.alter table ${tableName} policy streamingingestion enable`);
+                await queryClient.execute(databaseName, ".clear database cache streamingingestion schema");
 
                 console.log("Create table ingestion mapping");
                 try {
