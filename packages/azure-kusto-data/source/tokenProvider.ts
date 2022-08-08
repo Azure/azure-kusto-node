@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { ConfidentialClientApplication, PublicClientApplication } from "@azure/msal-node";
+import { ConfidentialClientApplication, PublicClientApplication, Configuration } from "@azure/msal-node";
 import { DeviceCodeResponse } from "@azure/msal-common";
 import { AzureCliCredential, InteractiveBrowserCredential, ManagedIdentityCredential, TokenCredentialOptions } from "@azure/identity";
 import { CloudInfo, CloudSettings } from "./cloudSettings";
@@ -87,7 +87,7 @@ abstract class MsalTokenProvider extends TokenProviderBase {
     initialized: boolean;
     authorityUri!: string;
 
-    abstract initClient(): void;
+    abstract initClient(commonOptions: Configuration): void;
 
     abstract acquireMsalToken(): Promise<TokenType | null>;
 
@@ -95,6 +95,16 @@ abstract class MsalTokenProvider extends TokenProviderBase {
         super(kustoUri);
         this.initialized = false;
         this.authorityId = authorityId;
+    }
+
+    commonOptions(): Configuration {
+        return {
+            auth: {
+                clientId: this.cloudInfo.KustoClientAppId,
+                knownAuthorities: [this.cloudInfo.LoginEndpoint],
+                authority: this.authorityUri,
+            },
+        };
     }
 
     async acquireToken(): Promise<TokenResponse> {
@@ -107,7 +117,7 @@ abstract class MsalTokenProvider extends TokenProviderBase {
                 }
                 this.scopes = [resourceUri + "/.default"];
                 this.authorityUri = CloudSettings.getAuthorityUri(this.cloudInfo, this.authorityId);
-                this.initClient();
+                this.initClient(this.commonOptions());
             }
             this.initialized = true;
         }
@@ -253,14 +263,8 @@ export class UserPassTokenProvider extends MsalTokenProvider {
         this.password = password;
     }
 
-    initClient(): void {
-        const clientConfig = {
-            auth: {
-                clientId: this.cloudInfo.KustoClientAppId,
-                authority: this.authorityUri,
-            },
-        };
-        this.msalClient = new PublicClientApplication(clientConfig);
+    initClient(commonOptions: Configuration): void {
+        this.msalClient = new PublicClientApplication(commonOptions);
     }
 
     async acquireMsalToken(): Promise<TokenType | null> {
@@ -307,14 +311,8 @@ export class DeviceLoginTokenProvider extends MsalTokenProvider {
         this.deviceCodeCallback = deviceCodeCallback;
     }
 
-    initClient(): void {
-        const clientConfig = {
-            auth: {
-                clientId: this.cloudInfo.KustoClientAppId,
-                authority: this.authorityUri,
-            },
-        };
-        this.msalClient = new PublicClientApplication(clientConfig);
+    initClient(commonOptions: Configuration): void {
+        this.msalClient = new PublicClientApplication(commonOptions);
     }
 
     async acquireMsalToken(): Promise<TokenType | null> {
@@ -353,12 +351,12 @@ export class ApplicationKeyTokenProvider extends MsalTokenProvider {
         this.appKey = appKey;
     }
 
-    initClient(): void {
+    initClient(commonOptions: Configuration): void {
         const clientConfig = {
+            ...commonOptions,
             auth: {
                 clientId: this.appClientId,
                 clientSecret: this.appKey,
-                authority: this.authorityUri,
             },
         };
         this.msalClient = new ConfidentialClientApplication(clientConfig);
@@ -394,11 +392,11 @@ export class ApplicationCertificateTokenProvider extends MsalTokenProvider {
         this.certX5c = certX5c;
     }
 
-    initClient(): void {
+    initClient(commonOptions: Configuration): void {
         const clientConfig = {
+            ...commonOptions,
             auth: {
                 clientId: this.appClientId,
-                authority: this.authorityUri,
                 clientCertificate: {
                     thumbprint: this.certThumbprint,
                     privateKey: this.certPrivateKey,
