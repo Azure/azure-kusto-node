@@ -5,13 +5,13 @@ import { Client, KustoDataErrors } from "azure-kusto-data";
 import { ExponentialRetry } from "./retry";
 import moment from "moment";
 
-const URI_FORMAT = /https:\/\/(\w+).(queue|blob|table).core.windows.net\/([\w,-]+)\?(.*)/;
+const URI_FORMAT = /https:\/\/(\w+).(queue|blob|table).(?:[a-z]\.?)+\/([\w,-]+)\?(.*)/;
 const ATTEMPT_COUNT = 4;
 export class ResourceURI {
     constructor(readonly storageAccountName: string, readonly objectType: string, readonly objectName: string, readonly sas: string) {}
 
     static fromURI(uri: string) {
-        const match = URI_FORMAT.exec(uri);
+        const match = URI_FORMAT.exec(uri.trim().toLowerCase());
         if (match == null || match.length < 5) {
             throw Error(`Failed to create ResourceManager from URI - invalid uri (${uri})`);
         }
