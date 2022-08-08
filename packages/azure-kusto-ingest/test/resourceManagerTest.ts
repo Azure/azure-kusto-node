@@ -19,7 +19,7 @@ describe("ResourceURI", () => {
             const objectType = "blob";
             const objectName = "container";
             const sas = "sas";
-            let domain = "core.windows.net";
+            const domain = "core.windows.net";
 
             const uri = `https://${accountName}.${objectType}.${domain}/${objectName}?${sas}`;
             const storageUrl = ResourceURI.fromURI(uri);
@@ -38,7 +38,7 @@ describe("ResourceURI", () => {
             const objectType = "blob";
             const objectName = "container";
             const sas = "sas";
-            let domain = "core.windows.net";
+            const domain = "core.windows.net";
 
             const storageUrl = new ResourceURI(accountName, objectType, domain, objectName, sas);
 
@@ -52,7 +52,7 @@ describe("ResourceURI", () => {
             const objectType = "blob";
             const objectName = "container";
             const sas = "sas";
-            let domain = "core.chinacloudapi.cn";
+            const domain = "core.chinacloudapi.cn";
 
             const uri = `https://${accountName}.${objectType}.${domain}/${objectName}?${sas}`;
             const storageUrl = ResourceURI.fromURI(uri);
@@ -71,7 +71,7 @@ describe("ResourceURI", () => {
             const objectType = "blob";
             const objectName = "container";
             const sas = "sas";
-            let domain = "core.chinacloudapi.cn";
+            const domain = "core.chinacloudapi.cn";
 
             const storageUrl = new ResourceURI(accountName, objectType, domain, objectName, sas);
 
