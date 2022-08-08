@@ -355,6 +355,7 @@ export class ApplicationKeyTokenProvider extends MsalTokenProvider {
         const clientConfig = {
             ...commonOptions,
             auth: {
+                ...commonOptions.auth,
                 clientId: this.appClientId,
                 clientSecret: this.appKey,
             },
@@ -396,6 +397,7 @@ export class ApplicationCertificateTokenProvider extends MsalTokenProvider {
         const clientConfig = {
             ...commonOptions,
             auth: {
+                ...commonOptions.auth,
                 clientId: this.appClientId,
                 clientCertificate: {
                     thumbprint: this.certThumbprint,
