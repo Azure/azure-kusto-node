@@ -5,25 +5,25 @@ import { Client, KustoDataErrors } from "azure-kusto-data";
 import { ExponentialRetry } from "./retry";
 import moment from "moment";
 
-const URI_FORMAT = /https:\/\/(\w+).(queue|blob|table).(?:[a-z]\.?)+\/([\w,-]+)\?(.*)/;
+const URI_FORMAT = /https:\/\/(\w+).(queue|blob|table).((?:[a-z]+\.)+?[a-z]+)\/([\w,-]+)\?(.*)/;
 const ATTEMPT_COUNT = 4;
 export class ResourceURI {
-    constructor(readonly storageAccountName: string, readonly objectType: string, readonly objectName: string, readonly sas: string) {}
+    constructor(readonly storageAccountName: string, readonly objectType: string, readonly domain: string, readonly objectName: string, readonly sas: string) {}
 
     static fromURI(uri: string) {
         const match = URI_FORMAT.exec(uri.trim().toLowerCase());
         if (match == null || match.length < 5) {
             throw Error(`Failed to create ResourceManager from URI - invalid uri (${uri})`);
         }
-        return new ResourceURI(match[1], match[2], match[3], match[4]);
+        return new ResourceURI(match[1], match[2], match[3], match[4], match[5]);
     }
 
     getSASConnectionString(): string {
         if (this.objectType === "queue") {
-            return `QueueEndpoint=https://${this.storageAccountName}.queue.core.windows.net/;SharedAccessSignature=${this.sas}`;
+            return `QueueEndpoint=https://${this.storageAccountName}.queue.${this.domain}/;SharedAccessSignature=${this.sas}`;
         }
         if (this.objectType === "blob") {
-            return `BlobEndpoint=https://${this.storageAccountName}.blob.core.windows.net/;SharedAccessSignature=${this.sas}`;
+            return `BlobEndpoint=https://${this.storageAccountName}.blob.${this.domain}/;SharedAccessSignature=${this.sas}`;
         }
 
         throw new Error(`Can't make the current object type (${this.objectType}) to connection string`);
