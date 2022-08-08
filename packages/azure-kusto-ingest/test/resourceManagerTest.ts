@@ -19,13 +19,15 @@ describe("ResourceURI", () => {
             const objectType = "blob";
             const objectName = "container";
             const sas = "sas";
+            let domain = "core.windows.net";
 
-            const uri = `https://${accountName}.${objectType}.core.windows.net/${objectName}?${sas}`;
+            const uri = `https://${accountName}.${objectType}.${domain}/${objectName}?${sas}`;
             const storageUrl = ResourceURI.fromURI(uri);
 
             assert.strictEqual(storageUrl.storageAccountName, accountName);
             assert.strictEqual(storageUrl.objectType, objectType);
             assert.strictEqual(storageUrl.objectName, objectName);
+            assert.strictEqual(storageUrl.domain, domain);
             assert.strictEqual(storageUrl.sas, sas);
         });
     });
@@ -36,10 +38,47 @@ describe("ResourceURI", () => {
             const objectType = "blob";
             const objectName = "container";
             const sas = "sas";
+            let domain = "core.windows.net";
 
-            const storageUrl = new ResourceURI(accountName, objectType, objectName, sas);
+            const storageUrl = new ResourceURI(accountName, objectType, domain, objectName, sas);
 
             assert.strictEqual(storageUrl.getSASConnectionString(), `BlobEndpoint=https://${accountName}.blob.core.windows.net/;SharedAccessSignature=${sas}`);
+        });
+    });
+
+    describe("#fromUri() - chinese domain", () => {
+        it("valid input", () => {
+            const accountName = "account";
+            const objectType = "blob";
+            const objectName = "container";
+            const sas = "sas";
+            let domain = "core.chinacloudapi.cn";
+
+            const uri = `https://${accountName}.${objectType}.${domain}/${objectName}?${sas}`;
+            const storageUrl = ResourceURI.fromURI(uri);
+
+            assert.strictEqual(storageUrl.storageAccountName, accountName);
+            assert.strictEqual(storageUrl.objectType, objectType);
+            assert.strictEqual(storageUrl.objectName, objectName);
+            assert.strictEqual(storageUrl.domain, domain);
+            assert.strictEqual(storageUrl.sas, sas);
+        });
+    });
+
+    describe("#getSASConnectionString() - chinese domain", () => {
+        it("valid input", () => {
+            const accountName = "account";
+            const objectType = "blob";
+            const objectName = "container";
+            const sas = "sas";
+            let domain = "core.chinacloudapi.cn";
+
+            const storageUrl = new ResourceURI(accountName, objectType, domain, objectName, sas);
+
+            assert.strictEqual(
+                storageUrl.getSASConnectionString(),
+                `BlobEndpoint=https://${accountName}.blob.core.chinacloudapi.cn/;SharedAccessSignature=${sas}`
+            );
         });
     });
 });
