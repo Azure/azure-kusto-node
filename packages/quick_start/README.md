@@ -14,7 +14,7 @@ You can use it as a baseline to write your own first kusto client application, a
 
 ### Retrieving the app from GitHub
 
-1. Download the app files from this GitHub repo.
+1. Download the app files from this GitHub repository.
 2. Modify the `kusto_sample_config.json` file, changing `kustoUri`, `ingestUri` and `databaseName` appropriately for your cluster.
 
 ### Retrieving the app from OneClick
