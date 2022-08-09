@@ -36,11 +36,13 @@ export class StatusQueue {
 
     _getQServices(queuesDetails: ResourceURI[]) {
         return queuesDetails.map((q) => {
-            const sasConnectionString = q.getSASConnectionString();
-            if (!sasConnectionString) {
+            const fullUri = q.uri;
+            if (!fullUri) {
                 throw new Error("Empty or null connection string");
             }
-            return new QueueDetails(q.objectName, new QueueClient(sasConnectionString, q.objectName));
+            // chop off sas
+            const name = q.uri.indexOf("?") > 0 ? q.uri.substring(0, q.uri.indexOf("?")) : q.uri;
+            return new QueueDetails(name, new QueueClient(fullUri));
         });
     }
 
