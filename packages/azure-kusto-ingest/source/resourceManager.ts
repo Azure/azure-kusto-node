@@ -5,29 +5,9 @@ import { Client, KustoDataErrors } from "azure-kusto-data";
 import { ExponentialRetry } from "./retry";
 import moment from "moment";
 
-const URI_FORMAT = /\s*https:\/\/(\w+).(queue|blob|table).((?:[a-z]+\.)+?[a-z]+)\/([\w,-]+)\?(.*)\s*/i;
 const ATTEMPT_COUNT = 4;
 export class ResourceURI {
-    constructor(readonly storageAccountName: string, readonly objectType: string, readonly domain: string, readonly objectName: string, readonly sas: string) {}
-
-    static fromURI(uri: string) {
-        const match = URI_FORMAT.exec(uri);
-        if (match == null || match.length < 5) {
-            throw Error(`Failed to create ResourceManager from URI - invalid uri (${uri})`);
-        }
-        return new ResourceURI(match[1], match[2], match[3], match[4], match[5]);
-    }
-
-    getSASConnectionString(): string {
-        if (this.objectType === "queue") {
-            return `QueueEndpoint=https://${this.storageAccountName}.queue.${this.domain}/;SharedAccessSignature=${this.sas}`;
-        }
-        if (this.objectType === "blob") {
-            return `BlobEndpoint=https://${this.storageAccountName}.blob.${this.domain}/;SharedAccessSignature=${this.sas}`;
-        }
-
-        throw new Error(`Can't make the current object type (${this.objectType}) to connection string`);
-    }
+    constructor(readonly uri: string) {}
 }
 
 export class IngestClientResources {
@@ -102,14 +82,14 @@ export class ResourceManager {
     }
 
     getResourceByName(table: { rows: () => any }, resourceName: string): ResourceURI[] {
-        const result = [];
+        const result: ResourceURI[] = [];
         for (const row of table.rows()) {
             const typedRow = row as {
                 ResourceTypeName: string;
                 StorageRoot: string;
             };
             if (typedRow.ResourceTypeName === resourceName) {
-                result.push(ResourceURI.fromURI(typedRow.StorageRoot));
+                result.push(new ResourceURI(typedRow.StorageRoot));
             }
         }
         return result;
