@@ -41,7 +41,8 @@ export class StatusQueue {
                 throw new Error("Empty or null connection string");
             }
             // chop off sas
-            const name = q.uri.indexOf("?") > 0 ? q.uri.substring(0, q.uri.indexOf("?")) : q.uri;
+            let indexOfSas = q.uri.indexOf("?");
+            const name = indexOfSas > 0 ? q.uri.substring(0, indexOfSas) : q.uri;
             return new QueueDetails(name, new QueueClient(fullUri));
         });
     }
