@@ -1,7 +1,6 @@
 ### Prerequisites
 
-1. Set up NodeJS version 14+ and npm on your machine. For instructions, consult a setup tutorial, like [this](https://docs.microsoft.
-   com/en-us/windows/dev-environment/javascript/nodejs-on-windows)
+1. Set up NodeJS version 14+ and npm on your machine. For instructions, consult a setup tutorial, like [this](https://docs.microsoft.com/en-us/windows/dev-environment/javascript/nodejs-on-windows)
 
 ### Instructions
 
