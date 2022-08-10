@@ -1,5 +1,5 @@
 {
-    "name": "quick_start",
+    "name": "azure-kusto-quick-start",
     "version": "3.4.0",
     "description": "Quick start Node sample app",
     "main": "source/SampleApp.js",
