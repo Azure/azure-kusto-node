@@ -38,7 +38,7 @@ export class KustoIngestClient extends AbstractKustoClient {
             throw new Error("Failed to get containers");
         }
         const container = containers[Math.floor(Math.random() * containers.length)];
-        const containerClient = new ContainerClient(container.getSASConnectionString(), container.objectName);
+        const containerClient = new ContainerClient(container.uri);
         return containerClient.getBlockBlobClient(blobName);
     }
 
@@ -85,7 +85,7 @@ export class KustoIngestClient extends AbstractKustoClient {
 
         const queueDetails = queues[Math.floor(Math.random() * queues.length)];
 
-        const queueClient = new QueueClient(queueDetails.getSASConnectionString(), queueDetails.objectName);
+        const queueClient = new QueueClient(queueDetails.uri);
 
         const ingestionBlobInfo = new IngestionBlobInfo(descriptor, props, authorizationContext);
         const ingestionBlobInfoJson = JSON.stringify(ingestionBlobInfo);

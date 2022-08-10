@@ -9,40 +9,8 @@ import sinon from "sinon";
 
 import { Client as KustoClient } from "azure-kusto-data";
 
-import { IngestClientResources, ResourceManager, ResourceURI } from "../source/resourceManager";
+import { IngestClientResources, ResourceManager } from "../source/resourceManager";
 import { KustoResponseDataSet } from "azure-kusto-data/source/response";
-
-describe("ResourceURI", () => {
-    describe("#fromUri()", () => {
-        it("valid input", () => {
-            const accountName = "account";
-            const objectType = "blob";
-            const objectName = "container";
-            const sas = "sas";
-
-            const uri = `https://${accountName}.${objectType}.core.windows.net/${objectName}?${sas}`;
-            const storageUrl = ResourceURI.fromURI(uri);
-
-            assert.strictEqual(storageUrl.storageAccountName, accountName);
-            assert.strictEqual(storageUrl.objectType, objectType);
-            assert.strictEqual(storageUrl.objectName, objectName);
-            assert.strictEqual(storageUrl.sas, sas);
-        });
-    });
-
-    describe("#getSASConnectionString()", () => {
-        it("valid input", () => {
-            const accountName = "account";
-            const objectType = "blob";
-            const objectName = "container";
-            const sas = "sas";
-
-            const storageUrl = new ResourceURI(accountName, objectType, objectName, sas);
-
-            assert.strictEqual(storageUrl.getSASConnectionString(), `BlobEndpoint=https://${accountName}.blob.core.windows.net/;SharedAccessSignature=${sas}`);
-        });
-    });
-});
 
 describe("ResourceManager", () => {
     const rows = [
