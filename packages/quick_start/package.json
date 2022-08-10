@@ -9,13 +9,15 @@
         "quick_start": "npx ts-node source/SampleApp.ts"
     },
     "dependencies": {
-        "ts-node": "^10.9.1",
-        "diff": "^5.1.0",
         "azure-kusto-data": "^3.3.2",
         "azure-kusto-ingest": "^3.3.2",
+        "diff": "^5.1.0",
+        "ts-node": "^10.9.1",
         "uuid": "^8.3.2"
     },
-    "devDependencies": {},
+    "devDependencies": {
+        "typescript": "^4.7.4"
+    },
     "repository": {
         "type": "git",
         "url": "git+https://github.com/Azure/azure-kusto-node.git"
