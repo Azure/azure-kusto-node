@@ -1,5 +1,24 @@
 {
-    "extends": "../../tsconfig.json",
-    "include": ["index.ts", "./source"],
-    "exclude": ["node_modules", "*.d.ts", "**/*.d.ts"]
+    "compilerOptions": {
+        "target": "es6",
+        "module": "commonjs",
+        "esModuleInterop": true,
+        "strict": true,
+        "incremental": true,
+        "sourceMap": true,
+        "resolveJsonModule": true,
+        "allowJs": false,
+        "declaration": true,
+        "noUnusedParameters": true,
+        "noUnusedLocals": true
+    },
+    "include": [
+        "index.ts",
+        "./source"
+    ],
+    "exclude": [
+        "node_modules",
+        "*.d.ts",
+        "**/*.d.ts"
+    ]
 }
