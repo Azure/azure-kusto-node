@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { ConfidentialClientApplication, PublicClientApplication } from "@azure/msal-node";
+import { ConfidentialClientApplication, PublicClientApplication, Configuration } from "@azure/msal-node";
 import { DeviceCodeResponse } from "@azure/msal-common";
 import { AzureCliCredential, InteractiveBrowserCredential, ManagedIdentityCredential, TokenCredentialOptions } from "@azure/identity";
 import { CloudInfo, CloudSettings } from "./cloudSettings";
@@ -82,19 +82,31 @@ export class CallbackTokenProvider extends TokenProviderBase {
  * Acquire a token from MSAL
  */
 abstract class MsalTokenProvider extends TokenProviderBase {
-    cloudInfo!: CloudInfo;
-    authorityId: string;
-    initialized: boolean;
-    authorityUri!: string;
+    protected cloudInfo!: CloudInfo;
+    protected authorityId: string;
+    protected initialized: boolean;
+    protected authorityUri!: string;
+    protected clientId: string | undefined;
 
-    abstract initClient(): void;
+    abstract initClient(commonOptions: Configuration): void;
 
     abstract acquireMsalToken(): Promise<TokenType | null>;
 
-    protected constructor(kustoUri: string, authorityId: string) {
+    protected constructor(kustoUri: string, authorityId: string, clientId: string | undefined) {
         super(kustoUri);
+        this.clientId = clientId;
         this.initialized = false;
         this.authorityId = authorityId;
+    }
+
+    commonOptions(): Configuration {
+        return {
+            auth: {
+                clientId: this.clientId!,
+                knownAuthorities: [this.cloudInfo.LoginEndpoint],
+                authority: this.authorityUri,
+            },
+        };
     }
 
     async acquireToken(): Promise<TokenResponse> {
@@ -107,7 +119,10 @@ abstract class MsalTokenProvider extends TokenProviderBase {
                 }
                 this.scopes = [resourceUri + "/.default"];
                 this.authorityUri = CloudSettings.getAuthorityUri(this.cloudInfo, this.authorityId);
-                this.initClient();
+                if (!this.clientId) {
+                    this.clientId = this.cloudInfo.KustoClientAppId;
+                }
+                this.initClient(this.commonOptions());
             }
             this.initialized = true;
         }
@@ -132,8 +147,8 @@ export abstract class AzureIdentityProvider extends MsalTokenProvider {
     private credential!: TokenCredential;
     protected authorityHost!: string;
 
-    constructor(kustoUri: string, authorityId: string, protected clientId?: string, private timeoutMs?: number) {
-        super(kustoUri, authorityId);
+    constructor(kustoUri: string, authorityId: string, clientId?: string, private timeoutMs?: number) {
+        super(kustoUri, authorityId, clientId);
     }
 
     initClient(): void {
@@ -248,19 +263,13 @@ export class UserPassTokenProvider extends MsalTokenProvider {
     msalClient!: PublicClientApplication;
 
     constructor(kustoUri: string, userName: string, password: string, authorityId: string) {
-        super(kustoUri, authorityId);
+        super(kustoUri, authorityId, undefined);
         this.userName = userName;
         this.password = password;
     }
 
-    initClient(): void {
-        const clientConfig = {
-            auth: {
-                clientId: this.cloudInfo.KustoClientAppId,
-                authority: this.authorityUri,
-            },
-        };
-        this.msalClient = new PublicClientApplication(clientConfig);
+    initClient(commonOptions: Configuration): void {
+        this.msalClient = new PublicClientApplication(commonOptions);
     }
 
     async acquireMsalToken(): Promise<TokenType | null> {
@@ -303,18 +312,12 @@ export class DeviceLoginTokenProvider extends MsalTokenProvider {
     msalClient!: PublicClientApplication;
 
     constructor(kustoUri: string, deviceCodeCallback: (response: DeviceCodeResponse) => void, authorityId: string) {
-        super(kustoUri, authorityId);
+        super(kustoUri, authorityId, undefined);
         this.deviceCodeCallback = deviceCodeCallback;
     }
 
-    initClient(): void {
-        const clientConfig = {
-            auth: {
-                clientId: this.cloudInfo.KustoClientAppId,
-                authority: this.authorityUri,
-            },
-        };
-        this.msalClient = new PublicClientApplication(clientConfig);
+    initClient(commonOptions: Configuration): void {
+        this.msalClient = new PublicClientApplication(commonOptions);
     }
 
     async acquireMsalToken(): Promise<TokenType | null> {
@@ -343,22 +346,20 @@ export class DeviceLoginTokenProvider extends MsalTokenProvider {
  * Acquire a token from MSAL with application Id and Key
  */
 export class ApplicationKeyTokenProvider extends MsalTokenProvider {
-    appClientId: string;
     appKey: string;
     msalClient!: ConfidentialClientApplication;
 
     constructor(kustoUri: string, appClientId: string, appKey: string, authorityId: string) {
-        super(kustoUri, authorityId);
-        this.appClientId = appClientId;
+        super(kustoUri, authorityId, appClientId);
         this.appKey = appKey;
     }
 
-    initClient(): void {
+    initClient(commonOptions: Configuration): void {
         const clientConfig = {
+            ...commonOptions,
             auth: {
-                clientId: this.appClientId,
+                ...commonOptions.auth,
                 clientSecret: this.appKey,
-                authority: this.authorityUri,
             },
         };
         this.msalClient = new ConfidentialClientApplication(clientConfig);
@@ -371,7 +372,7 @@ export class ApplicationKeyTokenProvider extends MsalTokenProvider {
     }
 
     context(): Record<string, any> {
-        return { ...super.context(), clientId: this.appClientId };
+        return { ...super.context(), clientId: this.clientId };
     }
 }
 
@@ -380,25 +381,23 @@ export class ApplicationKeyTokenProvider extends MsalTokenProvider {
  * Passing the public certificate is optional and will result in Subject Name & Issuer Authentication
  */
 export class ApplicationCertificateTokenProvider extends MsalTokenProvider {
-    appClientId: string;
     certThumbprint: string;
     certPrivateKey: string;
     certX5c?: string;
     msalClient!: ConfidentialClientApplication;
 
     constructor(kustoUri: string, appClientId: string, certThumbprint: string, certPrivateKey: string, certX5c?: string, authorityId?: string) {
-        super(kustoUri, authorityId!);
-        this.appClientId = appClientId;
+        super(kustoUri, authorityId!, appClientId);
         this.certThumbprint = certThumbprint;
         this.certPrivateKey = certPrivateKey;
         this.certX5c = certX5c;
     }
 
-    initClient(): void {
+    initClient(commonOptions: Configuration): void {
         const clientConfig = {
+            ...commonOptions,
             auth: {
-                clientId: this.appClientId,
-                authority: this.authorityUri,
+                ...commonOptions.auth,
                 clientCertificate: {
                     thumbprint: this.certThumbprint,
                     privateKey: this.certPrivateKey,
@@ -418,7 +417,7 @@ export class ApplicationCertificateTokenProvider extends MsalTokenProvider {
     context(): Record<string, any> {
         return {
             ...super.context(),
-            clientId: this.appClientId,
+            clientId: this.clientId,
             thumbprint: this.certThumbprint,
         };
     }
