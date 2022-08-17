@@ -432,7 +432,7 @@ export class ApplicationCertificateTokenProvider extends MsalTokenProvider {
         return {
             ...super.context(),
             clientId: this.appClientId,
-            thumbprint: this.certThumbprint
+            thumbprint: this.certThumbprint,
         };
     }
 }
