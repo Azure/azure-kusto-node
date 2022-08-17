@@ -68,7 +68,9 @@ export class Authentication extends Utils {
                 // For more information, see https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/overview
                 // Connect using the system - or user-assigned managed identity (Azure service only)
                 // TODO (config - optional): Managed identity client ID if you are using a user-assigned managed identity
-                return KustoConnectionStringBuilder.withAadManagedIdentities(clusterUri, process.env.MANAGED_IDENTITY_CLIENT_ID);
+                return process.env.MANAGED_IDENTITY_CLIENT_ID
+                    ? KustoConnectionStringBuilder.withUserManagedIdentity(clusterUri, process.env.MANAGED_IDENTITY_CLIENT_ID)
+                    : KustoConnectionStringBuilder.withSystemManagedIdentity(clusterUri);
             }
             case AuthenticationModeOptions.AppKey: {
                 // Learn More: For information about how to procure an AAD Application,

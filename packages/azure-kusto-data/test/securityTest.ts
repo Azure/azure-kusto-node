@@ -102,7 +102,7 @@ describe("test errors", () => {
     it("test msi", async () => {
         const cluster = "https://somecluster.kusto.windows.net";
         const clientId = "86f7361f-15b7-4f10-aef5-3ce66ac73766";
-        const kcsb = KustoConnectionStringBuilder.withAadManagedIdentities(cluster, clientId, "organizations", 1);
+        const kcsb = KustoConnectionStringBuilder.withUserManagedIdentity(cluster, clientId, "organizations", 1);
 
         const helper = new AadHelper(kcsb);
         try {
@@ -209,37 +209,47 @@ describe("Test providers", () => {
     manualLoginTest()("test az login", async () => {
         const cluster = "https://somecluster.kusto.windows.net";
 
-        const kcsb = KustoConnectionStringBuilder.withAzLoginIdentity(cluster, "organizations");
+        const kcsb = KustoConnectionStringBuilder.withAzLoginIdentity(cluster);
 
         const helper = new AadHelper(kcsb);
         const token = await helper.getAuthHeader();
         assert.notStrictEqual(token, null);
     }).timeout(30000);
 
-    manualLoginTest()("test device code", async () => {
+    /*manualLoginTest()("test device code", async () => {
+            const cluster = "https://somecluster.kusto.windows.net";
+
+            const kcsb = KustoConnectionStringBuilder.withAadDeviceAuthentication(cluster, "organizations");
+
+            const helper = new AadHelper(kcsb);
+            const token = await helper.getAuthHeader();
+            assert.notStrictEqual(token, null);
+        }).timeout(60000);
+
+        manualLoginTest()("test user prompt", async () => {
+            const cluster = "https://somecluster.kusto.windows.net";
+
+            const kcsb = KustoConnectionStringBuilder.withUserPrompt(cluster);
+
+            const helper = new AadHelper(kcsb);
+            const token = await helper.getAuthHeader();
+            assert.notStrictEqual(token, null);
+        }).timeout(60000);*/
+
+    manualLoginTest("TEST_MSI", "MSI_ID")("test msi user", async () => {
         const cluster = "https://somecluster.kusto.windows.net";
 
-        const kcsb = KustoConnectionStringBuilder.withAadDeviceAuthentication(cluster, "organizations");
+        const kcsb = KustoConnectionStringBuilder.withUserManagedIdentity(cluster, process.env.MSI_ID!);
 
         const helper = new AadHelper(kcsb);
         const token = await helper.getAuthHeader();
         assert.notStrictEqual(token, null);
     }).timeout(30000);
 
-    manualLoginTest()("test user prompt", async () => {
+    manualLoginTest("TEST_MSI")("test msi system", async () => {
         const cluster = "https://somecluster.kusto.windows.net";
 
-        const kcsb = KustoConnectionStringBuilder.withUserPrompt(cluster, "organizations");
-
-        const helper = new AadHelper(kcsb);
-        const token = await helper.getAuthHeader();
-        assert.notStrictEqual(token, null);
-    }).timeout(30000);
-
-    manualLoginTest("TEST_MSI")("test msi", async () => {
-        const cluster = "https://somecluster.kusto.windows.net";
-
-        const kcsb = KustoConnectionStringBuilder.withAadManagedIdentities(cluster, undefined, "organizations");
+        const kcsb = KustoConnectionStringBuilder.withSystemManagedIdentity(cluster);
 
         const helper = new AadHelper(kcsb);
         const token = await helper.getAuthHeader();
