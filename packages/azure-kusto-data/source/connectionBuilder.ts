@@ -230,6 +230,9 @@ export class KustoConnectionStringBuilder {
         return kcsb;
     }
 
+    /**
+     * @deprecated - use `withSystemManagedIdentity` or `withUserManagedIdentity` instead
+     */
     static withAadManagedIdentities(connectionString: string, msiClientId?: string, authorityId?: string, timeoutMs?: number) {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         kcsb.aadFederatedSecurity = true;
@@ -241,6 +244,14 @@ export class KustoConnectionStringBuilder {
         kcsb.useManagedIdentityAuth = true;
 
         return kcsb;
+    }
+
+    static withSystemManagedIdentity(connectionString: string, authorityId?: string, timeoutMs?: number) {
+        return this.withAadManagedIdentities(connectionString, undefined, authorityId, timeoutMs);
+    }
+
+    static withUserManagedIdentity(connectionString: string, msiClientId: string, authorityId?: string, timeoutMs?: number) {
+        return this.withAadManagedIdentities(connectionString, msiClientId, authorityId, timeoutMs);
     }
 
     static withAzLoginIdentity(connectionString: string, authorityId?: string, timeoutMs?: number) {

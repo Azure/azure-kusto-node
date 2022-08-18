@@ -48,7 +48,8 @@ const kcsb = KustoConnectionStringBuilder.withAadApplicationCertificateAuthentic
 Option 3: Authenticating using [AAD Managed Identities](https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/overview).
 
 ```javascript
-const kcsb = KustoConnectionStringBuilder.withAadManagedIdentities(`https://${clusterName}.kusto.windows.net`, "(Optional)msiEndpoint", "(Optional)clientId");
+const kcsb = KustoConnectionStringBuilder.withSystemManagedIdentity(`https://${clusterName}.kusto.windows.net`);
+const kcsb = KustoConnectionStringBuilder.withUserManagedIdentity(`https://${clusterName}.kusto.windows.net`, clientId);
 ```
 
 ### Username/Password
