@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 import { v4 as uuidv4 } from "uuid";
-import moment from "moment";
 import { BlobDescriptor } from "./descriptors";
 import IngestionProperties, { ReportLevel, ReportMethod } from "./ingestionProperties";
 
@@ -16,7 +15,7 @@ export class IngestionBlobInfo {
     IgnoreSizeLimit: boolean;
     ReportLevel: ReportLevel | null;
     ReportMethod: ReportMethod | null;
-    SourceMessageCreationTime: moment.Moment;
+    SourceMessageCreationTime: Date;
     Id: string;
     AdditionalProperties: { [additional: string]: any };
 
@@ -30,7 +29,7 @@ export class IngestionBlobInfo {
         this.IgnoreSizeLimit = false;
         this.ReportLevel = ingestionProperties.reportLevel ?? null;
         this.ReportMethod = ingestionProperties.reportMethod ?? null;
-        this.SourceMessageCreationTime = moment.utc();
+        this.SourceMessageCreationTime = new Date();
         this.Id = blobDescriptor.sourceId || uuidv4();
 
         const additionalProperties = ingestionProperties.additionalProperties || {};

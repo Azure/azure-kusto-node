@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 import assert from "assert";
-import moment from "moment";
 import { KustoResultColumn, KustoResultRow, KustoResultTable } from "../source/models";
 import v2 from "./data/response/v2";
 
@@ -58,12 +57,12 @@ describe("KustoResultRow", () => {
 
             const asJson = actual.toJSON();
             const expectedValues = [
-                moment(inputValues[0] as string),
+                new Date(inputValues[0] as string),
                 inputValues[1],
                 inputValues[2],
                 inputValues[3],
                 inputValues[4],
-                moment(inputValues[5] as number),
+                new Date(inputValues[5] as number),
             ];
 
             for (let index = 0; index < inputColumns.length; index++) {
@@ -149,7 +148,7 @@ describe("KustoResultRow", () => {
         it("mapped props", () => {
             const inputValues = ["2016-06-06T15:35:00Z", "foo", 101, 3.14, false, 3493235670000];
 
-            const expectedValues = [moment("2016-06-06T15:35:00Z"), "foo", 101, 3.14, false, moment.duration(3493235670000, "ms")];
+            const expectedValues = [new Date("2016-06-06T15:35:00Z"), "foo", 101, 3.14, false, 3493235670000];
 
             const actual = new KustoResultRow(inputColumns, inputValues).toJSON<{
                 Timestamp: number;
@@ -157,7 +156,7 @@ describe("KustoResultRow", () => {
                 Altitude: number;
                 Temperature: number;
                 IsFlying: boolean;
-                TimeFlying: moment.Duration;
+                TimeFlying: number;
             }>();
 
             assert.strictEqual(actual.Timestamp.toString(), expectedValues[0].toString());
@@ -171,7 +170,7 @@ describe("KustoResultRow", () => {
         it("value at", () => {
             const inputValues = ["2016-06-06T15:35:00Z", "foo", 101, 3.14, false, 3493235670000];
 
-            const expectedValues = [moment("2016-06-06T15:35:00Z"), "foo", 101, 3.14, false, moment.duration(3493235670000, "ms")];
+            const expectedValues = [new Date("2016-06-06T15:35:00Z"), "foo", 101, 3.14, false, 3493235670000];
 
             const actual = new KustoResultRow(inputColumns, inputValues);
 

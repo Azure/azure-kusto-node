@@ -3,7 +3,7 @@
 
 import { Client, KustoDataErrors } from "azure-kusto-data";
 import { ExponentialRetry } from "./retry";
-import moment from "moment";
+import { toMilliseconds } from "azure-kusto-data/source/timeUtils";
 
 const ATTEMPT_COUNT = 4;
 export class ResourceURI {
@@ -25,17 +25,17 @@ export class IngestClientResources {
 }
 
 export class ResourceManager {
-    public readonly refreshPeriod: moment.Duration;
+    public readonly refreshPeriod: number;
     public ingestClientResources: IngestClientResources | null;
-    public ingestClientResourcesLastUpdate: moment.Moment | null;
+    public ingestClientResourcesLastUpdate: number | null;
     public authorizationContext: string | null;
-    public authorizationContextLastUpdate: moment.Moment | null;
+    public authorizationContextLastUpdate: number | null;
 
     private baseSleepTimeSecs = 1;
     private baseJitterSecs = 1;
 
     constructor(readonly kustoClient: Client) {
-        this.refreshPeriod = moment.duration(1, "h");
+        this.refreshPeriod = toMilliseconds(1, 0, 0);
 
         this.ingestClientResources = null;
         this.ingestClientResourcesLastUpdate = null;
@@ -45,11 +45,11 @@ export class ResourceManager {
     }
 
     async refreshIngestClientResources(): Promise<IngestClientResources> {
-        const now = moment();
+        const now = Date.now();
         if (
             !this.ingestClientResources ||
             !this.ingestClientResourcesLastUpdate ||
-            this.ingestClientResourcesLastUpdate.add(this.refreshPeriod) <= now ||
+            this.ingestClientResourcesLastUpdate + this.refreshPeriod <= now ||
             !this.ingestClientResources.valid()
         ) {
             this.ingestClientResources = await this.getIngestClientResourcesFromService();
@@ -96,8 +96,8 @@ export class ResourceManager {
     }
 
     async refreshAuthorizationContext(): Promise<string> {
-        const now = moment.utc();
-        if (!this.authorizationContext?.trim() || !this.authorizationContextLastUpdate || this.authorizationContextLastUpdate.add(this.refreshPeriod) <= now) {
+        const now = Date.now();
+        if (!this.authorizationContext?.trim() || !this.authorizationContextLastUpdate || this.authorizationContextLastUpdate + this.refreshPeriod <= now) {
             this.authorizationContext = await this.getAuthorizationContextFromService();
             this.authorizationContextLastUpdate = now;
 

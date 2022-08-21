@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import moment from "moment";
-
 export enum WellKnownDataSet {
     PrimaryResult = "PrimaryResult",
     QueryCompletionInformation = "QueryCompletionInformation",
@@ -13,8 +11,8 @@ export enum WellKnownDataSet {
 type DateTimeParser = (value: string) => any;
 type TimeSpanParser = (value: number) => any;
 
-const defaultDatetimeParser: DateTimeParser = (t: string) => moment(t);
-const defaultTimespanParser: TimeSpanParser = (t: number) => moment.duration(t);
+const defaultDatetimeParser: DateTimeParser = (t: string) => new Date(t);
+const defaultTimespanParser: TimeSpanParser = (t: number) => t;
 
 export interface Table {
     TableKind?: string;

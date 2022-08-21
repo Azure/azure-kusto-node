@@ -3,8 +3,6 @@
 
 import assert from "assert";
 
-import moment from "moment";
-
 import sinon from "sinon";
 
 import { Client as KustoClient } from "azure-kusto-data";
@@ -105,7 +103,7 @@ describe("ResourceManager", () => {
             const resourceManager = new ResourceManager(new KustoClient("https://cluster.kusto.windows.net"));
 
             const call = sinon.stub(resourceManager, "getIngestClientResourcesFromService");
-            resourceManager.ingestClientResourcesLastUpdate = moment();
+            resourceManager.ingestClientResourcesLastUpdate = Date.now();
             resourceManager.ingestClientResources = new IngestClientResources([], [], [], []);
 
             await resourceManager.refreshIngestClientResources();
