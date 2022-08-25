@@ -105,7 +105,7 @@ describe("ResourceManager", () => {
             const resourceManager = new ResourceManager(new KustoClient("https://cluster.kusto.windows.net"));
 
             const call = sinon.stub(resourceManager, "getIngestClientResourcesFromService");
-            resourceManager.ingestClientResourcesLastUpdate = moment();
+            resourceManager.ingestClientResourcesNextUpdate = moment().add(1, "minute");
             resourceManager.ingestClientResources = new IngestClientResources([], [], [], []);
 
             await resourceManager.refreshIngestClientResources();

@@ -27,9 +27,9 @@ export class IngestClientResources {
 export class ResourceManager {
     public readonly refreshPeriod: moment.Duration;
     public ingestClientResources: IngestClientResources | null;
-    public ingestClientResourcesLastUpdate: moment.Moment | null;
+    public ingestClientResourcesNextUpdate: moment.Moment | null;
     public authorizationContext: string | null;
-    public authorizationContextLastUpdate: moment.Moment | null;
+    public authorizationContextNextUpdate: moment.Moment | null;
 
     private baseSleepTimeSecs = 1;
     private baseJitterSecs = 1;
@@ -38,22 +38,22 @@ export class ResourceManager {
         this.refreshPeriod = moment.duration(1, "h");
 
         this.ingestClientResources = null;
-        this.ingestClientResourcesLastUpdate = null;
+        this.ingestClientResourcesNextUpdate = null;
 
         this.authorizationContext = null;
-        this.authorizationContextLastUpdate = null;
+        this.authorizationContextNextUpdate = null;
     }
 
     async refreshIngestClientResources(): Promise<IngestClientResources> {
         const now = moment();
         if (
             !this.ingestClientResources ||
-            !this.ingestClientResourcesLastUpdate ||
-            this.ingestClientResourcesLastUpdate.clone().add(this.refreshPeriod) <= now ||
+            !this.ingestClientResourcesNextUpdate ||
+            this.ingestClientResourcesNextUpdate <= now ||
             !this.ingestClientResources.valid()
         ) {
             this.ingestClientResources = await this.getIngestClientResourcesFromService();
-            this.ingestClientResourcesLastUpdate = now;
+            this.ingestClientResourcesNextUpdate = moment().add(this.refreshPeriod);
         }
 
         return this.ingestClientResources;
@@ -97,13 +97,9 @@ export class ResourceManager {
 
     async refreshAuthorizationContext(): Promise<string> {
         const now = moment.utc();
-        if (
-            !this.authorizationContext?.trim() ||
-            !this.authorizationContextLastUpdate ||
-            this.authorizationContextLastUpdate.clone().add(this.refreshPeriod) <= now
-        ) {
+        if (!this.authorizationContext?.trim() || !this.authorizationContextNextUpdate || this.authorizationContextNextUpdate <= now) {
             this.authorizationContext = await this.getAuthorizationContextFromService();
-            this.authorizationContextLastUpdate = now;
+            this.authorizationContextNextUpdate = moment().add(this.refreshPeriod);
 
             if (this.authorizationContext == null) {
                 throw new Error("Authorization context can't be null");
