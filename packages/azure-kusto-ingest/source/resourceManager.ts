@@ -38,10 +38,10 @@ export class ResourceManager {
         this.refreshPeriod = moment.duration(1, "h");
 
         this.ingestClientResources = null;
-        this.ingestClientResourcesNextUpdate = moment().add(-1, "s");
+        this.ingestClientResourcesNextUpdate = moment();
 
         this.authorizationContext = null;
-        this.authorizationContextNextUpdate = moment().add(-1, "s");
+        this.authorizationContextNextUpdate = moment();
     }
 
     async refreshIngestClientResources(): Promise<IngestClientResources> {
