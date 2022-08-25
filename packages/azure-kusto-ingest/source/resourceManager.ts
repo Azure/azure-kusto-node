@@ -27,9 +27,9 @@ export class IngestClientResources {
 export class ResourceManager {
     public readonly refreshPeriod: moment.Duration;
     public ingestClientResources: IngestClientResources | null;
-    public ingestClientResourcesNextUpdate: moment.Moment | null;
+    public ingestClientResourcesNextUpdate: moment.Moment;
     public authorizationContext: string | null;
-    public authorizationContextNextUpdate: moment.Moment | null;
+    public authorizationContextNextUpdate: moment.Moment;
 
     private baseSleepTimeSecs = 1;
     private baseJitterSecs = 1;
@@ -38,20 +38,15 @@ export class ResourceManager {
         this.refreshPeriod = moment.duration(1, "h");
 
         this.ingestClientResources = null;
-        this.ingestClientResourcesNextUpdate = null;
+        this.ingestClientResourcesNextUpdate = moment().add(-1, "s");
 
         this.authorizationContext = null;
-        this.authorizationContextNextUpdate = null;
+        this.authorizationContextNextUpdate = moment().add(-1, "s");
     }
 
     async refreshIngestClientResources(): Promise<IngestClientResources> {
         const now = moment();
-        if (
-            !this.ingestClientResources ||
-            !this.ingestClientResourcesNextUpdate ||
-            this.ingestClientResourcesNextUpdate <= now ||
-            !this.ingestClientResources.valid()
-        ) {
+        if (!this.ingestClientResources || this.ingestClientResourcesNextUpdate <= now || !this.ingestClientResources.valid()) {
             this.ingestClientResources = await this.getIngestClientResourcesFromService();
             this.ingestClientResourcesNextUpdate = moment().add(this.refreshPeriod);
         }
@@ -97,7 +92,7 @@ export class ResourceManager {
 
     async refreshAuthorizationContext(): Promise<string> {
         const now = moment.utc();
-        if (!this.authorizationContext?.trim() || !this.authorizationContextNextUpdate || this.authorizationContextNextUpdate <= now) {
+        if (!this.authorizationContext?.trim() || this.authorizationContextNextUpdate <= now) {
             this.authorizationContext = await this.getAuthorizationContextFromService();
             this.authorizationContextNextUpdate = moment().add(this.refreshPeriod);
 
