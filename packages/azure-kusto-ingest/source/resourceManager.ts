@@ -49,7 +49,7 @@ export class ResourceManager {
         if (
             !this.ingestClientResources ||
             !this.ingestClientResourcesLastUpdate ||
-            this.ingestClientResourcesLastUpdate.add(this.refreshPeriod) <= now ||
+            this.ingestClientResourcesLastUpdate.clone().add(this.refreshPeriod) <= now ||
             !this.ingestClientResources.valid()
         ) {
             this.ingestClientResources = await this.getIngestClientResourcesFromService();
@@ -97,7 +97,11 @@ export class ResourceManager {
 
     async refreshAuthorizationContext(): Promise<string> {
         const now = moment.utc();
-        if (!this.authorizationContext?.trim() || !this.authorizationContextLastUpdate || this.authorizationContextLastUpdate.add(this.refreshPeriod) <= now) {
+        if (
+            !this.authorizationContext?.trim() ||
+            !this.authorizationContextLastUpdate ||
+            this.authorizationContextLastUpdate.clone().add(this.refreshPeriod) <= now
+        ) {
             this.authorizationContext = await this.getAuthorizationContextFromService();
             this.authorizationContextLastUpdate = now;
 
