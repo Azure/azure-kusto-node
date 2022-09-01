@@ -187,6 +187,7 @@ export interface IngestionPropertiesFields {
     ingestByTags?: string[];
     dropByTags?: string[];
     flushImmediately?: boolean;
+    ignoreFirstRecord?: boolean;
     reportLevel?: ReportLevel;
     reportMethod?: ReportMethod;
     validationPolicy?: ValidationPolicy;
