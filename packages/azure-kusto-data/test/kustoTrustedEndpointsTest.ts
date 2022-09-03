@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { kustoTrustedEndpoints, MatchRule } from "../source/kustoTrustedEndpoints"
 
 const DEFAULT_PUBLIC_LOGIN_URL = "https://login.microsoftonline.com";
@@ -92,7 +95,7 @@ describe("kustoTrustedEndpoints", function () {
             // Test dev endpoints
             if (!c.includes("synapse")){
                 clusterName = c.replace(".kusto.", ".kustodev.")
-                validateEndpoint(clusterName, DEFAULT_PUBLIC_LOGIN_URL)   
+                validateEndpoint(clusterName, DEFAULT_PUBLIC_LOGIN_URL)
             }
         }
     });

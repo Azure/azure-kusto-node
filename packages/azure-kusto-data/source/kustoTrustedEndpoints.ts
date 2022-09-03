@@ -1,5 +1,7 @@
-import {default as endpointsData} from "./wellKnownKustoEndpoints.json";
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
+import {default as endpointsData} from "./wellKnownKustoEndpoints.json";
 
 function getStringTailLowerCase(val: string, tailLength: number) {
     if (tailLength <= 0){
@@ -53,12 +55,12 @@ export class FastSuffixMatcher {
             return false
         }
         const matchRules = this.rules[getStringTailLowerCase(candidate, this._suffixLength)];
-      
+
         if (matchRules){
             for (const rule of matchRules) {
                 if (candidate.endsWith(rule.suffix))
                 {
-                    if (candidate.length == rule.suffix.length
+                    if (candidate.length === rule.suffix.length
                         || !rule.exact) {
                         return true;
                     }
@@ -81,11 +83,6 @@ export class FastSuffixMatcher {
     }
 }
 
-/**
- * A helper class to determine which DNS names are "well-known/trusted"'
- * Kusto endpoints. Untrusted endpoints might require additional configuration
- * before they can be used, for security reasons.
- */
 class KustoTrustedEndpointsImpl {
     matchers: { [host: string]: FastSuffixMatcher } = {};
     additionalMatcher: FastSuffixMatcher | null = null;
@@ -94,27 +91,17 @@ class KustoTrustedEndpointsImpl {
     constructor () {
         const etr = Object.entries(endpointsData.AllowedEndpointsByLogin);
         for (const [k,v] of etr) {
-            const rules = new Array();
+            const rules = [];
             v.AllowedKustoSuffixes.forEach((suffix: string) => rules.push(new MatchRule(suffix, false)));
             v.AllowedKustoHostnames.forEach((hostname: string) => rules.push(new MatchRule(hostname, true)));
             this.matchers[k] = new FastSuffixMatcher(rules);
         }
     }
 
-    /**
-     * @param matcher Rules that determine if a hostname is a valid/trusted Kusto endpoint
-     *  (replaces existing rules). NuisLocalAddressolicy".
-     */
     setOverridePolicy(matcher:((host:string) => boolean) | null): void {
         this.overrideMatcher = matcher;
     }
 
-    /**
-     * Is the endpoint uri trusted?
-     *
-     * @param url The endpoint to inspect.
-     * @param loginEndpoint The login endpoint to check against. If null - default login is retrieved for the given url.
-     */
     validateTrustedEndpoint(url: URL | string, loginEndpoint: string) {
         const uri = typeof(url) === "string" ? new URL(url) : url;
         const host: string = uri.hostname;
@@ -122,13 +109,6 @@ class KustoTrustedEndpointsImpl {
         this._validateHostnameIsTrusted(host != null ? host : url.toString(), loginEndpoint);
     }
 
-    /**
-     * Adds the rules that determine if a hostname is a valid/trusted Kusto endpoint
-     * (extends existing rules).
-     *
-     * @param rules   - A set of rules
-     * @param replace - If true nullifies the last added rules
-     */
     public addTrustedHosts(rules: MatchRule[] | null, replace: boolean): void {
         if (!rules?.length)
         {
@@ -172,7 +152,7 @@ class KustoTrustedEndpointsImpl {
 
     _isLocalAddress(host: string): boolean
     {
-        if (["localhost","127.0.0.1","::1","[::1]"].find((c)=> c == host))
+        if (["localhost","127.0.0.1","::1","[::1]"].find((c)=> c === host))
         {
             return true;
         }
@@ -182,7 +162,7 @@ class KustoTrustedEndpointsImpl {
             for (let i = 0; i < host.length; i++)
             {
                 const ch = host.charAt(i);
-                if (ch != '.' && (ch < '0' || ch > '9'))
+                if (ch !== '.' && (ch < '0' || ch > '9'))
                 {
                     return false;
                 }

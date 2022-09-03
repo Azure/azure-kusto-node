@@ -51,7 +51,7 @@ export class KustoClient {
         };
         this.axiosInstance = axios.create({
             headers,
-            validateStatus: (status: number) => status == 200,
+            validateStatus: (status: number) => status === 200,
 
             // keepAlive pools and reuses TCP connections, so it's faster
             httpAgent: new http.Agent({ keepAlive: true }),
@@ -109,7 +109,7 @@ export class KustoClient {
         let payloadStr = "";
         if (query != null) {
             payload = {
-                "db": db,
+                db,
                 "csl": query
             };
 
@@ -139,7 +139,7 @@ export class KustoClient {
 
         headers["x-ms-client-request-id"] = clientRequestId || clientRequestPrefix + `${uuidv4()}`;
 
-        headers.Authorization = await this.aadHelper._getAuthHeader();
+        headers.Authorization = (await this.aadHelper.getAuthHeader())!;
 
         return this._doRequest(endpoint, executionType, headers, payloadStr, timeout, properties);
     }
@@ -158,7 +158,7 @@ export class KustoClient {
         let axiosResponse;
         try {
             axiosResponse = await this.axiosInstance.post(endpoint, payload, axiosConfig);
-        } catch (error) {
+        } catch (error: any) {
             if (error.response) {
                 throw error.response.data.error;
             }
@@ -170,13 +170,13 @@ export class KustoClient {
 
     _parseResponse(response: any, executionType: ExecutionType, properties?: ClientRequestProperties | null, status?: number) : KustoResponseDataSet {
         const {raw} = properties || {};
-        if (raw === true || executionType == ExecutionType.Ingest) {
+        if (raw === true || executionType === ExecutionType.Ingest) {
             return response;
         }
 
         let kustoResponse = null;
         try {
-            if (executionType == ExecutionType.Query) {
+            if (executionType === ExecutionType.Query) {
                 kustoResponse = new KustoResponseDataSetV2(response);
             } else {
                 kustoResponse = new KustoResponseDataSetV1(response);
@@ -203,7 +203,7 @@ export class KustoClient {
             }
         }
 
-        return (executionType == ExecutionType.Query ||  executionType == ExecutionType.QueryV1) ? QUERY_TIMEOUT_IN_MILLISECS : COMMAND_TIMEOUT_IN_MILLISECS;
+        return (executionType === ExecutionType.Query ||  executionType === ExecutionType.QueryV1) ? QUERY_TIMEOUT_IN_MILLISECS : COMMAND_TIMEOUT_IN_MILLISECS;
     }
 }
 
