@@ -91,7 +91,7 @@ class KustoTrustedEndpointsImpl {
     constructor () {
         const etr = Object.entries(endpointsData.AllowedEndpointsByLogin);
         for (const [k,v] of etr) {
-            const rules = [];
+            const rules: MatchRule[] = [];
             v.AllowedKustoSuffixes.forEach((suffix: string) => rules.push(new MatchRule(suffix, false)));
             v.AllowedKustoHostnames.forEach((hostname: string) => rules.push(new MatchRule(hostname, true)));
             this.matchers[k] = new FastSuffixMatcher(rules);
