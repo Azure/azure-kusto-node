@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { kustoTrustedEndpoints, MatchRule } from "../source/kustoTrustedEndpoints"
+import { kustoTrustedEndpoints, MatchRule } from "../source/kustoTrustedEndpoints";
 
 const DEFAULT_PUBLIC_LOGIN_URL = "https://login.microsoftonline.com";
 const CHINA_CLOUD_LOGIN = "https://login.partner.microsoftonline.cn";
@@ -80,28 +80,28 @@ describe("kustoTrustedEndpoints", function () {
             "https://kustonryfjo5klvrh4.westeurope.kusto.windows.net",
             "https://kustowwqgogzpseg6o.eastus2.kusto.windows.net",
             "https://kustor3gjpwqum3olw.canadacentral.kusto.windows.net",
-        ]){
-            validateEndpoint(c, DEFAULT_PUBLIC_LOGIN_URL)
+        ]) {
+            validateEndpoint(c, DEFAULT_PUBLIC_LOGIN_URL);
 
             // Test case sensitivity
-            let clusterName = c.toUpperCase()
-            validateEndpoint(clusterName, DEFAULT_PUBLIC_LOGIN_URL)
+            let clusterName = c.toUpperCase();
+            validateEndpoint(clusterName, DEFAULT_PUBLIC_LOGIN_URL);
 
             // Test MFA endpoints
-            if (!c.includes("synapse")){
-                clusterName = c.replace(".kusto.", ".kustomfa.")
-                validateEndpoint(clusterName, DEFAULT_PUBLIC_LOGIN_URL)
+            if (!c.includes("synapse")) {
+                clusterName = c.replace(".kusto.", ".kustomfa.");
+                validateEndpoint(clusterName, DEFAULT_PUBLIC_LOGIN_URL);
             }
             // Test dev endpoints
-            if (!c.includes("synapse")){
-                clusterName = c.replace(".kusto.", ".kustodev.")
-                validateEndpoint(clusterName, DEFAULT_PUBLIC_LOGIN_URL)
+            if (!c.includes("synapse")) {
+                clusterName = c.replace(".kusto.", ".kustodev.");
+                validateEndpoint(clusterName, DEFAULT_PUBLIC_LOGIN_URL);
             }
         }
     });
 
-    it("test well known kusto endpoints national clouds", function(){
-        for(const c of [
+    it("test well known kusto endpoints national clouds", function () {
+        for (const c of [
             `https://kustozszokb5yrauyq.kusto.chinacloudapi.cn,${CHINA_CLOUD_LOGIN}`,
             "https://kustofrbwrznltavls.kusto.usgovcloudapi.net,https://login.microsoftonline.us",
             "https://kusto7j53clqswr4he.kusto.core.eaglex.ic.gov,https://login.microsoftonline.eaglex.ic.gov",
@@ -110,7 +110,7 @@ describe("kustoTrustedEndpoints", function () {
             "https://kustofrbwrznltavls.kusto.usgovcloudapi.net,https://login.microsoftonline.us",
             "https://kusto7j53clqswr4he.kusto.core.eaglex.ic.gov,https://login.microsoftonline.eaglex.ic.gov",
             "https://rpe2e0422132101fct2.kusto.core.microsoft.scloud,https://login.microsoftonline.microsoft.scloud",
-        ]){
+        ]) {
             const clusterAndLoginEndpoint = c.split(",");
             validateEndpoint(clusterAndLoginEndpoint[0], clusterAndLoginEndpoint[1]);
             // Test case sensitivity
@@ -118,7 +118,7 @@ describe("kustoTrustedEndpoints", function () {
         }
     });
 
-    it("test well known kusto endpoints proxy test", function(){
+    it("test well known kusto endpoints proxy test", function () {
         for (const c of [
             `https://kusto.aria.microsoft.com,${DEFAULT_PUBLIC_LOGIN_URL}`,
             `https://ade.applicationinsights.io,${DEFAULT_PUBLIC_LOGIN_URL}`,
@@ -126,15 +126,15 @@ describe("kustoTrustedEndpoints", function () {
             `https://cluster.playfab.com,${DEFAULT_PUBLIC_LOGIN_URL}`,
             `https://cluster.playfabapi.com,${DEFAULT_PUBLIC_LOGIN_URL}`,
             `https://cluster.playfab.cn,${CHINA_CLOUD_LOGIN}`,
-        ]){
-            const clusterAndLoginEndpoint = c.split(",")
-            validateEndpoint(clusterAndLoginEndpoint[0], clusterAndLoginEndpoint[1])
+        ]) {
+            const clusterAndLoginEndpoint = c.split(",");
+            validateEndpoint(clusterAndLoginEndpoint[0], clusterAndLoginEndpoint[1]);
             // Test case sensitivity
-            validateEndpoint(clusterAndLoginEndpoint[0].toUpperCase(), clusterAndLoginEndpoint[1].toUpperCase())
+            validateEndpoint(clusterAndLoginEndpoint[0].toUpperCase(), clusterAndLoginEndpoint[1].toUpperCase());
         }
     });
 
-    it("test_well_known_kusto_endpoints_proxy_test", function(){
+    it("test_well_known_kusto_endpoints_proxy_test", function () {
         for (const c of [
             `https://kusto.aria.microsoft.com,${DEFAULT_PUBLIC_LOGIN_URL}`,
             `https://ade.applicationinsights.io,${DEFAULT_PUBLIC_LOGIN_URL}`,
@@ -142,15 +142,15 @@ describe("kustoTrustedEndpoints", function () {
             `https://cluster.playfab.com,${DEFAULT_PUBLIC_LOGIN_URL}`,
             `https://cluster.playfabapi.com,${DEFAULT_PUBLIC_LOGIN_URL}`,
             `https://cluster.playfab.cn,${CHINA_CLOUD_LOGIN}`,
-        ]){
-            const clusterAndLoginEndpoint = c.split(",")
-            validateEndpoint(clusterAndLoginEndpoint[0], clusterAndLoginEndpoint[1])
+        ]) {
+            const clusterAndLoginEndpoint = c.split(",");
+            validateEndpoint(clusterAndLoginEndpoint[0], clusterAndLoginEndpoint[1]);
             // Test case sensitivity
-            validateEndpoint(clusterAndLoginEndpoint[0].toUpperCase(), clusterAndLoginEndpoint[1].toUpperCase())
+            validateEndpoint(clusterAndLoginEndpoint[0].toUpperCase(), clusterAndLoginEndpoint[1].toUpperCase());
         }
     });
 
-    it("test_well_known_kusto_endpoints_proxy_negative_test", function (){
+    it("test_well_known_kusto_endpoints_proxy_negative_test", function () {
         for (const clusterName of [
             "https://cluster.kusto.aria.microsoft.com",
             "https://cluster.eu.kusto.aria.microsoft.com",
@@ -159,11 +159,11 @@ describe("kustoTrustedEndpoints", function () {
             "https://cluster.adx.monitor.azure.com",
             "https://cluster.adx.applicationinsights.azure.cn",
             "https://cluster.adx.monitor.azure.eaglex.ic.gov",
-        ]){
+        ]) {
             checkEndpoint(clusterName, DEFAULT_PUBLIC_LOGIN_URL, true);
-         }
+        }
     });
-    it("test_well_known_kusto_endpoints_negative", function (){
+    it("test_well_known_kusto_endpoints_negative", function () {
         for (const clusterName of [
             "https://localhostess",
             "https://127.0.0.1.a",
@@ -171,49 +171,48 @@ describe("kustoTrustedEndpoints", function () {
             "https://kusto.azurewebsites.net",
             "https://test.kusto.core.microsoft.scloud",
             "https://cluster.kusto.azuresynapse.azure.cn",
-        ]){
-            checkEndpoint(clusterName, DEFAULT_PUBLIC_LOGIN_URL, true)
+        ]) {
+            checkEndpoint(clusterName, DEFAULT_PUBLIC_LOGIN_URL, true);
         }
     });
-    it("test_well_known_kusto_endpoints_override", function (){
-        try{
-            kustoTrustedEndpoints.setOverridePolicy((_) =>true);
-            checkEndpoint("https://kusto.kusto.windows.net", "", false)
-            checkEndpoint("https://bing.com", "", false)
+    it("test_well_known_kusto_endpoints_override", function () {
+        try {
+            kustoTrustedEndpoints.setOverridePolicy((_) => true);
+            checkEndpoint("https://kusto.kusto.windows.net", "", false);
+            checkEndpoint("https://bing.com", "", false);
 
-            kustoTrustedEndpoints.setOverridePolicy((_)=>false);
-            checkEndpoint("https://kusto.kusto.windows.net", "", true)
-            checkEndpoint("https://bing.com", "", true)
+            kustoTrustedEndpoints.setOverridePolicy((_) => false);
+            checkEndpoint("https://kusto.kusto.windows.net", "", true);
+            checkEndpoint("https://bing.com", "", true);
 
             kustoTrustedEndpoints.setOverridePolicy(null);
-            checkEndpoint("https://kusto.kusto.windows.net", DEFAULT_PUBLIC_LOGIN_URL, false)
-            checkEndpoint("https://bing.com", DEFAULT_PUBLIC_LOGIN_URL, true)
-        } finally{
-            kustoTrustedEndpoints.setOverridePolicy(null)
+            checkEndpoint("https://kusto.kusto.windows.net", DEFAULT_PUBLIC_LOGIN_URL, false);
+            checkEndpoint("https://bing.com", DEFAULT_PUBLIC_LOGIN_URL, true);
+        } finally {
+            kustoTrustedEndpoints.setOverridePolicy(null);
         }
     });
 
-    it("test_wellKnownKustoEndpoints_AdditionalWebsites", function (){
-        kustoTrustedEndpoints.addTrustedHosts([new MatchRule(".someotherdomain1.net", false)], true)
+    it("test_wellKnownKustoEndpoints_AdditionalWebsites", function () {
+        kustoTrustedEndpoints.addTrustedHosts([new MatchRule(".someotherdomain1.net", false)], true);
 
         // 2nd call - to validate that addition works
-        kustoTrustedEndpoints.addTrustedHosts([new MatchRule("www.someotherdomain2.net", true)], false)
-        kustoTrustedEndpoints.addTrustedHosts([new MatchRule("www.someotherdomain3.net", true)], false)
+        kustoTrustedEndpoints.addTrustedHosts([new MatchRule("www.someotherdomain2.net", true)], false);
+        kustoTrustedEndpoints.addTrustedHosts([new MatchRule("www.someotherdomain3.net", true)], false);
 
-        for (const clusterName of ["https://some.someotherdomain1.net", "https://www.someotherdomain2.net"]){
-            checkEndpoint(clusterName, DEFAULT_PUBLIC_LOGIN_URL, false)
+        for (const clusterName of ["https://some.someotherdomain1.net", "https://www.someotherdomain2.net"]) {
+            checkEndpoint(clusterName, DEFAULT_PUBLIC_LOGIN_URL, false);
         }
-        for (const clusterName of ["https://some.someotherdomain2.net"]){
-            checkEndpoint(clusterName, DEFAULT_PUBLIC_LOGIN_URL, true)
+        for (const clusterName of ["https://some.someotherdomain2.net"]) {
+            checkEndpoint(clusterName, DEFAULT_PUBLIC_LOGIN_URL, true);
         }
 
         // Reset additional hosts
-        kustoTrustedEndpoints.addTrustedHosts(null, true)
+        kustoTrustedEndpoints.addTrustedHosts(null, true);
         // Validate that hosts are not allowed anymore
-        for (const clusterName of ["https://some.someotherdomain1.net", "https://www.someotherdomain2.net"]){
-            checkEndpoint(clusterName, DEFAULT_PUBLIC_LOGIN_URL, true)
+        for (const clusterName of ["https://some.someotherdomain1.net", "https://www.someotherdomain2.net"]) {
+            checkEndpoint(clusterName, DEFAULT_PUBLIC_LOGIN_URL, true);
         }
-
     });
 });
 
@@ -221,16 +220,16 @@ function validateEndpoint(address: string, loginEndpoint: any) {
     return kustoTrustedEndpoints.validateTrustedEndpoint(address, loginEndpoint);
 }
 
-function checkEndpoint(clusterName: string, loginUrl: string, expectFail: boolean){
+function checkEndpoint(clusterName: string, loginUrl: string, expectFail: boolean) {
     if (expectFail) {
         try {
             validateEndpoint(clusterName, loginUrl);
         } catch (error) {
-            if (!(error as Error).message.startsWith("Can't communicate with")){
+            if (!(error as Error).message.startsWith("Can't communicate with")) {
                 throw error;
             }
         }
-   } else {
-       validateEndpoint(clusterName, loginUrl)
-   }
+    } else {
+        validateEndpoint(clusterName, loginUrl);
+    }
 }

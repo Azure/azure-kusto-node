@@ -115,9 +115,7 @@ export class KustoClient {
         stream: any,
         properties?: ClientRequestProperties | null
     ): Promise<KustoResponseDataSet> {
-        kustoTrustedEndpoints.validateTrustedEndpoint(endpoint,
-            (await CloudSettings.getInstance().getCloudInfoForCluster(this.cluster)).LoginEndpoint
-        );
+        kustoTrustedEndpoints.validateTrustedEndpoint(endpoint, (await CloudSettings.getInstance().getCloudInfoForCluster(this.cluster)).LoginEndpoint);
         db = this.getDb(db);
         const headers: { [header: string]: string } = {};
 

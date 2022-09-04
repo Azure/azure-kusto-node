@@ -1,15 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import {default as endpointsData} from "./wellKnownKustoEndpoints.json";
+import { default as endpointsData } from "./wellKnownKustoEndpoints.json";
 
 function getStringTailLowerCase(val: string, tailLength: number) {
-    if (tailLength <= 0){
-        return ""
+    if (tailLength <= 0) {
+        return "";
     }
 
-    if (tailLength >= val.length){
-        return val.toLowerCase()
+    if (tailLength >= val.length) {
+        return val.toLowerCase();
     }
 
     return val.substring(val.length - tailLength).toLowerCase();
@@ -27,7 +27,7 @@ export class MatchRule {
     /// </summary>
     exact: boolean;
 
-    constructor (suffix: string, exact: boolean) {
+    constructor(suffix: string, exact: boolean) {
         this.suffix = suffix;
         this.exact = exact;
     }
@@ -35,12 +35,12 @@ export class MatchRule {
 
 export class FastSuffixMatcher {
     _suffixLength: number;
-    rules :{ [host: string]: MatchRule[] } = {}
+    rules: { [host: string]: MatchRule[] } = {};
 
     constructor(rules: MatchRule[] | null) {
         this._suffixLength = rules ? Math.min(...rules.map((r: MatchRule) => r.suffix.length)) : 0;
         const processedRules: { [host: string]: MatchRule[] } = {};
-        rules?.forEach((rule)=>{
+        rules?.forEach((rule) => {
             const suffix = getStringTailLowerCase(rule.suffix, this._suffixLength);
             if (!processedRules[suffix]) {
                 processedRules[suffix] = [];
@@ -51,17 +51,15 @@ export class FastSuffixMatcher {
     }
 
     isMatch(candidate: string): boolean {
-        if (candidate.length < this._suffixLength){
-            return false
+        if (candidate.length < this._suffixLength) {
+            return false;
         }
         const matchRules = this.rules[getStringTailLowerCase(candidate, this._suffixLength)];
 
-        if (matchRules){
+        if (matchRules) {
             for (const rule of matchRules) {
-                if (candidate.endsWith(rule.suffix))
-                {
-                    if (candidate.length === rule.suffix.length
-                        || !rule.exact) {
+                if (candidate.endsWith(rule.suffix)) {
+                    if (candidate.length === rule.suffix.length || !rule.exact) {
                         return true;
                     }
                 }
@@ -75,7 +73,7 @@ export class FastSuffixMatcher {
             return new FastSuffixMatcher(rules);
         }
 
-        if (!rules){
+        if (!rules) {
             return existing;
         }
 
@@ -86,11 +84,11 @@ export class FastSuffixMatcher {
 class KustoTrustedEndpointsImpl {
     matchers: { [host: string]: FastSuffixMatcher } = {};
     additionalMatcher: FastSuffixMatcher | null = null;
-    overrideMatcher: ((host:string) => boolean) | null = null; // We could unify this with matchers, but separating makes debugging easier
+    overrideMatcher: ((host: string) => boolean) | null = null; // We could unify this with matchers, but separating makes debugging easier
 
-    constructor () {
+    constructor() {
         const etr = Object.entries(endpointsData.AllowedEndpointsByLogin);
-        for (const [k,v] of etr) {
+        for (const [k, v] of etr) {
             const rules: MatchRule[] = [];
             v.AllowedKustoSuffixes.forEach((suffix: string) => rules.push(new MatchRule(suffix, false)));
             v.AllowedKustoHostnames.forEach((hostname: string) => rules.push(new MatchRule(hostname, true)));
@@ -98,22 +96,20 @@ class KustoTrustedEndpointsImpl {
         }
     }
 
-    setOverridePolicy(matcher:((host:string) => boolean) | null): void {
+    setOverridePolicy(matcher: ((host: string) => boolean) | null): void {
         this.overrideMatcher = matcher;
     }
 
     validateTrustedEndpoint(url: URL | string, loginEndpoint: string) {
-        const uri = typeof(url) === "string" ? new URL(url) : url;
+        const uri = typeof url === "string" ? new URL(url) : url;
         const host: string = uri.hostname;
         // Check that target hostname is trusted and can accept security token
         this._validateHostnameIsTrusted(host != null ? host : url.toString(), loginEndpoint);
     }
 
     public addTrustedHosts(rules: MatchRule[] | null, replace: boolean): void {
-        if (!rules?.length)
-        {
-            if (replace)
-            {
+        if (!rules?.length) {
+            if (replace) {
                 this.additionalMatcher = null;
             }
             return;
@@ -146,24 +142,18 @@ class KustoTrustedEndpointsImpl {
             return;
         }
 
-        throw new Error(
-            `Can't communicate with '${hostname}' as this hostname is currently not trusted; please see https://aka.ms/kustotrustedendpoints`);
+        throw new Error(`Can't communicate with '${hostname}' as this hostname is currently not trusted; please see https://aka.ms/kustotrustedendpoints`);
     }
 
-    _isLocalAddress(host: string): boolean
-    {
-        if (["localhost","127.0.0.1","::1","[::1]"].find((c)=> c === host))
-        {
+    _isLocalAddress(host: string): boolean {
+        if (["localhost", "127.0.0.1", "::1", "[::1]"].find((c) => c === host)) {
             return true;
         }
 
-        if (host.startsWith("127.") && host.length <= 15 && host.length >= 9)
-        {
-            for (let i = 0; i < host.length; i++)
-            {
+        if (host.startsWith("127.") && host.length <= 15 && host.length >= 9) {
+            for (let i = 0; i < host.length; i++) {
                 const ch = host.charAt(i);
-                if (ch !== '.' && (ch < '0' || ch > '9'))
-                {
+                if (ch !== "." && (ch < "0" || ch > "9")) {
                     return false;
                 }
             }
