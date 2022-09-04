@@ -177,10 +177,12 @@ describe("kustoTrustedEndpoints", function () {
     });
     it("test_well_known_kusto_endpoints_override", function () {
         try {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             kustoTrustedEndpoints.setOverridePolicy((_) => true);
             checkEndpoint("https://kusto.kusto.windows.net", "", false);
             checkEndpoint("https://bing.com", "", false);
 
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             kustoTrustedEndpoints.setOverridePolicy((_) => false);
             checkEndpoint("https://kusto.kusto.windows.net", "", true);
             checkEndpoint("https://bing.com", "", true);
