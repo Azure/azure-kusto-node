@@ -221,9 +221,16 @@ export class Ingestion extends Utils {
      * @param tableName Table name
      * @param dataFormat Given data format
      * @param mappingName Desired mapping name
+     * @param ignoreFirstRecordFlag Flag noting whether to ignore the first record in the table
      * @returns IngestionProperties object
      */
-    public static createIngestionProperties(databaseName: string, tableName: string, dataFormat: DataFormat, mappingName: string): IngestionProperties {
+    public static createIngestionProperties(
+        databaseName: string,
+        tableName: string,
+        dataFormat: DataFormat,
+        mappingName: string,
+        ignoreFirstRecordFlag: boolean
+    ): IngestionProperties {
         return new IngestionProperties({
             database: databaseName,
             table: tableName,
@@ -235,6 +242,7 @@ export class Ingestion extends Utils {
             // We therefore set Flush-Immediately for the sake of the sample, but it generally shouldn't be used in practice.
             // Comment out the line below after running the sample the first few times.
             flushImmediately: true,
+            ignoreFirstRecord: ignoreFirstRecordFlag,
         });
     }
 
@@ -247,6 +255,7 @@ export class Ingestion extends Utils {
      * @param filePath File path
      * @param dataFormat Given data format
      * @param mappingName Desired mapping name
+     * @param ignoreFirstRecord Flag noting whether to ignore the first record in the table
      */
     public static async ingestFromFile(
         ingestClient: IngestClient,
@@ -254,9 +263,10 @@ export class Ingestion extends Utils {
         tableName: string,
         filePath: string,
         dataFormat: DataFormat,
-        mappingName: string
+        mappingName: string,
+        ignoreFirstRecord: boolean
     ) {
-        const ingestionProp = this.createIngestionProperties(databaseName, tableName, dataFormat, mappingName);
+        const ingestionProp = this.createIngestionProperties(databaseName, tableName, dataFormat, mappingName, ignoreFirstRecord);
         // Tip 1: For optimal ingestion batching and performance, specify the uncompressed data size in the file descriptor instead of the default below of
         // 0. Otherwise, the service will determine the file size, requiring an additional s2s call, and may not be accurate for compressed files.
         // Tip 2: To correlate between ingestion operations in your applications and Kusto, set the source ID and log it somewhere.
@@ -273,6 +283,7 @@ export class Ingestion extends Utils {
      * @param blobUri Blob Uri
      * @param dataFormat Given data format
      * @param mappingName Desired mapping name
+     * @param ignoreFirstRecord Flag noting whether to ignore the first record in the table
      */
     public static async ingestFromBlob(
         ingestClient: IngestClient,
@@ -280,9 +291,10 @@ export class Ingestion extends Utils {
         tableName: string,
         blobUri: string,
         dataFormat: DataFormat,
-        mappingName: string
+        mappingName: string,
+        ignoreFirstRecord: boolean
     ) {
-        const ingestionProp = this.createIngestionProperties(databaseName, tableName, dataFormat, mappingName);
+        const ingestionProp = this.createIngestionProperties(databaseName, tableName, dataFormat, mappingName, ignoreFirstRecord);
         // Tip 1: For optimal ingestion batching and performance, specify the uncompressed data size in the file descriptor instead of the default below of
         // 0. Otherwise, the service will determine the file size, requiring an additional s2s call, and may not be accurate for compressed files.
         // Tip 2: To correlate between ingestion operations in your applications and Kusto, set the source ID and log it somewhere.
