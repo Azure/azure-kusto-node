@@ -49,6 +49,7 @@ interface ConfigJson {
     tenantId: string;
     authenticationMode: AuthenticationModeOptions;
     waitForUser: boolean;
+    ignoreFirstRecord: boolean;
     waitForIngestSeconds: number;
     batchingPolicy: string;
 }
@@ -268,7 +269,7 @@ class SampleApp {
             );
             // Learn More: For more information about ingesting data to Kusto in C#,
             // see: https://docs.microsoft.com/en-us/azure/data-explorer/net-sdk-ingest-data
-            await this.ingestData(dataFile, dataFormat, ingestClient, config.databaseName, config.tableName, mappingName);
+            await this.ingestData(dataFile, dataFormat, ingestClient, config.databaseName, config.tableName, mappingName, config.ignoreFirstRecord);
         }
         await Ingestion.waitForIngestionToComplete(config.waitForIngestSeconds);
     }
@@ -314,6 +315,7 @@ class SampleApp {
      * @param databaseName DB name
      * @param tableName Table name
      * @param mappingName Desired mapping name
+     * @param ignoreFirstRecord Flag noting whether to ignore the first record in the table
      */
     private static async ingestData(
         dataFile: ConfigData,
@@ -321,7 +323,8 @@ class SampleApp {
         ingestClient: IngestClient,
         databaseName: string,
         tableName: string,
-        mappingName: string
+        mappingName: string,
+        ignoreFirstRecord: boolean
     ) {
         const sourceType = dataFile.sourceType.toLowerCase();
         const sourceUri = dataFile.dataSourceUri;
@@ -336,10 +339,10 @@ class SampleApp {
         // additional references.
         switch (sourceType) {
             case SourceType.LocalFileSource:
-                await Ingestion.ingestFromFile(ingestClient, databaseName, tableName, sourceUri, dataFormat, mappingName);
+                await Ingestion.ingestFromFile(ingestClient, databaseName, tableName, sourceUri, dataFormat, mappingName, ignoreFirstRecord);
                 break;
             case SourceType.BlobSource:
-                await Ingestion.ingestFromBlob(ingestClient, databaseName, tableName, sourceUri, dataFormat, mappingName);
+                await Ingestion.ingestFromBlob(ingestClient, databaseName, tableName, sourceUri, dataFormat, mappingName, ignoreFirstRecord);
                 break;
             default:
                 Utils.errorHandler(`Unknown source '${sourceType}' for file '${sourceUri}'`);
