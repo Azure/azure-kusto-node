@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 import { DeviceCodeResponse } from "@azure/msal-common";
+import { BasicTokenProvider, CallbackTokenProvider, TokenProviderBase, UserPromptProvider } from "./tokenProvider";
 import { KeyOfType } from "./typeUtilts";
 
 interface MappingType {
@@ -154,6 +155,18 @@ export class KustoConnectionStringBuilder {
             .join(";");
     }
 
+    toTokenProvider(): TokenProviderBase | undefined {
+        if (this.accessToken) {
+             return new BasicTokenProvider(this.dataSource!, this.accessToken as string);
+         } else if (this.useUserPromptAuth) {
+             return new UserPromptProvider(this.dataSource!, this.authorityId, this.timeoutMs, this.loginHint);
+         } else if (this.tokenProvider) {
+             return new CallbackTokenProvider(this.dataSource!, this.tokenProvider);
+         }
+
+         return undefined;
+     }
+
     static fromExisting(other: KustoConnectionStringBuilder): KustoConnectionStringBuilder {
         return Object.assign({}, other);
     }
@@ -169,100 +182,6 @@ export class KustoConnectionStringBuilder {
         if (authorityId) {
             kcsb.authorityId = authorityId;
         }
-
-        return kcsb;
-    }
-
-    static withAadApplicationKeyAuthentication(connectionString: string, aadAppId: string, appKey: string, authorityId?: string) {
-        if (aadAppId.trim().length === 0) throw new Error("Invalid app id");
-        if (appKey.trim().length === 0) throw new Error("Invalid app key");
-
-        const kcsb = new KustoConnectionStringBuilder(connectionString);
-        kcsb.aadFederatedSecurity = true;
-        kcsb.applicationClientId = aadAppId;
-        kcsb.applicationKey = appKey;
-        if (authorityId) {
-            kcsb.authorityId = authorityId;
-        }
-
-        return kcsb;
-    }
-
-    static withAadApplicationCertificateAuthentication(
-        connectionString: string,
-        aadAppId: string,
-        applicationCertificatePrivateKey: string,
-        applicationCertificateThumbprint: string,
-        authorityId?: string,
-        applicationCertificateX5c?: string
-    ) {
-        if (aadAppId.trim().length === 0) throw new Error("Invalid app id");
-        if (applicationCertificatePrivateKey.trim().length === 0) throw new Error("Invalid certificate");
-        if (applicationCertificateThumbprint.trim().length === 0) throw new Error("Invalid thumbprint");
-
-        const kcsb = new KustoConnectionStringBuilder(connectionString);
-        kcsb.aadFederatedSecurity = true;
-        kcsb.applicationClientId = aadAppId;
-        kcsb.applicationCertificatePrivateKey = applicationCertificatePrivateKey;
-        kcsb.applicationCertificateThumbprint = applicationCertificateThumbprint;
-        kcsb.applicationCertificateX5c = applicationCertificateX5c;
-
-        if (authorityId) {
-            kcsb.authorityId = authorityId;
-        }
-
-        return kcsb;
-    }
-
-    static withAadDeviceAuthentication(
-        connectionString: string,
-        authorityId?: string,
-        deviceCodeCallback: (response: DeviceCodeResponse) => void = KustoConnectionStringBuilder.defaultDeviceCallback
-    ) {
-        const kcsb = new KustoConnectionStringBuilder(connectionString);
-        kcsb.aadFederatedSecurity = true;
-        if (authorityId) {
-            kcsb.authorityId = authorityId;
-        }
-        kcsb.deviceCodeCallback = deviceCodeCallback;
-        kcsb.useDeviceCodeAuth = true;
-
-        return kcsb;
-    }
-
-    /**
-     * @deprecated - use `withSystemManagedIdentity` or `withUserManagedIdentity` instead
-     */
-    static withAadManagedIdentities(connectionString: string, msiClientId?: string, authorityId?: string, timeoutMs?: number) {
-        const kcsb = new KustoConnectionStringBuilder(connectionString);
-        kcsb.aadFederatedSecurity = true;
-        if (authorityId) {
-            kcsb.authorityId = authorityId;
-        }
-        kcsb.msiClientId = msiClientId;
-        kcsb.timeoutMs = timeoutMs;
-        kcsb.useManagedIdentityAuth = true;
-
-        return kcsb;
-    }
-
-    static withSystemManagedIdentity(connectionString: string, authorityId?: string, timeoutMs?: number) {
-        return this.withAadManagedIdentities(connectionString, undefined, authorityId, timeoutMs);
-    }
-
-    static withUserManagedIdentity(connectionString: string, msiClientId: string, authorityId?: string, timeoutMs?: number) {
-        return this.withAadManagedIdentities(connectionString, msiClientId, authorityId, timeoutMs);
-    }
-
-    static withAzLoginIdentity(connectionString: string, authorityId?: string, timeoutMs?: number) {
-        const kcsb = new KustoConnectionStringBuilder(connectionString);
-        kcsb.aadFederatedSecurity = true;
-
-        kcsb.useAzLoginAuth = true;
-        if (authorityId) {
-            kcsb.authorityId = authorityId;
-        }
-        kcsb.timeoutMs = timeoutMs;
 
         return kcsb;
     }
@@ -294,7 +213,6 @@ export class KustoConnectionStringBuilder {
             kcsb.authorityId = authorityId;
         }
         kcsb.loginHint = loginHint;
-        kcsb.applicationClientId = clientId;
         kcsb.timeoutMs = timeoutMs;
 
         return kcsb;
