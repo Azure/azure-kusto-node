@@ -39,7 +39,9 @@
         "@types/node": "^14.0.0"
     },
     "workspaces": [
-        "packages\\azure-kusto-data",
+        "packages\\azure-kusto-data-core",
+        "packages\\azure-kusto-data-node",
+        "packages\\azure-kusto-data-browser",
         "packages\\azure-kusto-ingest",
         "packages\\quick_start"
     ]
