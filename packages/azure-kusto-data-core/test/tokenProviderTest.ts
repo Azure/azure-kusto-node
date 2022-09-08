@@ -1,5 +1,5 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
+// // Copyright (c) Microsoft Corporation.
+// // Licensed under the MIT License.
 
 import { CloudSettings } from "../source/cloudSettings";
 import { BasicTokenProvider } from "../source/tokenProvider";

@@ -285,7 +285,7 @@ export class KustoConnectionStringBuilder {
         return kcsb;
     }
 
-    static withUserPrompt(connectionString: string, authorityId?: string, clientId?: string, timeoutMs?: number, loginHint?: string) {
+    static withUserPrompt(connectionString: string, authorityId?: string, timeoutMs?: number, loginHint?: string) {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         kcsb.aadFederatedSecurity = true;
 
@@ -294,7 +294,6 @@ export class KustoConnectionStringBuilder {
             kcsb.authorityId = authorityId;
         }
         kcsb.loginHint = loginHint;
-        kcsb.applicationClientId = clientId;
         kcsb.timeoutMs = timeoutMs;
 
         return kcsb;

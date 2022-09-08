@@ -9,7 +9,9 @@
         "lint": "eslint -c .eslintrc.js --ext .ts .",
         "test": "mocha --parallel",
         "testNoE2E": "npm run test -- --exclude **/e2eTest.ts",
-        "testData": "npm run test -- --exclude !packages/azure-kusto-data/**",
+        "testDataNode": "npm run test -- --exclude !packages/azure-kusto-data-node/**",
+        "testDataBrowser": "npm run test -- --exclude !packages/azure-kusto-data-browser/**",
+        "testCore": "npm run test -- --exclude !packages/azure-kusto-data-core/**",
         "testIngest": "npm run test -- --exclude !packages/azure-kusto-ingest/**",
         "testIngestNoE2E": "npm run testNoE2E -- --exclude !packages/azure-kusto-ingest/**",
         "testPipeline": "nyc --reporter lcovonly mocha --reporter mocha-junit-reporter --reporter-options outputs=true",
@@ -37,7 +39,9 @@
         "@types/node": "^14.0.0"
     },
     "workspaces": [
-        "packages\\azure-kusto-data",
+        "packages\\azure-kusto-data-core",
+        "packages\\azure-kusto-data-node",
+        "packages\\azure-kusto-data-browser",
         "packages\\azure-kusto-ingest",
         "packages\\quick_start"
     ]

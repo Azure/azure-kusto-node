@@ -1,5 +1,5 @@
 {
     "extends": "../../tsconfig.json",
-    "include": ["./source", "./test", "index.ts","../azure-kusto-data-browser/webpack.config.ts"],
+    "include": ["./source", "./test", "index.ts", "webpack.config.ts"],
     "exclude": ["node_modules", "*.d.ts", "**/*.d.ts"]
 }
