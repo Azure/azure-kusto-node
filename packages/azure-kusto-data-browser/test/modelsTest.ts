@@ -3,7 +3,7 @@
 
 import assert from "assert";
 import moment from "moment";
-import { KustoResultColumn, KustoResultRow, KustoResultTable } from "../source/models";
+import { KustoResultColumn, KustoResultRow, KustoResultTable } from "../src/models";
 import v2 from "./data/response/v2";
 
 const v2Response = v2;

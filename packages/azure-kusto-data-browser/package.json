@@ -3,9 +3,13 @@
     "version": "3.4.2",
     "description": "Azure Data Explorer Query SDK",
     "main": "index.js",
+    "browser": {
+        ".": "./src/index.js"
+    },
     "types": "index.d.ts",
     "scripts": {
-        "build": "tsc"
+        "build": "tsc",
+        "test": "mocha --parallel"
     },
     "engines": {
         "node": ">= 14.0.0"
@@ -29,10 +33,12 @@
         "directory": "azure-kusto-data-browser"
     },
     "files": [
-        "source/*.js",
-        "source/*.d.ts",
-        "index.js",
-        "index.d.ts",
+        "src/**/*.js",
+        "src/*.js",
+        "src/*.d.ts",
+        "src/**/*.d.ts",
+        "src/index.js",
+        "src/index.d.ts",
         "tsconfig.tsbuildinfo",
         "example.js"
     ],
@@ -44,12 +50,14 @@
         "@azure/msal-browser": "^2.28.1",
         "@types/uuid": "^8.3.4",
         "axios": "^0.27.2",
+        "crypto-browserify": "^3.12.0",
+        "https-browserify": "1.0.0",
         "moment": "^2.29.4",
-        "https-browserify":"1.0.0",
-        "os-browserify":"0.3.0",
-        "stream-browserify":"3.0.0",
-        "uuid": "^8.3.2",
-        "stream-http":"3.2.0"
+        "os-browserify": "0.3.0",
+        "stream-browserify": "3.0.0",
+        "stream-http": "3.2.0",
+        "url": "^0.11.0",
+        "uuid": "^8.3.2"
     },
     "devDependencies": {
         "@types/webpack-dev-server": "^4.7.2",

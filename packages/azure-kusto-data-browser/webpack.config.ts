@@ -5,23 +5,26 @@ import 'webpack-dev-server';
 
 const config: webpack.Configuration = {
   mode: 'development',
-  entry: './index.js',
+  entry: './src/index.js',
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'main.bundle.js',
   },
+  // context:"./source"
 };
 
 module.exports = {
   resolve: {
+    aliasFields: ['browser'],
       fallback: {
+          crypto: require.resolve("crypto-browserify") ,
           assert: require.resolve('assert'),
           http: require.resolve('stream-http'),
           https: require.resolve('https-browserify'),
           os: require.resolve('os-browserify/browser'),
           stream: require.resolve('stream-browserify'),
-      },
-  },
+      }
+  }
 };
 
 export default config;
