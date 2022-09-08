@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { CloudSettings } from "../source/cloudSettings";
-import { UserPassTokenProvider } from "../source/tokenProvider";
+import { BasicTokenProvider } from "../source/tokenProvider";
 import assert from "assert";
 
 describe("CloudInfo", () => {
@@ -18,7 +18,7 @@ describe("CloudInfo", () => {
                 FirstPartyAuthorityUrl: "https://login.microsoftonline.com/8cdef31-a31e-4b4a-93e4-5f571e91255a",
             };
 
-            const provider = new UserPassTokenProvider(fakeUri, "auth_test", "a", "b");
+            const provider = new BasicTokenProvider(fakeUri, "token");
             try {
                 await provider.acquireToken();
             } catch {
@@ -39,7 +39,7 @@ describe("CloudInfo", () => {
                 FirstPartyAuthorityUrl: "https://login.microsoftonline.com/f8cdef31-a31e-4b4a-93e4-5f571e91255a",
             };
 
-            const provider = new UserPassTokenProvider(fakeUri2, "auth_test", "a", "b");
+            const provider = new BasicTokenProvider(fakeUri2, "token");
             try {
                 await provider.acquireToken();
             } catch {
