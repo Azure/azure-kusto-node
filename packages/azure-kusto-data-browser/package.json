@@ -29,8 +29,8 @@
         "directory": "azure-kusto-data-browser"
     },
     "files": [
-        "source/**/*.js",
-        "source/**/*.d.ts",
+        "source/*.js",
+        "source/*.d.ts",
         "index.js",
         "index.d.ts",
         "tsconfig.tsbuildinfo",
@@ -45,13 +45,15 @@
         "@types/uuid": "^8.3.4",
         "axios": "^0.27.2",
         "moment": "^2.29.4",
-        "ts-node": "^10.9.1",
-        "uuid": "^8.3.2"
+        "https-browserify":"1.0.0",
+        "os-browserify":"0.3.0",
+        "stream-browserify":"3.0.0",
+        "uuid": "^8.3.2",
+        "stream-http":"3.2.0"
     },
     "devDependencies": {
         "@types/webpack-dev-server": "^4.7.2",
         "webpack-cli": "^4.10.0"
-        
     },
     "gitHead": "f8a5dae26d6d2ca2ab8b95953bb9b88a02e8e35d"
 }

@@ -607,7 +607,7 @@ describe("KustoConnectionStringBuilder", () => {
                 const clientId = "clientId";
                 const loginHint = "myUser";
                 const timeoutMs = 10;
-                const kcsbs = [KustoConnectionStringBuilder.withUserPrompt("localhost", DEFAULT_AUTHORITY, clientId, timeoutMs, loginHint)];
+                const kcsbs = [KustoConnectionStringBuilder.withUserPrompt("localhost", DEFAULT_AUTHORITY, timeoutMs, loginHint)];
 
                 const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
                 kcsb1.aadFederatedSecurity = true;
