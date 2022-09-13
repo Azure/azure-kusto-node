@@ -43,6 +43,10 @@ export class KustoIngestClient extends AbstractKustoClient {
     }
 
     async ingestFromStream(stream: StreamDescriptor | Readable, ingestionProperties?: IngestionPropertiesInput): Promise<QueueSendMessageResponse> {
+        if (this._isClosed) {
+            throw Error("Client is closed");
+        }
+
         const props = this._getMergedProps(ingestionProperties);
         const descriptor: StreamDescriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
 
@@ -56,6 +60,10 @@ export class KustoIngestClient extends AbstractKustoClient {
     }
 
     async ingestFromFile(file: string | FileDescriptor, ingestionProperties?: IngestionPropertiesInput): Promise<QueueSendMessageResponse> {
+        if (this._isClosed) {
+            throw Error("Client is closed");
+        }
+
         const props = this._getMergedProps(ingestionProperties);
 
         const descriptor = file instanceof FileDescriptor ? file : new FileDescriptor(file);
@@ -73,6 +81,10 @@ export class KustoIngestClient extends AbstractKustoClient {
     }
 
     async ingestFromBlob(blob: string | BlobDescriptor, ingestionProperties?: IngestionPropertiesInput): Promise<QueueSendMessageResponse> {
+        if (this._isClosed) {
+            throw Error("Client is closed");
+        }
+
         const props = this._getMergedProps(ingestionProperties);
 
         const descriptor = blob instanceof BlobDescriptor ? blob : new BlobDescriptor(blob);
@@ -92,6 +104,13 @@ export class KustoIngestClient extends AbstractKustoClient {
         const encoded = Buffer.from(ingestionBlobInfoJson).toString("base64");
 
         return queueClient.sendMessage(encoded);
+    }
+
+    close() {
+        if (!this._isClosed) {
+            this.resourceManager.close();
+        }
+        super.close();
     }
 }
 

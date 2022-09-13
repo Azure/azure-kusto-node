@@ -21,6 +21,10 @@ class KustoStreamingIngestClient extends AbstractKustoClient {
     }
 
     async ingestFromStream(stream: StreamDescriptor | Readable, ingestionProperties?: IngestionPropertiesInput, clientRequestId?: string): Promise<any> {
+        if (this._isClosed) {
+            throw Error("Client is closed");
+        }
+
         const props = this._getMergedProps(ingestionProperties);
         const descriptor: StreamDescriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
 
@@ -36,7 +40,18 @@ class KustoStreamingIngestClient extends AbstractKustoClient {
     }
 
     async ingestFromFile(file: FileDescriptor | string, ingestionProperties?: IngestionPropertiesInput): Promise<KustoResponseDataSet> {
+        if (this._isClosed) {
+            throw Error("Client is closed");
+        }
+        
         return this.ingestFromStream(fileToStream(file), ingestionProperties);
+    }
+
+    close() {
+        if (!this._isClosed) {
+            this.kustoClient.close();
+        }
+        super.close();
     }
 }
 

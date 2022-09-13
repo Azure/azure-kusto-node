@@ -143,6 +143,10 @@ export class ResourceManager {
     async getAuthorizationContext(): Promise<string> {
         return this.refreshAuthorizationContext();
     }
+
+    close() {
+        this.kustoClient.close();
+    }
 }
 
 export default ResourceManager;
