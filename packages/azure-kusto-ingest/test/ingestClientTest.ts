@@ -8,6 +8,7 @@ import { IngestionPropertiesValidationError } from "../source/errors";
 import KustoStreamingIngestClient from "../source/streamingIngestClient";
 import KustoManagedStreamingIngestClient from "../source/managedStreamingIngestClient";
 import { KustoConnectionStringBuilder } from "azure-kusto-data";
+import { Readable } from "stream";
 
 describe("KustoIngestClient", () => {
     describe("#constructor()", () => {
@@ -248,6 +249,30 @@ describe("KustoIngestClient", () => {
     describe("#ingestFromBlob()", () => {
         it("valid input", () => {
             // TODO: not sure a unit test will be useful here
+        });
+    });
+
+    describe("Close", () => {
+        it("Queued Client should not be useable when closed", async () => {
+            const c = new KustoIngestClient("Data Source=https://cluster.kusto.windows.net");
+            c.close();
+            await assert.rejects(c.ingestFromFile("test1"), /Client is closed/);
+            await assert.rejects(c.ingestFromStream(Readable.from("")), /Client is closed/);
+            await assert.rejects(c.ingestFromBlob("test1"), /Client is closed/);
+        });
+
+        it("Streaming Client should not be useable when closed", async () => {
+            const c = new KustoStreamingIngestClient("Data Source=https://cluster.kusto.windows.net");
+            c.close();
+            await assert.rejects(c.ingestFromFile("test1"), /Client is closed/);
+            await assert.rejects(c.ingestFromStream(Readable.from("")), /Client is closed/);
+        });
+
+        it("Managed Client should not be useable when closed", async () => {
+            const c = new KustoManagedStreamingIngestClient("Data Source=https://cluster.kusto.windows.net", "Data Source=https://cluster.kusto.windows.net");
+            c.close();
+            await assert.rejects(c.ingestFromFile("test1"), /Client is closed/);
+            await assert.rejects(c.ingestFromStream(Readable.from("")), /Client is closed/);
         });
     });
 });

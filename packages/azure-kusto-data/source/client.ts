@@ -33,7 +33,7 @@ export class KustoClient {
     aadHelper: AadHelper;
     axiosInstance: AxiosInstance;
     cancelToken = axios.CancelToken.source();
-    private _isClosed: Boolean = false;
+    private _isClosed: boolean = false;
 
     constructor(kcsb: string | ConnectionStringBuilder) {
         this.connectionString = typeof kcsb === "string" ? new ConnectionStringBuilder(kcsb) : kcsb;

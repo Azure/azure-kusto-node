@@ -121,7 +121,7 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
         if (this._isClosed) {
             throw Error("Client is closed");
         }
-        
+
         return await this.ingestFromStream(fileToStream(file), ingestionProperties);
     }
 
