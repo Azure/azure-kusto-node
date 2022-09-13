@@ -17,7 +17,6 @@ import v1Response from "./data/response/v1.json";
 import v1_2Response from "./data/response/v1_2.json";
 import { Readable } from "stream";
 import ConnectionBuilder from "../source/connectionBuilder";
-import describe from "node:test";
 
 enum ExecutionType {
     Mgmt = "mgmt",
