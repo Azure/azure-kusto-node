@@ -1,30 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import { getStringTailLowerCase } from "./utils";
 import { default as endpointsData } from "./wellKnownKustoEndpoints.json";
 
-function getStringTailLowerCase(val: string, tailLength: number) {
-    if (tailLength <= 0) {
-        return "";
-    }
-
-    if (tailLength >= val.length) {
-        return val.toLowerCase();
-    }
-
-    return val.substring(val.length - tailLength).toLowerCase();
-}
-
 export class MatchRule {
-    /// <summary>
-    /// The suffix which the candidate must end with in order to match.
-    /// </summary>
+    /**
+     * The suffix which the candidate must end with in order to match.
+     */
     suffix: string;
 
-    /// <summary>
-    /// Indicates whether the match must be exact (the candidate must
-    /// not have any prefix) or not.
-    /// </summary>
+    /**
+     * Indicates whether the match must be exact (the candidate must
+     * not have any prefix) or not.
+     */
     exact: boolean;
 
     constructor(suffix: string, exact: boolean) {
