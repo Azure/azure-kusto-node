@@ -116,9 +116,7 @@ export class KustoClient {
         stream: any,
         properties?: ClientRequestProperties | null
     ): Promise<KustoResponseDataSet> {
-        if (this._isClosed) {
-            throw Error("Client is closed");
-        }
+        this.ensureNotClosed();
 
         db = this.getDb(db);
         const headers: { [header: string]: string } = {};
@@ -255,6 +253,12 @@ export class KustoClient {
             this.cancelToken.cancel("Client Closed");
         }
         this._isClosed = true;
+    }
+
+    ensureNotClosed() {
+        if (this._isClosed) {
+            throw new Error("Client is closed");
+        }
     }
 }
 
