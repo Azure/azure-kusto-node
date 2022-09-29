@@ -16,7 +16,6 @@ export class MatchRule {
          */
         public exact: boolean
     ) {}
-
 }
 
 export class FastSuffixMatcher {
