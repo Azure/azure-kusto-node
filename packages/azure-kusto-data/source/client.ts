@@ -12,6 +12,8 @@ import pkg from "../package.json";
 import axios, { AxiosInstance } from "axios";
 import http from "http";
 import https from "https";
+import { kustoTrustedEndpoints } from "./kustoTrustedEndpoints";
+import { CloudSettings } from "./cloudSettings";
 
 const COMMAND_TIMEOUT_IN_MILLISECS = moment.duration(10.5, "minutes").asMilliseconds();
 const QUERY_TIMEOUT_IN_MILLISECS = moment.duration(4.5, "minutes").asMilliseconds();
@@ -113,6 +115,7 @@ export class KustoClient {
         stream: any,
         properties?: ClientRequestProperties | null
     ): Promise<KustoResponseDataSet> {
+        kustoTrustedEndpoints.validateTrustedEndpoint(endpoint, (await CloudSettings.getInstance().getCloudInfoForCluster(this.cluster)).LoginEndpoint);
         db = this.getDb(db);
         const headers: { [header: string]: string } = {};
 

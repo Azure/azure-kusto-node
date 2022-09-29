@@ -23,10 +23,9 @@ jobs:
             - run: |
                   npm install -g npm@latest
                   npm ci
-            - run: |
-                  npm run checkFormat
-                  npm run lint
-                  npm run testPipeline
+            - run: npm run checkFormat
+            - run: npm run lint
+            - run: npm run testPipeline
               env:
                   AUTO_TEST: true
                   LOGIN_TEST: true
