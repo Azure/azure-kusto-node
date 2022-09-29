@@ -5,21 +5,18 @@ import { getStringTailLowerCase } from "./utils";
 import { default as endpointsData } from "./wellKnownKustoEndpoints.json";
 
 export class MatchRule {
-    /**
-     * The suffix which the candidate must end with in order to match.
-     */
-    suffix: string;
+    constructor(
+        /**
+         * The suffix which the candidate must end with in order to match.
+         */
+        public suffix: string,
+        /**
+         * Indicates whether the match must be exact (the candidate must
+         * not have any prefix) or not.
+         */
+        public exact: boolean
+    ) {}
 
-    /**
-     * Indicates whether the match must be exact (the candidate must
-     * not have any prefix) or not.
-     */
-    exact: boolean;
-
-    constructor(suffix: string, exact: boolean) {
-        this.suffix = suffix;
-        this.exact = exact;
-    }
 }
 
 export class FastSuffixMatcher {
