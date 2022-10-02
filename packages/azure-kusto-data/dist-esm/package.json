@@ -7,7 +7,8 @@
     "types": "src/index.d.ts",
     "scripts": {
         "build": "tsc",
-        "build:test": "tsc -p ."
+        "build:test": "tsc -p .",
+        "do": "npm install && grunt"
     },
     "engines": {
         "node": ">= 14.0.0"

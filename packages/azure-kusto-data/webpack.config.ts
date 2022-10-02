@@ -41,7 +41,18 @@ let config = {
       },
     ],
   },
- 
+  resolve: {
+    aliasFields: ['browser'],
+    fallback: {
+        crypto:require.resolve('crypto-browserify')  ,
+        assert :require.resolve('assert'),
+        http : require.resolve('stream-http'),
+        https: require.resolve('https-browserify'),
+        stream: require.resolve('stream-browserify'),
+        url: false,
+    },
+    extensions: [".ts", ".js"],
+  },
   devtool: "inline-source-map",
   mode: "development",
   devServer: {
