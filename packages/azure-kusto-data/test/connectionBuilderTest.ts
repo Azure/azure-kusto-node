@@ -5,7 +5,7 @@
 
 import assert from "assert";
 import { v4 as uuidv4 } from "uuid";
-import { KustoConnectionStringBuilder } from "../source/connectionBuilder";
+import { KustoConnectionStringBuilder } from "../src/connectionBuilder";
 import { DeviceCodeResponse } from "@azure/msal-common";
 
 const doComparsion = (

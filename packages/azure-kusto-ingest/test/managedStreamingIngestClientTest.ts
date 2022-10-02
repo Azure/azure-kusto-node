@@ -13,7 +13,7 @@ import KustoManagedStreamingIngestClient from "../source/managedStreamingIngestC
 import { Readable } from "stream";
 import { QueueSendMessageResponse } from "@azure/storage-queue";
 import { describe } from "mocha";
-import { CloudSettings } from "azure-kusto-data/source/cloudSettings";
+import { CloudSettings } from "azure-kusto-data/src/cloudSettings";
 import assert from "assert";
 import uuidValidate from "uuid-validate";
 import { KustoConnectionStringBuilder } from "azure-kusto-data";

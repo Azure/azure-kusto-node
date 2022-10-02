@@ -10,7 +10,7 @@ import sinon from "sinon";
 import { Client as KustoClient } from "azure-kusto-data";
 
 import { IngestClientResources, ResourceManager } from "../source/resourceManager";
-import { KustoResponseDataSet } from "azure-kusto-data/source/response";
+import { KustoResponseDataSet } from "azure-kusto-data/src/response";
 
 describe("ResourceManager", () => {
     const rows = [

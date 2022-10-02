@@ -7,7 +7,7 @@ import { CompressionType, FileDescriptor, StreamDescriptor } from "./descriptors
 import zlib from "zlib";
 import { AbstractKustoClient } from "./abstractKustoClient";
 import { Client as KustoClient, KustoConnectionStringBuilder } from "azure-kusto-data";
-import { KustoResponseDataSet } from "azure-kusto-data/source/response";
+import { KustoResponseDataSet } from "azure-kusto-data/src/response";
 import { fileToStream } from "./streamUtils";
 import { Readable } from "stream";
 

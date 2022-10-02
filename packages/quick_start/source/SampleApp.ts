@@ -4,7 +4,7 @@
 import fs from "fs";
 import Utils, { Authentication, Ingestion, Queries } from "./Utils";
 import Console from "console";
-import KustoClient from "azure-kusto-data/source/client";
+import KustoClient from "azure-kusto-data/src/client";
 import IngestClient, { KustoIngestClient } from "azure-kusto-ingest/source/ingestClient";
 import { DataFormat } from "azure-kusto-ingest";
 import readline from "readline";

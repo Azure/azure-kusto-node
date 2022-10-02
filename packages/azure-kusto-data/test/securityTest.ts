@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { KustoConnectionStringBuilder } from "../index";
-import AadHelper from "../source/security";
-import { CloudSettings } from "../source/cloudSettings";
+import { KustoConnectionStringBuilder } from "../src/index";
+import AadHelper from "../src/security";
+import { CloudSettings } from "../src/cloudSettings";
 import assert from "assert";
-import { ClientAuthError } from "@azure/msal-node";
-import { KustoAuthenticationError } from "../source/errors";
+import { ClientAuthError } from "@azure/msal-common";
+import { KustoAuthenticationError } from "../src/errors";
 import { CredentialUnavailableError } from "@azure/identity";
 import { loginTest, manualLoginTest } from "./data/testUtils";
 
