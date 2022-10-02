@@ -3,6 +3,7 @@
     "version": "3.4.2",
     "description": "Azure Data Explorer Query SDK",
     "main": "src/index.js",
+    "module": "dist-esm/src/index.js",
     "types": "src/index.d.ts",
     "scripts": {
         "build": "tsc"
@@ -48,7 +49,13 @@
         "fs": false,
         "os": false,
         "process": false,
-        "./dist-esm/src/tokenProvider.js": "./dist-esm/src/tokenProvider.browser.js"
+        "stream-http": false,
+        "https": false,
+        "http": false,
+        "crypto" : false,
+        "stream" : false,
+        "./dist-esm/src/tokenProvider.js": "./dist-esm/src/tokenProvider.browser.js",
+        "./dist-esm/src/tokenProvider.ts": "./dist-esm/src/tokenProvider.browser.ts"
     },
     "devDependencies": {
         "@types/mocha": "^9.1.1",

@@ -127,3 +127,37 @@ export class ApplicationCertificateTokenProvider extends MsalTokenProvider {
         };
     }
 }
+
+
+/**
+ * Acquire a token from MSAL with application id and Key
+ */
+ export class ApplicationKeyTokenProvider extends MsalTokenProvider {
+    msalClient!: ConfidentialClientApplication;
+
+    constructor(kustoUri: string, private appClientId: string, private appKey: string, authorityId: string) {
+        super(kustoUri, authorityId, appClientId);
+    }
+
+    initClient(): void {
+        const commonOptions = this.commonOptions();
+        const clientConfig = {
+            ...commonOptions,
+            auth: {
+                ...commonOptions.auth,
+                clientSecret: this.appKey,
+            },
+        };
+        this.msalClient = new ConfidentialClientApplication(clientConfig);
+    }
+
+    acquireTokenWithCloudSettings(): Promise<TokenType | null> {
+        return this.msalClient.acquireTokenByClientCredential({
+            scopes: this.scopes,
+        });
+    }
+
+    context(): Record<string, any> {
+        return { ...super.context(), clientId: this.appClientId };
+    }
+}

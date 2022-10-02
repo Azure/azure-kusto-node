@@ -604,15 +604,13 @@ describe("KustoConnectionStringBuilder", () => {
             });
 
             it("with optional params", () => {
-                const clientId = "clientId";
                 const loginHint = "myUser";
                 const timeoutMs = 10;
-                const kcsbs = [KustoConnectionStringBuilder.withUserPrompt("localhost", DEFAULT_AUTHORITY, clientId, timeoutMs, loginHint)];
+                const kcsbs = [KustoConnectionStringBuilder.withUserPrompt("localhost", DEFAULT_AUTHORITY, timeoutMs, loginHint)];
 
                 const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
                 kcsb1.aadFederatedSecurity = true;
                 kcsb1.useUserPromptAuth = true;
-                kcsb1.applicationClientId = clientId;
                 kcsb1.timeoutMs = timeoutMs;
                 kcsb1.loginHint = loginHint;
 
@@ -623,12 +621,11 @@ describe("KustoConnectionStringBuilder", () => {
                         authorityId: DEFAULT_AUTHORITY,
                         useUserPromptAuth: true,
                         aadFederatedSecurity: true,
-                        applicationClientId: clientId,
                         timeoutMs,
                         loginHint,
                     },
-                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${clientId};Authority Id=organizations`,
-                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${clientId};Authority Id=organizations`
+                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations`,
+                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations`
                 );
             });
         });

@@ -4,9 +4,10 @@ import KustoConnectionStringBuilder from "./connectionBuilder";
 import "./tokenProvider";
 import * as TokenProvider from "./tokenProvider";
 import { KustoAuthenticationError } from "./errors";
+import { BasicTokenProvider, CallbackTokenProvider, TokenProviderBase, UserPromptProvider } from "./tokenProviderBase";
 
 export class AadHelper {
-    tokenProvider?: TokenProvider.TokenProviderBase;
+    tokenProvider?: TokenProviderBase;
 
     constructor(kcsb: KustoConnectionStringBuilder) {
         if (!kcsb.dataSource) {
@@ -34,11 +35,11 @@ export class AadHelper {
         } else if (kcsb.useAzLoginAuth) {
             this.tokenProvider = new TokenProvider.AzCliTokenProvider(kcsb.dataSource, kcsb.authorityId, kcsb.timeoutMs);
         } else if (kcsb.accessToken) {
-            this.tokenProvider = new TokenProvider.BasicTokenProvider(kcsb.dataSource, kcsb.accessToken as string);
+            this.tokenProvider = new BasicTokenProvider(kcsb.dataSource, kcsb.accessToken as string);
         } else if (kcsb.useUserPromptAuth) {
-            this.tokenProvider = new TokenProvider.UserPromptProvider(kcsb.dataSource, kcsb.authorityId, kcsb.timeoutMs, kcsb.loginHint);
+            this.tokenProvider = new UserPromptProvider(kcsb.dataSource, kcsb.authorityId, kcsb.timeoutMs, kcsb.loginHint);
         } else if (kcsb.tokenProvider) {
-            this.tokenProvider = new TokenProvider.CallbackTokenProvider(kcsb.dataSource, kcsb.tokenProvider);
+            this.tokenProvider = new CallbackTokenProvider(kcsb.dataSource, kcsb.tokenProvider);
         } else if (kcsb.useDeviceCodeAuth) {
             if (kcsb.deviceCodeCallback === undefined) {
                 throw new KustoAuthenticationError(

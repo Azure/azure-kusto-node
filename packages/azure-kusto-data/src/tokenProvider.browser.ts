@@ -32,7 +32,7 @@ export class AzCliTokenProvider extends AzureIdentityProvider {
     homeAccountId?: string;
     msalClient!: PublicClientApplication;
 
-    constructor(kustoUri: string, private deviceCodeCallback: (response: DeviceCodeResponse) => void, authorityId: string) {
+    constructor(kustoUri: string, _deviceCodeCallback: (response: DeviceCodeResponse) => void, authorityId: string) {
         super(kustoUri, authorityId, undefined);
         throw new Error("DeviceLoginTokenProvider is not supported for browsers.");
     }
@@ -50,8 +50,8 @@ export class AzCliTokenProvider extends AzureIdentityProvider {
  * Acquire a token from MSAL with application id and Key
  */
  export class ApplicationKeyTokenProvider extends MsalTokenProvider {
-    constructor(kustoUri: string, private appClientId: string, private appKey: string, authorityId: string) {
-        super(kustoUri, authorityId, appClientId);
+    constructor(kustoUri: string, _appClientId: string, _appKey: string, authorityId: string) {
+        super(kustoUri, authorityId, _appClientId);
         throw new Error("ApplicationKeyTokenProvider is not supported for browsers.");
     }
 
@@ -71,10 +71,10 @@ export class AzCliTokenProvider extends AzureIdentityProvider {
  export class ApplicationCertificateTokenProvider extends MsalTokenProvider {
     constructor(
         kustoUri: string,
-        private appClientId: string,
-        private certThumbprint: string,
-        private certPrivateKey: string,
-        private certX5c?: string,
+        appClientId: string,
+        _certThumbprint: string,
+        _certPrivateKey: string,
+        _certX5c?: string,
         authorityId?: string
     ) {
         super(kustoUri, authorityId!, appClientId);

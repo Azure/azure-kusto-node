@@ -163,6 +163,7 @@ export abstract class AzureIdentityProvider extends CloudSettingsTokenProvider {
 
     abstract getCredential(): TokenCredential;
 }
+
 /**
  * UserPromptProvider will pop up a login prompt to acquire a token.
  */
@@ -179,6 +180,7 @@ export class UserPromptProvider extends AzureIdentityProvider {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         return new InteractiveBrowserCredential({
             loginHint: this.loginHint,
+            clientId:this.cloudInfo.KustoClientAppId,
             redirectUri: `http://localhost:${this.getRandomPortInRange()}/`,
         });
     }
