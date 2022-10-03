@@ -7,12 +7,12 @@ import assert from "assert";
 import fs, { ReadStream } from "fs";
 import IngestClient from "../../source/ingestClient";
 import KustoIngestStatusQueues from "../../source/status";
-import { Client, ClientRequestProperties, KustoConnectionStringBuilder as ConnectionStringBuilder } from "azure-kusto-data";
+import { Client, ClientRequestProperties, KustoConnectionStringBuilder as ConnectionStringBuilder } from "azure-kusto-data/dist-esm/src";
 import StreamingIngestClient from "../../source/streamingIngestClient";
 import ManagedStreamingIngestClient from "../../source/managedStreamingIngestClient";
 import { CompressionType, StreamDescriptor } from "../../source/descriptors";
 import { DataFormat, IngestionProperties, ReportLevel } from "../../source/ingestionProperties";
-import { CloudSettings } from "azure-kusto-data/source/cloudSettings";
+import { CloudSettings } from "azure-kusto-data/src/cloudSettings";
 import { sleep } from "../../source/retry";
 import { JsonColumnMapping } from "../../source/columnMappings";
 

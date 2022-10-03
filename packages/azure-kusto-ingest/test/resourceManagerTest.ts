@@ -7,10 +7,10 @@ import moment from "moment";
 
 import sinon from "sinon";
 
-import { Client as KustoClient } from "azure-kusto-data";
-
+import { Client as KustoClient } from "azure-kusto-data/dist-esm/src";
+import "@azure/core-rest-pipeline"
 import { IngestClientResources, ResourceManager } from "../source/resourceManager";
-import { KustoResponseDataSet } from "azure-kusto-data/src/response";
+import { KustoResponseDataSet } from "azure-kusto-data/dist-esm/src/response";
 
 describe("ResourceManager", () => {
     const rows = [

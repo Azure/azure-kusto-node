@@ -2,13 +2,13 @@
     "name": "azure-kusto-data",
     "version": "3.4.2",
     "description": "Azure Data Explorer Query SDK",
-    "main": "dist/index.js",
+    "main": "dist-esm/src/index.js",
     "module": "dist-esm/src/index.js",
-    "types": "src/index.d.ts",
+    "types": "dist-esm/src/index.d.ts",
     "scripts": {
         "clean": "rimraf dist dist-*",
-        "build": "npm run clean && tsc && cp package.json dist-esm",
-        "build:browser-test": "npm run build && cp index.html dist-esm",
+        "build": "tsc",
+        "build:browser-test": "npm run clean && npm run build && cp index.html dist-esm",
         "webpack": "webpack --watch"
     },
     "browser": {

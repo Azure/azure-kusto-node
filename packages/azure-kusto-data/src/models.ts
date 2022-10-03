@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import moment = require('moment');
+import moment from 'moment'
 
 export enum WellKnownDataSet {
     PrimaryResult = "PrimaryResult",
