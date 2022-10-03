@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import KustoConnectionStringBuilder from "./connectionBuilder";
-import "./tokenProvider";
-import * as TokenProvider from "./tokenProvider";
+import TokenProvider = require("#tokenProvider");
 import { KustoAuthenticationError } from "./errors";
 import { BasicTokenProvider, CallbackTokenProvider, TokenProviderBase, UserPromptProvider } from "./tokenProviderBase";
 
