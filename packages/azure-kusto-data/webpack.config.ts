@@ -26,8 +26,9 @@ let production = process.env.NODE_ENV === "production";
 
 let config = {
   entry: {
-    index: "./src/index",
+    index: "./src/index.browser",
   },
+  target:"web",
   output: {
     filename: "[name].js",
     path: path.resolve(__dirname, "dist"),
@@ -56,8 +57,8 @@ let config = {
   devtool: "inline-source-map",
   mode: "development",
   devServer: {
-    static: "./dist",
-    hot: true
+    static: "./dist-esm",
+    // hot: true
   },
   plugins: [
     new webpack.ProvidePlugin({

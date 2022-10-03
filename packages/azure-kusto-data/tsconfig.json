@@ -1,9 +1,8 @@
 {
     "extends": "../../tsconfig.json",
-    "include": ["src", "src/*.ts","./test", "src/index.ts","webpack.config.ts"],
+    "include": ["src/**/*.ts", "test/**/*.ts","webpack.config.ts"],
     "compilerOptions": {
         "outDir": "./dist-esm",
-        "declarationDir": "./types/latest",
         "paths": {
           "azure-kusto-data": ["./src/index"]
         },

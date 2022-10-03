@@ -6,9 +6,10 @@
     "module": "dist-esm/src/index.js",
     "types": "src/index.d.ts",
     "scripts": {
-        "build": "tsc",
-        "build:test": "tsc -p .",
-        "do": "npm install && grunt"
+        "clean": "rimraf dist dist-*",
+        "build": "npm run clean && tsc && cp package.json dist-esm",
+        "build:browser-test": "npm run build && cp index.html dist-esm",
+        "webpack": "webpack --watch"
     },
     "engines": {
         "node": ">= 14.0.0"
@@ -34,6 +35,7 @@
     "files": [
         "dist/",
         "dist-esm/src/",
+        "dist-esm/package.json",
         "tsconfig.tsbuildinfo",
         "example.js"
     ],
@@ -45,21 +47,28 @@
         "@azure/msal-node": "^1.12.1"
     },
     "exports": {
-        "./src/tokenProvider.js": {
-            "browser": "./src/tokenProvider.browser.js",
-            "node": "./src/tokenProvider.js"
+        ".": {
+            "browser": "./src/index.browser.js",
+            "node": "./src/index.browser.js"
+        },
+        "./src/tokenProvider": {
+            "browser": "./src/tokenProvider.browser/tokenProvider.ts",
+            "node": "./src/tokenProvider/tokenProvider.ts"
         }
     },
-    "browser": {
-        "os": false,
-        "./dist-esm/src/tokenProvider.js": "./dist-esm/src/tokenProvider.browser.js"
+    "imports": {
+        "#tokenProvider": {
+            "node": "src/tokenProvider/tokenProvider.ts",
+            "default": "src/tokenProvider.browser/tokenProvider.ts"
+        }
     },
     "devDependencies": {
         "@types/mocha": "^9.1.1",
         "@types/webpack-dev-server": "^4.7.2",
         "exports-loader": "^4.0.0",
         "ts-loader": "^9.3.1",
-        "webpack-cli": "^4.10.0"
+        "webpack-cli": "^4.10.0",
+        "rimraf": "^3.0.2"
     },
     "dependencies": {
         "@azure/identity": "^2.1.0",
