@@ -1,6 +1,6 @@
 {
     "extends": "../../tsconfig.json",
-    "include": ["src/**/*.ts", "test/**/*.ts","webpack.config.ts"],
+    "include": ["src/**/*.ts", "test/**/*.ts","webpack.config.ts", "tokenProvider.ts"],
     "compilerOptions": {
         "outDir": "./dist-esm",
         "paths": {

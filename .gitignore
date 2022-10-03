@@ -335,3 +335,4 @@ __main.js
 
 !**/.eslintrc.js
 *.html
+dist-esm/

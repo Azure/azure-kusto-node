@@ -4,7 +4,7 @@ import { ConfidentialClientApplication, PublicClientApplication } from "@azure/m
 import { DeviceCodeResponse } from "@azure/msal-common";
 import { AzureCliCredential, ManagedIdentityCredential } from "@azure/identity";
 import { TokenCredential } from "@azure/core-auth";
-import { AzureIdentityProvider, MsalTokenProvider, TokenType } from "../tokenProviderBase";
+import { AzureIdentityProvider, MsalTokenProvider, TokenType } from "./tokenProviderBase";
 
 
 /**

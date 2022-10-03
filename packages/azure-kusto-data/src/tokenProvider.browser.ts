@@ -4,7 +4,7 @@
 
 import { DeviceCodeResponse } from "@azure/msal-common";
 import { TokenCredential } from "@azure/core-auth";
-import { AzureIdentityProvider, MsalTokenProvider, TokenType } from "../tokenProviderBase";
+import { AzureIdentityProvider, MsalTokenProvider, TokenType } from "./tokenProviderBase";
 import { PublicClientApplication } from "@azure/msal-browser";
 
 export class MsiTokenProvider extends AzureIdentityProvider {
