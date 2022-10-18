@@ -17,6 +17,7 @@ import v1Response from "./data/response/v1.json";
 import v1_2Response from "./data/response/v1_2.json";
 import { Readable } from "stream";
 import ConnectionBuilder from "../source/connectionBuilder";
+import { CloudSettings } from "../source/cloudSettings";
 
 enum ExecutionType {
     Mgmt = "mgmt",
@@ -24,6 +25,8 @@ enum ExecutionType {
     Ingest = "ingest",
     QueryV1 = "queryv1",
 }
+
+CloudSettings.getInstance().cloudCache["https://cluster.kusto.windows.net"] = CloudSettings.getInstance().defaultCloudInfo;
 
 describe("KustoClient", () => {
     describe("url test", () => {
