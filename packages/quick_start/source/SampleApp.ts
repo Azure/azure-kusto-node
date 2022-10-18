@@ -14,6 +14,7 @@ import { v4 as uuidv4 } from "uuid";
 enum SourceType {
     LocalFileSource = "localfilesource",
     BlobSource = "blobsource",
+    NoSource = "nosource",
 }
 
 export enum AuthenticationModeOptions {
