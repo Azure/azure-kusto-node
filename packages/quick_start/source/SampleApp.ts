@@ -334,6 +334,8 @@ class SampleApp {
 
         // Tip: When ingesting json files, if each line represents a single-line json, use MULTIJSON format even if the file only contains one line.
         // If the json contains whitespace formatting, use SINGLEJSON. In this case, only one data row json object is allowed per file.
+        // Note: No need to add "nosource" option as in that case the "ingestData" flag will be set to false, and it will be impossible to reach this code
+        // segment.
         dataFormat = dataFormat === DataFormat.JSON ? DataFormat.MULTIJSON : dataFormat;
 
         // Tip: Kusto's Node SDK can ingest data from files, blobs and open streams.See the SDK's samples and the E2E tests in azure.kusto.ingest for
