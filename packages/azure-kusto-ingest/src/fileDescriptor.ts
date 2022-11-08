@@ -1,52 +1,35 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { v4 as uuidv4 } from "uuid";
-import uuidValidate from "uuid-validate";
 import zlib from "zlib";
 import pathlib from "path";
 import fs from "fs";
-import { Readable } from "stream";
 import { file as tmpFile } from "tmp-promise";
 import { promisify } from "util";
-
-export enum CompressionType {
-    ZIP = ".zip",
-    GZIP = ".gz",
-    None = "",
-}
-
-const getSourceId = (sourceId: string | null): string => {
-    if (sourceId) {
-        if (!uuidValidate(sourceId, 4)) {
-            throw Error("sourceId is not a valid uuid/v4");
-        }
-        return sourceId;
-    }
-    return uuidv4();
-};
+import { CompressionType, getSourceId } from "./descriptors";
 
 export class FileDescriptor {
-    readonly name: string;
-    readonly extension: string;
     size: number | null;
-    sourceId: string;
     zipped: boolean;
     compressionType: CompressionType;
     cleanupTmp?: () => Promise<void>;
+    sourceId: string;
 
     constructor(
-        readonly filePath: string,
+        readonly file: string | Blob,
         sourceId: string | null = null,
         size: number | null = null,
-        compressionType: CompressionType = CompressionType.None
+        compressionType: CompressionType = CompressionType.None,
+        readonly extension?: string, // Extracted from file name by default
+        readonly name?: string // Extracted from file name by default
     ) {
+        this.sourceId = getSourceId(sourceId);
         this.compressionType = compressionType;
-        this.name = pathlib.basename(this.filePath);
-        this.extension = pathlib.extname(this.filePath).toLowerCase();
+        this.name = name ? name : pathlib.basename(this.file as string);
+        this.extension = extension ? extension : pathlib.extname(this.file as string).toLowerCase();
+
         this.size = size;
         this.zipped = compressionType !== CompressionType.None || this.extension === ".gz" || this.extension === ".zip";
-        this.sourceId = getSourceId(sourceId);
     }
 
     async _gzip(): Promise<string> {
@@ -54,7 +37,7 @@ export class FileDescriptor {
         this.cleanupTmp = cleanup;
 
         const zipper = zlib.createGzip();
-        const input = fs.createReadStream(this.filePath, { autoClose: true });
+        const input = fs.createReadStream(this.file as string, { autoClose: true });
         const output = fs.createWriteStream(path);
 
         await new Promise((resolve, reject) => {
@@ -76,7 +59,7 @@ export class FileDescriptor {
         if (this.zipped) {
             const estimatedCompressionModifier = 11;
             await this.calculateSize(estimatedCompressionModifier);
-            return this.filePath;
+            return this.file as string;
         }
 
         const path = await this._gzip();
@@ -87,7 +70,7 @@ export class FileDescriptor {
     private async calculateSize(modifier: number = 1): Promise<void> {
         if (this.size == null || this.size <= 0) {
             const asyncStat = promisify(fs.stat);
-            this.size = (await asyncStat(this.filePath)).size * modifier;
+            this.size = (await asyncStat(this.file as string)).size * modifier;
         }
     }
 
@@ -95,37 +78,5 @@ export class FileDescriptor {
         if (this.cleanupTmp) {
             await this.cleanupTmp();
         }
-    }
-}
-
-export class StreamDescriptor {
-    name: string;
-    size: number | null;
-    compressionType: CompressionType;
-    sourceId: string;
-
-    constructor(readonly stream: Readable, sourceId: string | null = null, compressionType: CompressionType = CompressionType.None) {
-        this.name = "stream";
-        this.size = null;
-        this.compressionType = compressionType;
-        this.sourceId = getSourceId(sourceId);
-    }
-
-    merge(other: StreamDescriptor) {
-        this.name = other.name;
-        this.size = other.size;
-        this.compressionType = other.compressionType;
-        this.sourceId = other.sourceId;
-        return this;
-    }
-}
-
-export class BlobDescriptor {
-    size: number | null;
-    sourceId: string;
-
-    constructor(readonly path: string, size: number | null = null, sourceId: string | null = null) {
-        this.size = size;
-        this.sourceId = getSourceId(sourceId);
     }
 }

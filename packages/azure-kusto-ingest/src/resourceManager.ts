@@ -34,7 +34,7 @@ export class ResourceManager {
     private baseSleepTimeSecs = 1;
     private baseJitterSecs = 1;
 
-    constructor(readonly kustoClient: Client) {
+    constructor(readonly kustoClient: Client, readonly isBrowser: boolean = false) {
         this.refreshPeriod = moment.duration(1, "h");
 
         this.ingestClientResources = null;
@@ -58,6 +58,8 @@ export class ResourceManager {
         const retry = new ExponentialRetry(ATTEMPT_COUNT, this.baseSleepTimeSecs, this.baseJitterSecs);
         while (retry.shouldTry()) {
             try {
+                // return `;
+                // const cmd = `.get ingestion resources with ${this.isBrowser ? `(EnableBlobCors='true', EnableQueueCors='true', EnableTableCors='true')` : ''}`; 
                 const response = await this.kustoClient.execute("NetDefaultDB", ".get ingestion resources");
                 const table = response.primaryResults[0];
                 return new IngestClientResources(

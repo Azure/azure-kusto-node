@@ -3,7 +3,7 @@
 import KustoConnectionStringBuilder from "./connectionBuilder";
 import * as TokenProvider from "./tokenProvider";
 import { KustoAuthenticationError } from "./errors";
-import { BasicTokenProvider, CallbackTokenProvider, TokenProviderBase, UserPromptProvider } from "./tokenProviderBase";
+import { BasicTokenProvider, CallbackTokenProvider, TokenProviderBase, UserPromptProvider } from "./tokenProvider";
 
 export class AadHelper {
     tokenProvider?: TokenProviderBase;
@@ -20,13 +20,12 @@ export class AadHelper {
                 kcsb.applicationKey,
                 kcsb.authorityId
             );
-        } else if (!!kcsb.applicationClientId && !!kcsb.applicationCertificateThumbprint && !!kcsb.applicationCertificatePrivateKey) {
+        } else if (!!kcsb.applicationClientId && (!!kcsb.applicationCertificatePrivateKey)) {
             this.tokenProvider = new TokenProvider.ApplicationCertificateTokenProvider(
                 kcsb.dataSource,
                 kcsb.applicationClientId,
-                kcsb.applicationCertificateThumbprint,
                 kcsb.applicationCertificatePrivateKey,
-                kcsb.applicationCertificateX5c as string | undefined,
+                kcsb.applicationCertificateSendX5c,
                 kcsb.authorityId
             );
         } else if (kcsb.useManagedIdentityAuth) {
@@ -40,14 +39,6 @@ export class AadHelper {
         } else if (kcsb.tokenProvider) {
             this.tokenProvider = new CallbackTokenProvider(kcsb.dataSource, kcsb.tokenProvider);
         } else if (kcsb.useDeviceCodeAuth) {
-            if (kcsb.deviceCodeCallback === undefined) {
-                throw new KustoAuthenticationError(
-                    "Device code authentication requires a callback function",
-                    undefined,
-                    TokenProvider.DeviceLoginTokenProvider.name,
-                    {}
-                );
-            }
             this.tokenProvider = new TokenProvider.DeviceLoginTokenProvider(kcsb.dataSource, kcsb.deviceCodeCallback, kcsb.authorityId);
         }
     }

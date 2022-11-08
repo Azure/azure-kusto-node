@@ -4,35 +4,24 @@ import 'webpack-dev-server';
 const webpack = require('webpack');
 
 let production = process.env.NODE_ENV === "production";
-// let crypto;
-// try {crypto = require.resolve("crypto-browserify")
-// } catch {}
-
-// let assert;
-// try {assert = require.resolve("assert")
-// } catch {}
-
-// let http;
-// try {http = require.resolve("stream-http")
-// } catch {}
-
-// let crypto;
-// try {crypto = require.resolve("crypto-browserify")
-// } catch {}
-
-// let crypto;
-// try {crypto = require.resolve("crypto-browserify")
-// } catch {}
 
 let config = {
   entry: {
-    index: "./src/index.browser",
+    index: "./src/index",
   },
   target:"web",
   output: {
     filename: "[name].js",
     path: path.resolve(__dirname, "dist"),
   },
+  // plugins:
+  //   // Work around for Buffer is undefined:
+  //   // https://github.com/webpack/changelog-v5/issues/10
+  //   // Required for "rhea" package
+  //   new webpack.ProvidePlugin({
+  //       Buffer: ['buffer', 'Buffer'],
+  //   })
+  // ,
   module: {
     rules: [
       {
@@ -50,6 +39,8 @@ let config = {
         http : require.resolve('stream-http'),
         https: require.resolve('https-browserify'),
         stream: require.resolve('stream-browserify'),
+        buffer: require.resolve('buffer'),
+        zlib: require.resolve('browserify-zlib'),
         url: false,
     },
     extensions: [".ts", ".js"],

@@ -2,10 +2,10 @@
 // Licensed under the MIT License.
 
 import assert from "assert";
-import { DataFormat, IngestionMappingKind, IngestionProperties } from "../source/ingestionProperties";
+import { DataFormat, IngestionMappingKind, IngestionProperties } from "../src/ingestionProperties";
 
-import { IngestionBlobInfo } from "../source/ingestionBlobInfo";
-import { BlobDescriptor } from "../source/descriptors";
+import { IngestionBlobInfo } from "../src/ingestionBlobInfo";
+import { BlobDescriptor } from "../src/descriptors";
 import {
     ApacheAvroColumnMapping,
     AvroColumnMapping,
@@ -17,7 +17,7 @@ import {
     ParquetColumnMapping,
     SStreamColumnMapping,
     W3CLogFileMapping,
-} from "../source/columnMappings";
+} from "../src/columnMappings";
 
 describe("IngestionProperties", () => {
     describe("#constructor()", () => {

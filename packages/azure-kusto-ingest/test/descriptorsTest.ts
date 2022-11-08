@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import assert from "assert";
-import { FileDescriptor } from "../source/descriptors";
+import { FileDescriptor } from "../src/fileDescriptor";
 
 describe("FileDescriptor", () => {
     describe("#constructor()", () => {

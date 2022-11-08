@@ -68,7 +68,6 @@ const kcsb = KustoConnectionStringBuilder.withAadApplicationCertificateAuthentic
     `https://ingest-${clusterName}.kusto.windows.net`,
     "appid",
     "certificate",
-    "thumbprint",
     "authorityId"
 );
 ```

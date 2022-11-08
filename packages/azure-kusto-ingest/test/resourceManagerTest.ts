@@ -9,7 +9,7 @@ import sinon from "sinon";
 
 import { Client as KustoClient } from "azure-kusto-data/dist-esm/src";
 import "@azure/core-rest-pipeline"
-import { IngestClientResources, ResourceManager } from "../source/resourceManager";
+import { IngestClientResources, ResourceManager } from "../src/resourceManager";
 import { KustoResponseDataSet } from "azure-kusto-data/dist-esm/src/response";
 
 describe("ResourceManager", () => {

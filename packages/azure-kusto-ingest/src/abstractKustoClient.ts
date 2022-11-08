@@ -2,7 +2,8 @@
 // Licensed under the MIT License.
 
 import { IngestionProperties, IngestionPropertiesInput } from "./ingestionProperties";
-import { FileDescriptor, StreamDescriptor } from "./descriptors";
+import { StreamDescriptor } from "./descriptors";
+import { FileDescriptor } from "./fileDescriptor";
 import { Readable } from "stream";
 
 export abstract class AbstractKustoClient {
