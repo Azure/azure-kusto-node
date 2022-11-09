@@ -6,11 +6,12 @@ import fs from "fs";
 import ClientRequestProperties from "azure-kusto-data/src/clientRequestProperties";
 import { v4 as uuidv4 } from "uuid";
 import { DataFormat } from "azure-kusto-ingest";
-import IngestionProperties, { dataFormatMappingKind } from "azure-kusto-ingest/source/ingestionProperties";
+import IngestionProperties, { dataFormatMappingKind } from "azure-kusto-ingest/src/ingestionProperties";
 import Console from "console";
 import KustoClient from "azure-kusto-data/src/client";
-import IngestClient from "azure-kusto-ingest/source/ingestClient";
-import { BlobDescriptor, FileDescriptor } from "azure-kusto-ingest/source/descriptors";
+import IngestClient from "azure-kusto-ingest/src/ingestClient";
+import { BlobDescriptor } from "azure-kusto-ingest/src/descriptors";
+import { FileDescriptor } from "azure-kusto-ingest/src/fileDescriptor";
 import { AuthenticationModeOptions } from "./SampleApp";
 
 /**

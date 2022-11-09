@@ -2,12 +2,12 @@
 // Licensed under the MIT License.
 
 import assert from "assert";
-import { FileDescriptor } from "../src/fileDescriptor";
+import { IngestionDescriptors } from "../src";
 
 describe("FileDescriptor", () => {
     describe("#constructor()", () => {
         it("valid input zipped", () => {
-            const desc = new FileDescriptor("./data/events.json.gz");
+            const desc = new IngestionDescriptors.FileDescriptor("./data/events.json.gz");
 
             assert.strictEqual(desc.name, "events.json.gz");
             assert.strictEqual(desc.extension, ".gz");
@@ -15,7 +15,7 @@ describe("FileDescriptor", () => {
         });
 
         it("valid input json", () => {
-            const desc = new FileDescriptor("./data/events.json");
+            const desc = new IngestionDescriptors.FileDescriptor("./data/events.json");
 
             assert.strictEqual(desc.name, "events.json");
             assert.strictEqual(desc.extension, ".json");

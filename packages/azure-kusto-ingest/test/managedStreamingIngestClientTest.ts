@@ -5,7 +5,7 @@
 
 import sinon from "sinon";
 import Sinon from "sinon";
-import { StreamingIngestClient } from "../index";
+import { StreamingIngestClient  } from "../src";
 import { StreamDescriptor } from "../src/descriptors";
 import { KustoIngestClient } from "../src/ingestClient";
 import { DataFormat, IngestionProperties, IngestionPropertiesInput } from "../src/ingestionProperties";

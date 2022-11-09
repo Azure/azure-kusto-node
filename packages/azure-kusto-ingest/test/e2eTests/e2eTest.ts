@@ -7,7 +7,7 @@ import assert from "assert";
 import fs, { ReadStream } from "fs";
 import IngestClient from "../../src/ingestClient";
 import KustoIngestStatusQueues from "../../src/status";
-import { Client, ClientRequestProperties, KustoConnectionStringBuilder as ConnectionStringBuilder } from "azure-kusto-data/dist-esm/src";
+import { Client, ClientRequestProperties, KustoConnectionStringBuilder as ConnectionStringBuilder } from "azure-kusto-data";
 import StreamingIngestClient from "../../src/streamingIngestClient";
 import ManagedStreamingIngestClient from "../../src/managedStreamingIngestClient";
 import { CompressionType, StreamDescriptor } from "../../src/descriptors";

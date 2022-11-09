@@ -4,11 +4,11 @@
 import fs from "fs";
 import Utils, { Authentication, Ingestion, Queries } from "./Utils";
 import Console from "console";
-import KustoClient from "azure-kusto-data";
-import IngestClient, { KustoIngestClient } from "azure-kusto-ingest";
+import KustoClient from "azure-kusto-data/src/client";
+import IngestClient, { KustoIngestClient } from "azure-kusto-ingest/src/ingestClient";
 import { DataFormat } from "azure-kusto-ingest";
 import readline from "readline";
-import { dataFormatMappingKind } from "azure-kusto-ingest";
+import { dataFormatMappingKind } from "azure-kusto-ingest/src/ingestionProperties";
 import { v4 as uuidv4 } from "uuid";
 
 enum SourceType {

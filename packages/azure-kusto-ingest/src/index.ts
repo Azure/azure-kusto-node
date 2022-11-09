@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import client from "./src/ingestClient";
+import client from "./ingestClient";
 
-import streamingIngestClient from "./src/streamingIngestClient";
+import streamingIngestClient from "./streamingIngestClient";
 
-import managedStreamingIngestClient from "./src/managedStreamingIngestClient";
+import managedStreamingIngestClient from "./managedStreamingIngestClient";
 
-import KustoIngestStatusQueues from "./src/status";
+import KustoIngestStatusQueues from "./status";
 
 import {
     DataFormat,
@@ -17,10 +17,10 @@ import {
     ValidationImplications,
     ValidationOptions,
     ValidationPolicy,
-} from "./src/ingestionProperties";
+} from "./ingestionProperties";
 
-import { BlobDescriptor, CompressionType, StreamDescriptor } from "./src/descriptors";
-import { FileDescriptor } from "./src/fileDescriptor";
+import { BlobDescriptor, CompressionType, StreamDescriptor } from "./descriptors";
+import { FileDescriptor } from "./fileDescriptor";
 import {
     ApacheAvroColumnMapping,
     AvroColumnMapping,
@@ -33,15 +33,15 @@ import {
     ParquetColumnMapping,
     SStreamColumnMapping,
     W3CLogFileMapping,
-} from "./src/columnMappings";
+} from "./columnMappings";
 
-export { Transformation as ColumnMappingTransformation } from "./src/columnMappings";
+export { Transformation as ColumnMappingTransformation } from "./columnMappings";
 
 export const IngestClient = client;
 export const StreamingIngestClient = streamingIngestClient;
 export const ManagedStreamingIngestClient = managedStreamingIngestClient;
 export const IngestStatusQueues = KustoIngestStatusQueues;
-export { IngestionProperties } from "./src/ingestionProperties";
+export { IngestionProperties } from "./ingestionProperties";
 export const IngestionDescriptors = {
     BlobDescriptor,
     FileDescriptor,
@@ -99,4 +99,4 @@ export const IngestionPropertiesEnums = {
     ColumnMapping,
 };
 
-export { IngestionPropertiesValidationError } from "./src/errors";
+export { IngestionPropertiesValidationError } from "./errors";

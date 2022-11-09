@@ -1,12 +1,11 @@
 {
     "extends": "../../tsconfig.json",
-    "include": ["src/**/*.ts", "test/**/*.ts","webpack.config.ts"],
+    "include": ["src/**/*.ts", "test/**/*.ts","webpack.config.ts", "package.json"],
     "compilerOptions": {
         "outDir": "./dist-esm",
         "paths": {
           "azure-kusto-ingest": ["./src/index"]
         },
         "lib": ["DOM"]
-    },
-    "exclude": ["node_modules", "*.d.ts", "**/*.d.ts"]
+    }
 }

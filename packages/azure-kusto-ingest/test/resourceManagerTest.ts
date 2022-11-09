@@ -7,7 +7,7 @@ import moment from "moment";
 
 import sinon from "sinon";
 
-import { Client as KustoClient } from "azure-kusto-data/dist-esm/src";
+import { Client as KustoClient } from "azure-kusto-data";
 import "@azure/core-rest-pipeline"
 import { IngestClientResources, ResourceManager } from "../src/resourceManager";
 import { KustoResponseDataSet } from "azure-kusto-data/dist-esm/src/response";

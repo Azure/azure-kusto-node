@@ -7,6 +7,5 @@
           "azure-kusto-data": ["./src/index"]
         },
         "lib": ["DOM"]
-    },
-    "exclude": ["node_modules", "*.d.ts", "**/*.d.ts"]
+    }
 }
