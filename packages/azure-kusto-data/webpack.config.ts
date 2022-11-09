@@ -26,7 +26,7 @@ let production = process.env.NODE_ENV === "production";
 
 let config = {
   entry: {
-    index: "./src/index.browser",
+    index: "./src/index",
   },
   target:"web",
   output: {

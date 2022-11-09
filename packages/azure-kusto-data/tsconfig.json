@@ -6,6 +6,6 @@
         "paths": {
           "azure-kusto-data": ["./src/index"]
         },
-        "lib": ["DOM"]
+        "lib": ["ES6", "dom"],
     }
 }

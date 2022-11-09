@@ -7,7 +7,7 @@ let production = process.env.NODE_ENV === "production";
 
 let config = {
   entry: {
-    index: "./src/index",
+    index: "./dist-esm/src/index",
   },
   target:"web",
   output: {
@@ -42,6 +42,8 @@ let config = {
         buffer: require.resolve('buffer'),
         zlib: require.resolve('browserify-zlib'),
         url: false,
+        "fs": false
+
     },
     extensions: [".ts", ".js"],
   },
