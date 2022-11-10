@@ -3,11 +3,12 @@
 
 import { IngestionPropertiesInput } from "./ingestionProperties";
 
-import { FileDescriptor, StreamDescriptor } from "./descriptors";
+import { StreamDescriptor } from "./descriptors";
+import { FileDescriptor } from "./fileDescriptor";
 import { AbstractKustoClient } from "./abstractKustoClient";
 import { KustoConnectionStringBuilder } from "azure-kusto-data";
 import { KustoResponseDataSet } from "azure-kusto-data/src/response";
-import { fileToStream, tryStreamToArray } from "./streamUtils";
+import { tryFileToBuffer, tryStreamToArray } from "./streamUtils";
 import StreamingIngestClient from "./streamingIngestClient";
 import IngestClient from "./ingestClient";
 import { QueueSendMessageResponse } from "@azure/storage-queue";
@@ -87,7 +88,8 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
         const props = this._getMergedProps(ingestionProperties);
         const descriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
 
-        let result = await tryStreamToArray(descriptor.stream, maxStreamSize);
+        // TODO: This might be too much for browsers
+        let result = descriptor.stream instanceof Readable ? await tryStreamToArray(descriptor.stream, maxStreamSize) : descriptor.stream;
 
         if (result instanceof Buffer) {
             // If we get buffer that means it was less than the max size, so we can do streamingIngestion
@@ -112,10 +114,11 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
     }
 
     async ingestFromFile(
-        file: FileDescriptor | string,
+        file: FileDescriptor | string | Blob,
         ingestionProperties?: IngestionPropertiesInput
     ): Promise<KustoResponseDataSet | QueueSendMessageResponse> {
-        return await this.ingestFromStream(fileToStream(file), ingestionProperties);
+        const stream = file instanceof FileDescriptor ? await tryFileToBuffer(file) : await tryFileToBuffer(new FileDescriptor(file));
+        return await this.ingestFromStream(stream, ingestionProperties);
     }
 }
 

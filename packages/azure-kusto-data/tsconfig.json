@@ -6,7 +6,6 @@
         "paths": {
           "azure-kusto-data": ["./src/index"]
         },
-        "lib": ["dom", "dom.iterable"]
-    },
-    "exclude": ["node_modules", "*.d.ts", "**/*.d.ts"]
+        "lib": ["ES6", "dom"],
+    }
 }

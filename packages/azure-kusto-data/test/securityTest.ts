@@ -60,7 +60,6 @@ describe("test errors", () => {
     it("test app certificate", async () => {
         const cluster = "https://somecluster.kusto.windows.net";
         const appId = "86f7361f-15b7-4f10-aef5-3ce66ac73766";
-        const thumb = "thumb";
         const privateKey =
             "-----BEGIN RSA PRIVATE KEY-----\n" +
             "MIICXAIBAAKBgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4eCZ0FPqri0cb2JZfXJ/DgYSF6vUp\n" +
@@ -75,7 +74,7 @@ describe("test errors", () => {
             "U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ\n" +
             "37sJ5QsW+sJyoNde3xH8vdXhzU7eT82D6X/scw9RZz+/6rCJ4p0=\n" +
             "-----END RSA PRIVATE KEY-----";
-        const kcsb = KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(cluster, appId, privateKey, thumb, "organizations");
+        const kcsb = KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(cluster, appId, privateKey, "organizations");
 
         const helper = new AadHelper(kcsb);
         try {
@@ -86,7 +85,6 @@ describe("test errors", () => {
             assert.ok(e.inner instanceof ClientAuthError);
             assert.strictEqual(e.tokenProviderName, "ApplicationCertificateTokenProvider");
             assert.strictEqual(e.context.clientId, appId);
-            assert.strictEqual(e.context.thumbprint, thumb);
         }
     }).timeout(10000);
 
@@ -170,7 +168,6 @@ describe("Test providers", () => {
     manualLoginTest(
         "APP_ID",
         "TENANT_ID",
-        "CERT_THUMBPRINT",
         "CERT_PUBLIC",
         "CERT_PEM"
     )("test app certificate token provider", async () => {
@@ -179,7 +176,6 @@ describe("Test providers", () => {
             cluster,
             process.env.APP_KEY!,
             process.env.CERT_PEM!,
-            process.env.CERT_THUMBPRINT!,
             process.env.CERT_PUBLIC!
         );
 

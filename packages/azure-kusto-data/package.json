@@ -1,15 +1,26 @@
 {
     "name": "azure-kusto-data",
-    "version": "3.4.2",
+    "version": "3.4.3",
     "description": "Azure Data Explorer Query SDK",
-    "main": "dist/index.js",
+    "main": "dist-esm/src/index.js",
     "module": "dist-esm/src/index.js",
-    "types": "src/index.d.ts",
+	"types" : "dist-esm/src/index.d.ts",
     "scripts": {
         "clean": "rimraf dist dist-*",
-        "build": "npm run clean && tsc && cp package.json dist-esm",
-        "build:browser-test": "npm run build && cp index.html dist-esm",
-        "webpack": "webpack --watch"
+        "build": "tsc",
+        "build:browser-test": "npm run clean && npm run build && cp index.html dist-esm",
+        "webpack": "webpack serve"
+    },
+    "browser": {
+        "fs": false,
+        "os": false,
+        "process": false,
+        "stream-http": false,
+        "https": false,
+        "http": false,
+        "crypto" : false,
+        "stream" : false,
+        "./dist-esm/src/tokenProvider.js": "./dist-esm/src/tokenProvider.browser.js"
     },
     "engines": {
         "node": ">= 14.0.0"
@@ -42,10 +53,6 @@
     "author": "",
     "license": "ISC",
     "homepage": "https://github.com/Azure/azure-kusto-node/blob/master/azure-kusto-data/README.md",
-    "optionalDependencies": {
-        "@azure/msal-browser": "^2.28.1",
-        "@azure/msal-node": "^1.12.1"
-    },
     "devDependencies": {
         "@types/mocha": "^9.1.1",
         "@types/webpack-dev-server": "^4.7.2",

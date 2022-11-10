@@ -5,11 +5,11 @@
 
 import sinon from "sinon";
 import Sinon from "sinon";
-import { StreamingIngestClient } from "../index";
-import { StreamDescriptor } from "../source/descriptors";
-import { KustoIngestClient } from "../source/ingestClient";
-import { DataFormat, IngestionProperties, IngestionPropertiesInput } from "../source/ingestionProperties";
-import KustoManagedStreamingIngestClient from "../source/managedStreamingIngestClient";
+import { StreamingIngestClient  } from "../src";
+import { StreamDescriptor } from "../src/descriptors";
+import { KustoIngestClient } from "../src/ingestClient";
+import { DataFormat, IngestionProperties, IngestionPropertiesInput } from "../src/ingestionProperties";
+import KustoManagedStreamingIngestClient from "../src/managedStreamingIngestClient";
 import { Readable } from "stream";
 import { QueueSendMessageResponse } from "@azure/storage-queue";
 import { describe } from "mocha";
@@ -64,7 +64,7 @@ describe("ManagedStreamingIngestClient", () => {
         for (const [i, call] of stub.getCalls().entries()) {
             let calledStream = call.args[0];
             if (calledStream instanceof StreamDescriptor) {
-                calledStream = calledStream.stream;
+                calledStream = calledStream.stream as Readable;
             }
 
             const chunks = [];

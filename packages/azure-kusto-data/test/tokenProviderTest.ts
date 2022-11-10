@@ -3,7 +3,7 @@
 
 import { CloudSettings } from "../src/cloudSettings";
 import assert from "assert";
-import { BasicTokenProvider } from "../src/tokenProviderBase";
+import { BasicTokenProvider } from "../src/tokenProvider";
 
 describe("CloudInfo", () => {
     describe("#CloudInfo", () => {

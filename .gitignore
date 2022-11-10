@@ -324,6 +324,7 @@ __main.js
 *.tsbuildinfo
 *.js
 *.js.map
+*.d.ts.map
 *.d.ts
 
 # We still want example.js files
@@ -335,3 +336,5 @@ __main.js
 
 !**/.eslintrc.js
 *.html
+dist-esm
+.npmrc

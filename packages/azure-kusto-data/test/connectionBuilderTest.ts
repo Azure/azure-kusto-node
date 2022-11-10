@@ -26,8 +26,7 @@ const doComparsion = (
             "msiClientId",
             "applicationKey",
             "applicationCertificatePrivateKey",
-            "applicationCertificateThumbprint",
-            "applicationCertificateX5c",
+            "applicationCertificateSendX5c",
             "deviceCodeCallback",
             "loginHint",
             "timeoutMs",
@@ -123,17 +122,6 @@ describe("KustoConnectionStringBuilder", () => {
                     ),
                 Error,
                 "Invalid app certificate"
-            );
-            assert.throws(
-                () =>
-                    KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(
-                        "https://test.kusto.windows.net/",
-                        "53e12945-98b5-4d5c-9465-fd6b6edf848e",
-                        "private",
-                        " "
-                    ),
-                Error,
-                "Invalid app thumbprint"
             );
         });
     });
@@ -318,23 +306,21 @@ describe("KustoConnectionStringBuilder", () => {
         describe("from certificate auth", () => {
             const appId = uuidv4();
             const privateKey = "some private key";
-            const thumbPrint = "thumbprint";
             const expectedAuthorityId = "test-authority";
-            const cert5xc = "5xc";
+            const cert5xc = true;
 
             it("with authority id", () => {
                 const kcsbs = [
                     new KustoConnectionStringBuilder(
-                        `localhost;Application client Id=${appId};application Certificate PrivateKey=${privateKey};application certificate thumbprint=${thumbPrint};Authority Id=${expectedAuthorityId};application certificate x5c=${cert5xc};AAD Federated Security=True`
+                        `localhost;Application client Id=${appId};application Certificate PrivateKey=${privateKey};Authority Id=${expectedAuthorityId};application certificate x5c=${cert5xc};AAD Federated Security=True`
                     ),
                     new KustoConnectionStringBuilder(
-                        `localhost;AppClientId=${appId};Application Certificate PrivateKey=${privateKey};appcert=${thumbPrint};Authority Id=${expectedAuthorityId};SendX5c=${cert5xc};AAD Federated Security=True`
+                        `localhost;AppClientId=${appId};Application Certificate PrivateKey=${privateKey};Authority Id=${expectedAuthorityId};SendX5c=${cert5xc};AAD Federated Security=True`
                     ),
                     KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(
                         "localhost",
                         appId,
                         privateKey,
-                        thumbPrint,
                         expectedAuthorityId,
                         cert5xc
                     ),
@@ -345,8 +331,7 @@ describe("KustoConnectionStringBuilder", () => {
                 kcsb1.applicationClientId = appId;
                 kcsb1.authorityId = expectedAuthorityId;
                 kcsb1.applicationCertificatePrivateKey = privateKey;
-                kcsb1.applicationCertificateThumbprint = thumbPrint;
-                kcsb1.applicationCertificateX5c = cert5xc;
+                kcsb1.applicationCertificateSendX5c = cert5xc;
                 kcsbs.push(kcsb1);
 
                 doComparsion(
@@ -355,29 +340,27 @@ describe("KustoConnectionStringBuilder", () => {
                         dataSource: "localhost",
                         applicationClientId: appId,
                         applicationCertificatePrivateKey: privateKey,
-                        applicationCertificateThumbprint: thumbPrint,
                         authorityId: expectedAuthorityId,
-                        applicationCertificateX5c: cert5xc,
+                        applicationCertificateSendX5c: cert5xc,
                         aadFederatedSecurity: true,
                     },
-                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${appId};Application Certificate PrivateKey=****;Application Certificate Thumbprint=${thumbPrint};Application Certificate x5c=${cert5xc};Authority Id=${expectedAuthorityId}`,
-                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${appId};Application Certificate PrivateKey=${privateKey};Application Certificate Thumbprint=${thumbPrint};Application Certificate x5c=${cert5xc};Authority Id=${expectedAuthorityId}`
+                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${appId};Application Certificate PrivateKey=****;Application Certificate x5c=${cert5xc};Authority Id=${expectedAuthorityId}`,
+                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${appId};Application Certificate PrivateKey=${privateKey};Application Certificate x5c=${cert5xc};Authority Id=${expectedAuthorityId}`
                 );
             });
 
             it("without authority id", () => {
                 const kcsbs = [
                     new KustoConnectionStringBuilder(
-                        `localhost;Application client Id=${appId};application Certificate PrivateKey=${privateKey};application certificate thumbprint=${thumbPrint};application certificate x5c=${cert5xc};AAD Federated Security=True`
+                        `localhost;Application client Id=${appId};application Certificate PrivateKey=${privateKey};application certificate x5c=${cert5xc};AAD Federated Security=True`
                     ),
                     new KustoConnectionStringBuilder(
-                        `localhost;AppClientId=${appId};Application Certificate PrivateKey=${privateKey};appcert=${thumbPrint};SendX5c=${cert5xc};AAD Federated Security=True`
+                        `localhost;AppClientId=${appId};Application Certificate PrivateKey=${privateKey};SendX5c=${cert5xc};AAD Federated Security=True`
                     ),
                     KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(
                         "localhost",
                         appId,
                         privateKey,
-                        thumbPrint,
                         DEFAULT_AUTHORITY,
                         cert5xc
                     ),
@@ -387,8 +370,7 @@ describe("KustoConnectionStringBuilder", () => {
                 kcsb1.aadFederatedSecurity = true;
                 kcsb1.applicationClientId = appId;
                 kcsb1.applicationCertificatePrivateKey = privateKey;
-                kcsb1.applicationCertificateThumbprint = thumbPrint;
-                kcsb1.applicationCertificateX5c = cert5xc;
+                kcsb1.applicationCertificateSendX5c = cert5xc;
                 kcsbs.push(kcsb1);
 
                 doComparsion(
@@ -397,32 +379,30 @@ describe("KustoConnectionStringBuilder", () => {
                         dataSource: "localhost",
                         applicationClientId: appId,
                         applicationCertificatePrivateKey: privateKey,
-                        applicationCertificateThumbprint: thumbPrint,
                         authorityId: DEFAULT_AUTHORITY,
-                        applicationCertificateX5c: cert5xc,
+                        applicationCertificateSendX5c: cert5xc,
                         aadFederatedSecurity: true,
                     },
-                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${appId};Application Certificate PrivateKey=****;Application Certificate Thumbprint=${thumbPrint};Application Certificate x5c=${cert5xc};Authority Id=organizations`,
-                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${appId};Application Certificate PrivateKey=${privateKey};Application Certificate Thumbprint=${thumbPrint};Application Certificate x5c=${cert5xc};Authority Id=organizations`
+                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${appId};Application Certificate PrivateKey=****;Application Certificate x5c=${cert5xc};Authority Id=organizations`,
+                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${appId};Application Certificate PrivateKey=${privateKey};Application Certificate x5c=${cert5xc};Authority Id=organizations`
                 );
             });
 
             it("without 3xc", () => {
                 const kcsbs = [
                     new KustoConnectionStringBuilder(
-                        `localhost;Application client Id=${appId};application Certificate PrivateKey=${privateKey};application certificate thumbprint=${thumbPrint};AAD Federated Security=True`
+                        `localhost;Application client Id=${appId};application Certificate PrivateKey=${privateKey};AAD Federated Security=True`
                     ),
                     new KustoConnectionStringBuilder(
-                        `localhost;AppClientId=${appId};Application Certificate PrivateKey=${privateKey};appcert=${thumbPrint};AAD Federated Security=True`
+                        `localhost;AppClientId=${appId};Application Certificate PrivateKey=${privateKey};AAD Federated Security=True`
                     ),
-                    KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication("localhost", appId, privateKey, thumbPrint, DEFAULT_AUTHORITY),
+                    KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication("localhost", appId, privateKey, DEFAULT_AUTHORITY),
                 ];
 
                 const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
                 kcsb1.aadFederatedSecurity = true;
                 kcsb1.applicationClientId = appId;
                 kcsb1.applicationCertificatePrivateKey = privateKey;
-                kcsb1.applicationCertificateThumbprint = thumbPrint;
                 kcsbs.push(kcsb1);
 
                 doComparsion(
@@ -431,12 +411,11 @@ describe("KustoConnectionStringBuilder", () => {
                         dataSource: "localhost",
                         applicationClientId: appId,
                         applicationCertificatePrivateKey: privateKey,
-                        applicationCertificateThumbprint: thumbPrint,
                         authorityId: DEFAULT_AUTHORITY,
                         aadFederatedSecurity: true,
                     },
-                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${appId};Application Certificate PrivateKey=****;Application Certificate Thumbprint=${thumbPrint};Authority Id=organizations`,
-                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${appId};Application Certificate PrivateKey=${privateKey};Application Certificate Thumbprint=${thumbPrint};Authority Id=organizations`
+                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${appId};Application Certificate PrivateKey=****;Authority Id=organizations`,
+                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${appId};Application Certificate PrivateKey=${privateKey};Authority Id=organizations`
                 );
             });
         });

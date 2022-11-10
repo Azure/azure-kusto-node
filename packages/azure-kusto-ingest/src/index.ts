@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import client from "./source/ingestClient";
+import client from "./ingestClient";
 
-import streamingIngestClient from "./source/streamingIngestClient";
+import streamingIngestClient from "./streamingIngestClient";
 
-import managedStreamingIngestClient from "./source/managedStreamingIngestClient";
+import managedStreamingIngestClient from "./managedStreamingIngestClient";
 
-import KustoIngestStatusQueues from "./source/status";
+import KustoIngestStatusQueues from "./status";
 
 import {
     DataFormat,
@@ -17,9 +17,10 @@ import {
     ValidationImplications,
     ValidationOptions,
     ValidationPolicy,
-} from "./source/ingestionProperties";
+} from "./ingestionProperties";
 
-import { BlobDescriptor, CompressionType, FileDescriptor, StreamDescriptor } from "./source/descriptors";
+import { BlobDescriptor, CompressionType, StreamDescriptor } from "./descriptors";
+import { FileDescriptor } from "./fileDescriptor";
 import {
     ApacheAvroColumnMapping,
     AvroColumnMapping,
@@ -32,15 +33,15 @@ import {
     ParquetColumnMapping,
     SStreamColumnMapping,
     W3CLogFileMapping,
-} from "./source/columnMappings";
+} from "./columnMappings";
 
-export { Transformation as ColumnMappingTransformation } from "./source/columnMappings";
+export { Transformation as ColumnMappingTransformation } from "./columnMappings";
 
 export const IngestClient = client;
 export const StreamingIngestClient = streamingIngestClient;
 export const ManagedStreamingIngestClient = managedStreamingIngestClient;
 export const IngestStatusQueues = KustoIngestStatusQueues;
-export { IngestionProperties } from "./source/ingestionProperties";
+export { IngestionProperties } from "./ingestionProperties";
 export const IngestionDescriptors = {
     BlobDescriptor,
     FileDescriptor,
@@ -98,4 +99,4 @@ export const IngestionPropertiesEnums = {
     ColumnMapping,
 };
 
-export { IngestionPropertiesValidationError } from "./source/errors";
+export { IngestionPropertiesValidationError } from "./errors";
