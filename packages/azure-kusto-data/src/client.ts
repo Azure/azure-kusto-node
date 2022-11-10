@@ -9,9 +9,10 @@ import ConnectionStringBuilder from "./connectionBuilder";
 import ClientRequestProperties from "./clientRequestProperties";
 import { ThrottlingError } from "./errors";
 import pkg from "../package.json";
-import axios, { AxiosInstance } from "axios";
+import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 import http from "http";
 import https from "https";
+import { isNode } from "@azure/core-util";
 
 const COMMAND_TIMEOUT_IN_MILLISECS = moment.duration(10.5, "minutes").asMilliseconds();
 const QUERY_TIMEOUT_IN_MILLISECS = moment.duration(4.5, "minutes").asMilliseconds();
@@ -54,14 +55,17 @@ export class KustoClient {
             "x-ms-client-version": `Kusto.Node.Client:${pkg.version}`,
             Connection: "Keep-Alive",
         };
-        this.axiosInstance = axios.create({
+        const axiosProps: AxiosRequestConfig = {
             headers,
-            validateStatus: (status: number) => status === 200,
+            validateStatus: (status: number) => status === 200
+        };
+        if (isNode) {
+             // keepAlive pools and reuses TCP connections, so it's faster
+            axiosProps.httpAgent = new http.Agent({ keepAlive: true });
+            axiosProps.httpsAgent = new https.Agent({ keepAlive: true });
+        }
 
-            // keepAlive pools and reuses TCP connections, so it's faster
-            httpAgent: new http.Agent({ keepAlive: true }),
-            httpsAgent: new https.Agent({ keepAlive: true }),
-        });
+        this.axiosInstance = axios.create();
     }
 
     async execute(db: string | null, query: string, properties?: ClientRequestProperties) {

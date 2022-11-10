@@ -100,3 +100,9 @@ export const IngestionPropertiesEnums = {
 };
 
 export { IngestionPropertiesValidationError } from "./errors";
+
+import {KustoConnectionStringBuilder} from "azure-kusto-data"
+import {Client} from "azure-kusto-data"
+const kcsb = KustoConnectionStringBuilder.withAadApplicationKeyAuthentication("https://devdevon.westeurope.dev.kusto.windows.net","a","b","C");
+const cli = new Client(kcsb);
+cli.execute("fast","TestTable2").then(resp=>console.log(resp)).catch(e=>console.log(e))
