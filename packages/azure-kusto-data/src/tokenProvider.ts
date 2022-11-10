@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { AzureCliCredential, ManagedIdentityCredential, ClientSecretCredential, ClientCertificateCredential, ClientCertificateCredentialOptions, ClientCertificatePEMCertificate, DeviceCodeCredential, DeviceCodeInfo } from "@azure/identity";
+import { AzureCliCredential, ManagedIdentityCredential, ClientSecretCredential, ClientCertificateCredential, ClientCertificateCredentialOptions, ClientCertificatePEMCertificate, DeviceCodeCredential, DeviceCodeInfo, UsernamePasswordCredential } from "@azure/identity";
 import { TokenCredential } from "@azure/core-auth";
 import { InteractiveBrowserCredential } from "@azure/identity";
 import { CloudInfo, CloudSettings } from "./cloudSettings";
@@ -229,6 +229,32 @@ export class AzCliTokenProvider extends AzureIdentityProvider {
     }
 }
 
+/**
+ * Acquire a token from MSAL with username and password
+ */
+ export class UserPassTokenProvider extends AzureIdentityProvider {
+
+    userName: string;
+    password: string;
+    homeAccountId?: string;
+    constructor(kustoUri: string, userName: string, password: string, authorityId: string) {
+        super(kustoUri, authorityId, undefined);
+        this.userName = userName;
+        this.password = password;
+    }
+
+    getCredential(): TokenCredential {
+        return new UsernamePasswordCredential(this.authorityId!, this.cloudInfo.KustoClientAppId, this.userName, this.password);
+    }
+
+    context(): Record<string, any> {
+        return {
+            ...super.context(),
+            userName: this.userName,
+            homeAccountId: this.homeAccountId,
+        };
+    }
+ }
 
 /**
  * Acquire a token from  Device Login flow

@@ -13,7 +13,9 @@ export class AadHelper {
             throw new Error("Invalid string builder - missing dataSource");
         }
 
-        if (!!kcsb.applicationClientId && !!kcsb.applicationKey) {
+        if (!!kcsb.aadUserId && !!kcsb.password) {
+            this.tokenProvider = new TokenProvider.UserPassTokenProvider(kcsb.dataSource, kcsb.aadUserId, kcsb.password, kcsb.authorityId);
+        } else if (!!kcsb.applicationClientId && !!kcsb.applicationKey) {
             this.tokenProvider = new TokenProvider.ApplicationKeyTokenProvider(
                 kcsb.dataSource,
                 kcsb.applicationClientId,

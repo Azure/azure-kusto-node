@@ -4,26 +4,6 @@ import 'webpack-dev-server';
 const webpack = require('webpack');
 
 let production = process.env.NODE_ENV === "production";
-// let crypto;
-// try {crypto = require.resolve("crypto-browserify")
-// } catch {}
-
-// let assert;
-// try {assert = require.resolve("assert")
-// } catch {}
-
-// let http;
-// try {http = require.resolve("stream-http")
-// } catch {}
-
-// let crypto;
-// try {crypto = require.resolve("crypto-browserify")
-// } catch {}
-
-// let crypto;
-// try {crypto = require.resolve("crypto-browserify")
-// } catch {}
-
 let config = {
   entry: {
     index: "./src/index",
