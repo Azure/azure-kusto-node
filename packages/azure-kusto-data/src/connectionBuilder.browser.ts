@@ -9,6 +9,7 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
     static readonly SecretReplacement = "****";
     // eslint-disable-next-line no-console
 
+    // TODO delete?
     static withAadUserPasswordAuthentication(connectionString: string, userId: string, password: string, authorityId?: string) {
         if (userId.trim().length === 0) throw new Error("Invalid user");
         if (password.trim().length === 0) throw new Error("Invalid password");

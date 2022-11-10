@@ -9,7 +9,7 @@
         "clean": "rimraf dist dist-*",
         "build": "tsc",
         "build:browser-test": "npm run clean && npm run build && cp index.html dist-esm",
-        "webpack": "webpack --watch"
+        "webpack": "webpack serve"
     },
     "browser": {
         "fs": false,

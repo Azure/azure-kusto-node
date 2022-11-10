@@ -6,8 +6,7 @@
     "module": "dist-esm/src/index.js",
     "types": "dist-esm/src/index.d.ts",
     "scripts": {
-        "build-ingest": "tsc",
-        "webpack": "webpack serve"
+        "build": "tsc"
     },
     "engines": {
         "node": ">= 14.0.0"

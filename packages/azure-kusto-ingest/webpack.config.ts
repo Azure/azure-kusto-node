@@ -7,7 +7,7 @@ let production = process.env.NODE_ENV === "production";
 
 let config = {
   entry: {
-    index: "./dist-esm/src/index",
+    index: "./dist-esm/src/index"
   },
   target:"web",
   output: {
