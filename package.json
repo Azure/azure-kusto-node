@@ -20,6 +20,7 @@
         "@lerna-lite/cli": "^1.10.0",
         "@lerna-lite/run": "^1.10.0",
         "@types/mocha": "^9.1.1",
+        "@types/node": "^14.0.0",
         "@typescript-eslint/eslint-plugin": "^5.32.0",
         "@typescript-eslint/parser": "^5.32.0",
         "eslint": "^8.21.0",
@@ -32,12 +33,14 @@
         "nyc": "^15.1.0",
         "prettier": "^2.7.1",
         "sinon": "^14.0.0",
-        "typescript": "^4.7.4",
-        "@types/node": "^14.0.0"
+        "typescript": "^4.7.4"
     },
     "workspaces": [
         "packages\\azure-kusto-data",
         "packages\\azure-kusto-ingest",
         "packages\\quick_start"
-    ]
+    ],
+    "dependencies": {
+        "ts-node": "^10.9.1"
+    }
 }

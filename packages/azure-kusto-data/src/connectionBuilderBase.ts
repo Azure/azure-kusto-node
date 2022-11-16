@@ -97,6 +97,7 @@ export abstract class KustoConnectionStringBuilderBase {
     deviceCodeCallback?: (response: DeviceCodeInfo) => void;
     tokenProvider?: () => Promise<string>;
     loginHint?: string;
+    loginStyle?: string;
     timeoutMs?: number;
     accessToken?: string;
     useDeviceCodeAuth?: boolean;

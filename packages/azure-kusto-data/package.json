@@ -2,9 +2,9 @@
     "name": "azure-kusto-data",
     "version": "3.4.3",
     "description": "Azure Data Explorer Query SDK",
-    "main": "dist-esm/src/index.js",
+    "main": "dist/src/index.js",
     "module": "dist-esm/src/index.js",
-	"types" : "dist-esm/src/index.d.ts",
+    "types": "./types/src/index.d.ts",
     "scripts": {
         "clean": "rimraf dist dist-*",
         "build": "tsc",
@@ -20,7 +20,8 @@
         "http": false,
         "crypto" : false,
         "stream" : false,
-        "./dist-esm/src/tokenProvider.js": "./dist-esm/src/tokenProvider.browser.js"
+        "./dist-esm/src/connectionBuilder.js": "./dist-esm/src/connectionBuilder.browser.js",
+        "./dist-esm/src/connectionBuilder.ts": "./dist-esm/src/connectionBuilder.browser.ts"
     },
     "engines": {
         "node": ">= 14.0.0"

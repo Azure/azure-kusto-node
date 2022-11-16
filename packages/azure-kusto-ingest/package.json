@@ -2,11 +2,12 @@
     "name": "azure-kusto-ingest",
     "version": "3.4.3",
     "description": "Azure Data Explorer Ingestion SDK",
-    "main": "dist-esm/src/index.js",
+    "main": "dist/src/index.js",
     "module": "dist-esm/src/index.js",
-    "types": "dist-esm/src/index.d.ts",
+    "types": "./types/src/index.d.ts",
     "scripts": {
-        "build": "tsc"
+        "build": "tsc",
+        "webpack": "webpack serve"
     },
     "engines": {
         "node": ">= 14.0.0"
@@ -32,11 +33,11 @@
     "files": [
         "dist/",
         "dist-esm/src/",
-        "dist-esm/package.json",
         "tsconfig.tsbuildinfo",
-        "example.js"
+        "example.js",
+        "types/src/"
     ],
-    "author": "",
+    "author": "Microsoft Corporation",
     "license": "ISC",
     "browser": {
         "fs": false,
@@ -46,10 +47,14 @@
         "https": false,
         "http": false,
         "crypto": false,
-        "stream": "readable-stream",
+        "stream": "stream-browserify",
+        "zlib": "browserify-zlib",
         "./dist-esm/src/streamUtils.js": "./dist-esm/src/streamUtils.browser.js",
+        "./dist-esm/src/streamUtils.ts": "./dist-esm/src/streamUtils.browser.ts",
         "./dist-esm/src/fileDescriptor.js": "./dist-esm/src/fileDescriptor.browser.js",
-        "./dist-esm/src/ingestClient.js": "./dist-esm/src/ingestClient.browser.ts"
+        "./dist-esm/src/fileDescriptor.ts": "./dist-esm/src/fileDescriptor.browser.ts",
+        "./dist-esm/src/ingestClient.js": "./dist-esm/src/ingestClient.browser.js",
+        "./dist-esm/src/ingestClient.ts": "./dist-esm/src/ingestClient.browser.ts"
     },
     "dependencies": {
         "@azure/storage-blob": "^12.11.0",
@@ -63,13 +68,14 @@
         "azure-kusto-data": "^3.4.3",
         "browserify-zlib": "0.2.0",
         "moment": "^2.29.4",
-        "readable-stream": "~2.1.0",
         "root": "file:../..",
         "stream-array": "^1.1.2",
         "stream-to-array": "^2.3.0",
         "tmp-promise": "^3.0.3",
         "uuid": "^8.3.2",
-        "uuid-validate": "0.0.3"
+        "uuid-validate": "0.0.3",
+        "stream-browserify": "3.0.0"
+
     },
     "gitHead": "f8a5dae26d6d2ca2ab8b95953bb9b88a02e8e35d",
     "devDependencies": {
