@@ -2,12 +2,13 @@
     "name": "azure-kusto-ingest",
     "version": "3.4.3",
     "description": "Azure Data Explorer Ingestion SDK",
-    "main": "dist/src/index.js",
     "module": "dist-esm/src/index.js",
     "types": "./types/src/index.d.ts",
+    "main": "dist-esm/src/index",
     "scripts": {
         "build": "tsc",
-        "webpack": "webpack serve"
+        "webpack": "webpack serve",
+        "a":"npx ts-node example_node.ts --esm"
     },
     "engines": {
         "node": ">= 14.0.0"
@@ -81,7 +82,6 @@
     "devDependencies": {
         "@types/tmp": "^0.2.3",
         "@types/webpack-dev-server": "^4.7.2",
-        "ts-node": "^10.9.1",
         "webpack-cli": "^4.10.0"
     }
 }

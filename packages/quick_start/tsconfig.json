@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "target": "es6",
-        "module": "commonjs",
+        "module": "CommonJS",
         "esModuleInterop": true,
         "strict": true,
         "incremental": true,
@@ -10,11 +10,15 @@
         "allowJs": false,
         "declaration": true,
         "noUnusedParameters": true,
-        "noUnusedLocals": true
+        "moduleResolution": "node",
+        "noUnusedLocals": true,
+        "lib":["es2016"]
     },
-    "include": [
-        "index.ts",
-        "./source"
+    
+   "include": [
+        "./source",
+        "./source/*.ts"
+
     ],
     "exclude": [
         "node_modules",

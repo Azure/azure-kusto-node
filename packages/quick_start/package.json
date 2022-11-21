@@ -3,21 +3,19 @@
     "version": "3.4.3",
     "description": "Quick start Node sample app",
     "main": "source/SampleApp.js",
-    "types": "source/SampleApp.d.ts",
     "scripts": {
         "build": "tsc",
-        "quick_start": "npx ts-node source/SampleApp.ts"
+        "quick_start": "npx ts-node source/SampleApp.ts --esm"
     },
     "dependencies": {
         "azure-kusto-data": "^3.4.3",
         "azure-kusto-ingest": "^3.4.3",
         "diff": "^5.1.0",
-        "root": "file:../..",
-        "ts-node": "^10.9.1",
         "uuid": "^8.3.2"
     },
     "devDependencies": {
-        "typescript": "^4.7.4"
+        "ts-node": "^10.9.1",
+        "typescript": "^5.0.0-dev.20221117"
     },
     "repository": {
         "type": "git",

@@ -2,8 +2,8 @@
     "name": "azure-kusto-data",
     "version": "3.4.3",
     "description": "Azure Data Explorer Query SDK",
-    "main": "dist/src/index.js",
     "module": "dist-esm/src/index.js",
+    "main": "dist-esm/src/index",
     "types": "./types/src/index.d.ts",
     "scripts": {
         "clean": "rimraf dist dist-*",
