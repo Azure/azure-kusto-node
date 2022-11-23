@@ -118,7 +118,7 @@ export class KustoClient {
         stream: any,
         properties?: ClientRequestProperties | null
     ): Promise<KustoResponseDataSet> {
-        this.ensureNotClosed();
+        this.ensureOpen();
         kustoTrustedEndpoints.validateTrustedEndpoint(endpoint, (await CloudSettings.getInstance().getCloudInfoForCluster(this.cluster)).LoginEndpoint);
         db = this.getDb(db);
         const headers: { [header: string]: string } = {};
@@ -257,7 +257,7 @@ export class KustoClient {
         this._isClosed = true;
     }
 
-    ensureNotClosed() {
+    ensureOpen() {
         if (this._isClosed) {
             throw new Error("Client is closed");
         }

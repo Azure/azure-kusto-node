@@ -38,7 +38,7 @@ export abstract class AbstractKustoClient {
         this._isClosed = true;
     }
 
-    protected ensureNotClosed() {
+    protected ensureOpen() {
         if (this._isClosed) {
             throw new Error("Client is closed");
         }

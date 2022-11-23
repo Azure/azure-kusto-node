@@ -44,4 +44,6 @@ async function start() {
     } catch (error) {
         console.log(error);
     }
+
+    kustoClient.close();
 }
