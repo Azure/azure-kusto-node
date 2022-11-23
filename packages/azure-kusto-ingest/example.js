@@ -29,6 +29,7 @@ const props = new IngestionProps({
     reportMethod: ReportMethod.Queue,
 });
 
+// After using the client, you should use `close()` to free up resources
 const ingestClient = new IngestClient(
     KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(`https://ingest-${clusterName}.kusto.windows.net`, appId, appKey, authorityId),
     props

@@ -348,4 +348,11 @@ describe("KustoClient", () => {
             });
         });
     });
+    describe("Close", () => {
+        it("Client should not be useable when closed", async () => {
+            const c = new KustoClient("Data Source=https://cluster.kusto.windows.net");
+            c.close();
+            await assert.rejects(c.execute("db", "Table | count"), /Client is closed/);
+        });
+    });
 });

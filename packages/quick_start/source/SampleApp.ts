@@ -107,6 +107,10 @@ class SampleApp {
             if (config.queryData) {
                 await this.postIngestionQuerying(kustoClient, config.databaseName, config.tableName, config.ingestData);
             }
+
+            // Close the clients at the end of usage.
+            kustoClient.close();
+            ingestClient.close();
         }
         Console.log("\nKusto sample app done");
     }

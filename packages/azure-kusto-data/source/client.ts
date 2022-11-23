@@ -34,6 +34,8 @@ export class KustoClient {
     endpoints: { [key in ExecutionType]: string };
     aadHelper: AadHelper;
     axiosInstance: AxiosInstance;
+    cancelToken = axios.CancelToken.source();
+    private _isClosed: boolean = false;
 
     constructor(kcsb: string | ConnectionStringBuilder) {
         this.connectionString = typeof kcsb === "string" ? new ConnectionStringBuilder(kcsb) : kcsb;
@@ -63,6 +65,7 @@ export class KustoClient {
             // keepAlive pools and reuses TCP connections, so it's faster
             httpAgent: new http.Agent({ keepAlive: true }),
             httpsAgent: new https.Agent({ keepAlive: true }),
+            cancelToken: this.cancelToken.token,
         });
     }
 
@@ -115,6 +118,7 @@ export class KustoClient {
         stream: any,
         properties?: ClientRequestProperties | null
     ): Promise<KustoResponseDataSet> {
+        this.ensureOpen();
         kustoTrustedEndpoints.validateTrustedEndpoint(endpoint, (await CloudSettings.getInstance().getCloudInfoForCluster(this.cluster)).LoginEndpoint);
         db = this.getDb(db);
         const headers: { [header: string]: string } = {};
@@ -244,6 +248,19 @@ export class KustoClient {
         }
 
         return executionType === ExecutionType.Query || executionType === ExecutionType.QueryV1 ? QUERY_TIMEOUT_IN_MILLISECS : COMMAND_TIMEOUT_IN_MILLISECS;
+    }
+
+    public close() {
+        if (!this._isClosed) {
+            this.cancelToken.cancel("Client Closed");
+        }
+        this._isClosed = true;
+    }
+
+    ensureOpen() {
+        if (this._isClosed) {
+            throw new Error("Client is closed");
+        }
     }
 }
 
