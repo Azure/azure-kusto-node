@@ -34,7 +34,8 @@
         "index.js",
         "index.d.ts",
         "tsconfig.tsbuildinfo",
-        "example.js"
+        "example.js",
+        "source/wellKnownKustoEndpoints.json"
     ],
     "author": "",
     "license": "ISC",
