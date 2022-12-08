@@ -37,7 +37,7 @@ export class AadHelper {
         } else if (kcsb.accessToken) {
             this.tokenProvider = new BasicTokenProvider(kcsb.dataSource, kcsb.accessToken as string);
         } else if (kcsb.useUserPromptAuth) {
-            this.tokenProvider = new UserPromptProvider(kcsb.dataSource, kcsb.authorityId, kcsb.timeoutMs, kcsb.loginHint);
+            this.tokenProvider = new UserPromptProvider(kcsb.dataSource, kcsb.interactiveCredentialOptions);
         } else if (kcsb.tokenProvider) {
             this.tokenProvider = new CallbackTokenProvider(kcsb.dataSource, kcsb.tokenProvider);
         } else if (kcsb.useDeviceCodeAuth) {

@@ -15,6 +15,7 @@ import { DataFormat, IngestionProperties, ReportLevel } from "../../src/ingestio
 import { CloudSettings } from "azure-kusto-data/src/cloudSettings";
 import { sleep } from "../../src/retry";
 import { JsonColumnMapping } from "../../src/columnMappings";
+import util from "util"
 
 interface ParsedJsonMapping {
     Properties: { Path: string };
@@ -40,11 +41,6 @@ const main = (): void => {
     const statusQueues = new KustoIngestStatusQueues(ingestClient);
     const managedStreamingIngestClient = new ManagedStreamingIngestClient(engineKcsb, dmKcsb);
 
-    let x = 1;
-    x = 2;
-    while(x){
-
-    }
     class TestDataItem {
         constructor(
             public description: string,
@@ -110,6 +106,7 @@ const main = (): void => {
 
         before("SetUp", async () => {
             try {
+                await queryClient.execute("fast", ".show version")
                 await queryClient.execute(databaseName, `.create table ${tableName} ${tableColumns}`);
                 await queryClient.execute(databaseName, `.alter table ${tableName} policy streamingingestion enable`);
                 await queryClient.execute(databaseName, ".clear database cache streamingingestion schema");
@@ -118,12 +115,12 @@ const main = (): void => {
                 try {
                     await queryClient.execute(databaseName, `.create-or-alter table ${tableName} ingestion json mapping '${mappingName}' '${mapping}'`);
                 } catch (err) {
-                    assert.fail("Failed to create table ingestion mapping, error: " + JSON.stringify(err));
+                    assert.fail("Failed to create table ingestion mapping, error: " + util.format(err));
                 }
             } catch (err) {
                 console.log(`Creating table ${tableName}, with columns ${tableColumns}`);
 
-                assert.fail(`Failed to create table ${tableName} ${err} ${databaseName}, error: ${JSON.stringify(err)}`);
+                assert.fail(`Failed to create table ${tableName} ${err} ${databaseName}, error: ${util.format(err)}`);
             }
         });
 

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { DeviceCodeInfo } from "@azure/identity";
+import { DeviceCodeInfo, InteractiveBrowserCredentialInBrowserOptions, InteractiveBrowserCredentialNodeOptions } from "@azure/identity";
 import KustoConnectionStringBuilderBase from "./connectionBuilderBase";
 
 export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBase {
@@ -10,57 +10,30 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
     // eslint-disable-next-line no-console
 
     // TODO delete?
-    static withAadUserPasswordAuthentication(connectionString: string, userId: string, password: string, authorityId?: string) {
-        if (userId.trim().length === 0) throw new Error("Invalid user");
-        if (password.trim().length === 0) throw new Error("Invalid password");
-
-        const kcsb = new KustoConnectionStringBuilder(connectionString);
-        kcsb.aadFederatedSecurity = true;
-        kcsb.aadUserId = userId;
-        kcsb.password = password;
-        if (authorityId) {
-            kcsb.authorityId = authorityId;
-        }
-
-        return kcsb;
+    static withAadUserPasswordAuthentication(
+        _connectionString: string,
+        _userId: string,
+        _password: string,
+        _authorityId?: string) {
+        throw new Error("Not supported for browser - use withUserPrompt instead")
     }
 
-    static withAadApplicationKeyAuthentication(connectionString: string, aadAppId: string, appKey: string, authorityId?: string) {
-        if (aadAppId.trim().length === 0) throw new Error("Invalid app id");
-        if (appKey.trim().length === 0) throw new Error("Invalid app key");
-
-        const kcsb = new KustoConnectionStringBuilder(connectionString);
-        kcsb.aadFederatedSecurity = true;
-        kcsb.applicationClientId = aadAppId;
-        kcsb.applicationKey = appKey;
-        if (authorityId) {
-            kcsb.authorityId = authorityId;
-        }
-
-        return kcsb;
+    static withAadApplicationKeyAuthentication(
+        _connectionString: string,
+        _aadAppId: string,
+        _appKey: string,
+        _authorityId?: string) {
+        throw new Error("Not supported for browser - use withUserPrompt instead")
     }
 
     static withAadApplicationCertificateAuthentication(
-        connectionString: string,
-        aadAppId: string,
-        applicationCertificatePrivateKey: string,
-        authorityId?: string,
-        applicationCertificateSendX5c?: boolean
+        _connectionString: string,
+        _aadAppId: string,
+        _applicationCertificatePrivateKey: string,
+        _authorityId?: string,
+        _applicationCertificateSendX5c?: boolean
     ) {
-        if (aadAppId.trim().length === 0) throw new Error("Invalid app id");
-        if (applicationCertificatePrivateKey.trim().length === 0) throw new Error("Invalid certificate");
-
-        const kcsb = new KustoConnectionStringBuilder(connectionString);
-        kcsb.aadFederatedSecurity = true;
-        kcsb.applicationClientId = aadAppId;
-        kcsb.applicationCertificatePrivateKey = applicationCertificatePrivateKey;
-        kcsb.applicationCertificateSendX5c = applicationCertificateSendX5c;
-
-        if (authorityId) {
-            kcsb.authorityId = authorityId;
-        }
-
-        return kcsb;
+        throw new Error("Not supported for browser - use withUserPrompt instead")
     }
 
     static withAadDeviceAuthentication(
@@ -101,15 +74,24 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
         return kcsb;
     }
 
-    static withUserPrompt(connectionString: string, authorityId?: string, timeoutMs?: number, loginHint?: string) {
+    static withUserPrompt(connectionString: string, interactiveCredentialOptions: InteractiveBrowserCredentialNodeOptions | InteractiveBrowserCredentialInBrowserOptions, timeoutMs?: number) {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
-        kcsb.aadFederatedSecurity = true;
-
-        kcsb.useUserPromptAuth = true;
-        if (authorityId) {
-            kcsb.authorityId = authorityId;
+        const {redirectUri, clientId, tenantId} = interactiveCredentialOptions as InteractiveBrowserCredentialInBrowserOptions;
+        if (!clientId) {
+            throw new Error("You must provide your SPA application client id to authenticate against");
         }
-        kcsb.loginHint = loginHint;
+
+        if (!redirectUri) {
+            throw new Error("You must provide a redirectUri registered on the SPA app");
+        }
+
+        kcsb.interactiveCredentialOptions = interactiveCredentialOptions;
+        kcsb.aadFederatedSecurity = true;
+        kcsb.applicationClientId = clientId;
+        kcsb.useUserPromptAuth = true;
+        if (tenantId) {
+            kcsb.authorityId = tenantId;
+        }
         kcsb.timeoutMs = timeoutMs;
 
         return kcsb;

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import client from "./ingestClient";
+import KustoIngestClient from "./ingestClient";
 
 import streamingIngestClient from "./streamingIngestClient";
 
@@ -34,10 +34,11 @@ import {
     SStreamColumnMapping,
     W3CLogFileMapping,
 } from "./columnMappings";
+import { main } from "../exampleBrowser";
 
 export { Transformation as ColumnMappingTransformation } from "./columnMappings";
 
-export const IngestClient = client;
+export const IngestClient = KustoIngestClient;
 export const StreamingIngestClient = streamingIngestClient;
 export const ManagedStreamingIngestClient = managedStreamingIngestClient;
 export const IngestStatusQueues = KustoIngestStatusQueues;

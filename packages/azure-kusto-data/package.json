@@ -3,13 +3,11 @@
     "version": "3.4.3",
     "description": "Azure Data Explorer Query SDK",
     "module": "dist-esm/src/index.js",
-    "main": "dist-esm/src/index",
     "types": "./types/src/index.d.ts",
+    "main": "dist-esm/src/index",
     "scripts": {
-        "clean": "rimraf dist dist-*",
-        "build": "tsc",
-        "build:browser-test": "npm run clean && npm run build && cp index.html dist-esm",
-        "webpack": "webpack serve"
+        "clean": "rimraf dist dist-* types",
+        "build": "tsc"
     },
     "browser": {
         "fs": false,
@@ -20,8 +18,7 @@
         "http": false,
         "crypto" : false,
         "stream" : false,
-        "./dist-esm/src/connectionBuilder.js": "./dist-esm/src/connectionBuilder.browser.js",
-        "./dist-esm/src/connectionBuilder.ts": "./dist-esm/src/connectionBuilder.browser.ts"
+        "./dist-esm/src/connectionBuilder.js": "./dist-esm/src/connectionBuilder.browser.js"
     },
     "engines": {
         "node": ">= 14.0.0"
@@ -47,7 +44,7 @@
     "files": [
         "dist/",
         "dist-esm/src/",
-        "dist-esm/package.json",
+        "types/src/",
         "tsconfig.tsbuildinfo",
         "example.js"
     ],
@@ -55,11 +52,6 @@
     "license": "ISC",
     "homepage": "https://github.com/Azure/azure-kusto-node/blob/master/azure-kusto-data/README.md",
     "devDependencies": {
-        "@types/mocha": "^9.1.1",
-        "@types/webpack-dev-server": "^4.7.2",
-        "exports-loader": "^4.0.0",
-        "ts-loader": "^9.3.1",
-        "webpack-cli": "^4.10.0",
         "rimraf": "^3.0.2"
     },
     "dependencies": {

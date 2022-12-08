@@ -563,7 +563,7 @@ describe("KustoConnectionStringBuilder", () => {
 
         describe("interactive login", () => {
             it("without optional params", () => {
-                const kcsbs = [KustoConnectionStringBuilder.withUserPrompt("localhost", DEFAULT_AUTHORITY)];
+                const kcsbs = [KustoConnectionStringBuilder.withUserPrompt("localhost", { tenantId: DEFAULT_AUTHORITY })];
 
                 const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
                 kcsb1.aadFederatedSecurity = true;
@@ -585,13 +585,12 @@ describe("KustoConnectionStringBuilder", () => {
             it("with optional params", () => {
                 const loginHint = "myUser";
                 const timeoutMs = 10;
-                const kcsbs = [KustoConnectionStringBuilder.withUserPrompt("localhost", DEFAULT_AUTHORITY, timeoutMs, loginHint)];
+                const kcsbs = [KustoConnectionStringBuilder.withUserPrompt("localhost", { tenantId: DEFAULT_AUTHORITY, loginHint },timeoutMs)];
 
                 const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
                 kcsb1.aadFederatedSecurity = true;
                 kcsb1.useUserPromptAuth = true;
                 kcsb1.timeoutMs = timeoutMs;
-                kcsb1.loginHint = loginHint;
 
                 doComparsion(
                     kcsbs,
@@ -601,7 +600,6 @@ describe("KustoConnectionStringBuilder", () => {
                         useUserPromptAuth: true,
                         aadFederatedSecurity: true,
                         timeoutMs,
-                        loginHint,
                     },
                     `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations`,
                     `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations`

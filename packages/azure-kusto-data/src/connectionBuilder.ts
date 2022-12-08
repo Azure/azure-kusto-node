@@ -1,9 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { DeviceCodeInfo } from "@azure/identity";
+import { DeviceCodeInfo, InteractiveBrowserCredentialInBrowserOptions, InteractiveBrowserCredentialNodeOptions } from "@azure/identity";
 import { KustoConnectionStringBuilderBase } from "./connectionBuilderBase";
-
 
 export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBase {
     static readonly DefaultDatabaseName = "NetDefaultDB";
@@ -131,15 +130,18 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
         return kcsb;
     }
 
-    static withUserPrompt(connectionString: string, authorityId?: string, timeoutMs?: number, loginHint?: string) {
+    static withUserPrompt(connectionString: string, options?: InteractiveBrowserCredentialNodeOptions | InteractiveBrowserCredentialInBrowserOptions, timeoutMs?: number) {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
-        kcsb.aadFederatedSecurity = true;
-
-        kcsb.useUserPromptAuth = true;
-        if (authorityId) {
-            kcsb.authorityId = authorityId;
+        const {tenantId, clientId} = options as InteractiveBrowserCredentialNodeOptions || {};
+        if (clientId) {
+            // TODO options.clientId = undefined;
+            throw new Error("clientId should be empty as it is set to the global kusto app");
         }
-        kcsb.loginHint = loginHint;
+        kcsb.aadFederatedSecurity = true;
+        kcsb.useUserPromptAuth = true;
+        if (tenantId) {
+            kcsb.authorityId = tenantId;
+        }
         kcsb.timeoutMs = timeoutMs;
 
         return kcsb;

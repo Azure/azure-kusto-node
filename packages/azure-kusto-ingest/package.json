@@ -7,8 +7,7 @@
     "main": "dist-esm/src/index",
     "scripts": {
         "build": "tsc",
-        "webpack": "webpack serve",
-        "a":"npx ts-node example_node.ts --esm"
+        "clean": "rimraf dist dist-* types"
     },
     "engines": {
         "node": ">= 14.0.0"
@@ -36,6 +35,7 @@
         "dist-esm/src/",
         "tsconfig.tsbuildinfo",
         "example.js",
+        "exampleBrowser.ts",
         "types/src/"
     ],
     "author": "Microsoft Corporation",
@@ -51,11 +51,8 @@
         "stream": "stream-browserify",
         "zlib": "browserify-zlib",
         "./dist-esm/src/streamUtils.js": "./dist-esm/src/streamUtils.browser.js",
-        "./dist-esm/src/streamUtils.ts": "./dist-esm/src/streamUtils.browser.ts",
         "./dist-esm/src/fileDescriptor.js": "./dist-esm/src/fileDescriptor.browser.js",
-        "./dist-esm/src/fileDescriptor.ts": "./dist-esm/src/fileDescriptor.browser.ts",
-        "./dist-esm/src/ingestClient.js": "./dist-esm/src/ingestClient.browser.js",
-        "./dist-esm/src/ingestClient.ts": "./dist-esm/src/ingestClient.browser.ts"
+        "./dist-esm/src/ingestClient.js": "./dist-esm/src/ingestClient.browser.js"
     },
     "dependencies": {
         "@azure/storage-blob": "^12.11.0",
@@ -73,15 +70,10 @@
         "stream-array": "^1.1.2",
         "stream-to-array": "^2.3.0",
         "tmp-promise": "^3.0.3",
+        "@types/tmp": "^0.2.3",
         "uuid": "^8.3.2",
         "uuid-validate": "0.0.3",
         "stream-browserify": "3.0.0"
-
     },
-    "gitHead": "f8a5dae26d6d2ca2ab8b95953bb9b88a02e8e35d",
-    "devDependencies": {
-        "@types/tmp": "^0.2.3",
-        "@types/webpack-dev-server": "^4.7.2",
-        "webpack-cli": "^4.10.0"
-    }
+    "gitHead": "f8a5dae26d6d2ca2ab8b95953bb9b88a02e8e35d"
 }

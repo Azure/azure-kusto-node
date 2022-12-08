@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { CompressionType } from "./descriptors";
+import { CompressionType, getSourceId } from "./descriptors";
 
 export class FileDescriptor {
     size: number | null;
@@ -17,6 +17,7 @@ export class FileDescriptor {
         readonly extension?: string,
         readonly name?: string
     ) {
+        this.sourceId = getSourceId(sourceId)
         this.compressionType = compressionType;
         this.size = size || file.size;
         this.zipped = compressionType !== CompressionType.None || this.extension === ".gz" || this.extension === ".zip";

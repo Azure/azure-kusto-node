@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { DeviceCodeInfo } from "@azure/identity";
+import { DeviceCodeInfo, InteractiveBrowserCredentialInBrowserOptions, InteractiveBrowserCredentialNodeOptions } from "@azure/identity";
 import { KeyOfType } from "./typeUtilts";
 
 interface MappingType {
@@ -96,14 +96,13 @@ export abstract class KustoConnectionStringBuilderBase {
     authorityId: string = "organizations";
     deviceCodeCallback?: (response: DeviceCodeInfo) => void;
     tokenProvider?: () => Promise<string>;
-    loginHint?: string;
-    loginStyle?: string;
     timeoutMs?: number;
     accessToken?: string;
     useDeviceCodeAuth?: boolean;
     useUserPromptAuth?: boolean;
     useAzLoginAuth?: boolean;
     useManagedIdentityAuth?: boolean;
+    interactiveCredentialOptions?: InteractiveBrowserCredentialNodeOptions | InteractiveBrowserCredentialInBrowserOptions;
 
     constructor(connectionString: string) {
         if (connectionString.trim().length === 0) throw new Error("Missing connection string");

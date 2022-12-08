@@ -8,12 +8,12 @@ import streamify from "stream-array";
 
 export const fileToStream = async (file: Blob): Promise<StreamDescriptor> => {
     const fileDescriptor = file instanceof FileDescriptor ? file : new FileDescriptor(file);
-    const streamFs = file.stream();
+    const streamFs = await file.arrayBuffer();
     const compressionType = fileDescriptor.zipped ? CompressionType.GZIP : CompressionType.None;
     return new StreamDescriptor(streamFs, fileDescriptor.sourceId, compressionType);
 };
 
-export const fileToBuffer = async (file: Blob): Promise<StreamDescriptor> => {
+export const tryFileToBuffer = async (file: Blob): Promise<StreamDescriptor> => {
     try {
         const fileDescriptor = file instanceof FileDescriptor ? file : new FileDescriptor(file);
         const buffer = await streamToBuffer(file.stream());

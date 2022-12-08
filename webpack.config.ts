@@ -4,29 +4,10 @@ import 'webpack-dev-server';
 const webpack = require('webpack');
 
 let production = process.env.NODE_ENV === "production";
-// let crypto;
-// try {crypto = require.resolve("crypto-browserify")
-// } catch {}
-
-// let assert;
-// try {assert = require.resolve("assert")
-// } catch {}
-
-// let http;
-// try {http = require.resolve("stream-http")
-// } catch {}
-
-// let crypto;
-// try {crypto = require.resolve("crypto-browserify")
-// } catch {}
-
-// let crypto;
-// try {crypto = require.resolve("crypto-browserify")
-// } catch {}
 
 let config = {
   entry: {
-    index: "./src/index",
+    index: "./packages/azure-kusto-ingest/dist-esm/src/index"
   },
   target:"web",
   output: {
@@ -44,26 +25,24 @@ let config = {
   },
   resolve: {
     aliasFields: ['browser'],
-    fallback: {
-        crypto:require.resolve('crypto-browserify')  ,
-        assert :require.resolve('assert'),
-        http : require.resolve('stream-http'),
-        https: require.resolve('https-browserify'),
-        stream: require.resolve('stream-browserify'),
-        url: false,
-    },
+    fallback:{ "stream": require.resolve("stream-browserify")},
     extensions: [".ts", ".js"],
   },
   devtool: "inline-source-map",
   mode: "development",
   devServer: {
     static: "./dist-esm",
-    // hot: true
+    port:3000 // This port should be open in the SPA aad app
   },
   plugins: [
     new webpack.ProvidePlugin({
            process: 'process/browser',
     }),
+    // Work around for Buffer is undefined:
+    // https://github.com/webpack/changelog-v5/issues/10
+    new webpack.ProvidePlugin({
+        Buffer: ['buffer', 'Buffer'],
+    })
 ],
 };
 

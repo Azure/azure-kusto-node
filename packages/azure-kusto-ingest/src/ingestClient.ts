@@ -3,7 +3,7 @@
 
 import { KustoConnectionStringBuilder } from "azure-kusto-data";
 
-import { BlobDescriptor } from "./descriptors";
+import { BlobDescriptor, StreamDescriptor } from "./descriptors";
 import { FileDescriptor } from "./fileDescriptor";
 
 import { QueueSendMessageResponse } from "@azure/storage-queue";
@@ -11,6 +11,7 @@ import { QueueSendMessageResponse } from "@azure/storage-queue";
 import { IngestionPropertiesInput } from "./ingestionProperties";
 import { KustoIngestClientBase } from "./ingestClientBase";
 import pathlib from "path";
+import { Readable } from "stream";
 
 export class KustoIngestClient extends KustoIngestClientBase {
     constructor(kcsb: string | KustoConnectionStringBuilder, defaultProps?: IngestionPropertiesInput) {
@@ -32,6 +33,19 @@ export class KustoIngestClient extends KustoIngestClientBase {
         } finally {
             await descriptor.cleanup();
         }
+    }
+
+    async ingestFromStream(stream: StreamDescriptor | Readable, ingestionProperties?: IngestionPropertiesInput): Promise<QueueSendMessageResponse> {
+        const props = this._getMergedProps(ingestionProperties);
+        const descriptor: StreamDescriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
+
+        const blobName =
+            `${props.database}__${props.table}__${descriptor.sourceId}` + `${this._getBlobNameSuffix(props.format ?? "", descriptor.compressionType)}`;
+
+        const blockBlobClient = await this._getBlockBlobClient(blobName);
+        await blockBlobClient.uploadStream(descriptor.stream as Readable);
+
+        return this.ingestFromBlob(new BlobDescriptor(blockBlobClient.url), props); // descriptor.size?
     }
 }
 

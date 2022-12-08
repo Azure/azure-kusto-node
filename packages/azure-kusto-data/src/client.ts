@@ -8,7 +8,7 @@ import { KustoResponseDataSet, KustoResponseDataSetV1, KustoResponseDataSetV2, V
 import ConnectionStringBuilder from "./connectionBuilder";
 import ClientRequestProperties from "./clientRequestProperties";
 import { ThrottlingError } from "./errors";
-import pkg from "../package.json";
+import { SDK_VERSION } from "./version";
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 import http from "http";
 import https from "https";
@@ -52,7 +52,7 @@ export class KustoClient {
         const headers = {
             Accept: "application/json",
             "Accept-Encoding": "gzip,deflate",
-            "x-ms-client-version": `Kusto.Node.Client:${pkg.version}`,
+            "x-ms-client-version": `Kusto.Node.Client:${SDK_VERSION}`,
             Connection: "Keep-Alive",
         };
         const axiosProps: AxiosRequestConfig = {

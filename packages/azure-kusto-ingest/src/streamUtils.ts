@@ -8,8 +8,7 @@ import { PassThrough, Readable } from "stream";
 import streamify from "stream-array";
 
 // Returns fs.ReadStream for node and NodeJS.ReadableStream for browser
-export const fileToStream = (file: FileDescriptor | string): Promise<StreamDescriptor> => {
-    const fileDescriptor = file instanceof FileDescriptor ? file : new FileDescriptor(file);
+export const fileToStream = (fileDescriptor: FileDescriptor): Promise<StreamDescriptor> => {
     const streamFs = fs.createReadStream(fileDescriptor.file as string);
     const compressionType = fileDescriptor.zipped ? CompressionType.GZIP : CompressionType.None;
     return Promise.resolve(new StreamDescriptor(streamFs, fileDescriptor.sourceId, compressionType));
@@ -17,13 +16,13 @@ export const fileToStream = (file: FileDescriptor | string): Promise<StreamDescr
 
 // Used in managed streaming where we buffer the file to memory for retries
 export const tryFileToBuffer = async (file: FileDescriptor | string): Promise<StreamDescriptor> => {
+    const fileDescriptor = file instanceof FileDescriptor ? file : new FileDescriptor(file);
     try {
-        const fileDescriptor = file instanceof FileDescriptor ? file : new FileDescriptor(file);
         const buffer = fs.readFileSync(fileDescriptor.file as string);
         const compressionType = fileDescriptor.zipped ? CompressionType.GZIP : CompressionType.None;
         return new StreamDescriptor(buffer, fileDescriptor.sourceId, compressionType);
     } catch(error) {
-        return await fileToStream(file);
+        return await fileToStream(fileDescriptor);
     }
 };
 

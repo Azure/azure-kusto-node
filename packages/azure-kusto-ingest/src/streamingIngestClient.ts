@@ -11,6 +11,8 @@ import { Client as KustoClient, KustoConnectionStringBuilder } from "azure-kusto
 import { KustoResponseDataSet } from "azure-kusto-data/src/response";
 import { fileToStream } from "./streamUtils";
 import { Readable } from "stream";
+import { isNode } from "@azure/core-util";
+import { tryFileToBuffer } from "./streamUtils";
 
 class KustoStreamingIngestClient extends AbstractKustoClient {
     private kustoClient: KustoClient;
@@ -26,7 +28,7 @@ class KustoStreamingIngestClient extends AbstractKustoClient {
         const descriptor: StreamDescriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
 
         const compressedStream = descriptor.compressionType === CompressionType.None
-            ? (!(descriptor.stream instanceof Buffer) ? descriptor.stream.pipe(zlib.createGzip()) : descriptor.stream)
+            ? (!(descriptor.stream instanceof ArrayBuffer) ? descriptor.stream.pipe(zlib.createGzip()) : descriptor.stream)
             : descriptor.stream;
         return await this.kustoClient.executeStreamingIngest(
             props.database as string,
@@ -39,7 +41,8 @@ class KustoStreamingIngestClient extends AbstractKustoClient {
     }
 
     async ingestFromFile(file: FileDescriptor | string, ingestionProperties?: IngestionPropertiesInput): Promise<KustoResponseDataSet> {
-        return this.ingestFromStream(await fileToStream(file), ingestionProperties);
+        const descriptor: FileDescriptor = file instanceof FileDescriptor ? file : new FileDescriptor(file);
+        return this.ingestFromStream(isNode ? await fileToStream(descriptor) : await tryFileToBuffer(descriptor), ingestionProperties);
     }
 }
 

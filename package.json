@@ -5,16 +5,17 @@
         "build": "lerna run build",
         "prepublish": "npm run build",
         "exampleData": "npm run build && node packages/azure-kusto-data/example.js",
-        "exampleIngest-ts": "npm run build && ts-node-esm packages/azure-kusto-ingest/example_node.ts",
         "lint": "eslint -c .eslintrc.js --ext .ts .",
         "test": "mocha --parallel",
+        "testE2E": "npm run test -- --grep e2eTest",
         "testNoE2E": "npm run test",
         "testData": "npm run test -- --exclude !packages/azure-kusto-ingest/test/e2eTests/**",
         "testIngest": "npm run test -- --exclude !packages/azure-kusto-ingest/**",
         "testIngestNoE2E": "npm run testNoE2E -- --exclude !packages/azure-kusto-ingest/**",
         "testPipeline": "nyc --reporter lcovonly mocha --reporter mocha-junit-reporter --reporter-options outputs=true",
         "format": "npx prettier --write .",
-        "checkFormat": "npx prettier --check --end-of-line lf ."
+        "checkFormat": "npx prettier --check --end-of-line lf .",
+        "webpack": "rimraf packages/azure-kusto-data/dist-esm/package.json && webpack serve"
     },
     "devDependencies": {
         "@lerna-lite/cli": "^1.10.0",
@@ -33,7 +34,9 @@
         "nyc": "^15.1.0",
         "prettier": "^2.7.1",
         "sinon": "^14.0.0",
-        "typescript": "^4.7.4"
+        "typescript": "^4.7.4",
+        "@types/webpack-dev-server": "^4.7.2",
+        "webpack-cli": "^4.10.0"
     },
     "workspaces": [
         "packages\\azure-kusto-data",

@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { AzureCliCredential, ManagedIdentityCredential, ClientSecretCredential, ClientCertificateCredential, ClientCertificateCredentialOptions, ClientCertificatePEMCertificate, DeviceCodeCredential, DeviceCodeInfo, UsernamePasswordCredential } from "@azure/identity";
+import { AzureCliCredential, ManagedIdentityCredential, ClientSecretCredential, ClientCertificateCredential, ClientCertificateCredentialOptions, ClientCertificatePEMCertificate, DeviceCodeCredential, DeviceCodeInfo, UsernamePasswordCredential, InteractiveBrowserCredentialInBrowserOptions, InteractiveBrowserCredentialNodeOptions } from "@azure/identity";
 import { TokenCredential } from "@azure/core-auth";
 import { InteractiveBrowserCredential } from "@azure/identity";
 import { CloudInfo, CloudSettings } from "./cloudSettings";
@@ -172,27 +172,27 @@ export class UserPromptProvider extends AzureIdentityProvider {
     readonly MinPort = 20000;
     readonly MaxPort = 65536;
 
-    constructor(kustoUri: string, authorityId: string, timeoutMs?: number, private loginHint?: string) {
-        super(kustoUri, authorityId, timeoutMs);
+    constructor(kustoUri: string, private interactiveCredentialOptions?: InteractiveBrowserCredentialInBrowserOptions| InteractiveBrowserCredentialNodeOptions, timeoutMs?: number) {
+        super(kustoUri, interactiveCredentialOptions?.tenantId, timeoutMs);
     }
 
     getCredential(): TokenCredential {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         return new InteractiveBrowserCredential({
+            ...this.interactiveCredentialOptions,
             tenantId: this.authorityId,
-            clientId: this.cloudInfo.KustoClientAppId,
-            loginStyle:"popup"
+            clientId: this.interactiveCredentialOptions?.clientId ?? this.cloudInfo.KustoClientAppId,
+            redirectUri: this.interactiveCredentialOptions?.redirectUri ?? `http://localhost:${this.getRandomPortInRange()}/`,
         });
     }
 
-    // private getRandomPortInRange() {
-    //     return Math.floor(Math.random() * (this.MaxPort - this.MinPort) + this.MinPort);
-    // }
+    private getRandomPortInRange() {
+        return Math.floor(Math.random() * (this.MaxPort - this.MinPort) + this.MinPort);
+    }
 
     context(): Record<string, any> {
         let base = super.context();
-        if (this.loginHint) {
-            base = { ...base, loginHint: this.loginHint };
+        if (this.interactiveCredentialOptions?.loginHint) {
+            base = { ...base, loginHint: this.interactiveCredentialOptions?.loginHint };
         }
         return base;
     }
