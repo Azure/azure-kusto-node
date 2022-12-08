@@ -317,13 +317,7 @@ describe("KustoConnectionStringBuilder", () => {
                     new KustoConnectionStringBuilder(
                         `localhost;AppClientId=${appId};Application Certificate PrivateKey=${privateKey};Authority Id=${expectedAuthorityId};SendX5c=${cert5xc};AAD Federated Security=True`
                     ),
-                    KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(
-                        "localhost",
-                        appId,
-                        privateKey,
-                        expectedAuthorityId,
-                        cert5xc
-                    ),
+                    KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication("localhost", appId, privateKey, expectedAuthorityId, cert5xc),
                 ];
 
                 const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
@@ -357,13 +351,7 @@ describe("KustoConnectionStringBuilder", () => {
                     new KustoConnectionStringBuilder(
                         `localhost;AppClientId=${appId};Application Certificate PrivateKey=${privateKey};SendX5c=${cert5xc};AAD Federated Security=True`
                     ),
-                    KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(
-                        "localhost",
-                        appId,
-                        privateKey,
-                        DEFAULT_AUTHORITY,
-                        cert5xc
-                    ),
+                    KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication("localhost", appId, privateKey, DEFAULT_AUTHORITY, cert5xc),
                 ];
 
                 const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
@@ -585,7 +573,7 @@ describe("KustoConnectionStringBuilder", () => {
             it("with optional params", () => {
                 const loginHint = "myUser";
                 const timeoutMs = 10;
-                const kcsbs = [KustoConnectionStringBuilder.withUserPrompt("localhost", { tenantId: DEFAULT_AUTHORITY, loginHint },timeoutMs)];
+                const kcsbs = [KustoConnectionStringBuilder.withUserPrompt("localhost", { tenantId: DEFAULT_AUTHORITY, loginHint }, timeoutMs)];
 
                 const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
                 kcsb1.aadFederatedSecurity = true;

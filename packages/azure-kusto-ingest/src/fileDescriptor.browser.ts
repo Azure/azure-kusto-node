@@ -17,18 +17,19 @@ export class FileDescriptor {
         readonly extension?: string,
         readonly name?: string
     ) {
-        this.sourceId = getSourceId(sourceId)
+        this.sourceId = getSourceId(sourceId);
         this.compressionType = compressionType;
         this.size = size || file.size;
         this.zipped = compressionType !== CompressionType.None || this.extension === ".gz" || this.extension === ".zip";
     }
 
+    // Not used
     async _gzip(): Promise<string> {
-       return await Promise.resolve("");
+        return await this.file.text();
     }
 
     async prepare(): Promise<Blob> {
-       return await Promise.resolve(this.file);
+        return await Promise.resolve(this.file);
     }
 
     async cleanup(): Promise<void> {

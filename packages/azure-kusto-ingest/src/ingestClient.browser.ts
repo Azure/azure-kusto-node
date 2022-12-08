@@ -18,8 +18,8 @@ export class KustoIngestClient extends KustoIngestClientBase {
 
     // TODO: Should we create a new method called ingestFromBrowserFile?
     async ingestFromFile(file: string | FileDescriptor | Blob, ingestionProperties?: IngestionPropertiesInput): Promise<QueueSendMessageResponse> {
-        if (!(file instanceof Blob) && !(((file as FileDescriptor).file) instanceof Blob)) {
-            throw new Error("Expected object of type Blob")
+        if (!(file instanceof Blob) && !((file as FileDescriptor).file instanceof Blob)) {
+            throw new Error("Expected object of type Blob");
         }
         const descriptor = file instanceof FileDescriptor ? file : new FileDescriptor(file);
 
@@ -30,7 +30,7 @@ export class KustoIngestClient extends KustoIngestClientBase {
         const blobName = `${props.database}__${props.table}__${descriptor.sourceId}${name}.${extension}`;
 
         const blockBlobClient = await this._getBlockBlobClient(blobName);
-        await blockBlobClient.uploadData(blob, { blobHTTPHeaders: {blobContentEncoding: "application/gzip"}} as BlockBlobUploadOptions );
+        await blockBlobClient.uploadData(blob, { blobHTTPHeaders: { blobContentEncoding: "application/gzip" } } as BlockBlobUploadOptions);
         return this.ingestFromBlob(new BlobDescriptor(blockBlobClient.url, blob.size, descriptor.sourceId), props);
     }
 

@@ -57,10 +57,10 @@ export class KustoClient {
         };
         const axiosProps: AxiosRequestConfig = {
             headers,
-            validateStatus: (status: number) => status === 200
+            validateStatus: (status: number) => status === 200,
         };
         if (isNode) {
-             // keepAlive pools and reuses TCP connections, so it's faster
+            // keepAlive pools and reuses TCP connections, so it's faster
             axiosProps.httpAgent = new http.Agent({ keepAlive: true });
             axiosProps.httpsAgent = new https.Agent({ keepAlive: true });
         }

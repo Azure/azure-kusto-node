@@ -34,7 +34,6 @@ import {
     SStreamColumnMapping,
     W3CLogFileMapping,
 } from "./columnMappings";
-import { main } from "../exampleBrowser";
 
 export { Transformation as ColumnMappingTransformation } from "./columnMappings";
 

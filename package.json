@@ -7,7 +7,7 @@
         "exampleData": "npm run build && node packages/azure-kusto-data/example.js",
         "lint": "eslint -c .eslintrc.js --ext .ts .",
         "test": "mocha --parallel",
-        "testE2E": "npm run test -- --grep e2eTest",
+        "testE2E": "mocha -- --grep \"E2E Tests\"",
         "testNoE2E": "npm run test",
         "testData": "npm run test -- --exclude !packages/azure-kusto-ingest/test/e2eTests/**",
         "testIngest": "npm run test -- --exclude !packages/azure-kusto-ingest/**",
@@ -15,13 +15,14 @@
         "testPipeline": "nyc --reporter lcovonly mocha --reporter mocha-junit-reporter --reporter-options outputs=true",
         "format": "npx prettier --write .",
         "checkFormat": "npx prettier --check --end-of-line lf .",
-        "webpack": "rimraf packages/azure-kusto-data/dist-esm/package.json && webpack serve"
+        "webpack": "npm run build && rimraf packages/azure-kusto-data/dist-esm/package.json && shx cp packages/azure-kusto-ingest/index.html packages/azure-kusto-ingest/dist-esm/ &&  webpack serve"
     },
     "devDependencies": {
         "@lerna-lite/cli": "^1.10.0",
         "@lerna-lite/run": "^1.10.0",
         "@types/mocha": "^9.1.1",
         "@types/node": "^14.0.0",
+        "@types/webpack-dev-server": "^4.7.2",
         "@typescript-eslint/eslint-plugin": "^5.32.0",
         "@typescript-eslint/parser": "^5.32.0",
         "eslint": "^8.21.0",
@@ -33,9 +34,9 @@
         "mocha-junit-reporter": "^2.0.2",
         "nyc": "^15.1.0",
         "prettier": "^2.7.1",
+        "shx": "^0.3.4",
         "sinon": "^14.0.0",
         "typescript": "^4.7.4",
-        "@types/webpack-dev-server": "^4.7.2",
         "webpack-cli": "^4.10.0"
     },
     "workspaces": [

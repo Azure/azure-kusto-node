@@ -1,6 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { AzureCliCredential, ManagedIdentityCredential, ClientSecretCredential, ClientCertificateCredential, ClientCertificateCredentialOptions, ClientCertificatePEMCertificate, DeviceCodeCredential, DeviceCodeInfo, UsernamePasswordCredential, InteractiveBrowserCredentialInBrowserOptions, InteractiveBrowserCredentialNodeOptions } from "@azure/identity";
+import {
+    AzureCliCredential,
+    ManagedIdentityCredential,
+    ClientSecretCredential,
+    ClientCertificateCredential,
+    ClientCertificateCredentialOptions,
+    ClientCertificatePEMCertificate,
+    DeviceCodeCredential,
+    DeviceCodeInfo,
+    UsernamePasswordCredential,
+    InteractiveBrowserCredentialInBrowserOptions,
+    InteractiveBrowserCredentialNodeOptions,
+} from "@azure/identity";
 import { TokenCredential } from "@azure/core-auth";
 import { InteractiveBrowserCredential } from "@azure/identity";
 import { CloudInfo, CloudSettings } from "./cloudSettings";
@@ -172,7 +184,11 @@ export class UserPromptProvider extends AzureIdentityProvider {
     readonly MinPort = 20000;
     readonly MaxPort = 65536;
 
-    constructor(kustoUri: string, private interactiveCredentialOptions?: InteractiveBrowserCredentialInBrowserOptions| InteractiveBrowserCredentialNodeOptions, timeoutMs?: number) {
+    constructor(
+        kustoUri: string,
+        private interactiveCredentialOptions?: InteractiveBrowserCredentialInBrowserOptions | InteractiveBrowserCredentialNodeOptions,
+        timeoutMs?: number
+    ) {
         super(kustoUri, interactiveCredentialOptions?.tenantId, timeoutMs);
     }
 
@@ -197,7 +213,6 @@ export class UserPromptProvider extends AzureIdentityProvider {
         return base;
     }
 }
-
 
 /**
  * MSI Token Provider obtains a token from the MSI endpoint
@@ -232,8 +247,7 @@ export class AzCliTokenProvider extends AzureIdentityProvider {
 /**
  * Acquire a token from MSAL with username and password
  */
- export class UserPassTokenProvider extends AzureIdentityProvider {
-
+export class UserPassTokenProvider extends AzureIdentityProvider {
     userName: string;
     password: string;
     homeAccountId?: string;
@@ -254,7 +268,7 @@ export class AzCliTokenProvider extends AzureIdentityProvider {
             homeAccountId: this.homeAccountId,
         };
     }
- }
+}
 
 /**
  * Acquire a token from  Device Login flow
@@ -265,15 +279,12 @@ export class DeviceLoginTokenProvider extends AzureIdentityProvider {
     }
 
     getCredential(): TokenCredential {
-        return new DeviceCodeCredential(
-            {
-                tenantId: this.authorityId,
-                clientId: this.cloudInfo.KustoClientAppId,
-                userPromptCallback: this.deviceCodeCallback
-            }
-        );
+        return new DeviceCodeCredential({
+            tenantId: this.authorityId,
+            clientId: this.cloudInfo.KustoClientAppId,
+            userPromptCallback: this.deviceCodeCallback,
+        });
     }
-
 }
 
 /**
@@ -281,13 +292,7 @@ export class DeviceLoginTokenProvider extends AzureIdentityProvider {
  * Passing the public certificate is optional and will result in Subject Name & Issuer Authentication
  */
 export class ApplicationCertificateTokenProvider extends AzureIdentityProvider {
-    constructor (
-        kustoUri: string,
-        private appClientId: string,
-        private certPrivateKey: string,
-        private sendX5c?: boolean,
-        authorityId?: string
-    ) {
+    constructor(kustoUri: string, private appClientId: string, private certPrivateKey: string, private sendX5c?: boolean, authorityId?: string) {
         super(kustoUri, authorityId!);
     }
 
@@ -296,22 +301,21 @@ export class ApplicationCertificateTokenProvider extends AzureIdentityProvider {
             this.authorityId!,
             this.appClientId!,
             {
-                certificate: this.certPrivateKey
+                certificate: this.certPrivateKey,
             } as ClientCertificatePEMCertificate,
             {
-                sendCertificateChain: this.sendX5c
-            } as ClientCertificateCredentialOptions,
+                sendCertificateChain: this.sendX5c,
+            } as ClientCertificateCredentialOptions
         );
     }
 }
-
 
 /**
  * Acquire a token from MSAL with application id and Key
  * For browser cors: you need to visit your app registration and update the redirect URI you're using to the type spa (for "single page application").
  * TODO: currently failing
  */
- export class ApplicationKeyTokenProvider extends AzureIdentityProvider {
+export class ApplicationKeyTokenProvider extends AzureIdentityProvider {
     constructor(kustoUri: string, private appClientId: string, private appKey: string, authorityId: string) {
         super(kustoUri, authorityId);
     }
@@ -321,7 +325,7 @@ export class ApplicationCertificateTokenProvider extends AzureIdentityProvider {
             this.authorityId!, // The tenant ID in Azure Active Directory
             this.appClientId, // The app registration client Id in the AAD tenant
             this.appKey // The app registration secret for the registered application
-          );
+        );
     }
 
     context(): Record<string, any> {

@@ -137,21 +137,9 @@ export class Authentication extends Utils {
             } else {
                 const pemCertificate: string = await fs.promises.readFile(privateKeyPemFilePath, "utf8");
                 if (publicCertFilePath) {
-                    return KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(
-                        clusterUri,
-                        appId,
-                        pemCertificate,
-                        appTenant,
-                        sendX5c
-                    );
+                    return KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(clusterUri, appId, pemCertificate, appTenant, sendX5c);
                 }
-                return KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(
-                    clusterUri,
-                    appId,
-                    pemCertificate,
-                    appTenant
-                );
-
+                return KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(clusterUri, appId, pemCertificate, appTenant);
             }
         }
     }

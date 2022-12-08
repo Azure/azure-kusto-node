@@ -62,11 +62,7 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
         return kcsb;
     }
 
-    static withAadDeviceAuthentication(
-        connectionString: string,
-        authorityId?: string,
-        deviceCodeCallback?: (response: DeviceCodeInfo) => void
-    ) {
+    static withAadDeviceAuthentication(connectionString: string, authorityId?: string, deviceCodeCallback?: (response: DeviceCodeInfo) => void) {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         kcsb.aadFederatedSecurity = true;
         if (authorityId) {
@@ -130,9 +126,13 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
         return kcsb;
     }
 
-    static withUserPrompt(connectionString: string, options?: InteractiveBrowserCredentialNodeOptions | InteractiveBrowserCredentialInBrowserOptions, timeoutMs?: number) {
+    static withUserPrompt(
+        connectionString: string,
+        options?: InteractiveBrowserCredentialNodeOptions | InteractiveBrowserCredentialInBrowserOptions,
+        timeoutMs?: number
+    ) {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
-        const {tenantId, clientId} = options as InteractiveBrowserCredentialNodeOptions || {};
+        const { tenantId, clientId } = (options as InteractiveBrowserCredentialNodeOptions) || {};
         if (clientId) {
             // TODO options.clientId = undefined;
             throw new Error("clientId should be empty as it is set to the global kusto app");

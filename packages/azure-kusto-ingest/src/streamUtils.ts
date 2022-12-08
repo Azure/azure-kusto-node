@@ -21,7 +21,7 @@ export const tryFileToBuffer = async (file: FileDescriptor | string): Promise<St
         const buffer = fs.readFileSync(fileDescriptor.file as string);
         const compressionType = fileDescriptor.zipped ? CompressionType.GZIP : CompressionType.None;
         return new StreamDescriptor(buffer, fileDescriptor.sourceId, compressionType);
-    } catch(error) {
+    } catch (error) {
         return await fileToStream(fileDescriptor);
     }
 };

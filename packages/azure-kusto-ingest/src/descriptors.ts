@@ -21,7 +21,6 @@ export const getSourceId = (sourceId: string | null): string => {
     return uuidv4();
 };
 
-
 export class StreamDescriptor {
     size: number | null;
     compressionType: CompressionType;
