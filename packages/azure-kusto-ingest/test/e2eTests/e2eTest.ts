@@ -15,7 +15,7 @@ import { DataFormat, IngestionProperties, ReportLevel } from "../../src/ingestio
 import { CloudSettings } from "azure-kusto-data/src/cloudSettings";
 import { sleep } from "../../src/retry";
 import { JsonColumnMapping } from "../../src/columnMappings";
-import util from "util"
+import util from "util";
 
 interface ParsedJsonMapping {
     Properties: { Path: string };
@@ -34,7 +34,8 @@ const main = (): void => {
         return;
     }
 
-    const engineKcsb = ConnectionStringBuilder.withAadApplicationKeyAuthentication(process.env.ENGINE_CONNECTION_STRING ?? "", appId, appKey, tenantId);    const queryClient = new Client(engineKcsb);
+    const engineKcsb = ConnectionStringBuilder.withAadApplicationKeyAuthentication(process.env.ENGINE_CONNECTION_STRING ?? "", appId, appKey, tenantId);
+    const queryClient = new Client(engineKcsb);
     const streamingIngestClient = new StreamingIngestClient(engineKcsb);
     const dmKcsb = ConnectionStringBuilder.withAadApplicationKeyAuthentication(process.env.DM_CONNECTION_STRING ?? "", appId, appKey, tenantId);
     const ingestClient = new IngestClient(dmKcsb);
@@ -109,7 +110,7 @@ const main = (): void => {
 
         before("SetUp", async () => {
             try {
-                await queryClient.execute("fast", ".show version")
+                await queryClient.execute("fast", ".show version");
                 await queryClient.execute(databaseName, `.create table ${tableName} ${tableColumns}`);
                 await queryClient.execute(databaseName, `.alter table ${tableName} policy streamingingestion enable`);
                 await queryClient.execute(databaseName, ".clear database cache streamingingestion schema");
