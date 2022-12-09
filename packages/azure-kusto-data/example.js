@@ -11,7 +11,7 @@ const database = "<databaseName>";
 const table = "<tableName>";
 
 const kcs = KustoConnectionStringBuilder.withAadDeviceAuthentication(clusterConectionString);
-const kustoClient = new KustoClient(kcs);
+const kustoClient = new KustoClient(kcs); // After using the client, you should use `close()` to free up resources
 start();
 
 async function start() {
@@ -44,4 +44,6 @@ async function start() {
     } catch (error) {
         console.log(error);
     }
+
+    kustoClient.close();
 }

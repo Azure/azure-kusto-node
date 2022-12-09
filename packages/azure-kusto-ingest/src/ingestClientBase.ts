@@ -41,6 +41,8 @@ export abstract class KustoIngestClientBase extends AbstractKustoClient {
     }
 
     async ingestFromBlob(blob: string | BlobDescriptor, ingestionProperties?: IngestionPropertiesInput): Promise<QueueSendMessageResponse> {
+        this.ensureOpen();
+
         const props = this._getMergedProps(ingestionProperties);
 
         const descriptor = blob instanceof BlobDescriptor ? blob : new BlobDescriptor(blob);
@@ -60,6 +62,13 @@ export abstract class KustoIngestClientBase extends AbstractKustoClient {
         const encoded = Buffer.from(ingestionBlobInfoJson).toString("base64");
 
         return queueClient.sendMessage(encoded);
+    }
+
+    close() {
+        if (!this._isClosed) {
+            this.resourceManager.close();
+        }
+        super.close();
     }
 }
 

@@ -102,6 +102,9 @@ const main = (): void => {
             } catch (err) {
                 assert.fail("Failed to drop table");
             }
+
+            queryClient.close();
+            ingestClient.close();
         });
 
         before("SetUp", async () => {

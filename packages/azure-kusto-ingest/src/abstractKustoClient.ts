@@ -9,6 +9,7 @@ import { Readable } from "stream";
 export abstract class AbstractKustoClient {
     public defaultProps: IngestionProperties;
     public defaultDatabase?: string;
+    protected _isClosed: boolean = false;
 
     protected constructor(defaultProps: IngestionPropertiesInput) {
         if (!defaultProps) {
@@ -33,4 +34,14 @@ export abstract class AbstractKustoClient {
     abstract ingestFromStream(stream: StreamDescriptor | Readable, ingestionProperties: IngestionPropertiesInput): Promise<any>;
 
     abstract ingestFromFile(file: FileDescriptor | string, ingestionProperties: IngestionPropertiesInput): Promise<any>;
+
+    public close(): void {
+        this._isClosed = true;
+    }
+
+    protected ensureOpen() {
+        if (this._isClosed) {
+            throw new Error("Client is closed");
+        }
+    }
 }
