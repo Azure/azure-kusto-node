@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import * as path from "path";
 // in case you run into any typescript error when configuring `devServer`
 import "webpack-dev-server";
