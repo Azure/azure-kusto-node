@@ -66,7 +66,6 @@
         "@types/uuid-validate": "0.0.1",
         "browserify-zlib": "0.2.0",
         "moment": "^2.29.4",
-        "root": "file:../..",
         "azure-kusto-data": "^4.0.2",
         "stream-array": "^1.1.2",
         "stream-browserify": "3.0.0",
