@@ -3,7 +3,7 @@
 
 import { CloudSettings } from "../src/cloudSettings";
 import assert from "assert";
-import { BasicTokenProvider } from "../src/tokenProvider";
+import { UserPassTokenProvider } from "../src/tokenProvider";
 
 describe("CloudInfo", () => {
     describe("#CloudInfo", () => {
@@ -18,7 +18,7 @@ describe("CloudInfo", () => {
                 FirstPartyAuthorityUrl: "https://login.microsoftonline.com/8cdef31-a31e-4b4a-93e4-5f571e91255a",
             };
 
-            const provider = new BasicTokenProvider(fakeUri, "auth_test");
+            const provider = new UserPassTokenProvider(fakeUri, "auth_test", "a", "b");
             try {
                 await provider.acquireToken();
             } catch {
@@ -39,7 +39,7 @@ describe("CloudInfo", () => {
                 FirstPartyAuthorityUrl: "https://login.microsoftonline.com/f8cdef31-a31e-4b4a-93e4-5f571e91255a",
             };
 
-            const provider = new BasicTokenProvider(fakeUri2, "auth_test");
+            const provider = new UserPassTokenProvider(fakeUri2, "auth_test", "a", "b");
             try {
                 await provider.acquireToken();
             } catch {

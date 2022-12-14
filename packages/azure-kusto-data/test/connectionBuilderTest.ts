@@ -6,7 +6,7 @@
 import assert from "assert";
 import { v4 as uuidv4 } from "uuid";
 import { KustoConnectionStringBuilder } from "../src/connectionBuilder";
-import { DeviceCodeResponse } from "@azure/msal-common";
+import { DeviceCodeInfo } from "@azure/identity";
 
 const doComparsion = (
     kcsbs: KustoConnectionStringBuilder[],
@@ -410,8 +410,7 @@ describe("KustoConnectionStringBuilder", () => {
 
         it("from aad device auth", () => {
             const kcsbs = [
-                KustoConnectionStringBuilder.withAadDeviceAuthentication("localhost", DEFAULT_AUTHORITY),
-                KustoConnectionStringBuilder.withAadDeviceAuthentication("localhost", DEFAULT_AUTHORITY, (res) => res),
+                KustoConnectionStringBuilder.withAadDeviceAuthentication("localhost", DEFAULT_AUTHORITY, (res) => res)
             ];
 
             const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
@@ -426,7 +425,7 @@ describe("KustoConnectionStringBuilder", () => {
                     authorityId: DEFAULT_AUTHORITY,
                     useDeviceCodeAuth: true,
                     aadFederatedSecurity: true,
-                    deviceCodeCallback: (res: DeviceCodeResponse) => res,
+                    deviceCodeCallback: (res: DeviceCodeInfo) => res,
                 },
                 "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations",
                 "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations"

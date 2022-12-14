@@ -4,10 +4,11 @@
 import { DeviceCodeInfo, InteractiveBrowserCredentialInBrowserOptions, InteractiveBrowserCredentialNodeOptions } from "@azure/identity";
 import KustoConnectionStringBuilderBase from "./connectionBuilderBase";
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBase {
     static readonly DefaultDatabaseName = "NetDefaultDB";
     static readonly SecretReplacement = "****";
-    // eslint-disable-next-line no-console
 
     // TODO delete?
     static withAadUserPasswordAuthentication(_connectionString: string, _userId: string, _password: string, _authorityId?: string) {

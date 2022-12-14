@@ -19,6 +19,7 @@ export class KustoIngestClient extends KustoIngestClientBase {
     }
 
     async ingestFromFile(file: string | FileDescriptor, ingestionProperties?: IngestionPropertiesInput): Promise<QueueSendMessageResponse> {
+        this.ensureOpen();
         const props = this._getMergedProps(ingestionProperties);
 
         const descriptor = file instanceof FileDescriptor ? file : new FileDescriptor(file);
@@ -36,6 +37,7 @@ export class KustoIngestClient extends KustoIngestClientBase {
     }
 
     async ingestFromStream(stream: StreamDescriptor | Readable, ingestionProperties?: IngestionPropertiesInput): Promise<QueueSendMessageResponse> {
+        this.ensureOpen();
         const props = this._getMergedProps(ingestionProperties);
         const descriptor: StreamDescriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
 
