@@ -409,9 +409,7 @@ describe("KustoConnectionStringBuilder", () => {
         });
 
         it("from aad device auth", () => {
-            const kcsbs = [
-                KustoConnectionStringBuilder.withAadDeviceAuthentication("localhost", DEFAULT_AUTHORITY, (res) => res)
-            ];
+            const kcsbs = [KustoConnectionStringBuilder.withAadDeviceAuthentication("localhost", DEFAULT_AUTHORITY, (res) => res)];
 
             const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
             kcsb1.aadFederatedSecurity = true;
