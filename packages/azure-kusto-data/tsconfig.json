@@ -5,6 +5,7 @@
       "declarationDir": "./types",
       "outDir": "./dist-esm",
       "resolveJsonModule": true,
+      "esModuleInterop":true,
       "paths": {
         "azure-kusto-data": ["./src/index"]
       },
