@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import {kustoTrustedEndpoints, MatchRule} from "../source/kustoTrustedEndpoints";
+import { kustoTrustedEndpoints, MatchRule } from "../source/kustoTrustedEndpoints";
 
 const DEFAULT_PUBLIC_LOGIN_URL = "https://login.microsoftonline.com";
 const CHINA_CLOUD_LOGIN = "https://login.partner.microsoftonline.cn";
