@@ -84,7 +84,10 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
         this.defaultDatabase = this.streamingIngestClient.defaultDatabase;
     }
 
-    async ingestFromStream(stream: StreamDescriptor | Readable, ingestionProperties?: IngestionPropertiesInput): Promise<any> {
+    /**
+     * Use Readable for Node.js and ArrayBuffer for browser
+     */
+    async ingestFromStream(stream: StreamDescriptor | Readable | ArrayBuffer, ingestionProperties?: IngestionPropertiesInput): Promise<any> {
         this.ensureOpen();
         const props = this._getMergedProps(ingestionProperties);
         const descriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
@@ -114,6 +117,9 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
         return await this.queuedIngestClient.ingestFromStream(new StreamDescriptor(result).merge(descriptor), ingestionProperties);
     }
 
+     /**
+     * Use string for Node.js and Blob for browser
+     */
     async ingestFromFile(
         file: FileDescriptor | string | Blob,
         ingestionProperties?: IngestionPropertiesInput

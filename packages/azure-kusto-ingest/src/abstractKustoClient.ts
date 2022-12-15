@@ -4,7 +4,6 @@
 import { IngestionProperties, IngestionPropertiesInput } from "./ingestionProperties";
 import { StreamDescriptor } from "./descriptors";
 import { FileDescriptor } from "./fileDescriptor";
-import { Readable } from "stream";
 
 export abstract class AbstractKustoClient {
     public defaultProps: IngestionProperties;
@@ -31,9 +30,9 @@ export abstract class AbstractKustoClient {
         return props;
     }
 
-    abstract ingestFromStream(stream: StreamDescriptor | Readable, ingestionProperties: IngestionPropertiesInput): Promise<any>;
+    abstract ingestFromStream(stream: StreamDescriptor, ingestionProperties: IngestionPropertiesInput): Promise<any>;
 
-    abstract ingestFromFile(file: FileDescriptor | string, ingestionProperties: IngestionPropertiesInput): Promise<any>;
+    abstract ingestFromFile(file: FileDescriptor, ingestionProperties: IngestionPropertiesInput): Promise<any>;
 
     public close(): void {
         this._isClosed = true;

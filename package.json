@@ -5,6 +5,7 @@
         "build": "lerna run build",
         "prepublish": "npm run build",
         "exampleData": "npm run build && node packages/azure-kusto-data/example.js",
+        "exampleIngest": "npm run build && node packages/azure-kusto-ingest/example.js",
         "lint": "eslint -c .eslintrc.js --ext .ts .",
         "test": "mocha --parallel",
         "testE2E": "mocha -- --grep \"E2E Tests\"",
@@ -15,7 +16,7 @@
         "testPipeline": "nyc --reporter lcovonly mocha --reporter mocha-junit-reporter --reporter-options outputs=true",
         "format": "npx prettier --write .",
         "checkFormat": "npx prettier --check --end-of-line lf .",
-        "webpack": "npm run build && rimraf packages/azure-kusto-data/dist-esm/package.json && shx cp packages/azure-kusto-ingest/index.html packages/azure-kusto-ingest/dist-esm/ &&  webpack serve",
+        "webpack": "npm run build && shx cp packages/azure-kusto-ingest/index.html packages/azure-kusto-ingest/dist-esm/ && webpack serve",
         "clean": "cd packages/azure-kusto-data && npm run clean && cd ../azure-kusto-ingest && npm run clean"
     },
     "devDependencies": {
@@ -39,8 +40,9 @@
         "sinon": "^14.0.0",
         "typescript": "^4.7.4",
         "webpack-cli": "^4.10.0",
-        "ts-node": "^10.9.1"
-    },
+        "ts-node": "^10.9.1",
+        "stream-browserify": "^3.0.0"
+       },
     "workspaces": [
         "packages\\azure-kusto-data",
         "packages\\azure-kusto-ingest",

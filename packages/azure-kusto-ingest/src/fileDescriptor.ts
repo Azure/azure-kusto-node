@@ -16,6 +16,9 @@ export class FileDescriptor {
     sourceId: string;
 
     constructor(
+        /**
+         *  Use a string in Node.JS and Blob for browser
+         */
         readonly file: string | Blob,
         sourceId: string | null = null,
         size: number | null = null,

@@ -16,8 +16,11 @@ export class KustoIngestClient extends KustoIngestClientBase {
         super(kcsb, defaultProps, true);
     }
 
-    // TODO: Should we create a new method called ingestFromBrowserFile?
-    async ingestFromFile(file: string | FileDescriptor | Blob, ingestionProperties?: IngestionPropertiesInput): Promise<QueueSendMessageResponse> {
+    /**
+     * Use string for Node.js and Blob for browser
+     */
+    async ingestFromFile(file: FileDescriptor | Blob | string, ingestionProperties?: IngestionPropertiesInput): Promise<QueueSendMessageResponse> {
+        this.ensureOpen();
         if (!(file instanceof Blob) && !((file as FileDescriptor).file instanceof Blob)) {
             throw new Error("Expected object of type Blob");
         }
@@ -34,7 +37,11 @@ export class KustoIngestClient extends KustoIngestClientBase {
         return this.ingestFromBlob(new BlobDescriptor(blockBlobClient.url, blob.size, descriptor.sourceId), props);
     }
 
-    async ingestFromStream(stream: StreamDescriptor, ingestionProperties?: IngestionPropertiesInput): Promise<QueueSendMessageResponse> {
+    /**
+     * Use Readable for Node.js and ArrayBuffer for browser
+     */
+    async ingestFromStream(stream: StreamDescriptor | ArrayBuffer, ingestionProperties?: IngestionPropertiesInput): Promise<QueueSendMessageResponse> {
+        this.ensureOpen();
         const props = this._getMergedProps(ingestionProperties);
         const descriptor: StreamDescriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
         const blobName =

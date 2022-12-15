@@ -82,7 +82,6 @@ const getPropName = (key: string): [string, MappingType] => {
 export abstract class KustoConnectionStringBuilderBase {
     static readonly DefaultDatabaseName = "NetDefaultDB";
     static readonly SecretReplacement = "****";
-    // eslint-disable-next-line no-console
 
     dataSource?: string;
     aadFederatedSecurity?: boolean;

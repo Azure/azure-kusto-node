@@ -7,7 +7,6 @@ import { KustoConnectionStringBuilderBase } from "./connectionBuilderBase";
 export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBase {
     static readonly DefaultDatabaseName = "NetDefaultDB";
     static readonly SecretReplacement = "****";
-    // eslint-disable-next-line no-console
 
     static withAadUserPasswordAuthentication(connectionString: string, userId: string, password: string, authorityId?: string) {
         if (userId.trim().length === 0) throw new Error("Invalid user");
@@ -134,14 +133,15 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         const { tenantId, clientId } = (options as InteractiveBrowserCredentialNodeOptions) || {};
         if (clientId) {
-            // TODO options.clientId = undefined;
-            throw new Error("clientId should be empty as it is set to the global kusto app");
+            throw new Error("clientId should be empty as it is retrived from the service management endpoint");
         }
+
         kcsb.aadFederatedSecurity = true;
         kcsb.useUserPromptAuth = true;
         if (tenantId) {
             kcsb.authorityId = tenantId;
         }
+
         kcsb.timeoutMs = timeoutMs;
 
         return kcsb;

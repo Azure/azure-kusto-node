@@ -6,7 +6,7 @@
     "types": "./types/src/index.d.ts",
     "main": "dist-esm/src/index",
     "scripts": {
-        "clean": "rimraf dist/ dist-esm/ types/",
+        "clean": "rimraf dist/* dist-esm/* types/*",
         "build": "tsc"
     },
     "browser": {
@@ -66,7 +66,6 @@
         "follow-redirects": "^1.15.1",
         "https-browserify": "^1.0.0",
         "moment": "^2.29.4",
-        "stream-browserify": "^3.0.0",
         "stream-http": "^3.2.0",
         "uuid": "^8.3.2"
     },

@@ -4,7 +4,6 @@
 /* eslint-disable no-console */
 
 import sinon from "sinon";
-import Sinon from "sinon";
 import { StreamingIngestClient } from "../src";
 import { StreamDescriptor } from "../src/descriptors";
 import { KustoIngestClient } from "../src/ingestClient";
@@ -18,7 +17,7 @@ import assert from "assert";
 import uuidValidate from "uuid-validate";
 import { KustoConnectionStringBuilder } from "azure-kusto-data";
 
-type IngestFromStreamStub = Sinon.SinonStub<[StreamDescriptor | Readable, IngestionPropertiesInput?, string?], Promise<QueueSendMessageResponse>>;
+type IngestFromStreamStub = sinon.SinonStub<[StreamDescriptor | Readable | ArrayBuffer, IngestionPropertiesInput?, string?], Promise<QueueSendMessageResponse>>;
 
 describe("ManagedStreamingIngestClient", () => {
     const getMockedClient = () => {
@@ -69,7 +68,7 @@ describe("ManagedStreamingIngestClient", () => {
 
             const chunks = [];
             while (true) {
-                const chunk = calledStream.read();
+                const chunk = (calledStream as Readable).read();
                 if (chunk === null) {
                     break;
                 }
