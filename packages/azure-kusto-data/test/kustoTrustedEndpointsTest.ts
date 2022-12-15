@@ -80,6 +80,7 @@ describe("kustoTrustedEndpoints", function () {
             "https://kustonryfjo5klvrh4.westeurope.kusto.windows.net",
             "https://kustowwqgogzpseg6o.eastus2.kusto.windows.net",
             "https://kustor3gjpwqum3olw.canadacentral.kusto.windows.net",
+            "https://dflskfdslfkdslkdsfldfs.westeurope.kusto.data.microsoft.com",
         ]) {
             validateEndpoint(c, DEFAULT_PUBLIC_LOGIN_URL);
 
@@ -88,12 +89,12 @@ describe("kustoTrustedEndpoints", function () {
             validateEndpoint(clusterName, DEFAULT_PUBLIC_LOGIN_URL);
 
             // Test MFA endpoints
-            if (!c.includes("synapse")) {
+            if (!c.includes("synapse") && !c.includes("data.microsoft.com")) {
                 clusterName = c.replace(".kusto.", ".kustomfa.");
                 validateEndpoint(clusterName, DEFAULT_PUBLIC_LOGIN_URL);
             }
             // Test dev endpoints
-            if (!c.includes("synapse")) {
+            if (!c.includes("synapse") && !c.includes("data.microsoft.com")) {
                 clusterName = c.replace(".kusto.", ".kustodev.");
                 validateEndpoint(clusterName, DEFAULT_PUBLIC_LOGIN_URL);
             }
