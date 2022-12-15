@@ -129,7 +129,7 @@ const main = (): void => {
         });
 
         describe("cloud info", () => {
-            // it("Cached cloud info", () => { // Doesnt work - unrelated to current change - probably 
+            // it("Cached cloud info", () => { // Doesnt work - unrelated to current change - probably
             //     const cloudInfo = CloudSettings.getInstance().cloudCache["https://devdevon.westeurope.dev.kusto.windows.net"]; // it should be already in the cache at this point
             //     assert.strictEqual(cloudInfo.KustoClientAppId, CloudSettings.getInstance().defaultCloudInfo.KustoClientAppId);
             // });
