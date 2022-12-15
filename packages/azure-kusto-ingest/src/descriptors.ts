@@ -26,7 +26,7 @@ export class StreamDescriptor {
     compressionType: CompressionType;
     sourceId: string;
 
-     /**
+    /**
      * Use Readable for Node.js and ArrayBuffer for browser
      */
     constructor(readonly stream: Readable | ArrayBuffer, sourceId: string | null = null, compressionType: CompressionType = CompressionType.None) {

@@ -117,7 +117,7 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
         return await this.queuedIngestClient.ingestFromStream(new StreamDescriptor(result).merge(descriptor), ingestionProperties);
     }
 
-     /**
+    /**
      * Use string for Node.js and Blob for browser
      */
     async ingestFromFile(
