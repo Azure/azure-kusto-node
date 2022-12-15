@@ -308,6 +308,14 @@ export class ApplicationCertificateTokenProvider extends AzureIdentityProvider {
             } as ClientCertificateCredentialOptions
         );
     }
+
+    context(): Record<string, any> {
+        return {
+            ...super.context(),
+            clientId: this.appClientId,
+            sendX5c: this.sendX5c,
+        };
+    }
 }
 
 /**

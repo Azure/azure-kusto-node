@@ -15,7 +15,8 @@
         "testPipeline": "nyc --reporter lcovonly mocha --reporter mocha-junit-reporter --reporter-options outputs=true",
         "format": "npx prettier --write .",
         "checkFormat": "npx prettier --check --end-of-line lf .",
-        "webpack": "npm run build && rimraf packages/azure-kusto-data/dist-esm/package.json && shx cp packages/azure-kusto-ingest/index.html packages/azure-kusto-ingest/dist-esm/ &&  webpack serve"
+        "webpack": "npm run build && rimraf packages/azure-kusto-data/dist-esm/package.json && shx cp packages/azure-kusto-ingest/index.html packages/azure-kusto-ingest/dist-esm/ &&  webpack serve",
+        "clean": "cd packages/azure-kusto-data && npm run clean && cd ../azure-kusto-ingest && npm run clean"
     },
     "devDependencies": {
         "@lerna-lite/cli": "^1.10.0",

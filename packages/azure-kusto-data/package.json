@@ -6,7 +6,7 @@
     "types": "./types/src/index.d.ts",
     "main": "dist-esm/src/index",
     "scripts": {
-        "clean": "rimraf dist dist-* types",
+        "clean": "rimraf dist/ dist-esm/ types/",
         "build": "tsc"
     },
     "browser": {

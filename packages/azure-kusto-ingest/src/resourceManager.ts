@@ -58,7 +58,7 @@ export class ResourceManager {
         const retry = new ExponentialRetry(ATTEMPT_COUNT, this.baseSleepTimeSecs, this.baseJitterSecs);
         while (retry.shouldTry()) {
             try {
-                const cmd = `.get ingestion resources with ${this.isBrowser ? `(EnableBlobCors='true', EnableQueueCors='true', EnableTableCors='true')` : ""}`;
+                const cmd = `.get ingestion resources ${this.isBrowser ? `with (EnableBlobCors='true', EnableQueueCors='true', EnableTableCors='true')` : ""}`;
                 const response = await this.kustoClient.execute("NetDefaultDB", cmd);
                 const table = response.primaryResults[0];
                 return new IngestClientResources(
