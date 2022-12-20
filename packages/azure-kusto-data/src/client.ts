@@ -67,8 +67,8 @@ export class KustoClient {
             // keepAlive pools and reuses TCP connections, so it's faster
             axiosProps.httpAgent = new http.Agent({ keepAlive: true });
             axiosProps.httpsAgent = new https.Agent({ keepAlive: true });
-            axiosProps.cancelToken = this.cancelToken.token;
         }
+        axiosProps.cancelToken = this.cancelToken.token;
 
         this.axiosInstance = axios.create();
     }

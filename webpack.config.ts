@@ -6,8 +6,6 @@ import * as path from "path";
 import "webpack-dev-server";
 const webpack = require("webpack");
 
-let production = process.env.NODE_ENV === "production";
-
 let config = {
     entry: {
         index: "./packages/azure-kusto-ingest/dist-esm/src/index",
@@ -48,10 +46,5 @@ let config = {
         }),
     ],
 };
-
-if (production) {
-    config.mode = "production";
-    config.devtool = "inline-source-map";
-}
 
 export default config;

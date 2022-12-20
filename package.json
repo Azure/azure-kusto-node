@@ -16,7 +16,7 @@
         "testPipeline": "nyc --reporter lcovonly mocha --reporter mocha-junit-reporter --reporter-options outputs=true",
         "format": "npx prettier --write .",
         "checkFormat": "npx prettier --check --end-of-line lf .",
-        "webpack": "npm run build && shx cp packages/azure-kusto-ingest/index.html packages/azure-kusto-ingest/dist-esm/ && webpack serve",
+        "webpack": "npm run build && shx cp packages/azure-kusto-ingest/index.html packages/azure-kusto-ingest/dist-esm/ &&  webpack-dev-server",
         "clean": "cd packages/azure-kusto-data && npm run clean && cd ../azure-kusto-ingest && npm run clean"
     },
     "devDependencies": {
@@ -32,17 +32,19 @@
         "eslint-plugin-header": "^3.1.1",
         "eslint-plugin-jsdoc": "^39.3.4",
         "eslint-plugin-prefer-arrow": "^1.2.3",
+        "instant-mocha": "^1.5.0",
         "mocha": "^10.0.0",
         "mocha-junit-reporter": "^2.0.2",
         "nyc": "^15.1.0",
         "prettier": "^2.7.1",
         "shx": "^0.3.4",
         "sinon": "^14.0.0",
-        "typescript": "^4.7.4",
-        "webpack-cli": "^4.10.0",
+        "stream-browserify": "^3.0.0",
+        "ts-loader": "^9.4.2",
         "ts-node": "^10.9.1",
-        "stream-browserify": "^3.0.0"
-       },
+        "typescript": "^4.7.4",
+        "webpack-cli": "^4.10.0"
+    },
     "workspaces": [
         "packages\\azure-kusto-data",
         "packages\\azure-kusto-ingest",
