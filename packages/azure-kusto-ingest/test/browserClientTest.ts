@@ -53,16 +53,6 @@ describe(`Browser Unit tests`, () => {
 
             assert.fail();
         });
-        it("Create browser compatible authentication must provide redirectUri", () => {
-            try {
-                ConnectionStringBuilder.withUserPrompt(cluster, { clientId: "cid" });
-            } catch (ex) {
-                assert(ex instanceof Error && ex.message.startsWith("Ivalid parameters"));
-                return;
-            }
-
-            assert.fail();
-        });
         it("Ingest from browser calls the right components", async () => {
             const sandbox = sinon.createSandbox();
 
@@ -81,7 +71,7 @@ describe(`Browser Unit tests`, () => {
             const resourceManagerStub = sinon.stub(resourceManager, "getBlockBlobClient");
             resourceManagerStub.returns(Promise.resolve<BlockBlobClient>(resource));
             mockedIngestClient.resourceManager = resourceManager;
-            await mockedIngestClient.ingestFromFile(new BrowserFileDescriptor(new Blob()));
+            await mockedIngestClient.ingestFromFile(new BrowserFileDescriptor(new Blob([`{"Name":"Moshe", "Value":2}`], { type: "application/json" })));
             sandbox.assert.calledOnce(queuedStub);
             sandbox.assert.calledOnce(resourceStub);
         });
