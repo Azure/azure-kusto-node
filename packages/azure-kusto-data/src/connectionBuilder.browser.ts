@@ -10,7 +10,6 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
     static readonly DefaultDatabaseName = "NetDefaultDB";
     static readonly SecretReplacement = "****";
 
-    // TODO delete?
     static withAadUserPasswordAuthentication(_connectionString: string, _userId: string, _password: string, _authorityId?: string) {
         throw new Error("Not supported for browser - use withUserPrompt instead");
     }
@@ -71,11 +70,11 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         const { redirectUri, clientId, tenantId } = interactiveCredentialOptions as InteractiveBrowserCredentialInBrowserOptions;
         if (!clientId) {
-            throw new Error("You must provide your SPA application client id to authenticate against");
+            throw new Error("Invalid parameters - You must provide your SPA application client id to authenticate against");
         }
 
         if (!redirectUri) {
-            throw new Error("You must provide a redirectUri registered on the SPA app");
+            throw new Error("Invalid parameters - You must provide a redirectUri registered on the SPA app");
         }
 
         kcsb.interactiveCredentialOptions = interactiveCredentialOptions;

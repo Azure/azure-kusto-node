@@ -74,7 +74,7 @@ export class KustoResultRow {
     }
 
     getValueAt(index: number) {
-        return this[this.columns[index].name as string];
+        return this.columns[index].name as string];
     }
 
     /**

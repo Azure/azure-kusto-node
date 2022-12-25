@@ -32,7 +32,7 @@ export class KustoIngestClient extends KustoIngestClientBase {
         const name = descriptor.name ? `__${descriptor.name}` : "";
         const blobName = `${props.database}__${props.table}__${descriptor.sourceId}${name}.${extension}`;
 
-        const blockBlobClient = await this._getBlockBlobClient(blobName);
+        const blockBlobClient = await this.resourceManager.getBlockBlobClient(blobName);
         await blockBlobClient.uploadData(blob, { blobHTTPHeaders: { blobContentEncoding: "application/gzip" } } as BlockBlobUploadOptions);
         return this.ingestFromBlob(new BlobDescriptor(blockBlobClient.url, blob.size, descriptor.sourceId), props);
     }
@@ -47,7 +47,7 @@ export class KustoIngestClient extends KustoIngestClientBase {
         const blobName =
             `${props.database}__${props.table}__${descriptor.sourceId}` + `${this._getBlobNameSuffix(props.format ?? "", descriptor.compressionType)}`;
 
-        const blockBlobClient = await this._getBlockBlobClient(blobName);
+        const blockBlobClient = await this.resourceManager.getBlockBlobClient(blobName);
         await blockBlobClient.uploadData(descriptor.stream as ArrayBuffer);
 
         return this.ingestFromBlob(new BlobDescriptor(blockBlobClient.url), props); // descriptor.size?

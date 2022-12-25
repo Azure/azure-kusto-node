@@ -4,6 +4,7 @@
 import { Client, KustoDataErrors } from "azure-kusto-data";
 import { ExponentialRetry } from "./retry";
 import moment from "moment";
+import { ContainerClient } from "@azure/storage-blob";
 
 const ATTEMPT_COUNT = 4;
 export class ResourceURI {
@@ -143,6 +144,16 @@ export class ResourceManager {
 
     async getAuthorizationContext(): Promise<string> {
         return this.refreshAuthorizationContext();
+    }
+
+    async getBlockBlobClient(blobName: string) {
+        const containers = await this.getContainers();
+        if (containers == null) {
+            throw new Error("Failed to get containers");
+        }
+        const container = containers[Math.floor(Math.random() * containers.length)];
+        const containerClient = new ContainerClient(container.uri);
+        return containerClient.getBlockBlobClient(blobName);
     }
 
     close() {

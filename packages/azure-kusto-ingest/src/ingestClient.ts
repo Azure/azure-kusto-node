@@ -28,7 +28,7 @@ export class KustoIngestClient extends KustoIngestClientBase {
             const fileToUpload = await descriptor.prepare();
             const blobName = `${props.database}__${props.table}__${descriptor.sourceId}__${descriptor.name}__.${pathlib.extname(fileToUpload)}`;
 
-            const blockBlobClient = await this._getBlockBlobClient(blobName);
+            const blockBlobClient = await this.resourceManager.getBlockBlobClient(blobName);
             await blockBlobClient.uploadFile(fileToUpload);
             return this.ingestFromBlob(new BlobDescriptor(blockBlobClient.url, descriptor.size, descriptor.sourceId), props);
         } finally {
@@ -47,7 +47,7 @@ export class KustoIngestClient extends KustoIngestClientBase {
         const blobName =
             `${props.database}__${props.table}__${descriptor.sourceId}` + `${this._getBlobNameSuffix(props.format ?? "", descriptor.compressionType)}`;
 
-        const blockBlobClient = await this._getBlockBlobClient(blobName);
+        const blockBlobClient = await this.resourceManager.getBlockBlobClient(blobName);
         await blockBlobClient.uploadStream(descriptor.stream as Readable);
 
         return this.ingestFromBlob(new BlobDescriptor(blockBlobClient.url), props); // descriptor.size?

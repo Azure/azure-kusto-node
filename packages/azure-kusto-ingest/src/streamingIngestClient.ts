@@ -9,14 +9,13 @@ import zlib from "zlib";
 import { AbstractKustoClient } from "./abstractKustoClient";
 import { Client as KustoClient, KustoConnectionStringBuilder } from "azure-kusto-data";
 import { KustoResponseDataSet } from "azure-kusto-data/src/response";
-import { fileToStream } from "./streamUtils";
+import { fileToStream, tryFileToBuffer } from "./streamUtils";
 import { Readable } from "stream";
 import { isNode } from "@azure/core-util";
-import { tryFileToBuffer } from "./streamUtils";
 
 class KustoStreamingIngestClient extends AbstractKustoClient {
     private kustoClient: KustoClient;
-
+    // Used as member for testing
     constructor(kcsb: string | KustoConnectionStringBuilder, defaultProps?: IngestionPropertiesInput) {
         super(defaultProps);
         this.kustoClient = new KustoClient(kcsb);
@@ -59,7 +58,9 @@ class KustoStreamingIngestClient extends AbstractKustoClient {
         this.ensureOpen();
 
         const descriptor: FileDescriptor = file instanceof FileDescriptor ? file : new FileDescriptor(file);
-        return this.ingestFromStream(isNode ? await fileToStream(descriptor) : await tryFileToBuffer(descriptor), ingestionProperties);
+        return this.ingestFromStream(isNode ?
+            await fileToStream(descriptor) :
+            await tryFileToBuffer(descriptor), ingestionProperties);
     }
 
     close() {

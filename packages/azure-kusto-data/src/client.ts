@@ -63,6 +63,7 @@ export class KustoClient {
             headers,
             validateStatus: (status: number) => status === 200,
         };
+        // http and https are Node modules and are not found in browsers
         if (isNode) {
             // keepAlive pools and reuses TCP connections, so it's faster
             axiosProps.httpAgent = new http.Agent({ keepAlive: true });

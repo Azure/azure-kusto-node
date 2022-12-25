@@ -4,8 +4,7 @@
 import * as path from "path";
 // in case you run into any typescript error when configuring `devServer`
 import "webpack-dev-server";
-const webpack = require("webpack");
-
+import * as webpack from "webpack";
 let config = {
     entry: {
         index: "./packages/azure-kusto-ingest/dist-esm/src/index",
