@@ -57,9 +57,7 @@ class KustoStreamingIngestClient extends AbstractKustoClient {
         this.ensureOpen();
 
         const descriptor: FileDescriptor = file instanceof FileDescriptor ? file : new FileDescriptor(file);
-        return this.ingestFromStream(isNode ?
-            await fileToStream(descriptor) :
-            await tryFileToBuffer(descriptor), ingestionProperties);
+        return this.ingestFromStream(isNode ? await fileToStream(descriptor) : await tryFileToBuffer(descriptor), ingestionProperties);
     }
 
     close() {

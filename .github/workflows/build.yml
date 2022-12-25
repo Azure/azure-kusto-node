@@ -20,10 +20,9 @@ jobs:
             - run: |
                   npm install -g npm@latest
                   npm ci
-            - run: npm run webpackConfigTest
-            - run: npm run webpackBuild
             - run: npm run checkFormat
             - run: npm run lint
+            - run: npm run webpackBuild
             - run: npm run testPipeline
               env:
                   AUTO_TEST: true
