@@ -71,7 +71,7 @@ describe(`Browser Unit tests`, () => {
             const resourceManagerStub = sinon.stub(resourceManager, "getBlockBlobClient");
             resourceManagerStub.returns(Promise.resolve<BlockBlobClient>(resource));
             mockedIngestClient.resourceManager = resourceManager;
-            await mockedIngestClient.ingestFromFile(new BrowserFileDescriptor(new Blob([`{"Name":"Moshe", "Value":2}`], { type: "application/json" })));
+            await mockedIngestClient.ingestFromFile(new BrowserFileDescriptor({} as Blob));
             sandbox.assert.calledOnce(queuedStub);
             sandbox.assert.calledOnce(resourceStub);
         });
