@@ -15,7 +15,6 @@ import { isNode } from "@azure/core-util";
 
 class KustoStreamingIngestClient extends AbstractKustoClient {
     private kustoClient: KustoClient;
-    // Used as member for testing
     constructor(kcsb: string | KustoConnectionStringBuilder, defaultProps?: IngestionPropertiesInput) {
         super(defaultProps);
         this.kustoClient = new KustoClient(kcsb);

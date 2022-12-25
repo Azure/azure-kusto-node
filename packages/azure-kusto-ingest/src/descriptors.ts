@@ -52,3 +52,13 @@ export class BlobDescriptor {
         this.sourceId = getSourceId(sourceId);
     }
 }
+
+export interface FileDescriptorBase {
+    size: number | null;
+    zipped: boolean;
+    compressionType: CompressionType;
+    cleanupTmp?: () => Promise<void>;
+    extension?: string;
+    name?: string;
+    sourceId: string | null;
+}

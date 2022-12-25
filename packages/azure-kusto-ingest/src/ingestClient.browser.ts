@@ -4,7 +4,7 @@
 import { KustoConnectionStringBuilder } from "azure-kusto-data";
 
 import { BlobDescriptor, StreamDescriptor } from "./descriptors";
-import { FileDescriptor } from "./fileDescriptor";
+import { FileDescriptor } from "./fileDescriptor.browser";
 import { QueueSendMessageResponse } from "@azure/storage-queue";
 
 import { IngestionPropertiesInput } from "./ingestionProperties";
@@ -19,7 +19,7 @@ export class KustoIngestClient extends KustoIngestClientBase {
     /**
      * Use string for Node.js and Blob for browser
      */
-    async ingestFromFile(file: FileDescriptor | Blob | string, ingestionProperties?: IngestionPropertiesInput): Promise<QueueSendMessageResponse> {
+    async ingestFromFile(file: FileDescriptor | Blob, ingestionProperties?: IngestionPropertiesInput): Promise<QueueSendMessageResponse> {
         this.ensureOpen();
         if (!(file instanceof Blob) && !((file as FileDescriptor).file instanceof Blob)) {
             throw new Error("Expected object of type Blob");

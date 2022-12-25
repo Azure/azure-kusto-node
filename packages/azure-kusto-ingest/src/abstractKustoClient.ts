@@ -2,8 +2,7 @@
 // Licensed under the MIT License.
 
 import { IngestionProperties, IngestionPropertiesInput } from "./ingestionProperties";
-import { StreamDescriptor } from "./descriptors";
-import { FileDescriptor } from "./fileDescriptor";
+import { StreamDescriptor, FileDescriptorBase } from "./descriptors";
 
 export abstract class AbstractKustoClient {
     public defaultProps: IngestionProperties;
@@ -32,7 +31,7 @@ export abstract class AbstractKustoClient {
 
     abstract ingestFromStream(stream: StreamDescriptor, ingestionProperties: IngestionPropertiesInput): Promise<any>;
 
-    abstract ingestFromFile(file: FileDescriptor, ingestionProperties: IngestionPropertiesInput): Promise<any>;
+    abstract ingestFromFile(file: FileDescriptorBase | string | Blob, ingestionProperties: IngestionPropertiesInput): Promise<any>;
 
     public close(): void {
         this._isClosed = true;

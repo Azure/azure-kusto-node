@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { CompressionType, getSourceId } from "./descriptors";
+import { CompressionType, FileDescriptorBase, getSourceId } from "./descriptors";
 
-export class FileDescriptor {
+export class FileDescriptor implements FileDescriptorBase {
     size: number | null;
     zipped: boolean;
     compressionType: CompressionType;

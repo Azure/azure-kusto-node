@@ -10,28 +10,16 @@ import {Client} from "azure-kusto-data"
 // import StreamingIngestClient from "../../src/streamingIngestClient";
 // import { StreamingIngestClient } from "azure-kusto-ingest";
 import sinon from "sinon";
-import ResourceManager, { ResourceURI } from "../src/resourceManager";
-import { ContainerClient } from "@azure/storage-blob";
+import ResourceManager from "../src/resourceManager";
+import { BlockBlobClient } from "@azure/storage-blob";
+import { QueueSendMessageResponse } from "@azure/storage-queue";
+import { FileDescriptor as BrowserFileDescriptor } from "../src/fileDescriptor.browser";
 
 
 describe(`Browser Unit tests`, () => {
     const cluster = "https://somecluster.kusto.windows.net";
     const storage = "https://storage.blob.windows.net/container";
-    const getMockedClient = () => {
-        const sandbox = sinon.createSandbox();
-
-        // const mockedStreamingIngestClient = new StreamingIngestClient("http://test.kusto.com");
-        const mockedIngestClient = new IngestClient("http://test.kusto.com");
-        // const streamStub = sinon.stub(mockedStreamingIngestClient, "ingestFromFile");
-        const queuedStub = sinon.stub(mockedIngestClient, "ingestFromFile");
-
-        const resourceManager = new ResourceManager(new Client(cluster));
-        const resourceManagerStub = sinon.stub(resourceManager, "getBlockBlobClient");
-        resourceManagerStub.returns(Promise.resolve<ContainerClient>([new ContainerClient(storage)]))
-        mockedIngestClient.resourceManager = resourceManager;
-        return { sandbox, queuedStub,mockedIngestClient };
-    };
-
+  
     describe("Kcsb", () => {
         it("Fail to create non-browser compatible authentication", () => {
             try {
@@ -56,11 +44,7 @@ describe(`Browser Unit tests`, () => {
                 ConnectionStringBuilder.withUserPrompt(cluster, {redirectUri:"redirect"});
             } catch (ex) {
                 assert(
-                    ex instanceof Error &&
-                        ex.message.startsWith(
-                            "Invalid parameters"
-                        )
-                );
+                    (ex as Error).message.startsWith("Invalid parameters"));
                 return;
             }
 
@@ -71,11 +55,7 @@ describe(`Browser Unit tests`, () => {
                 ConnectionStringBuilder.withUserPrompt(cluster, {clientId:"cid"});
             } catch (ex) {
                 assert(
-                    ex instanceof Error &&
-                        ex.message.startsWith(
-                            "Invalid parameters"
-                        )
-                );
+                    (ex as Error).message.startsWith("Invalid parameters"));
                 return;
             }
 
@@ -96,21 +76,25 @@ describe(`Browser Unit tests`, () => {
 
             assert.fail();
         });
-        it("Only ingest from Blob object", async () => {
-            const cli = new IngestClient(cluster);
-            try {
-                await cli.ingestFromFile(new Blob());
-            } catch (ex) {
-                assert(
-                    ex instanceof Error &&
-                        ex.message.startsWith(
-                            "Expected object of type Blob"
-                        )
-                );
-            }
-            const {queuedStub,sandbox, mockedIngestClient} = getMockedClient();
-            await mockedIngestClient.ingestFromFile(new Blob());
+        it("Ingest from browser calls the right components", async () => {
+            const sandbox = sinon.createSandbox();
+
+            const mockedIngestClient = new IngestClient("http://test.kusto.com", {
+                table: "t1", database: "d1"});
+            const queuedStub = sinon.stub(mockedIngestClient, "ingestFromBlob");
+            queuedStub.resolves(({} as QueueSendMessageResponse))
+
+            const resource = new BlockBlobClient(storage);
+            const resourceStub = sinon.stub(resource, "uploadData");
+            resourceStub.resolves();
+
+            const resourceManager = new ResourceManager(new Client(cluster));
+            const resourceManagerStub = sinon.stub(resourceManager, "getBlockBlobClient");
+            resourceManagerStub.returns(Promise.resolve<BlockBlobClient>(resource))
+            mockedIngestClient.resourceManager = resourceManager;
+            await mockedIngestClient.ingestFromFile(new BrowserFileDescriptor(new Blob()));
             sandbox.assert.calledOnce(queuedStub);
+            sandbox.assert.calledOnce(resourceStub);
         });
     });
 });
