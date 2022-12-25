@@ -21,9 +21,6 @@ export class KustoIngestClient extends KustoIngestClientBase {
      */
     async ingestFromFile(file: FileDescriptor | Blob, ingestionProperties?: IngestionPropertiesInput): Promise<QueueSendMessageResponse> {
         this.ensureOpen();
-        if (!(file instanceof Blob) && !((file as FileDescriptor).file instanceof Blob)) {
-            throw new Error("Expected object of type Blob");
-        }
         const descriptor = file instanceof FileDescriptor ? file : new FileDescriptor(file);
 
         const extension = descriptor.extension || ingestionProperties?.format || "csv";
