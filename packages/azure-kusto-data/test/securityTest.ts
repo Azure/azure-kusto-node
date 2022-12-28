@@ -5,7 +5,6 @@ import { KustoConnectionStringBuilder } from "../index";
 import AadHelper from "../source/security";
 import { CloudSettings } from "../source/cloudSettings";
 import assert from "assert";
-import { ClientAuthError } from "@azure/msal-node";
 import { KustoAuthenticationError } from "../source/errors";
 import { CredentialUnavailableError } from "@azure/identity";
 import { loginTest, manualLoginTest } from "./data/testUtils";
@@ -81,7 +80,6 @@ describe("test errors", () => {
             assert.fail("should throw unauthorized exception");
         } catch (e: unknown) {
             assert.ok(e instanceof KustoAuthenticationError);
-            assert.strictEqual(e.tokenProviderName, "ApplicationCertificateTokenProvider");
             assert.strictEqual(e.context.clientId, appId);
             assert.strictEqual(e.context.thumbprint, thumb);
         }
