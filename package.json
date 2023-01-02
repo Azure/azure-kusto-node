@@ -18,7 +18,8 @@
         "checkFormat": "npx prettier --check --end-of-line lf .",
         "webpack": "npm run build && shx cp packages/azure-kusto-ingest/index.html packages/azure-kusto-ingest/dist-esm/src &&  webpack-dev-server --mode=development",
         "webpackBuild": "webpack configtest && npm run build && shx cp packages/azure-kusto-ingest/index.html packages/azure-kusto-ingest/dist-esm/src && webpack --mode=production",
-        "clean": "cd packages/azure-kusto-data && npm run clean && cd ../azure-kusto-ingest && npm run clean"
+        "clean": "cd packages/azure-kusto-data && npm run clean && cd ../azure-kusto-ingest && npm run clean",
+        "cleanModules": "rimraf node_modules && rimraf packages/azure-kusto-data/node_modules && rimraf packages/azure-kusto-ingest/node_modules && rimraf packages/quick_start/node_modules"
     },
     "devDependencies": {
         "@lerna-lite/cli": "^1.10.0",
@@ -44,7 +45,11 @@
         "ts-loader": "^9.4.2",
         "ts-node": "^10.9.1",
         "typescript": "^4.7.4",
-        "webpack-cli": "^4.10.0"
+        "webpack-cli": "^4.10.0",
+        "rimraf": "^3.0.2"
+    },
+    "overrides": {
+        "jsonwebtoken": "^9.0.0"
     },
     "workspaces": [
         "packages\\azure-kusto-data",
