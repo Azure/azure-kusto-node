@@ -237,19 +237,6 @@ async function ingestFromFile() {
 }
 ```
 
-### Browser run
-
-The code is browser compatible with main differences in the run are that ingestFromFile accepts a Blob object and
-ingestFromStream accepts an ArrayBuffer. Fallback files are called '*.browser.ts'.
-
-To run a quick sample for azure-kusto-ingest we provided a webpack config which uses the file index.html which runs index.js as a script.
-First add to index.ts:
-
-import {main} from "../exampleBrowser"
-main().catch(e=>console.log(e)) 
-
-Then run: npm run webpack
-
 #### From Browser Blob object
 
 A full browser example can be found [here](packages/azure-kusto-ingest/exampleBrowser.ts)

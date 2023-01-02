@@ -1,4 +1,4 @@
-# Microsoft Azure Kusto Data Library for Node
+# Microsoft Azure Kusto Data Library for JavaScript
 
 ## Installation
 
