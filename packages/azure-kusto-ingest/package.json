@@ -5,6 +5,7 @@
     "module": "dist-esm/src/index.js",
     "types": "./types/src/index.d.ts",
     "main": "dist-esm/src/index",
+    "type": "module",
     "scripts": {
         "build": "tsc",
         "clean": "rimraf dist/* dist-esm/* types/*"
@@ -31,8 +32,9 @@
         "directory": "azure-kusto-ingest"
     },
     "files": [
+        "dist",
         "dist-esm/src/",
-        "types/src/index.d.ts",
+        "types/src/",
         "tsconfig.tsbuildinfo",
         "example.js",
         "exampleBrowser.ts"

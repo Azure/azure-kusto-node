@@ -58,7 +58,7 @@ interface ConfigJson {
 // TODO (config):
 //  If this quickstart app was downloaded from OneClick, kusto_sample_config.json should be pre-populated with your cluster's details.
 //  If this quickstart app was downloaded from GitHub, edit kusto_sample_config.json and modify the cluster URL and database fields appropriately.
-const CONFIG_FILE_NAME = "source/kusto_sample_config.json";
+const CONFIG_FILE_NAME = "src/kusto_sample_config.json";
 
 class SampleApp {
     private static step = 1;

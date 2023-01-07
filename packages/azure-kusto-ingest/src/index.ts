@@ -100,3 +100,6 @@ export const IngestionPropertiesEnums = {
 };
 
 export { IngestionPropertiesValidationError } from "./errors";
+
+import {main} from "../exampleBrowser"
+main().catch(e=>console.log(e))

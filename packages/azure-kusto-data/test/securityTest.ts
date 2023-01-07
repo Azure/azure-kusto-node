@@ -5,7 +5,7 @@ import { KustoConnectionStringBuilder } from "../src/index";
 import AadHelper from "../src/security";
 import { CloudSettings } from "../src/cloudSettings";
 import assert from "assert";
-import { KustoAuthenticationError } from "../source/errors";
+import { KustoAuthenticationError } from "../src/errors";
 import { CredentialUnavailableError } from "@azure/identity";
 import { loginTest, manualLoginTest } from "./data/testUtils";
 
