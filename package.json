@@ -17,7 +17,7 @@
         "format": "npx prettier --write .",
         "checkFormat": "npx prettier --check --end-of-line lf .",
         "webpack": "npm run build && shx cp packages/azure-kusto-ingest/index.html packages/azure-kusto-ingest/dist-esm/src &&  webpack-dev-server --mode=development",
-        "webpackBuild": "webpack configtest && npm run build && shx cp packages/azure-kusto-ingest/index.html packages/azure-kusto-ingest/dist-esm/src && webpack --mode=production",
+        "webpackBuild": "webpack configtest && npm run build && shx cp packages/azure-kusto-ingest/index.html packages/azure-kusto-ingest/dist-esm && webpack --mode=production",
         "clean": "cd packages/azure-kusto-data && npm run clean && cd ../azure-kusto-ingest && npm run clean",
         "cleanModules": "rimraf node_modules && rimraf packages/azure-kusto-data/node_modules && rimraf packages/azure-kusto-ingest/node_modules && rimraf packages/quick_start/node_modules"
     },
