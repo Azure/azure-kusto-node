@@ -6,7 +6,7 @@
 import assert from "assert";
 import { v4 as uuidv4 } from "uuid";
 import { KustoConnectionStringBuilder } from "../src/connectionBuilder";
-import { DeviceCodeResponse } from "@azure/msal-common";
+import { DeviceCodeInfo } from "@azure/identity";
 
 const doComparsion = (
     kcsbs: KustoConnectionStringBuilder[],
@@ -317,13 +317,7 @@ describe("KustoConnectionStringBuilder", () => {
                     new KustoConnectionStringBuilder(
                         `localhost;AppClientId=${appId};Application Certificate PrivateKey=${privateKey};Authority Id=${expectedAuthorityId};SendX5c=${cert5xc};AAD Federated Security=True`
                     ),
-                    KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(
-                        "localhost",
-                        appId,
-                        privateKey,
-                        expectedAuthorityId,
-                        cert5xc
-                    ),
+                    KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication("localhost", appId, privateKey, expectedAuthorityId, cert5xc),
                 ];
 
                 const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
@@ -357,13 +351,7 @@ describe("KustoConnectionStringBuilder", () => {
                     new KustoConnectionStringBuilder(
                         `localhost;AppClientId=${appId};Application Certificate PrivateKey=${privateKey};SendX5c=${cert5xc};AAD Federated Security=True`
                     ),
-                    KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(
-                        "localhost",
-                        appId,
-                        privateKey,
-                        DEFAULT_AUTHORITY,
-                        cert5xc
-                    ),
+                    KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication("localhost", appId, privateKey, DEFAULT_AUTHORITY, cert5xc),
                 ];
 
                 const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
@@ -421,10 +409,7 @@ describe("KustoConnectionStringBuilder", () => {
         });
 
         it("from aad device auth", () => {
-            const kcsbs = [
-                KustoConnectionStringBuilder.withAadDeviceAuthentication("localhost", DEFAULT_AUTHORITY),
-                KustoConnectionStringBuilder.withAadDeviceAuthentication("localhost", DEFAULT_AUTHORITY, (res) => res),
-            ];
+            const kcsbs = [KustoConnectionStringBuilder.withAadDeviceAuthentication("localhost", DEFAULT_AUTHORITY, (res) => res)];
 
             const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
             kcsb1.aadFederatedSecurity = true;
@@ -438,7 +423,7 @@ describe("KustoConnectionStringBuilder", () => {
                     authorityId: DEFAULT_AUTHORITY,
                     useDeviceCodeAuth: true,
                     aadFederatedSecurity: true,
-                    deviceCodeCallback: (res: DeviceCodeResponse) => res,
+                    deviceCodeCallback: (res: DeviceCodeInfo) => res,
                 },
                 "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations",
                 "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations"
@@ -585,7 +570,7 @@ describe("KustoConnectionStringBuilder", () => {
             it("with optional params", () => {
                 const loginHint = "myUser";
                 const timeoutMs = 10;
-                const kcsbs = [KustoConnectionStringBuilder.withUserPrompt("localhost", { tenantId: DEFAULT_AUTHORITY, loginHint },timeoutMs)];
+                const kcsbs = [KustoConnectionStringBuilder.withUserPrompt("localhost", { tenantId: DEFAULT_AUTHORITY, loginHint }, timeoutMs)];
 
                 const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
                 kcsb1.aadFederatedSecurity = true;

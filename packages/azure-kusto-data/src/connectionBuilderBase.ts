@@ -56,6 +56,7 @@ export const KeywordMapping: KeywordMappingRecordType = Object.freeze<Readonly<K
     applicationCertificateSendX5c: {
         mappedTo: "Application Certificate x5c",
         validNames: ["application certificate x5c", "Application Certificate Send Public Certificate", "Application Certificate SendX5c", "SendX5c"],
+        isBool: true,
     },
     authorityId: {
         mappedTo: "Authority Id",
@@ -81,7 +82,6 @@ const getPropName = (key: string): [string, MappingType] => {
 export abstract class KustoConnectionStringBuilderBase {
     static readonly DefaultDatabaseName = "NetDefaultDB";
     static readonly SecretReplacement = "****";
-    // eslint-disable-next-line no-console
 
     dataSource?: string;
     aadFederatedSecurity?: boolean;

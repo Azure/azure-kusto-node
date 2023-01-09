@@ -13,6 +13,8 @@ import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 import http from "http";
 import https from "https";
 import { isNode } from "@azure/core-util";
+import { kustoTrustedEndpoints } from "./kustoTrustedEndpoints";
+import { CloudSettings } from "./cloudSettings";
 
 const COMMAND_TIMEOUT_IN_MILLISECS = moment.duration(10.5, "minutes").asMilliseconds();
 const QUERY_TIMEOUT_IN_MILLISECS = moment.duration(4.5, "minutes").asMilliseconds();
@@ -33,6 +35,8 @@ export class KustoClient {
     endpoints: { [key in ExecutionType]: string };
     aadHelper: AadHelper;
     axiosInstance: AxiosInstance;
+    cancelToken = axios.CancelToken.source();
+    private _isClosed: boolean = false;
 
     constructor(kcsb: string | ConnectionStringBuilder) {
         this.connectionString = typeof kcsb === "string" ? new ConnectionStringBuilder(kcsb) : kcsb;
@@ -57,13 +61,15 @@ export class KustoClient {
         };
         const axiosProps: AxiosRequestConfig = {
             headers,
-            validateStatus: (status: number) => status === 200
+            validateStatus: (status: number) => status === 200,
         };
+        // http and https are Node modules and are not found in browsers
         if (isNode) {
-             // keepAlive pools and reuses TCP connections, so it's faster
+            // keepAlive pools and reuses TCP connections, so it's faster
             axiosProps.httpAgent = new http.Agent({ keepAlive: true });
             axiosProps.httpsAgent = new https.Agent({ keepAlive: true });
         }
+        axiosProps.cancelToken = this.cancelToken.token;
 
         this.axiosInstance = axios.create();
     }
@@ -117,6 +123,8 @@ export class KustoClient {
         stream: any,
         properties?: ClientRequestProperties | null
     ): Promise<KustoResponseDataSet> {
+        this.ensureOpen();
+        kustoTrustedEndpoints.validateTrustedEndpoint(endpoint, (await CloudSettings.getInstance().getCloudInfoForCluster(this.cluster)).LoginEndpoint);
         db = this.getDb(db);
         const headers: { [header: string]: string } = {};
 
@@ -245,6 +253,19 @@ export class KustoClient {
         }
 
         return executionType === ExecutionType.Query || executionType === ExecutionType.QueryV1 ? QUERY_TIMEOUT_IN_MILLISECS : COMMAND_TIMEOUT_IN_MILLISECS;
+    }
+
+    public close() {
+        if (!this._isClosed) {
+            this.cancelToken.cancel("Client Closed");
+        }
+        this._isClosed = true;
+    }
+
+    ensureOpen() {
+        if (this._isClosed) {
+            throw new Error("Client is closed");
+        }
     }
 }
 

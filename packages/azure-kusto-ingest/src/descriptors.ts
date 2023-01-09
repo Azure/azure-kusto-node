@@ -21,12 +21,14 @@ export const getSourceId = (sourceId: string | null): string => {
     return uuidv4();
 };
 
-
 export class StreamDescriptor {
     size: number | null;
     compressionType: CompressionType;
     sourceId: string;
 
+    /**
+     * Use Readable for Node.js and ArrayBuffer for browser
+     */
     constructor(readonly stream: Readable | ArrayBuffer, sourceId: string | null = null, compressionType: CompressionType = CompressionType.None) {
         this.size = null;
         this.compressionType = compressionType;
@@ -49,4 +51,14 @@ export class BlobDescriptor {
         this.size = size;
         this.sourceId = getSourceId(sourceId);
     }
+}
+
+export interface FileDescriptorBase {
+    size: number | null;
+    zipped: boolean;
+    compressionType: CompressionType;
+    cleanupTmp?: () => Promise<void>;
+    extension?: string;
+    name?: string;
+    sourceId: string | null;
 }

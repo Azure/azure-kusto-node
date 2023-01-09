@@ -1,4 +1,4 @@
-# Microsoft Azure Kusto Ingest Library for Node
+# Microsoft Azure Kusto Ingest Library for JavaScript 
 
 ## Installation
 
@@ -234,5 +234,19 @@ async function ingestFromFile() {
     }
     console.log("Wait for ingestion status...");
     await waitForStatus();
+}
+```
+
+#### From Browser Blob object
+
+A full browser example can be found [here](packages/azure-kusto-ingest/exampleBrowser.ts)
+
+```javascript
+const file = new Blob([`{"Name":"Moshe", "Value":2}`], { type: "application/json" });
+let desc = new FileDescriptor(blobUri, size);
+try {
+     await ingestClient.ingestFromFile(desp, null);
+} catch (err) {
+    console.log(err);
 }
 ```

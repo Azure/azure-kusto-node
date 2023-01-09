@@ -1,7 +1,7 @@
-# Microsoft Azure Kusto (Azure Data Explorer) SDK for Node.js
+# Microsoft Azure Kusto (Azure Data Explorer) SDK for JavaScript
 ![Github Actions Build](https://github.com/Azure/azure-kusto-node/actions/workflows/build.yml/badge.svg)
 
-This repository contains the following SDKs:
+This repository is for JavaScript (Node.js & Browser) and it contains the following SDKs:
 * **Azure Kusto Data SDK**: Execute queries against a Kusto Cluster. [docs](./packages/azure-kusto-data/README.md)
 * **Azure Kusto Ingest SDK**: Ingest Data into a Kusto Cluster. [docs](./packages/azure-kusto-ingest/README.md)
 
@@ -33,8 +33,7 @@ See the SDK [best practices guide](https://docs.microsoft.com/azure/data-explore
 
 ## Platforms compatibility
 
-The Azure Kusto SDK for Node.js was build for Node.js **v14.x.x and** above.
-
+The Azure Kusto SDK for is built for Node **v14.x.x** and above.
 
 ## Looking for SDKs for other languages/platforms?
 - [Python](https://github.com/azure/azure-kusto-python)
@@ -53,3 +52,20 @@ We gladly accept community contributions.
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
 For general suggestions about Microsoft Azure please use our [UserVoice forum](http://feedback.azure.com/forums/34192--general-feedback).
+
+
+# Bundling Azure SDK libraries for a browser
+To use Azure SDK libraries on a website, you need to convert your code to work inside the browser. You do this using a tool called a bundler. This process takes JavaScript code written using Node.js conventions and converts it into a format that is understood by browsers. Read [here](https://github.com/Azure/azure-sdk-for-js/blob/main/documentation/Bundling.md) for more info and examples.
+
+### Browser sample
+
+The main differences between the browser implementation and Node.js in the run are that ingestFromFile accepts a Blob object and
+ingestFromStream accepts an ArrayBuffer. Fallback files are called '*.browser.ts'.
+
+To run a quick sample for azure-kusto-ingest we provided a webpack config which uses the file index.html which runs index.js as a script.
+First add to index.ts:
+
+import {main} from "../exampleBrowser"
+main().catch(e=>console.log(e)) 
+
+Then run: npm run webpack

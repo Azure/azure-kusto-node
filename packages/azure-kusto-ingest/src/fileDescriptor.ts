@@ -6,9 +6,9 @@ import pathlib from "path";
 import fs from "fs";
 import { file as tmpFile } from "tmp-promise";
 import { promisify } from "util";
-import { CompressionType, getSourceId } from "./descriptors";
+import { CompressionType, FileDescriptorBase, getSourceId } from "./descriptors";
 
-export class FileDescriptor {
+export class FileDescriptor implements FileDescriptorBase {
     size: number | null;
     zipped: boolean;
     compressionType: CompressionType;
@@ -16,6 +16,9 @@ export class FileDescriptor {
     sourceId: string;
 
     constructor(
+        /**
+         * Use a string in Node.JS and Blob for browser
+         */
         readonly file: string | Blob,
         sourceId: string | null = null,
         size: number | null = null,
@@ -58,16 +61,16 @@ export class FileDescriptor {
     async prepare(): Promise<string> {
         if (this.zipped) {
             const estimatedCompressionModifier = 11;
-            await this.calculateSize(estimatedCompressionModifier);
+            await this._calculateSize(estimatedCompressionModifier);
             return this.file as string;
         }
 
         const path = await this._gzip();
-        await this.calculateSize();
+        await this._calculateSize();
         return path;
     }
 
-    private async calculateSize(modifier: number = 1): Promise<void> {
+    private async _calculateSize(modifier: number = 1): Promise<void> {
         if (this.size == null || this.size <= 0) {
             const asyncStat = promisify(fs.stat);
             this.size = (await asyncStat(this.file as string)).size * modifier;

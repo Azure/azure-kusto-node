@@ -17,6 +17,7 @@ import v1Response from "./data/response/v1.json";
 import v1_2Response from "./data/response/v1_2.json";
 import { Readable } from "stream";
 import ConnectionBuilder from "../src/connectionBuilder";
+import { CloudSettings } from "../src/cloudSettings";
 
 enum ExecutionType {
     Mgmt = "mgmt",
@@ -24,6 +25,8 @@ enum ExecutionType {
     Ingest = "ingest",
     QueryV1 = "queryv1",
 }
+
+CloudSettings.getInstance().cloudCache["https://cluster.kusto.windows.net"] = CloudSettings.getInstance().defaultCloudInfo;
 
 describe("KustoClient", () => {
     describe("url test", () => {
@@ -343,6 +346,13 @@ describe("KustoClient", () => {
                 };
                 await sNoDbClient.executeStreamingIngest("db2", "Table", Readable.from(""), "csv", null);
             });
+        });
+    });
+    describe("Close", () => {
+        it("Client should not be useable when closed", async () => {
+            const c = new KustoClient("Data Source=https://cluster.kusto.windows.net");
+            c.close();
+            await assert.rejects(c.execute("db", "Table | count"), /Client is closed/);
         });
     });
 });

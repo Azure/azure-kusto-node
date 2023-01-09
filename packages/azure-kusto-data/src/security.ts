@@ -22,7 +22,7 @@ export class AadHelper {
                 kcsb.applicationKey,
                 kcsb.authorityId
             );
-        } else if (!!kcsb.applicationClientId && (!!kcsb.applicationCertificatePrivateKey)) {
+        } else if (!!kcsb.applicationClientId && !!kcsb.applicationCertificatePrivateKey) {
             this.tokenProvider = new TokenProvider.ApplicationCertificateTokenProvider(
                 kcsb.dataSource,
                 kcsb.applicationClientId,

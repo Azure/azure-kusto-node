@@ -11,7 +11,6 @@ import IngestionBlobInfo from "./ingestionBlobInfo";
 
 import { QueueClient, QueueSendMessageResponse } from "@azure/storage-queue";
 
-import { ContainerClient } from "@azure/storage-blob";
 import { IngestionPropertiesInput } from "./ingestionProperties";
 import { AbstractKustoClient } from "./abstractKustoClient";
 
@@ -30,17 +29,9 @@ export abstract class KustoIngestClientBase extends AbstractKustoClient {
         return `${formatSuffix}${compressionType}`;
     }
 
-    async _getBlockBlobClient(blobName: string) {
-        const containers = await this.resourceManager.getContainers();
-        if (containers == null) {
-            throw new Error("Failed to get containers");
-        }
-        const container = containers[Math.floor(Math.random() * containers.length)];
-        const containerClient = new ContainerClient(container.uri);
-        return containerClient.getBlockBlobClient(blobName);
-    }
-
     async ingestFromBlob(blob: string | BlobDescriptor, ingestionProperties?: IngestionPropertiesInput): Promise<QueueSendMessageResponse> {
+        this.ensureOpen();
+
         const props = this._getMergedProps(ingestionProperties);
 
         const descriptor = blob instanceof BlobDescriptor ? blob : new BlobDescriptor(blob);
@@ -60,6 +51,13 @@ export abstract class KustoIngestClientBase extends AbstractKustoClient {
         const encoded = Buffer.from(ingestionBlobInfoJson).toString("base64");
 
         return queueClient.sendMessage(encoded);
+    }
+
+    close() {
+        if (!this._isClosed) {
+            this.resourceManager.close();
+        }
+        super.close();
     }
 }
 

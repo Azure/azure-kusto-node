@@ -2,13 +2,12 @@
 // Licensed under the MIT License.
 
 import { IngestionProperties, IngestionPropertiesInput } from "./ingestionProperties";
-import { StreamDescriptor } from "./descriptors";
-import { FileDescriptor } from "./fileDescriptor";
-import { Readable } from "stream";
+import { StreamDescriptor, FileDescriptorBase } from "./descriptors";
 
 export abstract class AbstractKustoClient {
     public defaultProps: IngestionProperties;
     public defaultDatabase?: string;
+    protected _isClosed: boolean = false;
 
     protected constructor(defaultProps: IngestionPropertiesInput) {
         if (!defaultProps) {
@@ -30,7 +29,17 @@ export abstract class AbstractKustoClient {
         return props;
     }
 
-    abstract ingestFromStream(stream: StreamDescriptor | Readable, ingestionProperties: IngestionPropertiesInput): Promise<any>;
+    abstract ingestFromStream(stream: StreamDescriptor, ingestionProperties: IngestionPropertiesInput): Promise<any>;
 
-    abstract ingestFromFile(file: FileDescriptor | string, ingestionProperties: IngestionPropertiesInput): Promise<any>;
+    abstract ingestFromFile(file: FileDescriptorBase | string | Blob, ingestionProperties: IngestionPropertiesInput): Promise<any>;
+
+    public close(): void {
+        this._isClosed = true;
+    }
+
+    protected ensureOpen() {
+        if (this._isClosed) {
+            throw new Error("Client is closed");
+        }
+    }
 }

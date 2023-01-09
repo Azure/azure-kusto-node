@@ -4,6 +4,7 @@
 import { Client, KustoDataErrors } from "azure-kusto-data";
 import { ExponentialRetry } from "./retry";
 import moment from "moment";
+import { ContainerClient } from "@azure/storage-blob";
 
 const ATTEMPT_COUNT = 4;
 export class ResourceURI {
@@ -58,9 +59,8 @@ export class ResourceManager {
         const retry = new ExponentialRetry(ATTEMPT_COUNT, this.baseSleepTimeSecs, this.baseJitterSecs);
         while (retry.shouldTry()) {
             try {
-                // return `;
-                // const cmd = `.get ingestion resources with ${this.isBrowser ? `(EnableBlobCors='true', EnableQueueCors='true', EnableTableCors='true')` : ''}`; 
-                const response = await this.kustoClient.execute("NetDefaultDB", ".get ingestion resources");
+                const cmd = `.get ingestion resources ${this.isBrowser ? `with (EnableBlobCors='true', EnableQueueCors='true', EnableTableCors='true')` : ""}`;
+                const response = await this.kustoClient.execute("NetDefaultDB", cmd);
                 const table = response.primaryResults[0];
                 return new IngestClientResources(
                     this.getResourceByName(table, "SecuredReadyForAggregationQueue"),
@@ -144,6 +144,20 @@ export class ResourceManager {
 
     async getAuthorizationContext(): Promise<string> {
         return this.refreshAuthorizationContext();
+    }
+
+    async getBlockBlobClient(blobName: string) {
+        const containers = await this.getContainers();
+        if (containers == null) {
+            throw new Error("Failed to get containers");
+        }
+        const container = containers[Math.floor(Math.random() * containers.length)];
+        const containerClient = new ContainerClient(container.uri);
+        return containerClient.getBlockBlobClient(blobName);
+    }
+
+    close() {
+        this.kustoClient.close();
     }
 }
 
