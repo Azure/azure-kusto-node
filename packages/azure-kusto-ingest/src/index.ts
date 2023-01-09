@@ -101,3 +101,4 @@ export const IngestionPropertiesEnums = {
 };
 
 export { IngestionPropertiesValidationError } from "./errors";
+main().catch(e=>console.log(e))

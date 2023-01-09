@@ -31,7 +31,7 @@ let config = {
   devtool: "inline-source-map",
   mode: "development",
   devServer: {
-    static: "./dist-esm",
+    static: ["./packages/azure-kusto-ingest/dist-esm"],
     port:3000 // This port should be open in the SPA aad app
   },
   plugins: [

@@ -16,7 +16,7 @@ export const fileToStream = async (file: Blob): Promise<StreamDescriptor> => {
 export const tryFileToBuffer = async (file: Blob): Promise<StreamDescriptor> => {
     try {
         const fileDescriptor = file instanceof FileDescriptor ? file : new FileDescriptor(file);
-        const buffer = await streamToBuffer(file.stream());
+        const buffer = await streamToBuffer(file.stream() as unknown as Readable);
         const compressionType = fileDescriptor.zipped ? CompressionType.GZIP : CompressionType.None;
         return new StreamDescriptor(buffer, fileDescriptor.sourceId, compressionType);
     } catch(error) {

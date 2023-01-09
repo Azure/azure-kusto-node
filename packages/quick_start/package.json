@@ -14,8 +14,7 @@
         "uuid": "^8.3.2"
     },
     "devDependencies": {
-        "ts-node": "^10.9.1",
-        "typescript": "^5.0.0-dev.20221117"
+        "ts-node": "^10.9.1"
     },
     "repository": {
         "type": "git",
