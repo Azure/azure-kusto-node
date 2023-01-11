@@ -31,9 +31,8 @@
         "directory": "azure-kusto-ingest"
     },
     "files": [
-        "dist",
         "dist-esm/src/",
-        "types/src/",
+        "types/src/index.d.ts",
         "tsconfig.tsbuildinfo",
         "example.js",
         "exampleBrowser.ts"
@@ -58,13 +57,14 @@
         "@azure/storage-blob": "^12.11.0",
         "@azure/storage-queue": "^12.10.0",
         "@types/node": "^14.0.0",
+        "@types/pako": "^2.0.0",
         "@types/stream-array": "^1.1.0",
         "@types/stream-to-array": "^2.3.0",
         "@types/tmp": "^0.2.3",
         "@types/uuid": "^8.3.4",
         "@types/uuid-validate": "0.0.1",
-        "browserify-zlib": "0.2.0",
         "azure-kusto-data": "^4.0.3",
+        "browserify-zlib": "0.2.0",
         "moment": "^2.29.4",
         "stream-array": "^1.1.2",
         "stream-browserify": "3.0.0",
@@ -74,8 +74,8 @@
         "uuid-validate": "0.0.3"
     },
     "devDependencies": {
-        "assert": "^2.0.0",
-        "@types/sinon": "^10.0.13"
+        "@types/sinon": "^10.0.13",
+        "assert": "^2.0.0"
     },
     "gitHead": "f8a5dae26d6d2ca2ab8b95953bb9b88a02e8e35d"
 }

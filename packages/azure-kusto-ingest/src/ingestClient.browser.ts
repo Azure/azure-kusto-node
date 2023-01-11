@@ -9,7 +9,6 @@ import { QueueSendMessageResponse } from "@azure/storage-queue";
 
 import { IngestionPropertiesInput } from "./ingestionProperties";
 import { KustoIngestClientBase } from "./ingestClientBase";
-import { BlockBlobUploadOptions } from "@azure/storage-blob";
 
 export class KustoIngestClient extends KustoIngestClientBase {
     constructor(kcsb: string | KustoConnectionStringBuilder, defaultProps?: IngestionPropertiesInput) {
@@ -28,9 +27,10 @@ export class KustoIngestClient extends KustoIngestClientBase {
         const props = this._getMergedProps(ingestionProperties);
         const name = descriptor.name ? `__${descriptor.name}` : "";
         const blobName = `${props.database}__${props.table}__${descriptor.sourceId}${name}.${extension}`;
-
         const blockBlobClient = await this.resourceManager.getBlockBlobClient(blobName);
-        await blockBlobClient.uploadData(blob, { blobHTTPHeaders: { blobContentEncoding: "application/gzip" } } as BlockBlobUploadOptions);
+
+        const fileToUpload = await descriptor.prepare();
+        await blockBlobClient.uploadData(fileToUpload);
         return this.ingestFromBlob(new BlobDescriptor(blockBlobClient.url, blob.size, descriptor.sourceId), props);
     }
 
@@ -46,7 +46,6 @@ export class KustoIngestClient extends KustoIngestClientBase {
 
         const blockBlobClient = await this.resourceManager.getBlockBlobClient(blobName);
         await blockBlobClient.uploadData(descriptor.stream as ArrayBuffer);
-
         return this.ingestFromBlob(new BlobDescriptor(blockBlobClient.url), props); // descriptor.size?
     }
 }

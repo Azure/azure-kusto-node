@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import pako from "pako";
 import { CompressionType, FileDescriptorBase, getSourceId } from "./descriptors";
 
 export class FileDescriptor implements FileDescriptorBase {
@@ -29,7 +30,16 @@ export class FileDescriptor implements FileDescriptorBase {
     }
 
     async prepare(): Promise<Blob> {
-        return await Promise.resolve(this.file);
+        if (!this.zipped) {
+            try {
+                const gzipped = pako.gzip(await this.file.arrayBuffer());
+                return new Blob([gzipped]);
+            } catch (e) {
+                // Ignore - return the file itself
+            }
+        }
+
+        return this.file;
     }
 
     async cleanup(): Promise<void> {

@@ -42,8 +42,7 @@
         "directory": "azure-kusto-data"
     },
     "files": [
-        "dist",
-        "dist-esm/src/",
+        "dist-esm/src/index.d.ts",
         "types/src/",
         "tsconfig.tsbuildinfo",
         "example.js",
