@@ -7,8 +7,6 @@ import assert from "assert";
 import IngestClient from "../src/ingestClient.browser";
 import { KustoConnectionStringBuilder as ConnectionStringBuilder } from "azure-kusto-data/src/connectionBuilder.browser";
 import { Client } from "azure-kusto-data";
-// import StreamingIngestClient from "../../src/streamingIngestClient";
-// import { StreamingIngestClient } from "azure-kusto-ingest";
 import sinon from "sinon";
 import ResourceManager from "../src/resourceManager";
 import { BlockBlobClient } from "@azure/storage-blob";
