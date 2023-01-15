@@ -1,6 +1,6 @@
 {
     "name": "azure-kusto-quick-start",
-    "version": "4.0.3",
+    "version": "4.0.4",
     "description": "Quick start Node sample app",
     "main": "source/SampleApp.js",
     "types": "source/SampleApp.d.ts",
@@ -10,7 +10,7 @@
     },
     "dependencies": {
         "azure-kusto-data": "^4.0.3",
-        "azure-kusto-ingest": "^4.0.3",
+        "azure-kusto-ingest": "^4.0.4",
         "diff": "^5.1.0",
         "ts-node": "^10.9.1",
         "uuid": "^8.3.2"
