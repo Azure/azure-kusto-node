@@ -1,6 +1,6 @@
 {
     "name": "azure-kusto-ingest",
-    "version": "4.0.3",
+    "version": "4.0.5",
     "description": "Azure Data Explorer Ingestion SDK",
     "module": "dist-esm/src/index.js",
     "types": "./types/src/index.d.ts",
@@ -31,11 +31,9 @@
         "directory": "azure-kusto-ingest"
     },
     "files": [
-        "dist-esm/src/",
-        "types/src/index.d.ts",
-        "tsconfig.tsbuildinfo",
-        "example.js",
-        "exampleBrowser.ts"
+        "dist-esm/src/*.js",
+        "types/src/*.d.ts",
+        "tsconfig.tsbuildinfo"
     ],
     "author": "Microsoft Corporation",
     "license": "ISC",
@@ -63,7 +61,7 @@
         "@types/tmp": "^0.2.3",
         "@types/uuid": "^8.3.4",
         "@types/uuid-validate": "0.0.1",
-        "azure-kusto-data": "^4.0.3",
+        "azure-kusto-data": "^4.0.5",
         "browserify-zlib": "0.2.0",
         "moment": "^2.29.4",
         "stream-array": "^1.1.2",

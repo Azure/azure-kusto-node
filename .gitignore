@@ -337,3 +337,4 @@ __main.js
 !**/.eslintrc.js
 dist-esm/
 .npmrc
+types/

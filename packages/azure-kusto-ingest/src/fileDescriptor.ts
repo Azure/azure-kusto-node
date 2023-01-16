@@ -6,7 +6,11 @@ import pathlib from "path";
 import fs from "fs";
 import { file as tmpFile } from "tmp-promise";
 import { promisify } from "util";
-import { CompressionType, FileDescriptorBase, getSourceId } from "./descriptors";
+import { CompressionType, FileDescriptorBase, getSourceId, StreamDescriptor } from "./descriptors";
+import { Readable } from "stream";
+
+export type IngestFromStreamProps = StreamDescriptor | Readable;
+export type IngestFromFileProps = FileDescriptor | string;
 
 export class FileDescriptor implements FileDescriptorBase {
     size: number | null;

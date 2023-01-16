@@ -4,13 +4,12 @@
 import { IngestionPropertiesInput } from "./ingestionProperties";
 
 import { CompressionType, StreamDescriptor } from "./descriptors";
-import { FileDescriptor } from "./fileDescriptor";
+import { FileDescriptor, IngestFromFileProps, IngestFromStreamProps } from "./fileDescriptor";
 import zlib from "zlib";
 import { AbstractKustoClient } from "./abstractKustoClient";
 import { Client as KustoClient, KustoConnectionStringBuilder } from "azure-kusto-data";
 import { KustoResponseDataSet } from "azure-kusto-data/src/response";
 import { fileToStream, tryFileToBuffer } from "./streamUtils";
-import { Readable } from "stream";
 import { isNode } from "@azure/core-util";
 
 class KustoStreamingIngestClient extends AbstractKustoClient {
@@ -25,7 +24,7 @@ class KustoStreamingIngestClient extends AbstractKustoClient {
      * Use Readable for Node.js and ArrayBuffer for browser
      */
     async ingestFromStream(
-        stream: StreamDescriptor | Readable | ArrayBuffer,
+        stream: IngestFromStreamProps,
         ingestionProperties?: IngestionPropertiesInput,
         clientRequestId?: string
     ): Promise<any> {
@@ -53,7 +52,7 @@ class KustoStreamingIngestClient extends AbstractKustoClient {
     /**
      * Use string for Node.js and Blob for browser
      */
-    async ingestFromFile(file: FileDescriptor | string | Blob, ingestionProperties?: IngestionPropertiesInput): Promise<KustoResponseDataSet> {
+    async ingestFromFile(file: IngestFromFileProps, ingestionProperties?: IngestionPropertiesInput): Promise<KustoResponseDataSet> {
         this.ensureOpen();
 
         const descriptor: FileDescriptor = file instanceof FileDescriptor ? file : new FileDescriptor(file);
