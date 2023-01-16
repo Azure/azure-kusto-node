@@ -36,10 +36,7 @@ export class KustoIngestClient extends KustoIngestClientBase {
         }
     }
 
-    async ingestFromStream(
-        stream: IngestFromStreamProps,
-        ingestionProperties?: IngestionPropertiesInput
-    ): Promise<QueueSendMessageResponse> {
+    async ingestFromStream(stream: IngestFromStreamProps, ingestionProperties?: IngestionPropertiesInput): Promise<QueueSendMessageResponse> {
         this.ensureOpen();
         const props = this._getMergedProps(ingestionProperties);
         const descriptor: StreamDescriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
