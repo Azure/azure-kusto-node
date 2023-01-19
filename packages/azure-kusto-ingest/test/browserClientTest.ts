@@ -22,7 +22,7 @@ describe(`Browser Unit tests`, () => {
             try {
                 ConnectionStringBuilder.withAadApplicationKeyAuthentication(cluster, "", "");
             } catch (ex) {
-                assert(ex instanceof Error && ex.message.startsWith("Not supported for browser"));
+                assert(ex instanceof Error && ex.message.startsWith("Not supported in browser"));
                 return;
             }
 

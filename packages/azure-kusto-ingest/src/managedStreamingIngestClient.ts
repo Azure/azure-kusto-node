@@ -4,7 +4,7 @@
 import { IngestionPropertiesInput } from "./ingestionProperties";
 
 import { StreamDescriptor } from "./descriptors";
-import { FileDescriptor, IngestFromFileProps, IngestFromStreamProps } from "./fileDescriptor";
+import { FileDescriptor } from "./fileDescriptor";
 import { AbstractKustoClient } from "./abstractKustoClient";
 import { KustoConnectionStringBuilder } from "azure-kusto-data";
 import { KustoResponseDataSet } from "azure-kusto-data/src/response";
@@ -85,14 +85,14 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
     }
 
     /**
-     * Use Readable for Node.js and ArrayBuffer for browser
+     * Use Readable for Node.js and ArrayBuffer in browser
      */
-    async ingestFromStream(stream: IngestFromStreamProps, ingestionProperties?: IngestionPropertiesInput): Promise<any> {
+    async ingestFromStream(stream: StreamDescriptor | Readable | ArrayBuffer, ingestionProperties?: IngestionPropertiesInput): Promise<any> {
         this.ensureOpen();
         const props = this._getMergedProps(ingestionProperties);
         const descriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
 
-        // TODO: This might be too much for browsers
+        // TODO: This might be too much in browsers
         let result = descriptor.stream instanceof Readable ? await tryStreamToArray(descriptor.stream, maxStreamSize) : descriptor.stream;
 
         if (result instanceof Buffer) {
@@ -118,9 +118,9 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
     }
 
     /**
-     * Use string for Node.js and Blob for browser
+     * Use string for Node.js and Blob in browser
      */
-    async ingestFromFile(file: IngestFromFileProps, ingestionProperties?: IngestionPropertiesInput): Promise<KustoResponseDataSet | QueueSendMessageResponse> {
+    async ingestFromFile(file: FileDescriptor | string | Blob, ingestionProperties?: IngestionPropertiesInput): Promise<KustoResponseDataSet | QueueSendMessageResponse> {
         this.ensureOpen();
 
         const stream = file instanceof FileDescriptor ? await tryFileToBuffer(file) : await tryFileToBuffer(new FileDescriptor(file));

@@ -4,7 +4,7 @@
 import { KustoConnectionStringBuilder } from "azure-kusto-data";
 
 import { BlobDescriptor, StreamDescriptor } from "./descriptors";
-import { FileDescriptor, IngestFromFileProps, IngestFromStreamProps } from "./fileDescriptor.browser";
+import { FileDescriptor } from "./fileDescriptor.browser";
 import { QueueSendMessageResponse } from "@azure/storage-queue";
 
 import { IngestionPropertiesInput } from "./ingestionProperties";
@@ -16,9 +16,9 @@ export class KustoIngestClient extends KustoIngestClientBase {
     }
 
     /**
-     * Use string for Node.js and Blob for browser
+     * Use string for Node.js and Blob in browser
      */
-    async ingestFromFile(file: IngestFromFileProps, ingestionProperties?: IngestionPropertiesInput): Promise<QueueSendMessageResponse> {
+    async ingestFromFile(file: Blob | FileDescriptor, ingestionProperties?: IngestionPropertiesInput): Promise<QueueSendMessageResponse> {
         this.ensureOpen();
         const descriptor = file instanceof FileDescriptor ? file : new FileDescriptor(file);
 
@@ -35,9 +35,9 @@ export class KustoIngestClient extends KustoIngestClientBase {
     }
 
     /**
-     * Use Readable for Node.js and ArrayBuffer for browser
+     * Use Readable for Node.js and ArrayBuffer in browser
      */
-    async ingestFromStream(stream: IngestFromStreamProps, ingestionProperties?: IngestionPropertiesInput): Promise<QueueSendMessageResponse> {
+    async ingestFromStream(stream: ArrayBuffer | StreamDescriptor, ingestionProperties?: IngestionPropertiesInput): Promise<QueueSendMessageResponse> {
         this.ensureOpen();
         const props = this._getMergedProps(ingestionProperties);
         const descriptor: StreamDescriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);

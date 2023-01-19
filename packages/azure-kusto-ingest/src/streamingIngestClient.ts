@@ -4,13 +4,14 @@
 import { IngestionPropertiesInput } from "./ingestionProperties";
 
 import { CompressionType, StreamDescriptor } from "./descriptors";
-import { FileDescriptor, IngestFromFileProps, IngestFromStreamProps } from "./fileDescriptor";
+import { FileDescriptor } from "./fileDescriptor";
 import zlib from "zlib";
 import { AbstractKustoClient } from "./abstractKustoClient";
 import { Client as KustoClient, KustoConnectionStringBuilder } from "azure-kusto-data";
 import { KustoResponseDataSet } from "azure-kusto-data/src/response";
 import { fileToStream, tryFileToBuffer } from "./streamUtils";
 import { isNode } from "@azure/core-util";
+import { Readable } from "stream";
 
 class KustoStreamingIngestClient extends AbstractKustoClient {
     private kustoClient: KustoClient;
@@ -21,9 +22,9 @@ class KustoStreamingIngestClient extends AbstractKustoClient {
     }
 
     /**
-     * Use Readable for Node.js and ArrayBuffer for browser
+     * Use Readable for Node.js and ArrayBuffer in browser
      */
-    async ingestFromStream(stream: IngestFromStreamProps, ingestionProperties?: IngestionPropertiesInput, clientRequestId?: string): Promise<any> {
+    async ingestFromStream(stream: StreamDescriptor | Readable | ArrayBuffer, ingestionProperties?: IngestionPropertiesInput, clientRequestId?: string): Promise<any> {
         this.ensureOpen();
 
         const props = this._getMergedProps(ingestionProperties);
@@ -46,9 +47,9 @@ class KustoStreamingIngestClient extends AbstractKustoClient {
     }
 
     /**
-     * Use string for Node.js and Blob for browser
+     * Use string for Node.js and Blob in browser
      */
-    async ingestFromFile(file: IngestFromFileProps, ingestionProperties?: IngestionPropertiesInput): Promise<KustoResponseDataSet> {
+    async ingestFromFile(file: FileDescriptor | string | Blob, ingestionProperties?: IngestionPropertiesInput): Promise<KustoResponseDataSet> {
         this.ensureOpen();
 
         const descriptor: FileDescriptor = file instanceof FileDescriptor ? file : new FileDescriptor(file);

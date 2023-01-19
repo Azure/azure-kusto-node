@@ -6,12 +6,11 @@ import pathlib from "path";
 import fs from "fs";
 import { file as tmpFile } from "tmp-promise";
 import { promisify } from "util";
-import { CompressionType, FileDescriptorBase, getSourceId, StreamDescriptor } from "./descriptors";
-import { Readable } from "stream";
+import { CompressionType, FileDescriptorBase, getSourceId } from "./descriptors";
 
-export type IngestFromStreamProps = StreamDescriptor | Readable;
-export type IngestFromFileProps = FileDescriptor | string;
-
+/**
+ * Describes a file to be ingested. Use string to describe a local path in Node.JS and Blob object in browsers
+ */
 export class FileDescriptor implements FileDescriptorBase {
     size: number | null;
     zipped: boolean;
@@ -21,7 +20,7 @@ export class FileDescriptor implements FileDescriptorBase {
 
     constructor(
         /**
-         * Use a string in Node.JS and Blob for browser
+         * Use string in Node.JS and Blob in browser
          */
         readonly file: string | Blob,
         sourceId: string | null = null,

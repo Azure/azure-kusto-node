@@ -4,6 +4,10 @@
 import { DeviceCodeInfo, InteractiveBrowserCredentialInBrowserOptions, InteractiveBrowserCredentialNodeOptions } from "@azure/identity";
 import { KustoConnectionStringBuilderBase } from "./connectionBuilderBase";
 
+/*
+ * A builder for Kusto connection strings
+ * For browsers use withUserPrompt or provide the token yourself using withTokenProvider
+ */
 export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBase {
     static readonly DefaultDatabaseName = "NetDefaultDB";
     static readonly SecretReplacement = "****";
@@ -125,6 +129,11 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
         return kcsb;
     }
 
+    /**
+     * Use InteractiveBrowserCredentialNodeOptions in Node.JS and InteractiveBrowserCredentialInBrowserOptions in browser
+     * For browser cors issue: you need to visit your app registration and update the redirect URI you're using to the type spa (for "single page application").
+     * See: https://github.com/Azure/azure-sdk-for-js/tree/main/sdk/identity/identity/test/manual/interactive-browser-credential
+     */
     static withUserPrompt(
         connectionString: string,
         options?: InteractiveBrowserCredentialNodeOptions | InteractiveBrowserCredentialInBrowserOptions,

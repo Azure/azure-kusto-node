@@ -7,7 +7,7 @@ import fs from "fs";
 import { PassThrough, Readable } from "stream";
 import streamify from "stream-array";
 
-// Returns fs.ReadStream for node and NodeJS.ReadableStream for browser
+// Returns fs.ReadStream for node and NodeJS.ReadableStream in browser
 export const fileToStream = (fileDescriptor: FileDescriptor): Promise<StreamDescriptor> => {
     const streamFs = fs.createReadStream(fileDescriptor.file as string);
     const compressionType = fileDescriptor.zipped ? CompressionType.GZIP : CompressionType.None;

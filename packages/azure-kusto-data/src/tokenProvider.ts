@@ -320,8 +320,6 @@ export class ApplicationCertificateTokenProvider extends AzureIdentityProvider {
 
 /**
  * Acquire a token from MSAL with application id and Key
- * For browser cors: you need to visit your app registration and update the redirect URI you're using to the type spa (for "single page application").
- * TODO: currently failing
  */
 export class ApplicationKeyTokenProvider extends AzureIdentityProvider {
     constructor(kustoUri: string, private appClientId: string, private appKey: string, authorityId: string) {

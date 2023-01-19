@@ -2,10 +2,7 @@
 // Licensed under the MIT License.
 
 import pako from "pako";
-import { CompressionType, FileDescriptorBase, getSourceId, StreamDescriptor } from "./descriptors";
-
-export type IngestFromStreamProps = StreamDescriptor | ArrayBuffer;
-export type IngestFromFileProps = FileDescriptor | Blob;
+import { CompressionType, FileDescriptorBase, getSourceId } from "./descriptors";
 
 export class FileDescriptor implements FileDescriptorBase {
     size: number | null;

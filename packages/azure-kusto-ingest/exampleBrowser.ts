@@ -11,9 +11,9 @@
 // Notice that ingestFromBlob refers to azure blob as opposed to ingest from file which accepts a JS Blob object.
 // If you are using an existing table the table will be added two new columns: Name:string, Value: int
 
-import { KustoConnectionStringBuilder, Client as KustoClient } from "azure-kusto-data";
+import { KustoConnectionStringBuilder, Client as KustoClient } from "azure-kusto-data/";
 import { DataFormat, IngestClient, IngestionDescriptors, IngestionProperties } from "azure-kusto-ingest";
-
+import { InteractiveBrowserCredentialInBrowserOptions } from "@azure/identity";
 const database = "<databaseName>";
 const table = "<tableName>";
 const clusterName = "<clusterName>.<region>";
@@ -27,7 +27,7 @@ export const main = async (): Promise<void> => {
         tenantId: authorityId ?? "72f988bf-86f1-41af-91ab-2d7cd011db47",
         clientId: appId,
         redirectUri: redirectUri ?? "http://localhost:3000",
-    };
+    } as InteractiveBrowserCredentialInBrowserOptions;
     const kcsb = KustoConnectionStringBuilder.withUserPrompt(`https://${clusterName}.dev.kusto.windows.net`, interactiveBrowserAuthOptions);
     const queryClient = new KustoClient(kcsb);
     const kcsbIng = KustoConnectionStringBuilder.withUserPrompt(`https://ingest-${clusterName}.dev.kusto.windows.net`, interactiveBrowserAuthOptions);

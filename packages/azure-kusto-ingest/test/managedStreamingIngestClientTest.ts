@@ -16,9 +16,8 @@ import { CloudSettings } from "azure-kusto-data/src/cloudSettings";
 import assert from "assert";
 import uuidValidate from "uuid-validate";
 import { KustoConnectionStringBuilder } from "azure-kusto-data";
-import { IngestFromStreamProps } from "../src/fileDescriptor";
 
-type IngestFromStreamStub = sinon.SinonStub<[IngestFromStreamProps, IngestionPropertiesInput?, string?], Promise<QueueSendMessageResponse>>;
+type IngestFromStreamStub = sinon.SinonStub<[StreamDescriptor | Readable | ArrayBuffer, IngestionPropertiesInput?, string?], Promise<QueueSendMessageResponse>>;
 
 describe("ManagedStreamingIngestClient", () => {
     const getMockedClient = () => {
