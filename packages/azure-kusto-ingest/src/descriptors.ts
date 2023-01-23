@@ -4,6 +4,7 @@
 import { v4 as uuidv4 } from "uuid";
 import uuidValidate from "uuid-validate";
 import { Readable } from "stream";
+import IngestionProperties from "./ingestionProperties";
 
 export enum CompressionType {
     ZIP = ".zip",
@@ -41,6 +42,12 @@ export class StreamDescriptor {
         this.sourceId = other.sourceId;
         return this;
     }
+
+    generateBlobSuffix(props: IngestionProperties): string {
+        const format = props.format ?? "";
+        const formatSuffix = format ? `.${format}` : "";
+        return `${formatSuffix}${this.compressionType}`;
+    }
 }
 
 export class BlobDescriptor {
@@ -61,4 +68,13 @@ export interface FileDescriptorBase {
     extension?: string;
     name?: string;
     sourceId: string | null;
+}
+
+export const generateBlobName = (desc: StreamDescriptor | FileDescriptorBase, props: IngestionProperties) :string => {
+    const extension = desc instanceof StreamDescriptor
+        ? null
+        : `${desc.name}${desc.extension ? "." + desc.extension : ""}`;
+
+    const formatSuffix = props.format ? `.${props.format}` : ".csv";
+    return `${props.database}__${props.table}__${desc.sourceId}__${extension || formatSuffix}.${desc.compressionType}`
 }

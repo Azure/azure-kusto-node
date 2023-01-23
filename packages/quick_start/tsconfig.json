@@ -11,7 +11,6 @@
         "declaration": true,
         "noUnusedParameters": true,
         "moduleResolution": "node",
-        "noUnusedLocals": true,
         "lib":["es2016"]
     },
     "include": ["**/src/**/*.ts", "**/test/**/*.ts", "**/index.ts"],

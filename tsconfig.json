@@ -11,10 +11,8 @@
         "declaration": true,
         "declarationMap": true,
         "noUnusedParameters": true,
-        "noUnusedLocals": true,
         "moduleResolution": "node",
-        "inlineSources": true,
-        "importHelpers": true
+        "inlineSources": true
     },
     "include": ["**/src/**/*.ts", "**/test/**/*.ts", "**/index.ts"],
     "exclude": ["node_modules"]

@@ -3,7 +3,7 @@
 
 import { KustoConnectionStringBuilder } from "azure-kusto-data";
 
-import { BlobDescriptor, StreamDescriptor } from "./descriptors";
+import { BlobDescriptor, generateBlobName, StreamDescriptor } from "./descriptors";
 import { FileDescriptor } from "./fileDescriptor.browser";
 import { QueueSendMessageResponse } from "@azure/storage-queue";
 
@@ -22,12 +22,9 @@ export class KustoIngestClient extends KustoIngestClientBase {
         this.ensureOpen();
         const descriptor = file instanceof FileDescriptor ? file : new FileDescriptor(file);
 
-        const extension = descriptor.extension || ingestionProperties?.format || "csv";
         const blob = descriptor.file as Blob;
         const props = this._getMergedProps(ingestionProperties);
-        const name = descriptor.name ? `__${descriptor.name}` : "";
-        const blobName = `${props.database}__${props.table}__${descriptor.sourceId}${name}.${extension}`;
-        const blockBlobClient = await this.resourceManager.getBlockBlobClient(blobName);
+        const blockBlobClient = await this.resourceManager.getBlockBlobClient(generateBlobName(descriptor, props));
 
         const fileToUpload = await descriptor.prepare();
         await blockBlobClient.uploadData(fileToUpload);
@@ -41,8 +38,7 @@ export class KustoIngestClient extends KustoIngestClientBase {
         this.ensureOpen();
         const props = this._getMergedProps(ingestionProperties);
         const descriptor: StreamDescriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
-        const blobName =
-            `${props.database}__${props.table}__${descriptor.sourceId}` + `${this._getBlobNameSuffix(props.format ?? "", descriptor.compressionType)}`;
+        const blobName = generateBlobName(descriptor, props);
 
         const blockBlobClient = await this.resourceManager.getBlockBlobClient(blobName);
         await blockBlobClient.uploadData(descriptor.stream as ArrayBuffer);

@@ -110,7 +110,6 @@ const main = (): void => {
 
         before("SetUp", async () => {
             try {
-                await queryClient.execute("fast", ".show version");
                 await queryClient.execute(databaseName, `.create table ${tableName} ${tableColumns}`);
                 await queryClient.execute(databaseName, `.alter table ${tableName} policy streamingingestion enable`);
                 await queryClient.execute(databaseName, ".clear database cache streamingingestion schema");

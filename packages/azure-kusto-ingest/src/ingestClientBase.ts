@@ -3,7 +3,7 @@
 
 import { Client as KustoClient, KustoConnectionStringBuilder } from "azure-kusto-data";
 
-import { BlobDescriptor, CompressionType } from "./descriptors";
+import { BlobDescriptor } from "./descriptors";
 
 import ResourceManager from "./resourceManager";
 
@@ -22,11 +22,6 @@ export abstract class KustoIngestClientBase extends AbstractKustoClient {
         const kustoClient = new KustoClient(kcsb);
         this.resourceManager = new ResourceManager(kustoClient, isBrowser);
         this.defaultDatabase = kustoClient.defaultDatabase;
-    }
-
-    _getBlobNameSuffix(format: string | null, compressionType: CompressionType) {
-        const formatSuffix = format ? `.${format}` : "";
-        return `${formatSuffix}${compressionType}`;
     }
 
     async ingestFromBlob(blob: string | BlobDescriptor, ingestionProperties?: IngestionPropertiesInput): Promise<QueueSendMessageResponse> {

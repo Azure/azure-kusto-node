@@ -92,7 +92,6 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
         const props = this._getMergedProps(ingestionProperties);
         const descriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
 
-        // TODO: This might be too much in browsers
         let result = descriptor.stream instanceof Readable ? await tryStreamToArray(descriptor.stream, maxStreamSize) : descriptor.stream;
 
         if (result instanceof Buffer) {
