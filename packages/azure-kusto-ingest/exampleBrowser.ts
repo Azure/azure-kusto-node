@@ -38,7 +38,10 @@ export const main = async (): Promise<void> => {
         await queryClient.execute(database, `.create-merge table ${table}(Name:string, Value:int)`);
         // Change table aggregation policy for development case - read here for the implications
         // https://learn.microsoft.com/azure/data-explorer/kusto/management/batchingpolicy
-        await queryClient.execute(database, `.alter table ${table} policy ingestionbatching @'{"MaximumBatchingTimeSpan":"00:00:10", "MaximumNumberOfItems": 500, "MaximumRawDataSizeMB": 1024}'`);
+        await queryClient.execute(
+            database,
+            `.alter table ${table} policy ingestionbatching @'{"MaximumBatchingTimeSpan":"00:00:10", "MaximumNumberOfItems": 500, "MaximumRawDataSizeMB": 1024}'`
+        );
         // Push aggregation policy change to ingest service to take immidiate effect
         await dmCommandClient.execute(database, `.refresh database '${database}' table '${table}' cache ingestionbatchingpolicy`);
     } catch (e) {
@@ -68,7 +71,10 @@ export const main = async (): Promise<void> => {
 
     try {
         // Query the two ingested rows
-        await queryClient.execute(database, `${table} | take 2`);
+        const responseDataSet = await queryClient.execute(database, `${table} | take 2`);
+        for (const row of responseDataSet.primaryResults[0].rows()) {
+            console.log(row.toJSON());
+        }
     } catch (e) {
         console.log(`Failed querying the table: ${e}`);
     }
