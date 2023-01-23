@@ -67,6 +67,13 @@ export const main = async (): Promise<void> => {
     }
 
     try {
+        // Query the two ingested rows
+        await queryClient.execute(database, `${table} | take 2`);
+    } catch (e) {
+        console.log(`Failed querying the table: ${e}`);
+    }
+
+    try {
         // File has to be a Blob object
         const blob = "https://<account>.blob.core.windows.net/<container>/file.json.gz";
         const props = new IngestionProperties({ database, table, format: DataFormat.JSON });
@@ -75,4 +82,6 @@ export const main = async (): Promise<void> => {
     } catch (e) {
         console.log(`Failed ingesting from azure blob: ${e}`);
     }
+
+   
 };
