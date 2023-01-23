@@ -43,6 +43,7 @@ export class StreamDescriptor {
         return this;
     }
 
+    // Currently streams are not compressed by us
     getCompressionSuffix() {
         return this.compressionType ? `.${this.compressionType}` : "";
     }
@@ -69,7 +70,6 @@ export interface FileDescriptorBase {
     getCompressionSuffix: () => string;
 }
 
-// Currently streaming does not compress
 export const generateBlobName = (desc: StreamDescriptor | FileDescriptorBase, props: IngestionProperties): string => {
     const extension = desc instanceof StreamDescriptor ? null : `${desc.name ? "__" + desc.name : ""}${desc.extension ? "." + desc.extension : ""}`;
 
