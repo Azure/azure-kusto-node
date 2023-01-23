@@ -28,9 +28,9 @@ export const main = async (): Promise<void> => {
         clientId: appId,
         redirectUri: redirectUri ?? "http://localhost:3000",
     } as InteractiveBrowserCredentialInBrowserOptions;
-    const kcsb = KustoConnectionStringBuilder.withUserPrompt(`https://${clusterName}.dev.kusto.windows.net`, interactiveBrowserAuthOptions);
+    const kcsb = KustoConnectionStringBuilder.withUserPrompt(`https://${clusterName}.kusto.windows.net`, interactiveBrowserAuthOptions);
     const queryClient = new KustoClient(kcsb);
-    const kcsbIng = KustoConnectionStringBuilder.withUserPrompt(`https://ingest-${clusterName}.dev.kusto.windows.net`, interactiveBrowserAuthOptions);
+    const kcsbIng = KustoConnectionStringBuilder.withUserPrompt(`https://ingest-${clusterName}.kusto.windows.net`, interactiveBrowserAuthOptions);
 
     const ingestClient = new IngestClient(kcsbIng);
 
