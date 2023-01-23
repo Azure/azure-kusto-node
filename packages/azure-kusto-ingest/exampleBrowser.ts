@@ -14,11 +14,10 @@
 import { KustoConnectionStringBuilder, Client as KustoClient } from "azure-kusto-data/";
 import { DataFormat, IngestClient, IngestionDescriptors, IngestionProperties } from "azure-kusto-ingest";
 import { InteractiveBrowserCredentialInBrowserOptions } from "@azure/identity";
-
-const database = "db2";
-const table = "TestTable";
-const clusterName = "ruthruth.eastus";
-const appId = "c8dbda70-81cc-49e0-aa47-6133d7154fe3"; // Read above regarding which app to use
+const database = "<databaseName>";
+const table = "<tableName>";
+const clusterName = "<clusterName>.<region>";
+const appId = "<aadAppId>"; // Read above regarding which app to use
 
 const authorityId = undefined;
 const redirectUri = undefined;
@@ -83,6 +82,4 @@ export const main = async (): Promise<void> => {
     } catch (e) {
         console.log(`Failed ingesting from azure blob: ${e}`);
     }
-
-   
 };

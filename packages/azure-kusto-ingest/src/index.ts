@@ -34,7 +34,6 @@ import {
     SStreamColumnMapping,
     W3CLogFileMapping,
 } from "./columnMappings";
-import { main } from "../exampleBrowser";
 
 export { Transformation as ColumnMappingTransformation } from "./columnMappings";
 
@@ -102,4 +101,3 @@ export const IngestionPropertiesEnums = {
 
 export { IngestionPropertiesValidationError } from "./errors";
 // eslint-disable-next-line no-console
-main().catch((s) => console.log(s));
