@@ -119,7 +119,10 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
     /**
      * Use string for Node.js and Blob in browser
      */
-    async ingestFromFile(file: FileDescriptor | string | Blob, ingestionProperties?: IngestionPropertiesInput): Promise<KustoResponseDataSet | QueueSendMessageResponse> {
+    async ingestFromFile(
+        file: FileDescriptor | string | Blob,
+        ingestionProperties?: IngestionPropertiesInput
+    ): Promise<KustoResponseDataSet | QueueSendMessageResponse> {
         this.ensureOpen();
 
         const stream = file instanceof FileDescriptor ? await tryFileToBuffer(file) : await tryFileToBuffer(new FileDescriptor(file));

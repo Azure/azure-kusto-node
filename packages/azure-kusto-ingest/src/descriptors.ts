@@ -43,10 +43,8 @@ export class StreamDescriptor {
         return this;
     }
 
-    generateBlobSuffix(props: IngestionProperties): string {
-        const format = props.format ?? "";
-        const formatSuffix = format ? `.${format}` : "";
-        return `${formatSuffix}${this.compressionType}`;
+    getCompressionSuffix() {
+        return this.compressionType ? `.${this.compressionType}` : "";
     }
 }
 
@@ -68,13 +66,14 @@ export interface FileDescriptorBase {
     extension?: string;
     name?: string;
     sourceId: string | null;
+    getCompressionSuffix: () => string;
 }
 
-export const generateBlobName = (desc: StreamDescriptor | FileDescriptorBase, props: IngestionProperties) :string => {
-    const extension = desc instanceof StreamDescriptor
-        ? null
-        : `${desc.name}${desc.extension ? "." + desc.extension : ""}`;
+// Currently streaming does not compress
+export const generateBlobName = (desc: StreamDescriptor | FileDescriptorBase, props: IngestionProperties): string => {
+    const extension = desc instanceof StreamDescriptor ? null : `${desc.name ? "__" + desc.name : ""}${desc.extension ? "." + desc.extension : ""}`;
 
     const formatSuffix = props.format ? `.${props.format}` : ".csv";
-    return `${props.database}__${props.table}__${desc.sourceId}__${extension || formatSuffix}.${desc.compressionType}`
-}
+    const compressionString = desc.getCompressionSuffix();
+    return `${props.database}__${props.table}__${desc.sourceId}${extension || formatSuffix}${compressionString}`;
+};

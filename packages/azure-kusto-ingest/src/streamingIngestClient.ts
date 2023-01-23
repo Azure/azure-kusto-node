@@ -24,7 +24,11 @@ class KustoStreamingIngestClient extends AbstractKustoClient {
     /**
      * Use Readable for Node.js and ArrayBuffer in browser
      */
-    async ingestFromStream(stream: StreamDescriptor | Readable | ArrayBuffer, ingestionProperties?: IngestionPropertiesInput, clientRequestId?: string): Promise<any> {
+    async ingestFromStream(
+        stream: StreamDescriptor | Readable | ArrayBuffer,
+        ingestionProperties?: IngestionPropertiesInput,
+        clientRequestId?: string
+    ): Promise<any> {
         this.ensureOpen();
 
         const props = this._getMergedProps(ingestionProperties);

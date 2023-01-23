@@ -31,11 +31,16 @@ export const main = async (): Promise<void> => {
     const kcsb = KustoConnectionStringBuilder.withUserPrompt(`https://${clusterName}.kusto.windows.net`, interactiveBrowserAuthOptions);
     const queryClient = new KustoClient(kcsb);
     const kcsbIng = KustoConnectionStringBuilder.withUserPrompt(`https://ingest-${clusterName}.kusto.windows.net`, interactiveBrowserAuthOptions);
-
+    const dmCommandClient = new KustoClient(kcsbIng);
     const ingestClient = new IngestClient(kcsbIng);
 
     try {
         await queryClient.execute(database, `.create-merge table ${table}(Name:string, Value:int)`);
+        // Change table aggregation policy for development case - read here for the implications
+        // https://learn.microsoft.com/azure/data-explorer/kusto/management/batchingpolicy
+        await queryClient.execute(database, `.alter table ${table} policy ingestionbatching @'{"MaximumBatchingTimeSpan":"00:00:10", "MaximumNumberOfItems": 500, "MaximumRawDataSizeMB": 1024}'`);
+        // Push aggregation policy change to ingest service to take immidiate effect
+        await dmCommandClient.execute(database, `.refresh database '${database}' table '${table}' cache ingestionbatchingpolicy`);
     } catch (e) {
         console.log(`Failed creating table: ${e}`);
         throw e;

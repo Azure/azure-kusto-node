@@ -47,4 +47,8 @@ export class FileDescriptor implements FileDescriptorBase {
             await this.cleanupTmp();
         }
     }
+
+    getCompressionSuffix() {
+        return this.compressionType ? `.${this.compressionType}` : ".gz";
+    }
 }
