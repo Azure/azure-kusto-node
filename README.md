@@ -47,24 +47,39 @@ We gladly accept community contributions.
 
 - Issues: Please report bugs using the Issues section of GitHub
 - Forums: Interact with the development teams on StackOverflow or the Microsoft Azure Forums
-- Source Code Contributions: If you would like to become an active contributor to this project please follow the instructions provided in [Contributing.md](CONTRIBUTING.md).
+- Source Code Contributions: If you would like to become an active contributor to this project please follow the
+  instructions provided in [Contributing.md](CONTRIBUTING.md).
 
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
+For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
+contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
-For general suggestions about Microsoft Azure please use our [UserVoice forum](http://feedback.azure.com/forums/34192--general-feedback).
-
+For general suggestions about Microsoft Azure please use
+our [UserVoice forum](http://feedback.azure.com/forums/34192--general-feedback).
 
 # Bundling Azure SDK libraries for a browser
-To use Azure SDK libraries on a website, you need to convert your code to work inside the browser. You do this using a tool called a bundler. This process takes JavaScript code written using Node.js conventions and converts it into a format that is understood by browsers. Read [here](https://github.com/Azure/azure-sdk-for-js/blob/main/documentation/Bundling.md) for more info and examples.
+
+To use Azure SDK libraries on a website, you need to convert your code to work inside the browser. You do this using a
+tool called a bundler. This process takes JavaScript code written using Node.js conventions and converts it into a
+format that is understood by browsers.
+Read [here](https://github.com/Azure/azure-sdk-for-js/blob/main/documentation/Bundling.md) for more info and examples.
 
 ### Browser sample
 
-The code is browser-compatible, with the main differences being that ingestFromFile accepts a Blob object and ingestFromStream accepts an ArrayBuffer. Authentication method allowed is only user prompt or token provider. Fallback files are called '*.browser.ts'.
+The code is browser-compatible, with the main differences being that ingestFromFile accepts a Blob object and
+ingestFromStream accepts an ArrayBuffer.   
+The only authentication methods available are user prompt and token provider.
 
-To run a quick sample for azure-kusto-ingest we provided a webpack config which uses the file index.html which runs index.js as a script.
+Fallback version of files used in the browser, are called '*.browser.ts'.
+
+To run a quick sample for azure-kusto-ingest we provided a webpack config which uses the file index.html which runs
+index.js as a script.
 First add to index.ts:
 
+```js
 import {main} from "../exampleBrowser"
-main().catch(e=>console.log(e)) 
 
-Then run: npm run webpack
+main().catch((e) => console.log(e));
+```
+
+Then run: `npm run webpack`
