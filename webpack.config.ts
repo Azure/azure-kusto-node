@@ -24,7 +24,7 @@ let config = {
     devServer: {
         // We use static files so we can use the dist-esm js files with files mapping.
         // Maybe we can do better so we can use ts-loader module and load typescript files
-        static: ["./packages/azure-kusto-ingest/dist-esm"], 
+        static: ["./packages/azure-kusto-ingest/dist-esm"],
         port: 3000, // This port should be open in the SPA aad app
     },
     plugins: [
