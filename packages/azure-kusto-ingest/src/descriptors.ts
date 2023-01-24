@@ -71,7 +71,7 @@ export interface FileDescriptorBase {
 }
 
 export const generateBlobName = (desc: StreamDescriptor | FileDescriptorBase, props: IngestionProperties): string => {
-    const extension = desc instanceof StreamDescriptor ? null : `${desc.name ? "__" + desc.name : ""}${desc.extension ? "." + desc.extension : ""}`;
+    const extension = desc instanceof StreamDescriptor ? null : `${desc.name ? "__" + desc.name : `${desc.extension ? "." + desc.extension : ""}`}`;
 
     const formatSuffix = props.format ? `.${props.format}` : ".csv";
     const compressionString = desc.getCompressionSuffix();
