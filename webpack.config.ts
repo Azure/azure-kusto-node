@@ -15,15 +15,6 @@ let config = {
         filename: "[name].js", // The index.html script file
         path: path.resolve(__dirname, "dist"),
     },
-    module: {
-        rules: [
-            {
-                test: /\.ts$/,
-                exclude: /node_modules/,
-                use: "ts-loader",
-            },
-        ],
-    },
     resolve: {
         aliasFields: ["browser"],
         fallback: { stream: require.resolve("stream-browserify") }, // Over fallbacks are in the package.json file
@@ -31,7 +22,9 @@ let config = {
     },
     devtool: "inline-source-map",
     devServer: {
-        static: ["./packages/azure-kusto-ingest/dist-esm"], // We use static files so we can use the dist-esm files - maybe we can do better
+        // We use static files so we can use the dist-esm js files with files mapping.
+        // Maybe we can do better so we can use ts-loader module and load typescript files
+        static: ["./packages/azure-kusto-ingest/dist-esm"], 
         port: 3000, // This port should be open in the SPA aad app
     },
     plugins: [
