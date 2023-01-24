@@ -128,11 +128,6 @@ const main = (): void => {
         });
 
         describe("cloud info", () => {
-            // it("Cached cloud info", () => {
-            //     const cloudInfo = CloudSettings.getInstance().cloudCache["https://devdevon.westeurope.dev.kusto.windows.net"]; // it should be already in the cache at this point
-            //     assert.strictEqual(cloudInfo.KustoClientAppId, CloudSettings.getInstance().defaultCloudInfo.KustoClientAppId);
-            // });
-
             it("cloud info 404", async () => {
                 const cloudInfo = await CloudSettings.getInstance().getCloudInfoForCluster("https://www.microsoft.com");
                 assert.strictEqual(cloudInfo, CloudSettings.getInstance().defaultCloudInfo);

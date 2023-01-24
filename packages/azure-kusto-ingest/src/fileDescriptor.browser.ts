@@ -24,11 +24,6 @@ export class FileDescriptor implements FileDescriptorBase {
         this.zipped = compressionType !== CompressionType.None || this.extension === ".gz" || this.extension === ".zip";
     }
 
-    // Not used
-    async _gzip(): Promise<string> {
-        return await this.file.text();
-    }
-
     async prepare(): Promise<Blob> {
         if (!this.zipped) {
             try {

@@ -59,8 +59,7 @@ To use Azure SDK libraries on a website, you need to convert your code to work i
 
 ### Browser sample
 
-The main differences between the browser implementation and Node.js in the run are that ingestFromFile accepts a Blob object and
-ingestFromStream accepts an ArrayBuffer. Fallback files are called '*.browser.ts'.
+The code is browser-compatible, with the main differences being that ingestFromFile accepts a Blob object and ingestFromStream accepts an ArrayBuffer. Authentication method allowed is only user prompt or token provider. Fallback files are called '*.browser.ts'.
 
 To run a quick sample for azure-kusto-ingest we provided a webpack config which uses the file index.html which runs index.js as a script.
 First add to index.ts:

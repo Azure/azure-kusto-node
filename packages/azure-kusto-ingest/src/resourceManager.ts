@@ -36,7 +36,7 @@ export class ResourceManager {
     private baseJitterSecs = 1;
 
     constructor(readonly kustoClient: Client, readonly isBrowser: boolean = false) {
-        this.refreshPeriod = moment.duration(30, "s");
+        this.refreshPeriod = moment.duration(1, "h");
 
         this.ingestClientResources = null;
         this.ingestClientResourcesNextUpdate = moment();
