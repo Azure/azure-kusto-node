@@ -141,6 +141,7 @@ export abstract class KustoConnectionStringBuilderBase {
 
     /**
      * Sets the connector details for tracing purposes.
+     *
      * @param name  The name of the connector
      * @param version  The version of the connector
      * @param sendUser Whether to send the username

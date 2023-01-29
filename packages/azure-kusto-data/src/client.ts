@@ -15,6 +15,7 @@ import https from "https";
 import { isNode } from "@azure/core-util";
 import { kustoTrustedEndpoints } from "./kustoTrustedEndpoints";
 import { CloudSettings } from "./cloudSettings";
+import { KustoHeaders } from "./clientDetails";
 
 const COMMAND_TIMEOUT_IN_MILLISECS = moment.duration(10.5, "minutes").asMilliseconds();
 const QUERY_TIMEOUT_IN_MILLISECS = moment.duration(4.5, "minutes").asMilliseconds();
@@ -126,7 +127,7 @@ export class KustoClient {
         this.ensureOpen();
         kustoTrustedEndpoints.validateTrustedEndpoint(endpoint, (await CloudSettings.getInstance().getCloudInfoForCluster(this.cluster)).LoginEndpoint);
         db = this.getDb(db);
-        let headers: { [header: string]: string } = {};
+        const headers: { [header: string]: string } = {};
 
         let payload: { db: string; csl: string; properties?: any };
         let clientRequestPrefix = "";
@@ -166,7 +167,7 @@ export class KustoClient {
             };
         }
 
-        for (const key of Object.keys(kustoHeaders) as Array<keyof typeof kustoHeaders>) {
+        for (const key of Object.keys(kustoHeaders) as Iterable<keyof KustoHeaders>) {
             if (kustoHeaders[key]) {
                 headers[key] = kustoHeaders[key] as string;
             }

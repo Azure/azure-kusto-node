@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 import { ClientDetails } from "../src/clientDetails";
 import assert from "assert";
 

@@ -1,14 +1,16 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { isNode } from "@azure/core-util";
 import { userInfo } from "os";
 import { SDK_VERSION } from "./version";
 
-declare global {
-    namespace NodeJS {
-        interface ProcessEnv {
-            npm_package_name?: string;
-            USERNAME?: string;
-            USERDOMAIN?: string;
-        }
+// eslint-disable-next-line @typescript-eslint/no-namespace,@typescript-eslint/no-unused-vars -- This is the correct way to augment the global namespace
+declare namespace NodeJS {
+    interface ProcessEnv {
+        npm_package_name?: string;
+        USERNAME?: string;
+        USERDOMAIN?: string;
     }
 }
 
@@ -39,7 +41,7 @@ export class ClientDetails {
 
     static defaultUser(): string {
         if (isNode) {
-            let info = userInfo();
+            const info = userInfo();
             return info.username || (process.env.USERDOMAIN ? `${process.env.USERDOMAIN}\\${process.env.USERNAME}` : process.env.USERNAME) || None;
         } else {
             return None;
@@ -73,7 +75,7 @@ export class ClientDetails {
         app_version: string | null = null,
         additional_fields: [string, string][] | null = null
     ): ClientDetails {
-        let params: [string, string][] = [["Kusto." + name, version]];
+        const params: [string, string][] = [["Kusto." + name, version]];
 
         app_name = app_name || this.defaultApplication();
         app_version = app_version || None;
