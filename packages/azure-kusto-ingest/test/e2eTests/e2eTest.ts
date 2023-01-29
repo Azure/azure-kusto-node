@@ -11,10 +11,9 @@ import { Client, ClientRequestProperties, KustoConnectionStringBuilder as Connec
 import StreamingIngestClient from "../../src/streamingIngestClient";
 import ManagedStreamingIngestClient from "../../src/managedStreamingIngestClient";
 import { CompressionType, StreamDescriptor } from "../../src/descriptors";
-import { DataFormat, IngestionProperties, ReportLevel } from "../../src/ingestionProperties";
+import { DataFormat, IngestionProperties, JsonColumnMapping, ReportLevel } from "azure-kusto-ingest";
 import { CloudSettings } from "azure-kusto-data/src/cloudSettings";
 import { sleep } from "../../src/retry";
-import { JsonColumnMapping } from "../../src/columnMappings";
 import util from "util";
 
 interface ParsedJsonMapping {
@@ -35,6 +34,8 @@ const main = (): void => {
     }
 
     const engineKcsb = ConnectionStringBuilder.withAadApplicationKeyAuthentication(process.env.ENGINE_CONNECTION_STRING ?? "", appId, appKey, tenantId);
+    engineKcsb.applicationNameForTracing = "NodeE2ETest";
+
     const queryClient = new Client(engineKcsb);
     const streamingIngestClient = new StreamingIngestClient(engineKcsb);
     const dmKcsb = ConnectionStringBuilder.withAadApplicationKeyAuthentication(process.env.DM_CONNECTION_STRING ?? "", appId, appKey, tenantId);

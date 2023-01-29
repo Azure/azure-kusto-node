@@ -126,11 +126,10 @@ export class KustoClient {
         this.ensureOpen();
         kustoTrustedEndpoints.validateTrustedEndpoint(endpoint, (await CloudSettings.getInstance().getCloudInfoForCluster(this.cluster)).LoginEndpoint);
         db = this.getDb(db);
-        const headers: { [header: string]: string } = {};
+        let headers: { [header: string]: string } = {};
 
         let payload: { db: string; csl: string; properties?: any };
         let clientRequestPrefix = "";
-        let clientRequestId;
 
         const timeout = this._getClientTimeout(executionType, properties);
         let payloadContent: any = "";
@@ -157,19 +156,21 @@ export class KustoClient {
             throw new Error("Invalid parameters - expected query or streaming ingest");
         }
 
+        let kustoHeaders = this.connectionString.clientDetails().getHeaders();
+        kustoHeaders["x-ms-client-request-id"] = `${clientRequestPrefix}${uuidv4()}`;
+
         if (properties != null) {
-            clientRequestId = properties.clientRequestId;
-
-            if (properties.application != null) {
-                headers["x-ms-app"] = properties.application;
-            }
-
-            if (properties.user != null) {
-                headers["x-ms-user"] = properties.user;
-            }
+            kustoHeaders = {
+                ...kustoHeaders,
+                ...properties.getHeaders(),
+            };
         }
 
-        headers["x-ms-client-request-id"] = clientRequestId || clientRequestPrefix + `${uuidv4()}`;
+        for (const key of Object.keys(kustoHeaders) as Array<keyof typeof kustoHeaders>) {
+            if (kustoHeaders[key]) {
+                headers[key] = kustoHeaders[key] as string;
+            }
+        }
 
         const authHeader = await this.aadHelper.getAuthHeader();
         if (authHeader != null) {

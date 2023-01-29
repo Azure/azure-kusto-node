@@ -338,3 +338,4 @@ __main.js
 dist-esm/
 .npmrc
 types/
+dist/
