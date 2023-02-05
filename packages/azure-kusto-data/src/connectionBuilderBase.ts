@@ -144,22 +144,22 @@ export abstract class KustoConnectionStringBuilderBase {
      *
      * @param name  The name of the connector
      * @param version  The version of the connector
+     * @param appName? The name of the containing application
+     * @param appVersion?? The version of the containing application
      * @param sendUser Whether to send the username
-     * @param overrideUser Override the username ( if sendUser is True )
-     * @param appName The name of the containing application
-     * @param appVersion The version of the containing application
-     * @param additionalFields Additional fields to add to the header
+     * @param overrideUser?? Override the username ( if sendUser is True )
+     * @param additionalFields? Additional fields to add to the header
      */
     public setConnectorDetails(
         name: string,
         version: string,
-        sendUser: boolean,
-        overrideUser?: string,
         appName?: string,
         appVersion?: string,
+        sendUser: boolean = false,
+        overrideUser?: string,
         additionalFields?: [string, string][]
     ): void {
-        const clientDetails = ClientDetails.setConnectorDetails(name, version, sendUser, overrideUser, appName, appVersion, additionalFields);
+        const clientDetails = ClientDetails.setConnectorDetails(name, version, appName, appVersion, sendUser, overrideUser, additionalFields);
 
         this.applicationNameForTracing = clientDetails.applicationNameForTracing;
         this.userNameForTracing = clientDetails.userNameForTracing;

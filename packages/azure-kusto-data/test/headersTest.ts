@@ -13,7 +13,7 @@ describe("Test Headers", () => {
     });
 
     it("Should work with custom tracing properties", () => {
-        const clientDetails = ClientDetails.setConnectorDetails("test", "1.0", true, null, "testApp", "1.0", [["test", "test"]]);
+        const clientDetails = ClientDetails.setConnectorDetails("test", "1.0", "testApp", "1.0", true, null, [["test", "test"]]);
         const headers = clientDetails.getHeaders();
         assert.strictEqual(headers["x-ms-client-version"]?.startsWith("Kusto.JavaScript.Client:"), true);
         assert.strictEqual(headers["x-ms-app"], "Kusto.test:{1.0}|App.{testApp}:{1.0}|test:{test}");
@@ -21,7 +21,7 @@ describe("Test Headers", () => {
     });
 
     it("Should work with no user", () => {
-        const clientDetails = ClientDetails.setConnectorDetails("test", "1.0", false, null, "testApp", "1.0", [["test", "test"]]);
+        const clientDetails = ClientDetails.setConnectorDetails("test", "1.0", "testApp", "1.0", false, null, [["test", "test"]]);
         const headers = clientDetails.getHeaders();
         assert.strictEqual(headers["x-ms-client-version"]?.startsWith("Kusto.JavaScript.Client:"), true);
         assert.strictEqual(headers["x-ms-app"], "Kusto.test:{1.0}|App.{testApp}:{1.0}|test:{test}");
@@ -29,7 +29,7 @@ describe("Test Headers", () => {
     });
 
     it("Should work with no app", () => {
-        const clientDetails = ClientDetails.setConnectorDetails("test", "1.0", true, null, null, null, [["test", "test"]]);
+        const clientDetails = ClientDetails.setConnectorDetails("test", "1.0", null, null, true, null, [["test", "test"]]);
         const headers = clientDetails.getHeaders();
         assert.strictEqual(headers["x-ms-client-version"]?.startsWith("Kusto.JavaScript.Client:"), true);
         assert.strictEqual(headers["x-ms-app"]?.startsWith("Kusto.test:{1.0}|App."), true);
@@ -37,7 +37,7 @@ describe("Test Headers", () => {
     });
 
     it("Should work with override user", () => {
-        const clientDetails = ClientDetails.setConnectorDetails("test", "1.0", true, "testUser", "testApp", "1.0", [["test", "test"]]);
+        const clientDetails = ClientDetails.setConnectorDetails("test", "1.0", "testApp", "1.0", true, "testUser", [["test", "test"]]);
         const headers = clientDetails.getHeaders();
         assert.strictEqual(headers["x-ms-client-version"]?.startsWith("Kusto.JavaScript.Client:"), true);
         assert.strictEqual(headers["x-ms-app"], "Kusto.test:{1.0}|App.{testApp}:{1.0}|test:{test}");
@@ -45,7 +45,7 @@ describe("Test Headers", () => {
     });
 
     it("Should work with no additional fields", () => {
-        const clientDetails = ClientDetails.setConnectorDetails("test", "1.0", true, null, "testApp", "1.0", null);
+        const clientDetails = ClientDetails.setConnectorDetails("test", "1.0", "testApp", "1.0", true, null, null);
         const headers = clientDetails.getHeaders();
         assert.strictEqual(headers["x-ms-client-version"]?.startsWith("Kusto.JavaScript.Client:"), true);
         assert.strictEqual(headers["x-ms-app"], "Kusto.test:{1.0}|App.{testApp}:{1.0}");

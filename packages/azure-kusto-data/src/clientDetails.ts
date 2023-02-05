@@ -69,10 +69,10 @@ export class ClientDetails {
     static setConnectorDetails(
         name: string,
         version: string,
-        send_user: boolean,
-        override_user: string | null = null,
         app_name: string | null = null,
         app_version: string | null = null,
+        send_user: boolean = false,
+        override_user: string | null = null,
         additional_fields: [string, string][] | null = null
     ): ClientDetails {
         const params: [string, string][] = [["Kusto." + name, version]];
