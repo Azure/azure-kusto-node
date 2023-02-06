@@ -25,7 +25,7 @@ export const tryFileToBuffer = async (fileDescriptor: FileDescriptor): Promise<S
     }
 };
 
-export const mergeStreams = (...streams: Readable[]): Readable => {
+const mergeStreams = (...streams: Readable[]): Readable => {
     let pass = new PassThrough();
     let waiting = streams.length;
     for (const stream of streams) {
