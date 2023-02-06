@@ -8,8 +8,8 @@ import { FileDescriptor } from "./fileDescriptor";
 import { AbstractKustoClient } from "./abstractKustoClient";
 import { KustoConnectionStringBuilder } from "azure-kusto-data";
 import { KustoResponseDataSet } from "azure-kusto-data/src/response";
-import { tryFileToBuffer, tryStreamToArray } from "./streamUtils";
 import StreamingIngestClient from "./streamingIngestClient";
+import { tryFileToBuffer, tryStreamToArray } from "./streamUtils";
 import IngestClient from "./ingestClient";
 import { QueueSendMessageResponse } from "@azure/storage-queue";
 import streamify from "stream-array";
@@ -93,7 +93,9 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
         const props = this._getMergedProps(ingestionProperties);
         const descriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
 
-        let result = isNode ? await tryStreamToArray(descriptor.stream as Readable, maxStreamSize) : descriptor.stream;
+        let result = isNode
+            ? await tryStreamToArray(descriptor.stream as Readable, maxStreamSize)
+            : descriptor.stream;
 
         if ((isNode && result instanceof Buffer) || (!isNode && (descriptor.stream as ArrayBuffer).byteLength < maxStreamSize)) {
             // If we get buffer that means it was less than the max size, so we can do streamingIngestion

@@ -140,7 +140,7 @@ const main = (): void => {
                     try {
                         await ingestClient.ingestFromFile(item.path, item.ingestionProperties);
                     } catch (err) {
-                        assert.fail(`Failed to ingest ${item.description}, ${JSON.stringify(err)}`);
+                        assert.fail(`Failed to ingest ${item.description}, ${util.format(err)}`);
                     }
                     await assertRowsCount(item);
                 }
@@ -155,7 +155,7 @@ const main = (): void => {
                     try {
                         await ingestClient.ingestFromStream(stream, item.ingestionProperties);
                     } catch (err) {
-                        assert.fail(`Failed to ingest ${item.description} - ${JSON.stringify(err)}`);
+                        assert.fail(`Failed to ingest ${item.description} - ${util.format(err)}`);
                     }
                     await assertRowsCount(item);
                 }
@@ -168,7 +168,7 @@ const main = (): void => {
                     try {
                         await streamingIngestClient.ingestFromFile(item.path, item.ingestionProperties);
                     } catch (err) {
-                        assert.fail(`Failed to ingest ${item.description} - ${JSON.stringify(err)}`);
+                        assert.fail(`Failed to ingest ${item.description} - ${util.format(err)}`);
                     }
                     await assertRowsCount(item);
                 }
@@ -183,7 +183,7 @@ const main = (): void => {
                     try {
                         await streamingIngestClient.ingestFromStream(stream, item.ingestionProperties);
                     } catch (err) {
-                        assert.fail(`Failed to ingest ${item.description} - ${JSON.stringify(err)}`);
+                        assert.fail(`Failed to ingest ${item.description} - ${util.format(err)}`);
                     }
                     await assertRowsCount(item);
                 }
@@ -196,7 +196,7 @@ const main = (): void => {
                     try {
                         await managedStreamingIngestClient.ingestFromFile(item.path, item.ingestionProperties);
                     } catch (err) {
-                        assert.fail(`Failed to ingest ${item.description} - ${JSON.stringify(err)}`);
+                        assert.fail(`Failed to ingest ${item.description} - ${util.format(err)}`);
                     }
                     await assertRowsCount(item);
                 }
@@ -210,7 +210,7 @@ const main = (): void => {
                     try {
                         await managedStreamingIngestClient.ingestFromStream(stream, item.ingestionProperties);
                     } catch (err) {
-                        assert.fail(`Failed to ingest ${item.description} - ${JSON.stringify(err)}`);
+                        assert.fail(`Failed to ingest ${item.description} - ${util.format(err)}`);
                     }
                     await assertRowsCount(item);
                 }
@@ -222,7 +222,7 @@ const main = (): void => {
                 try {
                     await cleanStatusQueues();
                 } catch (err) {
-                    assert.fail(`Failed to Clean status queues - ${JSON.stringify(err)}`);
+                    assert.fail(`Failed to Clean status queues - ${util.format(err)}`);
                 }
             }).timeout(240000);
 
@@ -235,7 +235,7 @@ const main = (): void => {
                     assert.strictEqual(status.SuccessCount, 1);
                     assert.strictEqual(status.FailureCount, 0);
                 } catch (err) {
-                    assert.fail(`Failed to ingest ${item.description} - ${JSON.stringify(err)}`);
+                    assert.fail(`Failed to ingest ${item.description} - ${util.format(err)}`);
                 }
             }).timeout(240000);
 
@@ -249,7 +249,7 @@ const main = (): void => {
                     assert.strictEqual(status.SuccessCount, 0);
                     assert.strictEqual(status.FailureCount, 1);
                 } catch (err) {
-                    assert.fail(`Failed to ingest ${item.description} - ${JSON.stringify(err)}`);
+                    assert.fail(`Failed to ingest ${item.description} - ${util.format(err)}`);
                 }
             }).timeout(240000);
         });
