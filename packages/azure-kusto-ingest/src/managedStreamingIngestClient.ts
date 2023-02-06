@@ -93,9 +93,7 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
         const props = this._getMergedProps(ingestionProperties);
         const descriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
 
-        let result = isNode
-            ? await tryStreamToArray(descriptor.stream as Readable, maxStreamSize)
-            : descriptor.stream;
+        let result = isNode ? await tryStreamToArray(descriptor.stream as Readable, maxStreamSize) : descriptor.stream;
 
         if ((isNode && result instanceof Buffer) || (!isNode && (descriptor.stream as ArrayBuffer).byteLength < maxStreamSize)) {
             // If we get buffer that means it was less than the max size, so we can do streamingIngestion
