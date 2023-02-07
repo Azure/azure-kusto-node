@@ -3,7 +3,7 @@
 
 import { Client, KustoDataErrors } from "azure-kusto-data";
 import { ExponentialRetry } from "./retry";
-import { toMilliseconds } from "azure-kusto-data/source/timeUtils";
+import { toMilliseconds } from "azure-kusto-data/src/timeUtils";
 import { ContainerClient } from "@azure/storage-blob";
 
 const ATTEMPT_COUNT = 4;
@@ -39,10 +39,10 @@ export class ResourceManager {
         this.refreshPeriod = toMilliseconds(1, 0, 0);
 
         this.ingestClientResources = null;
-        this.ingestClientResourcesNextUpdate = moment();
+        this.ingestClientResourcesLastUpdate = null;
 
         this.authorizationContext = null;
-        this.authorizationContextNextUpdate = moment();
+        this.authorizationContextLastUpdate = null;
     }
 
     async refreshIngestClientResources(): Promise<IngestClientResources> {
@@ -54,7 +54,7 @@ export class ResourceManager {
             !this.ingestClientResources.valid()
         ) {
             this.ingestClientResources = await this.getIngestClientResourcesFromService();
-            this.ingestClientResourcesNextUpdate = moment().add(this.refreshPeriod);
+            this.ingestClientResourcesLastUpdate = now;
         }
 
         return this.ingestClientResources;
@@ -101,7 +101,7 @@ export class ResourceManager {
         const now = Date.now();
         if (!this.authorizationContext?.trim() || !this.authorizationContextLastUpdate || this.authorizationContextLastUpdate + this.refreshPeriod <= now) {
             this.authorizationContext = await this.getAuthorizationContextFromService();
-            this.authorizationContextNextUpdate = moment().add(this.refreshPeriod);
+            this.authorizationContextLastUpdate = now;
 
             if (this.authorizationContext == null) {
                 throw new Error("Authorization context can't be null");
