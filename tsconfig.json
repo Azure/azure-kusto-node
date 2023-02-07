@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
-        "target": "es6",
-        "module": "commonjs",
+        "target": "ES2017",
+        "module": "CommonJS",
         "esModuleInterop": true,
         "strict": true,
         "incremental": true,
@@ -9,9 +9,11 @@
         "resolveJsonModule": true,
         "allowJs": false,
         "declaration": true,
+        "declarationMap": true,
         "noUnusedParameters": true,
-        "noUnusedLocals": true
+        "moduleResolution": "node",
+        "inlineSources": true
     },
-    "include": ["**/source/**/*.ts", "**/test/**/*.ts", "**/index.ts"],
-    "exclude": ["*.d.ts"]
+    "include": ["**/src/**/*.ts", "**/test/**/*.ts", "**/index.ts"],
+    "exclude": ["node_modules"]
 }

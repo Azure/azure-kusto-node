@@ -15,7 +15,7 @@ export type CloudInfo = {
  * This class holds data for all cloud instances, and returns the specific data instance by parsing the dns suffix from a URL
  */
 export class CloudSettings {
-    private static instance: CloudSettings;
+    private static instance: CloudSettings = new CloudSettings();
     METADATA_ENDPOINT = "/v1/rest/auth/metadata";
     defaultCloudInfo: CloudInfo = {
         LoginEndpoint: process.env.AadAuthorityUri || "https://login.microsoftonline.com",
@@ -30,10 +30,6 @@ export class CloudSettings {
     private constructor() {}
 
     static getInstance(): CloudSettings {
-        if (!CloudSettings.instance) {
-            CloudSettings.instance = new CloudSettings();
-        }
-
         return CloudSettings.instance;
     }
 

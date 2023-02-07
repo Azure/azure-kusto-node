@@ -1,4 +1,4 @@
-# Microsoft Azure Kusto Data Library for Node
+# Microsoft Azure Kusto Data Library for JavaScript
 
 ## Installation
 
@@ -41,7 +41,6 @@ const kcsb = KustoConnectionStringBuilder.withAadApplicationCertificateAuthentic
     `https://${clusterName}.kusto.windows.net`,
     "appid",
     "certificate",
-    "thumbprint",
     "authorityId"
 );
 ```

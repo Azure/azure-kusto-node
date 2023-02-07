@@ -1,16 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import KustoConnectionStringBuilder from "azure-kusto-data/source/connectionBuilder";
+import KustoConnectionStringBuilder from "azure-kusto-data/src/connectionBuilder";
 import fs from "fs";
-import ClientRequestProperties from "azure-kusto-data/source/clientRequestProperties";
+import ClientRequestProperties from "azure-kusto-data/src/clientRequestProperties";
 import { v4 as uuidv4 } from "uuid";
 import { DataFormat } from "azure-kusto-ingest";
-import IngestionProperties, { dataFormatMappingKind } from "azure-kusto-ingest/source/ingestionProperties";
+import IngestionProperties, { dataFormatMappingKind } from "azure-kusto-ingest/src/ingestionProperties";
 import Console from "console";
-import KustoClient from "azure-kusto-data/source/client";
-import IngestClient from "azure-kusto-ingest/source/ingestClient";
-import { BlobDescriptor, FileDescriptor } from "azure-kusto-ingest/source/descriptors";
+import KustoClient from "azure-kusto-data/src/client";
+import IngestClient from "azure-kusto-ingest/src/ingestClient";
+import { BlobDescriptor } from "azure-kusto-ingest/src/descriptors";
+import { FileDescriptor } from "azure-kusto-ingest/src/fileDescriptor";
 import { AuthenticationModeOptions } from "./SampleApp";
 
 /**
@@ -120,12 +121,12 @@ export class Authentication extends Utils {
         certificatePath: string | undefined,
         certificatePassword: string | undefined,
         applicationId: string | undefined,
-        tenantId: string | undefined
+        tenantId: string | undefined,
+        sendX5c?: boolean
     ): Promise<KustoConnectionStringBuilder> {
         const appId: string | undefined = process.env.APP_ID;
         const appTenant: string | undefined = process.env.APP_TENANT;
         const privateKeyPemFilePath: string | undefined = process.env.PRIVATE_KEY_PEM_FILE_PATH;
-        const certThumbprint: string | undefined = process.env.CERT_THUMBPRINT;
         const publicCertFilePath: string | undefined = process.env.PUBLIC_CERT_FILE_PATH;
 
         if (!certificatePath || !certificatePassword || !applicationId || !tenantId || !appId) {
@@ -136,26 +137,9 @@ export class Authentication extends Utils {
             } else {
                 const pemCertificate: string = await fs.promises.readFile(privateKeyPemFilePath, "utf8");
                 if (publicCertFilePath) {
-                    const publicCertificate: string = await fs.promises.readFile(publicCertFilePath, "utf8");
-                    return KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(
-                        clusterUri,
-                        appId,
-                        pemCertificate,
-                        publicCertificate,
-                        appTenant
-                    );
+                    return KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(clusterUri, appId, pemCertificate, appTenant, sendX5c);
                 }
-                if (!certThumbprint) {
-                    this.errorHandler(`"Missing required field: "certThumbprint" in environment in order to authenticate using a certificate."`);
-                } else {
-                    return KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(
-                        clusterUri,
-                        appId,
-                        pemCertificate,
-                        certThumbprint,
-                        appTenant
-                    );
-                }
+                return KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(clusterUri, appId, pemCertificate, appTenant);
             }
         }
     }

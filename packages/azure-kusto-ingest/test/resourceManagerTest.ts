@@ -8,9 +8,8 @@ import moment from "moment";
 import sinon from "sinon";
 
 import { Client as KustoClient } from "azure-kusto-data";
-
-import { IngestClientResources, ResourceManager } from "../source/resourceManager";
-import { KustoResponseDataSet } from "azure-kusto-data/source/response";
+import { IngestClientResources, ResourceManager } from "../src/resourceManager";
+import { KustoResponseDataSet } from "azure-kusto-data/types/src/response";
 
 describe("ResourceManager", () => {
     const rows = [

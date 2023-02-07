@@ -17,14 +17,12 @@ jobs:
                   cache: "npm"
                   cache-dependency-path: |
                       package-lock.json
-                      packages/quick_start/package-lock.json
-                      packages/azure-kusto-data/package-lock.json
-                      packages/azure-kusto-ingest/package-lock.json
             - run: |
                   npm install -g npm@latest
                   npm ci
             - run: npm run checkFormat
             - run: npm run lint
+            - run: npm run webpackBuild
             - run: npm run testPipeline
               env:
                   AUTO_TEST: true

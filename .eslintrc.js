@@ -26,11 +26,12 @@ module.exports = {
     "ignorePatterns": [
         "node_modules",
         "**/*.d.ts",
-        "**/*.js"
+        "**/*.js",
+        "webpack.config.ts"
     ],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
-        "project": "tsconfig.json",
+        "project": ["tsconfig.json","packages/azure-kusto-data/tsconfig.json","packages/azure-kusto-ingest/tsconfig.json","packages/quick_start/tsconfig.json"],
         "sourceType": "module"
     },
     "plugins": [

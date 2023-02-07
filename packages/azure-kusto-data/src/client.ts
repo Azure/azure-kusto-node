@@ -8,10 +8,11 @@ import { KustoResponseDataSet, KustoResponseDataSetV1, KustoResponseDataSetV2, V
 import ConnectionStringBuilder from "./connectionBuilder";
 import ClientRequestProperties from "./clientRequestProperties";
 import { ThrottlingError } from "./errors";
-import pkg from "../package.json";
-import axios, { AxiosInstance } from "axios";
+import { SDK_VERSION } from "./version";
+import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 import http from "http";
 import https from "https";
+import { isNode } from "@azure/core-util";
 import { kustoTrustedEndpoints } from "./kustoTrustedEndpoints";
 import { CloudSettings } from "./cloudSettings";
 
@@ -55,18 +56,22 @@ export class KustoClient {
         const headers = {
             Accept: "application/json",
             "Accept-Encoding": "gzip,deflate",
-            "x-ms-client-version": `Kusto.Node.Client:${pkg.version}`,
+            "x-ms-client-version": `Kusto.Node.Client:${SDK_VERSION}`,
             Connection: "Keep-Alive",
         };
-        this.axiosInstance = axios.create({
+        const axiosProps: AxiosRequestConfig = {
             headers,
             validateStatus: (status: number) => status === 200,
-
+        };
+        // http and https are Node modules and are not found in browsers
+        if (isNode) {
             // keepAlive pools and reuses TCP connections, so it's faster
-            httpAgent: new http.Agent({ keepAlive: true }),
-            httpsAgent: new https.Agent({ keepAlive: true }),
-            cancelToken: this.cancelToken.token,
-        });
+            axiosProps.httpAgent = new http.Agent({ keepAlive: true });
+            axiosProps.httpsAgent = new https.Agent({ keepAlive: true });
+        }
+        axiosProps.cancelToken = this.cancelToken.token;
+
+        this.axiosInstance = axios.create();
     }
 
     async execute(db: string | null, query: string, properties?: ClientRequestProperties) {
@@ -146,8 +151,12 @@ export class KustoClient {
         } else if (stream != null) {
             payloadContent = stream;
             clientRequestPrefix = "KNC.executeStreamingIngest;";
-            headers["Content-Encoding"] = "gzip";
-            headers["Content-Type"] = "application/octet-stream";
+            if (isNode) {
+                headers["Content-Encoding"] = "gzip";
+                headers["Content-Type"] = "application/octet-stream";
+            } else {
+                headers["Content-Type"] = "application/json";
+            }
         } else {
             throw new Error("Invalid parameters - expected query or streaming ingest");
         }

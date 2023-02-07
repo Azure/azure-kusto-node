@@ -3,17 +3,19 @@
 
 import { IngestionPropertiesInput } from "./ingestionProperties";
 
-import { FileDescriptor, StreamDescriptor } from "./descriptors";
+import { StreamDescriptor } from "./descriptors";
+import { FileDescriptor } from "./fileDescriptor";
 import { AbstractKustoClient } from "./abstractKustoClient";
 import { KustoConnectionStringBuilder } from "azure-kusto-data";
-import { KustoResponseDataSet } from "azure-kusto-data/source/response";
-import { fileToStream, tryStreamToArray } from "./streamUtils";
+import { KustoResponseDataSet } from "azure-kusto-data/src/response";
 import StreamingIngestClient from "./streamingIngestClient";
+import { tryFileToBuffer, tryStreamToArray } from "./streamUtils";
 import IngestClient from "./ingestClient";
 import { QueueSendMessageResponse } from "@azure/storage-queue";
 import streamify from "stream-array";
 import { Readable } from "stream";
 import { ExponentialRetry } from "./retry";
+import { isNode } from "@azure/core-util";
 
 const maxStreamSize = 1024 * 1024 * 4;
 const attemptCount = 3;
@@ -83,20 +85,25 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
         this.defaultDatabase = this.streamingIngestClient.defaultDatabase;
     }
 
-    async ingestFromStream(stream: StreamDescriptor | Readable, ingestionProperties?: IngestionPropertiesInput): Promise<any> {
+    /**
+     * Use Readable for Node.js and ArrayBuffer in browser
+     */
+    async ingestFromStream(stream: StreamDescriptor | Readable | ArrayBuffer, ingestionProperties?: IngestionPropertiesInput): Promise<any> {
         this.ensureOpen();
         const props = this._getMergedProps(ingestionProperties);
         const descriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
 
-        let result = await tryStreamToArray(descriptor.stream, maxStreamSize);
+        let result = isNode ? await tryStreamToArray(descriptor.stream as Readable, maxStreamSize) : descriptor.stream;
 
-        if (result instanceof Buffer) {
+        if ((isNode && result instanceof Buffer) || (!isNode && (descriptor.stream as ArrayBuffer).byteLength < maxStreamSize)) {
             // If we get buffer that means it was less than the max size, so we can do streamingIngestion
             const retry = new ExponentialRetry(attemptCount, this.baseSleepTimeSecs, this.baseJitterSecs);
             while (retry.shouldTry()) {
                 try {
                     const sourceId = `KNC.executeManagedStreamingIngest;${descriptor.sourceId};${retry.currentAttempt}`;
-                    return await this.streamingIngestClient.ingestFromStream(new StreamDescriptor(streamify([result])).merge(descriptor), props, sourceId);
+                    return isNode
+                        ? await this.streamingIngestClient.ingestFromStream(new StreamDescriptor(streamify([result])).merge(descriptor), props, sourceId)
+                        : await this.streamingIngestClient.ingestFromStream(descriptor, props, sourceId);
                 } catch (err: unknown) {
                     const oneApiError = err as { "@permanent"?: boolean };
                     if (oneApiError["@permanent"]) {
@@ -106,19 +113,23 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
                 }
             }
 
-            result = streamify([result]);
+            result = isNode ? streamify([result]) : descriptor.stream;
         }
 
         return await this.queuedIngestClient.ingestFromStream(new StreamDescriptor(result).merge(descriptor), ingestionProperties);
     }
 
+    /**
+     * Use string for Node.js and Blob in browser
+     */
     async ingestFromFile(
-        file: FileDescriptor | string,
+        file: FileDescriptor | string | Blob,
         ingestionProperties?: IngestionPropertiesInput
     ): Promise<KustoResponseDataSet | QueueSendMessageResponse> {
         this.ensureOpen();
 
-        return await this.ingestFromStream(fileToStream(file), ingestionProperties);
+        const stream = file instanceof FileDescriptor ? await tryFileToBuffer(file) : await tryFileToBuffer(new FileDescriptor(file));
+        return await this.ingestFromStream(stream, ingestionProperties);
     }
 
     close() {

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-export function getStringTailLowerCase(val: string, tailLength: number) {
+export function getStringTailLowerCase(val: string, tailLength: number): string {
     if (tailLength <= 0) {
         return "";
     }
