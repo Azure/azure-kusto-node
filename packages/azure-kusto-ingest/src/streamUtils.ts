@@ -25,7 +25,7 @@ export const tryFileToBuffer = async (fileDescriptor: FileDescriptor): Promise<S
     }
 };
 
-export const mergeStreams = (...streams: Readable[]): Readable => {
+const mergeStreams = (...streams: Readable[]): Readable => {
     let pass = new PassThrough();
     let waiting = streams.length;
     for (const stream of streams) {
@@ -36,6 +36,9 @@ export const mergeStreams = (...streams: Readable[]): Readable => {
 };
 
 export const tryStreamToArray = async (stream: Readable, maxBufferSize: number): Promise<Buffer | Readable> => {
+    if (stream instanceof Buffer) {
+        return stream;
+    }
     return await new Promise<Buffer | Readable>((resolve, reject) => {
         const result: Buffer[] = [];
         const endListener = () => resolve(Buffer.concat(result));

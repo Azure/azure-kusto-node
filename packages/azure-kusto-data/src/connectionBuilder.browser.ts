@@ -81,6 +81,11 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
         interactiveCredentialOptions: InteractiveBrowserCredentialNodeOptions | InteractiveBrowserCredentialInBrowserOptions,
         timeoutMs?: number
     ): KustoConnectionStringBuilder {
+        if (!interactiveCredentialOptions) {
+            throw new Error(
+                "Invalid parameters - You must provide interactiveCredentialOptions={clientId: string, redirectUri:string} to authenticate with user prompt in browser."
+            );
+        }
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         const { redirectUri, clientId, tenantId } = interactiveCredentialOptions as InteractiveBrowserCredentialInBrowserOptions;
         if (!clientId) {

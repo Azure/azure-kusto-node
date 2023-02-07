@@ -3,14 +3,12 @@
 
 import { IngestionPropertiesInput } from "./ingestionProperties";
 
-import { CompressionType, StreamDescriptor } from "./descriptors";
-import { FileDescriptor } from "./fileDescriptor";
-import zlib from "zlib";
+import { StreamDescriptor } from "./descriptors";
+import { FileDescriptor } from "./fileDescriptor.browser";
 import { AbstractKustoClient } from "./abstractKustoClient";
 import { Client as KustoClient, KustoConnectionStringBuilder } from "azure-kusto-data";
 import { KustoResponseDataSet } from "azure-kusto-data/src/response";
-import { fileToStream } from "./streamUtils";
-import { Readable } from "stream";
+import { tryFileToBuffer } from "./streamUtils.browser";
 
 class KustoStreamingIngestClient extends AbstractKustoClient {
     private kustoClient: KustoClient;
@@ -23,26 +21,15 @@ class KustoStreamingIngestClient extends AbstractKustoClient {
     /**
      * Use Readable for Node.js and ArrayBuffer in browser
      */
-    async ingestFromStream(
-        stream: StreamDescriptor | Readable | ArrayBuffer,
-        ingestionProperties?: IngestionPropertiesInput,
-        clientRequestId?: string
-    ): Promise<any> {
+    async ingestFromStream(stream: StreamDescriptor | ArrayBuffer, ingestionProperties?: IngestionPropertiesInput, clientRequestId?: string): Promise<any> {
         this.ensureOpen();
 
         const props = this._getMergedProps(ingestionProperties);
         const descriptor: StreamDescriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
-
-        const compressedStream =
-            descriptor.compressionType === CompressionType.None
-                ? !(descriptor.stream instanceof ArrayBuffer)
-                    ? descriptor.stream.pipe(zlib.createGzip())
-                    : descriptor.stream
-                : descriptor.stream;
         return await this.kustoClient.executeStreamingIngest(
             props.database as string,
             props.table as string,
-            compressedStream,
+            descriptor.stream,
             props.format,
             props.ingestionMappingReference ?? null,
             clientRequestId
@@ -52,11 +39,11 @@ class KustoStreamingIngestClient extends AbstractKustoClient {
     /**
      * Use string for Node.js and Blob in browser
      */
-    async ingestFromFile(file: FileDescriptor | string | Blob, ingestionProperties?: IngestionPropertiesInput): Promise<KustoResponseDataSet> {
+    async ingestFromFile(file: FileDescriptor | Blob, ingestionProperties?: IngestionPropertiesInput): Promise<KustoResponseDataSet> {
         this.ensureOpen();
 
         const descriptor: FileDescriptor = file instanceof FileDescriptor ? file : new FileDescriptor(file);
-        return this.ingestFromStream(await fileToStream(descriptor), ingestionProperties);
+        return this.ingestFromStream(await tryFileToBuffer(descriptor), ingestionProperties);
     }
 
     close() {

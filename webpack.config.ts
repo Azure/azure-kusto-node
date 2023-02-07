@@ -1,5 +1,4 @@
 import * as path from "path";
-import "webpack-dev-server";
 import * as webpack from "webpack";
 
 // This is a very lean example of a webpack config file to use for using the browser
