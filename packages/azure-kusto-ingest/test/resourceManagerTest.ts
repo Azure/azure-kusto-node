@@ -6,9 +6,8 @@ import assert from "assert";
 import sinon from "sinon";
 
 import { Client as KustoClient } from "azure-kusto-data";
-
-import { IngestClientResources, ResourceManager } from "../source/resourceManager";
-import { KustoResponseDataSet } from "azure-kusto-data/source/response";
+import { IngestClientResources, ResourceManager } from "../src/resourceManager";
+import { KustoResponseDataSet } from "azure-kusto-data/types/src/response";
 
 describe("ResourceManager", () => {
     const rows = [
@@ -103,7 +102,7 @@ describe("ResourceManager", () => {
             const resourceManager = new ResourceManager(new KustoClient("https://cluster.kusto.windows.net"));
 
             const call = sinon.stub(resourceManager, "getIngestClientResourcesFromService");
-            resourceManager.ingestClientResourcesLastUpdate = Date.now();
+            resourceManager.ingestClientResourcesNextUpdate = Date.now().add(1, "minute");
             resourceManager.ingestClientResources = new IngestClientResources([], [], [], []);
 
             await resourceManager.refreshIngestClientResources();

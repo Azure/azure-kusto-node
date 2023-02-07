@@ -1,12 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { KustoConnectionStringBuilder } from "../index";
-import AadHelper from "../source/security";
-import { CloudSettings } from "../source/cloudSettings";
+import { KustoConnectionStringBuilder } from "../src/index";
+import AadHelper from "../src/security";
+import { CloudSettings } from "../src/cloudSettings";
 import assert from "assert";
-import { ClientAuthError } from "@azure/msal-node";
-import { KustoAuthenticationError } from "../source/errors";
+import { KustoAuthenticationError } from "../src/errors";
 import { CredentialUnavailableError } from "@azure/identity";
 import { loginTest, manualLoginTest } from "./data/testUtils";
 
@@ -33,7 +32,6 @@ describe("test errors", () => {
             assert.fail("should throw unauthorized exception");
         } catch (e: unknown) {
             assert.ok(e instanceof KustoAuthenticationError);
-            assert.ok(e.inner instanceof ClientAuthError);
             assert.strictEqual(e.tokenProviderName, "UserPassTokenProvider");
             assert.strictEqual(e.context.userName, username);
         }
@@ -51,31 +49,29 @@ describe("test errors", () => {
             assert.fail("should throw unauthorized exception");
         } catch (e: unknown) {
             assert.ok(e instanceof KustoAuthenticationError);
-            assert.ok(e.inner instanceof ClientAuthError);
             assert.strictEqual(e.tokenProviderName, "ApplicationKeyTokenProvider");
             assert.strictEqual(e.context.clientId, appId);
         }
     }).timeout(10000);
 
-    it("test app certificate", async () => {
+    it("h", async () => {
         const cluster = "https://somecluster.kusto.windows.net";
         const appId = "86f7361f-15b7-4f10-aef5-3ce66ac73766";
-        const thumb = "thumb";
         const privateKey =
-            "-----BEGIN RSA PRIVATE KEY-----\n" +
-            "MIICXAIBAAKBgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4eCZ0FPqri0cb2JZfXJ/DgYSF6vUp\n" +
-            "wmJG8wVQZKjeGcjDOL5UlsuusFncCzWBQ7RKNUSesmQRMSGkVb1/3j+skZ6UtW+5u09lHNsj6tQ5\n" +
-            "1s1SPrCBkedbNf0Tp0GbMJDyR4e9T04ZZwIDAQABAoGAFijko56+qGyN8M0RVyaRAXz++xTqHBLh\n" +
-            "3tx4VgMtrQ+WEgCjhoTwo23KMBAuJGSYnRmoBZM3lMfTKevIkAidPExvYCdm5dYq3XToLkkLv5L2\n" +
-            "pIIVOFMDG+KESnAFV7l2c+cnzRMW0+b6f8mR1CJzZuxVLL6Q02fvLi55/mbSYxECQQDeAw6fiIQX\n" +
-            "GukBI4eMZZt4nscy2o12KyYner3VpoeE+Np2q+Z3pvAMd/aNzQ/W9WaI+NRfcxUJrmfPwIGm63il\n" +
-            "AkEAxCL5HQb2bQr4ByorcMWm/hEP2MZzROV73yF41hPsRC9m66KrheO9HPTJuo3/9s5p+sqGxOlF\n" +
-            "L0NDt4SkosjgGwJAFklyR1uZ/wPJjj611cdBcztlPdqoxssQGnh85BzCj/u3WqBpE2vjvyyvyI5k\n" +
-            "X6zk7S0ljKtt2jny2+00VsBerQJBAJGC1Mg5Oydo5NwD6BiROrPxGo2bpTbu/fhrT8ebHkTz2epl\n" +
-            "U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ\n" +
+            "-----BEGIN CERTIFICATE----\n" +
+            "MIICXAIBAAKBgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4eCZ0FPqri0cb2JZfXJ/DgYSF6vUp" +
+            "wmJG8wVQZKjeGcjDOL5UlsuusFncCzWBQ7RKNUSesmQRMSGkVb1/3j+skZ6UtW+5u09lHNsj6tQ5" +
+            "1s1SPrCBkedbNf0Tp0GbMJDyR4e9T04ZZwIDAQABAoGAFijko56+qGyN8M0RVyaRAXz++xTqHBLh" +
+            "3tx4VgMtrQ+WEgCjhoTwo23KMBAuJGSYnRmoBZM3lMfTKevIkAidPExvYCdm5dYq3XToLkkLv5L2" +
+            "pIIVOFMDG+KESnAFV7l2c+cnzRMW0+b6f8mR1CJzZuxVLL6Q02fvLi55/mbSYxECQQDeAw6fiIQX" +
+            "GukBI4eMZZt4nscy2o12KyYner3VpoeE+Np2q+Z3pvAMd/aNzQ/W9WaI+NRfcxUJrmfPwIGm63il" +
+            "AkEAxCL5HQb2bQr4ByorcMWm/hEP2MZzROV73yF41hPsRC9m66KrheO9HPTJuo3/9s5p+sqGxOlF" +
+            "L0NDt4SkosjgGwJAFklyR1uZ/wPJjj611cdBcztlPdqoxssQGnh85BzCj/u3WqBpE2vjvyyvyI5k" +
+            "X6zk7S0ljKtt2jny2+00VsBerQJBAJGC1Mg5Oydo5NwD6BiROrPxGo2bpTbu/fhrT8ebHkTz2epl" +
+            "U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ" +
             "37sJ5QsW+sJyoNde3xH8vdXhzU7eT82D6X/scw9RZz+/6rCJ4p0=\n" +
-            "-----END RSA PRIVATE KEY-----";
-        const kcsb = KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(cluster, appId, privateKey, thumb, "organizations");
+            "-----END CERTIFICATE----";
+        const kcsb = KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(cluster, appId, privateKey, "organizations");
 
         const helper = new AadHelper(kcsb);
         try {
@@ -83,20 +79,18 @@ describe("test errors", () => {
             assert.fail("should throw unauthorized exception");
         } catch (e: unknown) {
             assert.ok(e instanceof KustoAuthenticationError);
-            assert.ok(e.inner instanceof ClientAuthError);
-            assert.strictEqual(e.tokenProviderName, "ApplicationCertificateTokenProvider");
             assert.strictEqual(e.context.clientId, appId);
-            assert.strictEqual(e.context.thumbprint, thumb);
         }
     }).timeout(10000);
 
+    // Does not throw anymore - behavior is printing to console by @azure/identity
     it("device code without function", () => {
         const kcsb = new KustoConnectionStringBuilder("https://somecluster.kusto.windows.net");
         kcsb.aadFederatedSecurity = true;
         kcsb.authorityId = "organizations";
         kcsb.useDeviceCodeAuth = true;
 
-        assert.throws(() => new AadHelper(kcsb), KustoAuthenticationError, "Device code authentication is not supported without a function");
+        assert.doesNotThrow(() => new AadHelper(kcsb));
     });
 
     it("test msi", async () => {
@@ -170,7 +164,6 @@ describe("Test providers", () => {
     manualLoginTest(
         "APP_ID",
         "TENANT_ID",
-        "CERT_THUMBPRINT",
         "CERT_PUBLIC",
         "CERT_PEM"
     )("test app certificate token provider", async () => {
@@ -179,7 +172,6 @@ describe("Test providers", () => {
             cluster,
             process.env.APP_KEY!,
             process.env.CERT_PEM!,
-            process.env.CERT_THUMBPRINT!,
             process.env.CERT_PUBLIC!
         );
 

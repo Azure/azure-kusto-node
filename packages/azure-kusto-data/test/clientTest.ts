@@ -5,18 +5,19 @@ import assert from "assert";
 
 import { v4 as uuidv4 } from "uuid";
 
-import { KustoClient } from "../source/client";
+import { KustoClient } from "../src/client";
 
-import { ClientRequestProperties } from "../source/clientRequestProperties";
-import { KustoResponseDataSetV1, KustoResponseDataSetV2 } from "../source/response";
+import { ClientRequestProperties } from "../src/clientRequestProperties";
+import { KustoResponseDataSetV1, KustoResponseDataSetV2 } from "../src/response";
 
 import v2Response from "./data/response/v2.json";
 import v2ResponseError from "./data/response/v2error.json";
 import v1Response from "./data/response/v1.json";
 import v1_2Response from "./data/response/v1_2.json";
 import { Readable } from "stream";
-import ConnectionBuilder from "../source/connectionBuilder";
-import { toMilliseconds } from "../source/timeUtils";
+import ConnectionBuilder from "../src/connectionBuilder";
+import { CloudSettings } from "../src/cloudSettings";
+import { toMilliseconds } from "../src/timeUtils";
 
 enum ExecutionType {
     Mgmt = "mgmt",
@@ -24,6 +25,8 @@ enum ExecutionType {
     Ingest = "ingest",
     QueryV1 = "queryv1",
 }
+
+CloudSettings.getInstance().cloudCache["https://cluster.kusto.windows.net"] = CloudSettings.getInstance().defaultCloudInfo;
 
 describe("KustoClient", () => {
     describe("url test", () => {
@@ -343,6 +346,13 @@ describe("KustoClient", () => {
                 };
                 await sNoDbClient.executeStreamingIngest("db2", "Table", Readable.from(""), "csv", null);
             });
+        });
+    });
+    describe("Close", () => {
+        it("Client should not be useable when closed", async () => {
+            const c = new KustoClient("Data Source=https://cluster.kusto.windows.net");
+            c.close();
+            await assert.rejects(c.execute("db", "Table | count"), /Client is closed/);
         });
     });
 });

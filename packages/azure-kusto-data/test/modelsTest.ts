@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import assert from "assert";
-import { KustoResultColumn, KustoResultRow, KustoResultTable } from "../source/models";
+import { KustoResultColumn, KustoResultRow, KustoResultTable } from "../src/models";
 import v2 from "./data/response/v2";
 
 const v2Response = v2;

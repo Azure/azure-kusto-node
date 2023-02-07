@@ -1,5 +1,13 @@
 {
-    "extends": "../../tsconfig.json",
-    "include": ["./source", "./test", "index.ts"],
-    "exclude": ["node_modules", "*.d.ts", "**/*.d.ts"]
+  "extends": "../../tsconfig.json",
+  "include": ["src/**/*.ts", "test/**/*.ts","webpack.config.ts"],
+  "compilerOptions": {
+      "declarationDir": "./types",
+      "outDir": "./dist-esm",
+      "resolveJsonModule": true,
+      "paths": {
+        "azure-kusto-data": ["./src/index"]
+      },
+      "lib": ["ES6", "dom"],
+  }
 }

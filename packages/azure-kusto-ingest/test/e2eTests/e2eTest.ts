@@ -5,16 +5,17 @@
 
 import assert from "assert";
 import fs, { ReadStream } from "fs";
-import IngestClient from "../../source/ingestClient";
-import KustoIngestStatusQueues from "../../source/status";
+import IngestClient from "../../src/ingestClient";
+import KustoIngestStatusQueues from "../../src/status";
 import { Client, ClientRequestProperties, KustoConnectionStringBuilder as ConnectionStringBuilder } from "azure-kusto-data";
-import StreamingIngestClient from "../../source/streamingIngestClient";
-import ManagedStreamingIngestClient from "../../source/managedStreamingIngestClient";
-import { CompressionType, StreamDescriptor } from "../../source/descriptors";
-import { DataFormat, IngestionProperties, ReportLevel } from "../../source/ingestionProperties";
-import { CloudSettings } from "azure-kusto-data/source/cloudSettings";
-import { sleep } from "../../source/retry";
-import { JsonColumnMapping } from "../../source/columnMappings";
+import StreamingIngestClient from "../../src/streamingIngestClient";
+import ManagedStreamingIngestClient from "../../src/managedStreamingIngestClient";
+import { CompressionType, StreamDescriptor } from "../../src/descriptors";
+import { DataFormat, IngestionProperties, ReportLevel } from "../../src/ingestionProperties";
+import { CloudSettings } from "azure-kusto-data/src/cloudSettings";
+import { sleep } from "../../src/retry";
+import { JsonColumnMapping } from "../../src/columnMappings";
+import util from "util";
 
 interface ParsedJsonMapping {
     Properties: { Path: string };
@@ -102,6 +103,9 @@ const main = (): void => {
             } catch (err) {
                 assert.fail("Failed to drop table");
             }
+
+            queryClient.close();
+            ingestClient.close();
         });
 
         before("SetUp", async () => {
@@ -114,21 +118,16 @@ const main = (): void => {
                 try {
                     await queryClient.execute(databaseName, `.create-or-alter table ${tableName} ingestion json mapping '${mappingName}' '${mapping}'`);
                 } catch (err) {
-                    assert.fail("Failed to create table ingestion mapping, error: " + JSON.stringify(err));
+                    assert.fail("Failed to create table ingestion mapping, error: " + util.format(err));
                 }
             } catch (err) {
                 console.log(`Creating table ${tableName}, with columns ${tableColumns}`);
 
-                assert.fail(`Failed to create table ${tableName} ${err} ${databaseName}, error: ${JSON.stringify(err)}`);
+                assert.fail(`Failed to create table ${tableName} ${err} ${databaseName}, error: ${util.format(err)}`);
             }
         });
 
         describe("cloud info", () => {
-            it("Cached cloud info", () => {
-                const cloudInfo = CloudSettings.getInstance().cloudCache[process.env.ENGINE_CONNECTION_STRING as string]; // it should be already in the cache at this point
-                assert.strictEqual(cloudInfo.KustoClientAppId, CloudSettings.getInstance().defaultCloudInfo.KustoClientAppId);
-            });
-
             it("cloud info 404", async () => {
                 const cloudInfo = await CloudSettings.getInstance().getCloudInfoForCluster("https://www.microsoft.com");
                 assert.strictEqual(cloudInfo, CloudSettings.getInstance().defaultCloudInfo);
@@ -141,7 +140,7 @@ const main = (): void => {
                     try {
                         await ingestClient.ingestFromFile(item.path, item.ingestionProperties);
                     } catch (err) {
-                        assert.fail(`Failed to ingest ${item.description}, ${JSON.stringify(err)}`);
+                        assert.fail(`Failed to ingest ${item.description}, ${util.format(err)}`);
                     }
                     await assertRowsCount(item);
                 }
@@ -156,7 +155,7 @@ const main = (): void => {
                     try {
                         await ingestClient.ingestFromStream(stream, item.ingestionProperties);
                     } catch (err) {
-                        assert.fail(`Failed to ingest ${item.description} - ${JSON.stringify(err)}`);
+                        assert.fail(`Failed to ingest ${item.description} - ${util.format(err)}`);
                     }
                     await assertRowsCount(item);
                 }
@@ -169,7 +168,7 @@ const main = (): void => {
                     try {
                         await streamingIngestClient.ingestFromFile(item.path, item.ingestionProperties);
                     } catch (err) {
-                        assert.fail(`Failed to ingest ${item.description} - ${JSON.stringify(err)}`);
+                        assert.fail(`Failed to ingest ${item.description} - ${util.format(err)}`);
                     }
                     await assertRowsCount(item);
                 }
@@ -184,7 +183,7 @@ const main = (): void => {
                     try {
                         await streamingIngestClient.ingestFromStream(stream, item.ingestionProperties);
                     } catch (err) {
-                        assert.fail(`Failed to ingest ${item.description} - ${JSON.stringify(err)}`);
+                        assert.fail(`Failed to ingest ${item.description} - ${util.format(err)}`);
                     }
                     await assertRowsCount(item);
                 }
@@ -197,7 +196,7 @@ const main = (): void => {
                     try {
                         await managedStreamingIngestClient.ingestFromFile(item.path, item.ingestionProperties);
                     } catch (err) {
-                        assert.fail(`Failed to ingest ${item.description} - ${JSON.stringify(err)}`);
+                        assert.fail(`Failed to ingest ${item.description} - ${util.format(err)}`);
                     }
                     await assertRowsCount(item);
                 }
@@ -211,7 +210,7 @@ const main = (): void => {
                     try {
                         await managedStreamingIngestClient.ingestFromStream(stream, item.ingestionProperties);
                     } catch (err) {
-                        assert.fail(`Failed to ingest ${item.description} - ${JSON.stringify(err)}`);
+                        assert.fail(`Failed to ingest ${item.description} - ${util.format(err)}`);
                     }
                     await assertRowsCount(item);
                 }
@@ -223,7 +222,7 @@ const main = (): void => {
                 try {
                     await cleanStatusQueues();
                 } catch (err) {
-                    assert.fail(`Failed to Clean status queues - ${JSON.stringify(err)}`);
+                    assert.fail(`Failed to Clean status queues - ${util.format(err)}`);
                 }
             }).timeout(240000);
 
@@ -236,7 +235,7 @@ const main = (): void => {
                     assert.strictEqual(status.SuccessCount, 1);
                     assert.strictEqual(status.FailureCount, 0);
                 } catch (err) {
-                    assert.fail(`Failed to ingest ${item.description} - ${JSON.stringify(err)}`);
+                    assert.fail(`Failed to ingest ${item.description} - ${util.format(err)}`);
                 }
             }).timeout(240000);
 
@@ -250,7 +249,7 @@ const main = (): void => {
                     assert.strictEqual(status.SuccessCount, 0);
                     assert.strictEqual(status.FailureCount, 1);
                 } catch (err) {
-                    assert.fail(`Failed to ingest ${item.description} - ${JSON.stringify(err)}`);
+                    assert.fail(`Failed to ingest ${item.description} - ${util.format(err)}`);
                 }
             }).timeout(240000);
         });

@@ -1,4 +1,4 @@
-# Microsoft Azure Kusto Data Library for Node
+# Microsoft Azure Kusto Data Library for JavaScript
 
 ## Installation
 
@@ -12,6 +12,7 @@ const KustoConnectionStringBuilder = require("azure-kusto-data").KustoConnection
 
 const kcsb = KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(`https://${clusterName}.kusto.windows.net`, "appid", "appkey", "authorityId");
 const client = new KustoClient(kcsb);
+// When no longer needed, close the client with the `close` method.
 
 // `execute()` infers the type of command from the query, although you can also specify the type explicitly using the methods `excuteQuery()`,`executeQueryV1()` or `executeMgmt()`
 const results = await client.execute("db", "TableName | limit 1");
@@ -40,7 +41,6 @@ const kcsb = KustoConnectionStringBuilder.withAadApplicationCertificateAuthentic
     `https://${clusterName}.kusto.windows.net`,
     "appid",
     "certificate",
-    "thumbprint",
     "authorityId"
 );
 ```
