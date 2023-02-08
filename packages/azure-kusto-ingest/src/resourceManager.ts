@@ -1,9 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { Client, KustoDataErrors } from "azure-kusto-data";
+import { Client, KustoDataErrors, TimeUtils } from "azure-kusto-data";
 import { ExponentialRetry } from "./retry";
-import { toMilliseconds } from "azure-kusto-data/src/timeUtils";
 import { ContainerClient } from "@azure/storage-blob";
 
 const ATTEMPT_COUNT = 4;
@@ -36,7 +35,7 @@ export class ResourceManager {
     private baseJitterSecs = 1;
 
     constructor(readonly kustoClient: Client, readonly isBrowser: boolean = false) {
-        this.refreshPeriod = toMilliseconds(1, 0, 0);
+        this.refreshPeriod = TimeUtils.toMilliseconds(1, 0, 0);
 
         this.ingestClientResources = null;
         this.ingestClientResourcesLastUpdate = null;
