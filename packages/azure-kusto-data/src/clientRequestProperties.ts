@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import { KustoHeaders } from "./clientDetails";
+
 export class ClientRequestProperties {
     private _options: { [option: string]: any };
     private _parameters: { [option: string]: any };
@@ -106,6 +108,20 @@ export class ClientRequestProperties {
         const secondsStr = seconds < 10 ? `0${seconds}` : String(seconds);
 
         return `${hoursStr}:${minutesStr}:${secondsStr}.${milliseconds}`;
+    }
+
+    getHeaders(): Partial<KustoHeaders> {
+        const headers: Partial<KustoHeaders> = {};
+        if (this.clientRequestId) {
+            headers["x-ms-client-request-id"] = this.clientRequestId;
+        }
+        if (this.user) {
+            headers["x-ms-user"] = this.user;
+        }
+        if (this.application) {
+            headers["x-ms-app"] = this.application;
+        }
+        return headers;
     }
 }
 

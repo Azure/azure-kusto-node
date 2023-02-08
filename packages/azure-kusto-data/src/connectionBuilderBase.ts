@@ -3,6 +3,7 @@
 
 import { DeviceCodeInfo, InteractiveBrowserCredentialInBrowserOptions, InteractiveBrowserCredentialNodeOptions } from "@azure/identity";
 import { KeyOfType } from "./typeUtilts";
+import { ClientDetails } from "./clientDetails";
 
 interface MappingType {
     mappedTo: string;
@@ -104,6 +105,9 @@ export abstract class KustoConnectionStringBuilderBase {
     useManagedIdentityAuth?: boolean;
     interactiveCredentialOptions?: InteractiveBrowserCredentialNodeOptions | InteractiveBrowserCredentialInBrowserOptions;
 
+    public applicationNameForTracing: string | null = null;
+    public userNameForTracing: string | null = null;
+
     constructor(connectionString: string) {
         if (connectionString.trim().length === 0) throw new Error("Missing connection string");
 
@@ -129,6 +133,36 @@ export abstract class KustoConnectionStringBuilderBase {
         if (!this.initialCatalog) {
             this.initialCatalog = KustoConnectionStringBuilderBase.DefaultDatabaseName;
         }
+    }
+
+    public clientDetails(): ClientDetails {
+        return new ClientDetails(this.applicationNameForTracing, this.userNameForTracing);
+    }
+
+    /**
+     * Sets the connector details for tracing purposes.
+     *
+     * @param name  The name of the connector
+     * @param version  The version of the connector
+     * @param appName? The name of the containing application
+     * @param appVersion?? The version of the containing application
+     * @param sendUser Whether to send the username
+     * @param overrideUser?? Override the username ( if sendUser is True )
+     * @param additionalFields? Additional fields to add to the header
+     */
+    public setConnectorDetails(
+        name: string,
+        version: string,
+        appName?: string,
+        appVersion?: string,
+        sendUser: boolean = false,
+        overrideUser?: string,
+        additionalFields?: [string, string][]
+    ): void {
+        const clientDetails = ClientDetails.setConnectorDetails(name, version, appName, appVersion, sendUser, overrideUser, additionalFields);
+
+        this.applicationNameForTracing = clientDetails.applicationNameForTracing;
+        this.userNameForTracing = clientDetails.userNameForTracing;
     }
 
     toString(removeSecrets: boolean = true): string {
