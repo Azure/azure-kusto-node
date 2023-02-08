@@ -15,6 +15,7 @@ import { isNode } from "@azure/core-util";
 import { kustoTrustedEndpoints } from "./kustoTrustedEndpoints";
 import { CloudSettings } from "./cloudSettings";
 import { toMilliseconds } from "./timeUtils";
+import { KustoHeaders } from "./clientDetails";
 
 const COMMAND_TIMEOUT_IN_MILLISECS = toMilliseconds(0, 10, 30);
 const QUERY_TIMEOUT_IN_MILLISECS = toMilliseconds(0, 4, 30);
@@ -130,7 +131,6 @@ export class KustoClient {
 
         let payload: { db: string; csl: string; properties?: any };
         let clientRequestPrefix = "";
-        let clientRequestId;
 
         const timeout = this._getClientTimeout(executionType, properties);
         let payloadContent: any = "";
@@ -161,19 +161,21 @@ export class KustoClient {
             throw new Error("Invalid parameters - expected query or streaming ingest");
         }
 
+        let kustoHeaders = this.connectionString.clientDetails().getHeaders();
+        kustoHeaders["x-ms-client-request-id"] = `${clientRequestPrefix}${uuidv4()}`;
+
         if (properties != null) {
-            clientRequestId = properties.clientRequestId;
-
-            if (properties.application != null) {
-                headers["x-ms-app"] = properties.application;
-            }
-
-            if (properties.user != null) {
-                headers["x-ms-user"] = properties.user;
-            }
+            kustoHeaders = {
+                ...kustoHeaders,
+                ...properties.getHeaders(),
+            };
         }
 
-        headers["x-ms-client-request-id"] = clientRequestId || clientRequestPrefix + `${uuidv4()}`;
+        for (const key of Object.keys(kustoHeaders) as Iterable<keyof KustoHeaders>) {
+            if (kustoHeaders[key]) {
+                headers[key] = kustoHeaders[key] as string;
+            }
+        }
 
         const authHeader = await this.aadHelper.getAuthHeader();
         if (authHeader != null) {

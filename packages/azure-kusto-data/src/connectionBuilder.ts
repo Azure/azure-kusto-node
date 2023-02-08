@@ -12,7 +12,7 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
     static readonly DefaultDatabaseName = "NetDefaultDB";
     static readonly SecretReplacement = "****";
 
-    static withAadUserPasswordAuthentication(connectionString: string, userId: string, password: string, authorityId?: string) {
+    static withAadUserPasswordAuthentication(connectionString: string, userId: string, password: string, authorityId?: string): KustoConnectionStringBuilder {
         if (userId.trim().length === 0) throw new Error("Invalid user");
         if (password.trim().length === 0) throw new Error("Invalid password");
 
@@ -27,7 +27,7 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
         return kcsb;
     }
 
-    static withAadApplicationKeyAuthentication(connectionString: string, aadAppId: string, appKey: string, authorityId?: string) {
+    static withAadApplicationKeyAuthentication(connectionString: string, aadAppId: string, appKey: string, authorityId?: string): KustoConnectionStringBuilder {
         if (aadAppId.trim().length === 0) throw new Error("Invalid app id");
         if (appKey.trim().length === 0) throw new Error("Invalid app key");
 
@@ -48,7 +48,7 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
         applicationCertificatePrivateKey: string,
         authorityId?: string,
         applicationCertificateSendX5c?: boolean
-    ) {
+    ): KustoConnectionStringBuilder {
         if (aadAppId.trim().length === 0) throw new Error("Invalid app id");
         if (applicationCertificatePrivateKey.trim().length === 0) throw new Error("Invalid certificate");
 
@@ -65,7 +65,11 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
         return kcsb;
     }
 
-    static withAadDeviceAuthentication(connectionString: string, authorityId?: string, deviceCodeCallback?: (response: DeviceCodeInfo) => void) {
+    static withAadDeviceAuthentication(
+        connectionString: string,
+        authorityId?: string,
+        deviceCodeCallback?: (response: DeviceCodeInfo) => void
+    ): KustoConnectionStringBuilder {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         kcsb.aadFederatedSecurity = true;
         if (authorityId) {
@@ -77,7 +81,12 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
         return kcsb;
     }
 
-    private static withAadManagedIdentities(connectionString: string, msiClientId?: string, authorityId?: string, timeoutMs?: number) {
+    private static withAadManagedIdentities(
+        connectionString: string,
+        msiClientId?: string,
+        authorityId?: string,
+        timeoutMs?: number
+    ): KustoConnectionStringBuilder {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         kcsb.aadFederatedSecurity = true;
         if (authorityId) {
@@ -90,15 +99,15 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
         return kcsb;
     }
 
-    static withSystemManagedIdentity(connectionString: string, authorityId?: string, timeoutMs?: number) {
+    static withSystemManagedIdentity(connectionString: string, authorityId?: string, timeoutMs?: number): KustoConnectionStringBuilder {
         return this.withAadManagedIdentities(connectionString, undefined, authorityId, timeoutMs);
     }
 
-    static withUserManagedIdentity(connectionString: string, msiClientId: string, authorityId?: string, timeoutMs?: number) {
+    static withUserManagedIdentity(connectionString: string, msiClientId: string, authorityId?: string, timeoutMs?: number): KustoConnectionStringBuilder {
         return this.withAadManagedIdentities(connectionString, msiClientId, authorityId, timeoutMs);
     }
 
-    static withAzLoginIdentity(connectionString: string, authorityId?: string, timeoutMs?: number) {
+    static withAzLoginIdentity(connectionString: string, authorityId?: string, timeoutMs?: number): KustoConnectionStringBuilder {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         kcsb.aadFederatedSecurity = true;
 
@@ -111,7 +120,7 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
         return kcsb;
     }
 
-    static withAccessToken(connectionString: string, accessToken: string) {
+    static withAccessToken(connectionString: string, accessToken: string): KustoConnectionStringBuilder {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         kcsb.aadFederatedSecurity = true;
 
@@ -120,7 +129,7 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
         return kcsb;
     }
 
-    static withTokenProvider(connectionString: string, tokenProvider: () => Promise<string>) {
+    static withTokenProvider(connectionString: string, tokenProvider: () => Promise<string>): KustoConnectionStringBuilder {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         kcsb.aadFederatedSecurity = true;
 
@@ -138,7 +147,7 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
         connectionString: string,
         options?: InteractiveBrowserCredentialNodeOptions | InteractiveBrowserCredentialInBrowserOptions,
         timeoutMs?: number
-    ) {
+    ): KustoConnectionStringBuilder {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         const { tenantId, clientId } = (options as InteractiveBrowserCredentialNodeOptions) || {};
         if (clientId) {

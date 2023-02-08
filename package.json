@@ -7,6 +7,7 @@
         "exampleData": "npm run build && node packages/azure-kusto-data/example.js",
         "exampleIngest": "npm run build && node packages/azure-kusto-ingest/example.js",
         "lint": "eslint -c .eslintrc.js --ext .ts .",
+        "lintFix": "eslint --fix -c .eslintrc.js --ext .ts .",
         "test": "mocha --parallel",
         "testE2E": "mocha -- --grep \"E2E Tests\"",
         "testNoE2E": "npm run test",
