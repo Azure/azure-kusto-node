@@ -1,9 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { Client, KustoDataErrors } from "azure-kusto-data";
+import { Client, KustoDataErrors, TimeUtils } from "azure-kusto-data";
 import { ExponentialRetry } from "./retry";
-import moment from "moment";
 import { ContainerClient } from "@azure/storage-blob";
 
 const ATTEMPT_COUNT = 4;
@@ -26,30 +25,35 @@ export class IngestClientResources {
 }
 
 export class ResourceManager {
-    public readonly refreshPeriod: moment.Duration;
+    public readonly refreshPeriod: number;
     public ingestClientResources: IngestClientResources | null;
-    public ingestClientResourcesNextUpdate: moment.Moment;
+    public ingestClientResourcesLastUpdate: number | null;
     public authorizationContext: string | null;
-    public authorizationContextNextUpdate: moment.Moment;
+    public authorizationContextLastUpdate: number | null;
 
     private baseSleepTimeSecs = 1;
     private baseJitterSecs = 1;
 
     constructor(readonly kustoClient: Client, readonly isBrowser: boolean = false) {
-        this.refreshPeriod = moment.duration(1, "h");
+        this.refreshPeriod = TimeUtils.toMilliseconds(1, 0, 0);
 
         this.ingestClientResources = null;
-        this.ingestClientResourcesNextUpdate = moment();
+        this.ingestClientResourcesLastUpdate = null;
 
         this.authorizationContext = null;
-        this.authorizationContextNextUpdate = moment();
+        this.authorizationContextLastUpdate = null;
     }
 
     async refreshIngestClientResources(): Promise<IngestClientResources> {
-        const now = moment();
-        if (!this.ingestClientResources || this.ingestClientResourcesNextUpdate <= now || !this.ingestClientResources.valid()) {
+        const now = Date.now();
+        if (
+            !this.ingestClientResources ||
+            !this.ingestClientResourcesLastUpdate ||
+            this.ingestClientResourcesLastUpdate + this.refreshPeriod <= now ||
+            !this.ingestClientResources.valid()
+        ) {
             this.ingestClientResources = await this.getIngestClientResourcesFromService();
-            this.ingestClientResourcesNextUpdate = moment().add(this.refreshPeriod);
+            this.ingestClientResourcesLastUpdate = now;
         }
 
         return this.ingestClientResources;
@@ -93,10 +97,10 @@ export class ResourceManager {
     }
 
     async refreshAuthorizationContext(): Promise<string> {
-        const now = moment.utc();
-        if (!this.authorizationContext?.trim() || this.authorizationContextNextUpdate <= now) {
+        const now = Date.now();
+        if (!this.authorizationContext?.trim() || !this.authorizationContextLastUpdate || this.authorizationContextLastUpdate + this.refreshPeriod <= now) {
             this.authorizationContext = await this.getAuthorizationContextFromService();
-            this.authorizationContextNextUpdate = moment().add(this.refreshPeriod);
+            this.authorizationContextLastUpdate = now;
 
             if (this.authorizationContext == null) {
                 throw new Error("Authorization context can't be null");

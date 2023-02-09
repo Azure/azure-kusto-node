@@ -4,7 +4,6 @@
 import assert from "assert";
 
 import { v4 as uuidv4 } from "uuid";
-import moment from "moment";
 
 import { KustoClient } from "../src/client";
 
@@ -18,6 +17,7 @@ import v1_2Response from "./data/response/v1_2.json";
 import { Readable } from "stream";
 import ConnectionBuilder from "../src/connectionBuilder";
 import { CloudSettings } from "../src/cloudSettings";
+import { toMilliseconds } from "../src/timeUtils";
 
 enum ExecutionType {
     Mgmt = "mgmt",
@@ -61,18 +61,18 @@ describe("KustoClient", () => {
             const url = "https://cluster.kusto.windows.net";
             const client = new KustoClient(url);
             const clientRequestProps = new ClientRequestProperties();
-            const timeout = moment.duration(3.53, "minutes");
-            const clientServerDelta = moment.duration(0.5, "minutes");
-            const totalTimeout = timeout.clone().add(clientServerDelta);
+            const timeout = toMilliseconds(0, 3, 31.8);
+            const clientServerDelta = toMilliseconds(0, 0, 30);
+            const totalTimeout = timeout + clientServerDelta;
 
-            clientRequestProps.setTimeout(timeout.asMilliseconds());
-            assert.strictEqual(client._getClientTimeout(ExecutionType.Query, clientRequestProps), totalTimeout.asMilliseconds());
+            clientRequestProps.setTimeout(timeout);
+            assert.strictEqual(client._getClientTimeout(ExecutionType.Query, clientRequestProps), totalTimeout);
 
             const json = clientRequestProps.toJSON();
             assert.strictEqual(json?.Options?.servertimeout, "00:03:31.8");
 
             client._getClientTimeout(ExecutionType.Query, clientRequestProps);
-            assert.strictEqual(client._getClientTimeout(ExecutionType.Query, clientRequestProps), totalTimeout.asMilliseconds());
+            assert.strictEqual(client._getClientTimeout(ExecutionType.Query, clientRequestProps), totalTimeout);
 
             const json2 = clientRequestProps.toJSON();
             assert.strictEqual(json2?.Options?.servertimeout, "00:03:31.8");
@@ -149,7 +149,7 @@ describe("KustoClient", () => {
             const client = new KustoClient(url);
 
             const clientRequestProps = new ClientRequestProperties();
-            const timeoutMs = moment.duration(2.51, "minutes").asMilliseconds();
+            const timeoutMs = toMilliseconds(0, 2, 30.6);
             clientRequestProps.setTimeout(timeoutMs);
             client.aadHelper.getAuthHeader = () => {
                 return Promise.resolve("MockToken");
@@ -159,7 +159,7 @@ describe("KustoClient", () => {
                     properties: { Options: { servertimeout: number } };
                 };
                 assert.strictEqual(payloadObj.properties.Options.servertimeout, "00:02:30.6");
-                assert.strictEqual(timeout, timeoutMs + moment.duration(0.5, "minutes").asMilliseconds());
+                assert.strictEqual(timeout, timeoutMs + toMilliseconds(0, 0, 30));
                 return Promise.resolve(new KustoResponseDataSetV2([]));
             };
 
@@ -171,7 +171,7 @@ describe("KustoClient", () => {
             const client = new KustoClient(url);
 
             const clientRequestProps = new ClientRequestProperties();
-            const timeoutMs = moment.duration(2.51, "minutes").asMilliseconds();
+            const timeoutMs = toMilliseconds(0, 2, 31);
             clientRequestProps.setClientTimeout(timeoutMs);
             client.aadHelper.getAuthHeader = () => {
                 return Promise.resolve("MockToken");
@@ -193,7 +193,7 @@ describe("KustoClient", () => {
                 return Promise.resolve("MockToken");
             };
             client._doRequest = (_endpoint, _executionType, _headers, _payload, timeout) => {
-                assert.strictEqual(timeout, moment.duration(4.5, "minutes").asMilliseconds());
+                assert.strictEqual(timeout, toMilliseconds(0, 4, 30));
                 return Promise.resolve(new KustoResponseDataSetV2([]));
             };
 
@@ -207,7 +207,7 @@ describe("KustoClient", () => {
                 return Promise.resolve("MockToken");
             };
             client._doRequest = (_endpoint, _executionType, _headers, _payload, timeout) => {
-                assert.strictEqual(timeout, moment.duration(10.5, "minutes").asMilliseconds());
+                assert.strictEqual(timeout, toMilliseconds(0, 10, 30));
                 return Promise.resolve(new KustoResponseDataSetV2([]));
             };
 

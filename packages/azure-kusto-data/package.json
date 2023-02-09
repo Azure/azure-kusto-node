@@ -21,7 +21,7 @@
         "./dist-esm/src/connectionBuilder.js": "./dist-esm/src/connectionBuilder.browser.js"
     },
     "engines": {
-        "node": ">= 14.0.0"
+        "node": ">= 16.0.0"
     },
     "publishConfig": {
         "access": "public"
@@ -57,13 +57,11 @@
     "dependencies": {
         "@azure/identity": "^2.1.0",
         "@azure/msal-common": "^7.3.0",
-        "@types/node": "^14.0.0",
         "@types/uuid": "^8.3.4",
         "axios": "^0.27.2",
         "crypto-browserify": "^3.12.0",
         "follow-redirects": "^1.15.1",
         "https-browserify": "^1.0.0",
-        "moment": "^2.29.4",
         "stream-http": "^3.2.0",
         "uuid": "^8.3.2"
     },

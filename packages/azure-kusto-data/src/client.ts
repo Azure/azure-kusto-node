@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import moment from "moment";
 import { v4 as uuidv4 } from "uuid";
 import AadHelper from "./security";
 import { KustoResponseDataSet, KustoResponseDataSetV1, KustoResponseDataSetV2, V1, V2Frames } from "./response";
@@ -15,11 +14,12 @@ import https from "https";
 import { isNode } from "@azure/core-util";
 import { kustoTrustedEndpoints } from "./kustoTrustedEndpoints";
 import { CloudSettings } from "./cloudSettings";
+import { toMilliseconds } from "./timeUtils";
 import { KustoHeaders } from "./clientDetails";
 
-const COMMAND_TIMEOUT_IN_MILLISECS = moment.duration(10.5, "minutes").asMilliseconds();
-const QUERY_TIMEOUT_IN_MILLISECS = moment.duration(4.5, "minutes").asMilliseconds();
-const CLIENT_SERVER_DELTA_IN_MILLISECS = moment.duration(0.5, "minutes").asMilliseconds();
+const COMMAND_TIMEOUT_IN_MILLISECS = toMilliseconds(0, 10, 30);
+const QUERY_TIMEOUT_IN_MILLISECS = toMilliseconds(0, 4, 30);
+const CLIENT_SERVER_DELTA_IN_MILLISECS = toMilliseconds(0, 0, 30);
 const MGMT_PREFIX = ".";
 
 enum ExecutionType {

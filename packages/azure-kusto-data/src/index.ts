@@ -5,5 +5,8 @@ import KustoClient from "./client";
 import ClientRequestProperties from "./clientRequestProperties";
 import KustoConnectionStringBuilder from "./connectionBuilder";
 import * as KustoDataErrors from "./errors";
+import { toMilliseconds } from "./timeUtils";
 
-export { KustoClient as Client, ClientRequestProperties, KustoConnectionStringBuilder, KustoDataErrors };
+const TimeUtils = { toMilliseconds };
+
+export { KustoClient as Client, ClientRequestProperties, KustoConnectionStringBuilder, KustoDataErrors, TimeUtils };
