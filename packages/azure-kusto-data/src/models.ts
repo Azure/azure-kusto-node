@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import { parseKustoTimestamp } from "./timeUtils";
+
 export enum WellKnownDataSet {
     PrimaryResult = "PrimaryResult",
     QueryCompletionInformation = "QueryCompletionInformation",
@@ -12,24 +14,7 @@ type DateTimeParser = (value: string) => any;
 type TimeSpanParser = (value: string) => any;
 
 const defaultDatetimeParser: DateTimeParser = (t: string) => new Date(t);
-
-// Format: [+|-]d.hh:mm:ss[.fffffff]
-const TimespanRegex = /^(-?)(?:(\d+).)?(\d{2}):(\d{2}):(\d{2}(\.\d+)?$)/;
-const defaultTimespanParser: TimeSpanParser = (t: number | string) => {
-    if (typeof t === "number") {
-        return t;
-    }
-    const match = TimespanRegex.exec(t);
-    if (match) {
-        const sign = match[1] === "-" ? -1 : 1;
-        const days = parseInt(match[2] || "0", 10);
-        const hours = parseInt(match[3], 10);
-        const minutes = parseInt(match[4], 10);
-        const seconds = parseFloat(match[5]);
-        return sign * 10000 * (days * 24 * 60 * 60 * 1000 + hours * 60 * 60 * 1000 + minutes * 60 * 1000 + seconds * 1000);
-    }
-    throw new Error(`Timespan value '${t}' cannot be decoded`);
-};
+const defaultTimespanParser: TimeSpanParser = parseKustoTimestamp;
 
 export interface Table {
     TableKind?: string;
