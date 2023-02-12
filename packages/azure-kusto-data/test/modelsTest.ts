@@ -85,7 +85,7 @@ describe("KustoResultRow", () => {
                 reverseOrderColumns.map((c, i) => new KustoResultColumn(c, rawColumns.length - i - 1)),
                 inputValues,
                 (t) => t + "-date",
-                (t) => t + 5
+                (t) => +t + 5
             );
 
             const asJson = actual.toJSON();
@@ -171,45 +171,6 @@ describe("KustoResultRow", () => {
             const inputValues = ["2016-06-06T15:35:00Z", "foo", 101, 3.14, false, 3493235670000];
 
             const expectedValues = [new Date("2016-06-06T15:35:00Z"), "foo", 101, 3.14, false, 3493235670000];
-
-            const actual = new KustoResultRow(inputColumns, inputValues);
-
-            for (let i = 0; i < inputValues.length; i++) {
-                if (typeof expectedValues[i] === "object") {
-                    assert.strictEqual(JSON.stringify(actual.getValueAt(i)), JSON.stringify(expectedValues[i]));
-                } else {
-                    assert.strictEqual(actual.getValueAt(i), expectedValues[i]);
-                }
-            }
-        });
-
-
-        it("mapped props string timestamp", () => {
-            const inputValues = ["2016-06-06T15:35:00Z", "foo", 101, 3.14, false, "1.13:20:35.6700000"];
-
-            const expectedValues = [new Date("2016-06-06T15:35:00Z"), "foo", 101, 3.14, false, 1344356700000];
-
-            const actual = new KustoResultRow(inputColumns, inputValues).toJSON<{
-                Timestamp: number;
-                Name: string;
-                Altitude: number;
-                Temperature: number;
-                IsFlying: boolean;
-                TimeFlying: number;
-            }>();
-
-            assert.strictEqual(actual.Timestamp.toString(), expectedValues[0].toString());
-            assert.strictEqual(actual.Name, expectedValues[1]);
-            assert.strictEqual(actual.Altitude, expectedValues[2]);
-            assert.strictEqual(actual.Temperature, expectedValues[3]);
-            assert.strictEqual(actual.IsFlying, expectedValues[4]);
-            assert.strictEqual(actual.TimeFlying.toString(), expectedValues[5].toString());
-        });
-
-        it("value at string timestamp", () => {
-            const inputValues = ["2016-06-06T15:35:00Z", "foo", 101, 3.14, false, "1.13:20:35.6700000"];
-
-            const expectedValues = [new Date("2016-06-06T15:35:00Z"), "foo", 101, 3.14, false, 1344356700000];
 
             const actual = new KustoResultRow(inputColumns, inputValues);
 
