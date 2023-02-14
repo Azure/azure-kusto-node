@@ -272,7 +272,7 @@ describe("KustoResultTable", () => {
                 const actual = new KustoResultTable(v2Response[2]);
                 const timeParser = actual.timeSpanParser;
                 const time = timeParser("1.02:03:04.0050006");
-                //compare to 93784005000.6, with 2 digits precision
+                // 2 digits precision
                 assert.strictEqual(Math.round(time * 100) / 100, 93784005000.6);
             });
 
@@ -280,6 +280,7 @@ describe("KustoResultTable", () => {
                 const actual = new KustoResultTable(v2Response[2]);
                 const timeParser = actual.timeSpanParser;
                 const time = timeParser("-1.02:03:04.0050006");
+                // 2 digits precision
                 assert.strictEqual(Math.round(time * 100) / 100, -93784005000.6);
             });
         });
