@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import { parseKustoTimestampToMillis } from "./timeUtils";
+
 export enum WellKnownDataSet {
     PrimaryResult = "PrimaryResult",
     QueryCompletionInformation = "QueryCompletionInformation",
@@ -9,10 +11,10 @@ export enum WellKnownDataSet {
 }
 
 type DateTimeParser = (value: string) => any;
-type TimeSpanParser = (value: number) => any;
+type TimeSpanParser = (value: string) => any;
 
 const defaultDatetimeParser: DateTimeParser = (t: string) => new Date(t);
-const defaultTimespanParser: TimeSpanParser = (t: number) => t;
+const defaultTimespanParser: TimeSpanParser = parseKustoTimestampToMillis;
 
 export interface Table {
     TableKind?: string;
@@ -28,6 +30,11 @@ interface Column {
     DateType?: string;
 }
 
+/**
+ * Represents a Kusto result row.
+ * Use `dateTimeParser` and `timeSpanParser` to customize the parsing of the `datetime` and `timespan` types.
+ * By default, `datetime` is parsed to a `Date` object and `timespan` is parsed to a number representing the number of milliseconds, as returned by subtracting two `Date` objects.
+ */
 export class KustoResultRow {
     columns: KustoResultColumn[];
     raw: { [ord: number]: any };
