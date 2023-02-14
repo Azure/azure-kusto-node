@@ -4,7 +4,7 @@
 import assert from "assert";
 import { KustoResultColumn, KustoResultRow, KustoResultTable } from "../src/models";
 import v2 from "./data/response/v2";
-import { parseKustoTimestampToMicros } from "../src/timeUtils";
+import { parseKustoTimestampToMillis } from "../src/timeUtils";
 
 const v2Response = v2;
 
@@ -63,7 +63,7 @@ describe("KustoResultRow", () => {
                 inputValues[2],
                 inputValues[3],
                 inputValues[4],
-                parseKustoTimestampToMicros(inputValues[5] as string),
+                parseKustoTimestampToMillis(inputValues[5] as string),
             ];
 
             for (let index = 0; index < inputColumns.length; index++) {
@@ -145,7 +145,7 @@ describe("KustoResultRow", () => {
         it("mapped props", () => {
             const inputValues = ["2016-06-06T15:35:00Z", "foo", 101, 3.14, false, "1.02:03:04.567"];
 
-            const expectedValues = [new Date("2016-06-06T15:35:00Z"), "foo", 101, 3.14, false, 93784567000];
+            const expectedValues = [new Date("2016-06-06T15:35:00Z"), "foo", 101, 3.14, false, 93784567];
 
             const actual = new KustoResultRow(inputColumns, inputValues).toJSON<{
                 Timestamp: number;
@@ -167,7 +167,7 @@ describe("KustoResultRow", () => {
         it("value at", () => {
             const inputValues = ["2016-06-06T15:35:00Z", "foo", 101, 3.14, false, "1.02:03:04.567"];
 
-            const expectedValues = [new Date("2016-06-06T15:35:00Z"), "foo", 101, 3.14, false, 93784567000];
+            const expectedValues = [new Date("2016-06-06T15:35:00Z"), "foo", 101, 3.14, false, 93784567];
 
             const actual = new KustoResultRow(inputColumns, inputValues);
 
@@ -265,15 +265,14 @@ describe("KustoResultTable", () => {
                 const actual = new KustoResultTable(v2Response[2]);
                 const timeParser = actual.timeSpanParser;
                 const time = timeParser("00:00:00.000000005");
-                assert.strictEqual(time, 0.005);
+                assert.strictEqual(time, 0.000005);
             });
 
             it("test complex timespan", () => {
                 const actual = new KustoResultTable(v2Response[2]);
                 const timeParser = actual.timeSpanParser;
                 const time = timeParser("1.02:03:04.0050006");
-                // 2 digits precision
-                assert.strictEqual(Math.round(time * 100) / 100, 93784005000.6);
+                assert.strictEqual(time, 93784005.0006);
             });
 
             it("test negative", () => {
@@ -281,7 +280,7 @@ describe("KustoResultTable", () => {
                 const timeParser = actual.timeSpanParser;
                 const time = timeParser("-1.02:03:04.0050006");
                 // 2 digits precision
-                assert.strictEqual(Math.round(time * 100) / 100, -93784005000.6);
+                assert.strictEqual(time, -93784005.0006);
             });
         });
     });

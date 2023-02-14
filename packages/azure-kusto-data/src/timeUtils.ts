@@ -8,7 +8,7 @@ export function toMilliseconds(hours: number, minutes: number, seconds: number) 
 // Format: [+|-]d.hh:mm:ss[.fffffff]
 const TimespanRegex = /^(-?)(?:(\d+).)?(\d{2}):(\d{2}):(\d{2}(\.\d+)?$)/;
 
-export function parseKustoTimestampToMicros(t: string | null): number {
+export function parseKustoTimestampToMillis(t: string | null): number {
     if (t == null) {
         return 0;
     }
@@ -19,7 +19,7 @@ export function parseKustoTimestampToMicros(t: string | null): number {
         const hours = parseInt(match[3], 10);
         const minutes = parseInt(match[4], 10);
         const seconds = parseFloat(match[5]);
-        return sign * 1000000 * (days * 24 * 60 * 60 + hours * 60 * 60 + minutes * 60 + seconds);
+        return sign * 1000 * (days * 24 * 60 * 60 + hours * 60 * 60 + minutes * 60 + seconds);
     }
     throw new Error(`Timespan value '${t}' cannot be decoded`);
 }
