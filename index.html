@@ -1,24 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
     <body>
-    <!-- Importing the scripts for ingest ( + data): -->
-    <script src="dist/ingest.development.js"></script>
-    <script src="dist/ingest.production.js"></script>
-    <!-- Importing the scripts for data: -->
-    <!--
+        <!-- Importing the scripts for ingest ( + data): -->
+        <script src="dist/ingest.development.js"></script>
+        <script src="dist/ingest.production.js"></script>
+        <!-- Importing the scripts for data: -->
+        <!--
     <script src="dist/data.development.js"></script>
     <script src="dist/data.production.js"></script>
     -->
-    <script>
-        // Usage: import main into your code, or this package (azure-kusto-ingest) index.ts for example.
-        // This example uses the browser auth: 'withUserPrompt' which uses @azure/identity InteractiveBrowserCredential
-        // The authentication app id should have consent to Kusto and allow the redirectUri specified. See: https://github.com/Azure/azure-sdk-for-js/tree/main/sdk/identity/identity/test/manual/interactive-browser-credential
-        // Other authentication methods for browsers are 'withTokenProvider', 'withAccessToken' where the user provides the token himself.
-        // Notice that ingestFromBlob refers to azure blob as opposed to ingest from file which accepts a JS Blob object.
-        // If you are using an existing table the table will be added two new columns: Name:string, Value: int
+        <script>
+            // Usage: import main into your code, or this package (azure-kusto-ingest) index.ts for example.
+            // This example uses the browser auth: 'withUserPrompt' which uses @azure/identity InteractiveBrowserCredential
+            // The authentication app id should have consent to Kusto and allow the redirectUri specified. See: https://github.com/Azure/azure-sdk-for-js/tree/main/sdk/identity/identity/test/manual/interactive-browser-credential
+            // Other authentication methods for browsers are 'withTokenProvider', 'withAccessToken' where the user provides the token himself.
+            // Notice that ingestFromBlob refers to azure blob as opposed to ingest from file which accepts a JS Blob object.
+            // If you are using an existing table the table will be added two new columns: Name:string, Value: int
 
-        const { KustoConnectionStringBuilder, Client: KustoClient } = Kusto.data;
-        const { DataFormat, IngestClient, IngestionDescriptors, IngestionProperties } = Kusto.ingest;
+            const { KustoConnectionStringBuilder, Client: KustoClient } = Kusto.data;
+            const { DataFormat, IngestClient, IngestionDescriptors, IngestionProperties } = Kusto.ingest;
 
             const database = "<databaseName>";
             const table = "<tableName>";
