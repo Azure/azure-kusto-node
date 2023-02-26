@@ -77,7 +77,7 @@ export default (_env: any, argv: any) => {
             }),
             new DeclarationBundlerPlugin({
                 moduleName: "Kusto",
-                out: "kusto." + argv.mode + ".d.ts",
+                out: "kusto.d.ts",
             }),
         ],
     };

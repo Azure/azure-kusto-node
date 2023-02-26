@@ -46,12 +46,16 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: browser.production.zip
-          path: ./dist/*.production.*
+          path: |
+            ./dist/*.production.*
+            ./dist/kusto.d.ts
       - name: Upload browser development artifacts
         uses: actions/upload-artifact@v3
         with:
           name: browser.development.zip
-          path: ./dist/*.development.*
+          path: |
+            ./dist/*.development.*
+            ./dist/kusto.d.ts
       - name: Pack
         run: npm pack -ws
       - name: Upload data
