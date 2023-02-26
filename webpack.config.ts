@@ -1,8 +1,5 @@
 import * as path from "path";
 import * as webpack from "webpack";
-import DeclarationBundlerPlugin from "types-webpack-bundler";
-// This is a very lean example of a webpack config file to use for using the browser
-// implementation of the package. It is using the compiled files of the ingest library and will load its index.js file.
 // USAGE: npm run webpack
 
 // different for dev and prod
@@ -74,10 +71,6 @@ export default (_env: any, argv: any) => {
             // https://github.com/webpack/changelog-v5/issues/10
             new webpack.ProvidePlugin({
                 Buffer: ["buffer", "Buffer"],
-            }),
-            new DeclarationBundlerPlugin({
-                moduleName: "Kusto",
-                out: "kusto.d.ts",
             }),
         ],
     };
