@@ -73,7 +73,7 @@ The only authentication methods available are user prompt and token provider.
 The namespace for azure-kusto-data is `Kusto.data`.
 The namespace for azure-kusto-ingest is `Kusto.ingest`.
 
-The file index.html contains a sample of how to use the SDK in a browser.
+The file `sample/index.html` contains a sample of how to use the SDK in a browser.
 
 Run: `npm run webpackBuild` for a production build,
 or `npm run webpack` for a live development build.

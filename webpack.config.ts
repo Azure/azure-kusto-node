@@ -1,5 +1,6 @@
 import * as path from "path";
 import * as webpack from "webpack";
+import DeclarationBundlerPlugin from "types-webpack-bundler";
 // USAGE: npm run webpack
 
 // different for dev and prod
@@ -72,15 +73,29 @@ export default (_env: any, argv: any) => {
             new webpack.ProvidePlugin({
                 Buffer: ["buffer", "Buffer"],
             }),
+            new DeclarationBundlerPlugin({
+                moduleName: "Kusto",
+                out: "./kusto.d.ts",
+            }),
         ],
+        devtool: "source-map",
     };
 
     if (argv.mode === "development") {
-        config.devtool = "inline-source-map";
         (config as any).devServer = {
             port: 3000, // This port should be open in the SPA aad app
-            static: {
-                directory: path.join(__dirname, "dist"),
+            static: [
+                {
+                    directory: path.join(__dirname, "sample"),
+                    publicPath: "/",
+                },
+            ],
+            // rewrite to /dist
+            proxy: {
+                "/dist": {
+                    target: "http://localhost:3000",
+                    pathRewrite: { "^/dist": "" },
+                },
             },
         };
     }
