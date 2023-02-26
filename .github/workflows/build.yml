@@ -42,34 +42,3 @@ jobs:
         with:
           files: |
             test-results.xml
-      - name: Upload browser production artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: browser.production.zip
-          path: |
-            ./dist/*.production.*
-            ./dist/kusto.d.ts
-      - name: Upload browser development artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: browser.development.zip
-          path: |
-            ./dist/*.development.*
-            ./dist/kusto.d.ts
-      - name: Pack
-        run: npm pack -ws
-      - name: Upload data
-        uses: actions/upload-artifact@v3
-        with:
-          name: azure-kusto-data.tgz
-          path: ./azure-kusto-data*.tgz
-      - name: Upload ingest
-        uses: actions/upload-artifact@v3
-        with:
-          name: azure-kusto-ingest.tgz
-          path: ./azure-kusto-ingest*.tgz
-      - name: Upload quick start
-        uses: actions/upload-artifact@v3
-        with:
-          name: quickstart.zip
-          path: ./azure-kusto-quick*.tgz
