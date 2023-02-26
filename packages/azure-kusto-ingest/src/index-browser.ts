@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 // Exports everything from index.ts, plus azure-kusto-data
 // Since this is not a replacement for index.ts, it is not named index.browser.ts and is not referenced in package.json
 
