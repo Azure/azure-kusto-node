@@ -22,6 +22,7 @@ jobs:
           npm ci
       - run: npm run checkFormat
       - run: npm run lint
+      - run: npm run webpackBuildDev
       - run: npm run webpackBuild
       - run: npm run testPipeline
         env:
@@ -41,12 +42,30 @@ jobs:
         with:
           files: |
             test-results.xml
-      - name: Upload artifacts
+      - name: Upload browser production artifacts
         uses: actions/upload-artifact@v3
         with:
-          path: |
-            dist/ingest.js
-            dist/ingest.js.map
-            dist/data.js
-            dist/data.js.map
-            packages/*/dist-esm  
+          name: browser.production.zip
+          path: ./dist/*.production.*
+      - name: Upload browser development artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: browser.development.zip
+          path: ./dist/*.development.*
+      - name: Pack
+        run: npm pack -ws
+      - name: Upload data
+        uses: actions/upload-artifact@v3
+        with:
+          name: azure-kusto-data.tgz
+          path: ./azure-kusto-data*.tgz
+      - name: Upload ingest
+        uses: actions/upload-artifact@v3
+        with:
+          name: azure-kusto-ingest.tgz
+          path: ./azure-kusto-ingest*.tgz
+      - name: Upload quick start
+        uses: actions/upload-artifact@v3
+        with:
+          name: quickstart.zip
+          path: ./azure-kusto-quick*.tgz
