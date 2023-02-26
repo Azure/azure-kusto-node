@@ -2,7 +2,7 @@
     "name": "root",
     "private": true,
     "scripts": {
-        "build": "npx lerna@latest run build",
+        "build": "npx lerna run build",
         "prepublish": "npm run build",
         "exampleData": "npm run build && node packages/azure-kusto-data/example.js",
         "exampleIngest": "npm run build && node packages/azure-kusto-ingest/example.js",
@@ -20,7 +20,9 @@
         "webpack": "shx cp index.html dist/index.html && shx sed -i ingest.production.js ingest.development.js dist/index.html  && webpack serve --mode=development ",
         "webpackBuild": "webpack configtest && shx cp index.html dist/index.html && webpack --mode=production",
         "clean": "cd packages/azure-kusto-data && npm run clean && cd ../azure-kusto-ingest && npm run clean",
-        "cleanModules": "rimraf node_modules && rimraf packages/azure-kusto-data/node_modules && rimraf packages/azure-kusto-ingest/node_modules && rimraf packages/quick_start/node_modules"
+        "cleanModules": "rimraf node_modules && rimraf packages/azure-kusto-data/node_modules && rimraf packages/azure-kusto-ingest/node_modules && rimraf packages/quick_start/node_modules",
+        "bumpVersion": "npx lerna version --no-git-tag-version --no-push",
+        "bumpVersionPush": "npx lerna version"
     },
     "devDependencies": {
         "@types/mocha": "^9.1.1",
