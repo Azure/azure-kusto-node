@@ -3,5 +3,4 @@
 
 import pkg from "../package.json";
 
-
 export const SDK_VERSION = pkg.version;

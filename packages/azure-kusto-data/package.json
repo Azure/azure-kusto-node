@@ -18,7 +18,7 @@
         "http": false,
         "crypto": false,
         "stream": false,
-        "./dist-esm/src/connectionBuilder.js": "./dist-esm/src/connectionBuilder.browser.js"
+        "./src/connectionBuilder": "./src/connectionBuilder.browser"
     },
     "engines": {
         "node": ">= 16.0.0"

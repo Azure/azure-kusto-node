@@ -70,16 +70,10 @@ The code is browser-compatible, with the main differences being that ingestFromF
 ingestFromStream accepts an ArrayBuffer.   
 The only authentication methods available are user prompt and token provider.
 
-Fallback version of files used in the browser, are called '*.browser.ts'.
+The namespace for azure-kusto-data is `Kusto.data`.
+The namespace for azure-kusto-ingest is `Kusto.ingest`.
 
-To run a quick sample for azure-kusto-ingest we provided a webpack config which uses the file index.html which runs
-index.js as a script.
-First add to index.ts:
+The file index.html contains a sample of how to use the SDK in a browser.
 
-```js
-import {main} from "../exampleBrowser"
-
-main().catch((e) => console.log(e));
-```
-
-Then run: `npm run webpack`
+Run: `npm run webpackBuild` for a production build,
+or `npm run webpack` for a live development build.
