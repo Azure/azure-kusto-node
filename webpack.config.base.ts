@@ -1,29 +1,10 @@
 import * as path from "path";
 import * as webpack from "webpack";
-import DeclarationBundlerPlugin from "types-webpack-bundler";
 // USAGE: npm run webpack
 
 // different for dev and prod
 export default (_env: any, argv: any) => {
     let config: webpack.Configuration = {
-        entry: {
-            ingest: {
-                import: "./packages/azure-kusto-ingest/src/index-browser.ts",
-                filename: "ingest." + argv.mode + ".js",
-                library: {
-                    name: "Kusto",
-                    type: "umd",
-                },
-            },
-            data: {
-                import: "./packages/azure-kusto-data/src/index.ts",
-                filename: "data." + argv.mode + ".js",
-                library: {
-                    name: ["Kusto", "data"],
-                    type: "umd",
-                },
-            },
-        },
         module: {
             rules: [
                 {
@@ -73,15 +54,11 @@ export default (_env: any, argv: any) => {
             new webpack.ProvidePlugin({
                 Buffer: ["buffer", "Buffer"],
             }),
-            new DeclarationBundlerPlugin({
-                moduleName: "Kusto",
-                out: "./kusto.d.ts",
-            }),
         ],
-        devtool: "source-map",
     };
 
     if (argv.mode === "development") {
+        config.devtool = "inline-source-map";
         (config as any).devServer = {
             port: 3000, // This port should be open in the SPA aad app
             static: [

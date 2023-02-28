@@ -5,7 +5,6 @@
     "test/**/*.ts",
     "src/**/*.json",
     "test/**/*.json",
-    "package.json"
   ],
   "compilerOptions": {
     "declarationDir": "./types",

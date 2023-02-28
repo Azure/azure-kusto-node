@@ -75,5 +75,5 @@ The namespace for azure-kusto-ingest is `Kusto.ingest`.
 
 The file `sample/index.html` contains a sample of how to use the SDK in a browser.
 
-Run: `npm run webpackBuild` for a production build,
-or `npm run webpack` for a live development build.
+Run: `npm run webpack[Data/Ingest][Prod/Dev]` to the files to the `dist` folder.
+or `npm run webpackServe` for a live development server for ingest and data.

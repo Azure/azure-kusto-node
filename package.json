@@ -2,7 +2,7 @@
     "name": "root",
     "private": true,
     "scripts": {
-        "build": "npx lerna run build",
+        "build": "lerna run build",
         "prepublish": "npm run build",
         "exampleData": "npm run build && node packages/azure-kusto-data/example.js",
         "exampleIngest": "npm run build && node packages/azure-kusto-ingest/example.js",
@@ -15,15 +15,21 @@
         "testIngest": "npm run test -- --exclude !packages/azure-kusto-ingest/**",
         "testIngestNoE2E": "npm run testNoE2E -- --exclude !packages/azure-kusto-ingest/**",
         "testPipeline": "nyc --reporter lcovonly mocha --reporter mocha-junit-reporter --reporter-options outputs=true",
-        "format": "npx prettier --write .",
-        "checkFormat": "npx prettier --check --end-of-line lf .",
-        "webpack": "webpack serve --mode=development",
-        "webpackBuild": "webpack configtest && webpack --mode=production",
-        "webpackBuildDev": "webpack configtest && webpack --mode=development",
+        "format": "prettier --write .",
+        "checkFormat": "prettier --check --end-of-line lf .",
+        "webpackServe": "webpack serve --config webpack.config.ingest.ts --mode=development",
+        "webpackDataProd": "webpack configtest webpack.config.data.ts && webpack --config webpack.config.data.ts --mode=production",
+        "webpackDataDev": "webpack configtest webpack.config.data.ts && webpack --config webpack.config.data.ts --mode=production",
+        "webpackIngestProd": "webpack configtest webpack.config.ingest.ts && webpack --config webpack.config.ingest.ts --mode=production",
+        "webpackIngestDev": "webpack configtest webpack.config.ingest.ts && webpack --config webpack.config.ingest.ts --mode=production",
+        "webpackProd": "concurrently \"npm:webpackDataProd\" \"npm:webpackIngestProd\"",
+        "webpackDev": "concurrently \"npm:webpackDataDev\" \"npm:webpackIngestDev\"",
+        "webpackAll": "concurrently \"npm:webpackProd\" \"npm:webpackDev\"",
+        "buildAll": "concurrently \"npm:build\" \"npm:webpackAll\"",
         "clean": "cd packages/azure-kusto-data && npm run clean && cd ../azure-kusto-ingest && npm run clean",
         "cleanModules": "rimraf node_modules && rimraf packages/azure-kusto-data/node_modules && rimraf packages/azure-kusto-ingest/node_modules && rimraf packages/quick_start/node_modules",
-        "bumpVersion": "npx lerna version --no-git-tag-version --no-push",
-        "bumpVersionPush": "npx lerna version"
+        "bumpVersion": "lerna version --no-git-tag-version --no-push",
+        "bumpVersionPush": "lerna version"
     },
     "devDependencies": {
         "@types/mocha": "^9.1.1",
@@ -51,7 +57,8 @@
         "tsconfig-paths-webpack-plugin": "^4.0.0",
         "types-webpack-bundler": "^1.0.2",
         "typescript": "^4.9.5",
-        "webpack-cli": "^5.0.1"
+        "webpack-cli": "^5.0.1",
+        "concurrently": "^7.6.0"
     },
     "overrides": {
         "jsonwebtoken": "^9.0.0"

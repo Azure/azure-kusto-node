@@ -22,8 +22,7 @@ jobs:
           npm ci
       - run: npm run checkFormat
       - run: npm run lint
-      - run: npm run webpackBuildDev
-      - run: npm run webpackBuild
+      - run: npm run buildAll
       - run: npm run testPipeline
         env:
           AUTO_TEST: true
