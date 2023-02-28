@@ -1,10 +1,12 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import * as path from "path";
 import * as webpack from "webpack";
-// USAGE: npm run webpack
 
 // different for dev and prod
-export default (_env: any, argv: any) => {
-    let config: webpack.Configuration = {
+export default (_env: any, argv: { mode: string }) => {
+    const config: webpack.Configuration = {
         module: {
             rules: [
                 {
@@ -59,7 +61,7 @@ export default (_env: any, argv: any) => {
 
     if (argv.mode === "development") {
         config.devtool = "inline-source-map";
-        (config as any).devServer = {
+        (config as webpack.WebpackOptionsNormalized).devServer = {
             port: 3000, // This port should be open in the SPA aad app
             static: [
                 {

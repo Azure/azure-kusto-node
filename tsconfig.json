@@ -16,9 +16,7 @@
         "baseUrl": "."
     },
     "include": [
-        "**/src/**/*.ts",
-        "**/test/**/*.ts",
-        "**/index.ts"
+        "webpack.*.ts"
     ],
     "exclude": [
         "node_modules"
