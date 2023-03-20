@@ -81,6 +81,7 @@ describe("kustoTrustedEndpoints", function () {
             "https://kustowwqgogzpseg6o.eastus2.kusto.windows.net",
             "https://kustor3gjpwqum3olw.canadacentral.kusto.windows.net",
             "https://dflskfdslfkdslkdsfldfs.westeurope.kusto.data.microsoft.com",
+            "https://dflskfdslfkdslkdsfldfs.westeurope.kusto.fabric.microsoft.com",
         ]) {
             validateEndpoint(c, DEFAULT_PUBLIC_LOGIN_URL);
 
@@ -88,13 +89,15 @@ describe("kustoTrustedEndpoints", function () {
             let clusterName = c.toUpperCase();
             validateEndpoint(clusterName, DEFAULT_PUBLIC_LOGIN_URL);
 
+            const specialUrls = ["synapse", "data.microsoft.com", "fabric.microsoft.com"];
+
             // Test MFA endpoints
-            if (!c.includes("synapse") && !c.includes("data.microsoft.com")) {
+            if (!specialUrls.some((u) => c.includes(u))) {
                 clusterName = c.replace(".kusto.", ".kustomfa.");
                 validateEndpoint(clusterName, DEFAULT_PUBLIC_LOGIN_URL);
             }
             // Test dev endpoints
-            if (!c.includes("synapse") && !c.includes("data.microsoft.com")) {
+            if (!specialUrls.some((u) => c.includes(u))) {
                 clusterName = c.replace(".kusto.", ".kustodev.");
                 validateEndpoint(clusterName, DEFAULT_PUBLIC_LOGIN_URL);
             }
