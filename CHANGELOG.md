@@ -30,7 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   The SDK now supports being run in a browser
 -   See README.md for details
 -   Added Security.MD
--   Minor fixes
+-   Overall bugs fixes
+-   Use azure identity instead of Msal for authentication
 
 ### Removed
 
