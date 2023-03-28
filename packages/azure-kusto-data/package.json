@@ -7,7 +7,7 @@
     "main": "dist-esm/src/index",
     "scripts": {
         "clean": "rimraf dist/* dist-esm/* types/*",
-        "build": "tsc"
+        "build": "tsc -b"
     },
     "browser": {
         "fs": false,

@@ -14,5 +14,12 @@
         "moduleResolution": "node",
         "inlineSources": true,
         "baseUrl": "."
+    },
+    "ts-node": {
+        "files": true,
+        "require": [
+            "tsconfig-paths/register"
+        ],
+        "experimentalResolverFeatures": true
     }
 }

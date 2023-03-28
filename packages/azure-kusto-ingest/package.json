@@ -6,7 +6,7 @@
     "types": "./types/src/index.d.ts",
     "main": "dist-esm/src/index",
     "scripts": {
-        "build": "tsc",
+        "build": "tsc -b",
         "clean": "rimraf dist/* dist-esm/* types/*"
     },
     "engines": {
