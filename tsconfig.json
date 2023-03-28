@@ -14,11 +14,5 @@
         "moduleResolution": "node",
         "inlineSources": true,
         "baseUrl": "."
-    },
-    "include": [
-        "webpack.*.ts"
-    ],
-    "exclude": [
-        "node_modules"
-    ]
+    }
 }
