@@ -51,6 +51,7 @@ export class CloudSettings {
                     // 'https://sandbox-46-11.reactblade.portal.azure.net' has been blocked by CORS policy: The 'Access-Control-Allow-Origin' header has a value
                     // 'https://sandbox-46-10.reactblade.portal.azure.net' that is not equal to the supplied origin.
                 },
+                maxRedirects: 0,
             });
             if (response.status === 200) {
                 this.cloudCache[kustoUri] = response.data.AzureAD || this.defaultCloudInfo;

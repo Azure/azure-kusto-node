@@ -7,7 +7,7 @@ import assert from "assert";
 import fs, { ReadStream } from "fs";
 import IngestClient from "../../src/ingestClient";
 import KustoIngestStatusQueues from "../../src/status";
-import { Client, ClientRequestProperties, KustoConnectionStringBuilder as ConnectionStringBuilder } from "azure-kusto-data";
+import { Client, ClientRequestProperties, KustoConnectionStringBuilder as ConnectionStringBuilder, kustoTrustedEndpoints, MatchRule } from "azure-kusto-data";
 import StreamingIngestClient from "../../src/streamingIngestClient";
 import ManagedStreamingIngestClient from "../../src/managedStreamingIngestClient";
 import { CompressionType, StreamDescriptor } from "../../src/descriptors";
@@ -287,6 +287,24 @@ const main = (): void => {
                 assert.fail(`Didn't throw executionTimeout`);
             });
         });
+    });
+
+    describe("NoRedirects", () => {
+        const redirectCodes = [301, 302, 303, 307, 308];
+        const client = new Client("http://help.kusto.windows.net");
+        for (const code of redirectCodes) {
+            it("testNoRedirects", async () => {
+                client.endpoints.query = `https://httpstat.us/${code}`;
+                kustoTrustedEndpoints.addTrustedHosts([new MatchRule("httpstat.us", false)], false);
+                try {
+                    await client.execute(databaseName, tableName);
+                    assert.fail("Expected exception");
+                } catch (ex) {
+                    assert.ok(ex instanceof Error);
+                    assert.match(ex.message, new RegExp(`.*${code}.*`), `Fail to get ${code} error code. ex json: ${JSON.stringify(ex)}, ex: ${ex}`);
+                }
+            });
+        }
     });
 
     const cleanStatusQueues = async () => {

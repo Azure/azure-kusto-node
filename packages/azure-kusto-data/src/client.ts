@@ -203,9 +203,10 @@ export class KustoClient {
         timeout: number,
         properties?: ClientRequestProperties | null
     ): Promise<KustoResponseDataSet> {
-        const axiosConfig = {
+        const axiosConfig: AxiosRequestConfig = {
             headers,
             timeout,
+            maxRedirects: 0,
         };
 
         let axiosResponse;
