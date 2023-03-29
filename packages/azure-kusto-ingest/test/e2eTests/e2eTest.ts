@@ -291,7 +291,7 @@ const main = (): void => {
 
     describe("NoRedirects", () => {
         const redirectCodes = [301, 302, 303, 307, 308];
-        const client = new Client("http://help.kusto.windows.net");
+        const client = new Client("https://help.kusto.windows.net");
         for (const code of redirectCodes) {
             it("testNoRedirects", async () => {
                 client.endpoints.query = `https://httpstat.us/${code}`;
