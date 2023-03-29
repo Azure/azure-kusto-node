@@ -11,7 +11,6 @@ import { DataFormat, IngestionProperties, IngestionPropertiesInput } from "../sr
 import KustoManagedStreamingIngestClient from "../src/managedStreamingIngestClient";
 import { Readable } from "stream";
 import { QueueSendMessageResponse } from "@azure/storage-queue";
-import { describe } from "mocha";
 import { CloudSettings } from "azure-kusto-data/src/cloudSettings";
 import assert from "assert";
 import uuidValidate from "uuid-validate";

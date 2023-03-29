@@ -11,7 +11,7 @@ import { Client, ClientRequestProperties, KustoConnectionStringBuilder as Connec
 import StreamingIngestClient from "../../src/streamingIngestClient";
 import ManagedStreamingIngestClient from "../../src/managedStreamingIngestClient";
 import { CompressionType, StreamDescriptor } from "../../src/descriptors";
-import { DataFormat, IngestionProperties, JsonColumnMapping, ReportLevel } from "azure-kusto-ingest";
+import { DataFormat, IngestionProperties, JsonColumnMapping, ReportLevel } from "../../src";
 import { CloudSettings } from "azure-kusto-data/src/cloudSettings";
 import { sleep } from "../../src/retry";
 import util from "util";
@@ -98,7 +98,7 @@ const main = (): void => {
     let currentCount = 0;
 
     describe(`E2E Tests`, () => {
-        after(async () => {
+        afterAll(async () => {
             try {
                 await queryClient.execute(databaseName, `.drop table ${tableName} ifexists`);
             } catch (err) {
@@ -109,7 +109,7 @@ const main = (): void => {
             ingestClient.close();
         });
 
-        before("SetUp", async () => {
+        beforeAll(async () => {
             try {
                 await queryClient.execute(databaseName, `.create table ${tableName} ${tableColumns}`);
                 await queryClient.execute(databaseName, `.alter table ${tableName} policy streamingingestion enable`);
@@ -145,7 +145,7 @@ const main = (): void => {
                     }
                     await assertRowsCount(item);
                 }
-            }).timeout(240000);
+            });
 
             it("ingestFromStream", async () => {
                 for (const item of testItems) {
@@ -160,7 +160,7 @@ const main = (): void => {
                     }
                     await assertRowsCount(item);
                 }
-            }).timeout(240000);
+            });
         });
 
         describe("StreamingIngestClient", () => {
@@ -173,7 +173,7 @@ const main = (): void => {
                     }
                     await assertRowsCount(item);
                 }
-            }).timeout(240000);
+            });
 
             it("ingestFromStream", async () => {
                 for (const item of testItems.filter((i) => i.testOnstreamingIngestion)) {
@@ -188,7 +188,7 @@ const main = (): void => {
                     }
                     await assertRowsCount(item);
                 }
-            }).timeout(240000);
+            });
         });
 
         describe("ManagedStreamingIngestClient", () => {
@@ -201,7 +201,7 @@ const main = (): void => {
                     }
                     await assertRowsCount(item);
                 }
-            }).timeout(240000);
+            });
             it("ingestFromStream", async () => {
                 for (const item of testItems.filter((i) => i.testOnstreamingIngestion)) {
                     let stream: ReadStream | StreamDescriptor = fs.createReadStream(item.path);
@@ -215,7 +215,7 @@ const main = (): void => {
                     }
                     await assertRowsCount(item);
                 }
-            }).timeout(240000);
+            });
         });
 
         describe("KustoIngestStatusQueues", () => {
@@ -225,7 +225,7 @@ const main = (): void => {
                 } catch (err) {
                     assert.fail(`Failed to Clean status queues - ${util.format(err)}`);
                 }
-            }).timeout(240000);
+            });
 
             it("CheckSucceededIngestion", async () => {
                 const item = testItems[0];
@@ -238,7 +238,7 @@ const main = (): void => {
                 } catch (err) {
                     assert.fail(`Failed to ingest ${item.description} - ${util.format(err)}`);
                 }
-            }).timeout(240000);
+            });
 
             it("CheckFailedIngestion", async () => {
                 const item = testItems[0];
@@ -252,7 +252,7 @@ const main = (): void => {
                 } catch (err) {
                     assert.fail(`Failed to ingest ${item.description} - ${util.format(err)}`);
                 }
-            }).timeout(240000);
+            });
         });
 
         describe("QueryClient", () => {
@@ -301,7 +301,7 @@ const main = (): void => {
 
     const waitForStatus = async () => {
         while ((await statusQueues.failure.isEmpty()) && (await statusQueues.success.isEmpty())) {
-            await sleep(1000);
+            await sleep(500);
         }
 
         const failures = await statusQueues.failure.pop();
@@ -328,7 +328,7 @@ const main = (): void => {
             if (count >= expected) {
                 break;
             }
-            await sleep(3000);
+            await sleep(1000);
         }
         currentCount += count;
         assert.strictEqual(count, expected, `Failed to ingest ${testItem.description} - '${count}' rows ingested, expected '${expected}'`);
