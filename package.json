@@ -14,7 +14,7 @@
         "testData": "npm run test -- --exclude !packages/azure-kusto-ingest/test/e2eTests/**",
         "testIngest": "npm run test -- --exclude !packages/azure-kusto-ingest/**",
         "testIngestNoE2E": "npm run testNoE2E -- --exclude !packages/azure-kusto-ingest/**",
-        "testPipeline": "nyc --reporter lcovonly mocha --reporter mocha-junit-reporter --reporter-options outputs=true --reporter-options mochaFile=./test-results.[hash].xml",
+        "testPipeline": "nyc --reporter lcovonly mocha --reporter mocha-junit-reporter --reporter-options mochaFile=./test-results.[hash].xml",
         "format": "prettier --write .",
         "checkFormat": "prettier --check --end-of-line lf .",
         "webpackServe": "webpack serve --config webpack.config.ingest.ts --mode=development",
