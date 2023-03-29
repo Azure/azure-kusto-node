@@ -33,7 +33,6 @@ jobs:
           TENANT_ID: "72f988bf-86f1-41af-91ab-2d7cd011db47"
           ENGINE_CONNECTION_STRING: "https://sdkse2etest.eastus.kusto.windows.net"
           DM_CONNECTION_STRING: "https://ingest-sdkse2etest.eastus.kusto.windows.net"
-          DEBUG: mocha*
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v2
       - name: Publish Unit Test Results
@@ -41,4 +40,4 @@ jobs:
         if: always()
         with:
           files: |
-            test-results*.xml
+            junit.xml

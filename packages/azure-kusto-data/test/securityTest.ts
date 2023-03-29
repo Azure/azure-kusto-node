@@ -10,7 +10,7 @@ import { CredentialUnavailableError } from "@azure/identity";
 import { loginTest, manualLoginTest } from "./data/testUtils";
 
 describe("test errors", () => {
-    before(() => {
+    beforeAll(() => {
         CloudSettings.getInstance().cloudCache["https://somecluster.kusto.windows.net"] = CloudSettings.getInstance().defaultCloudInfo;
     });
 
@@ -35,7 +35,7 @@ describe("test errors", () => {
             assert.strictEqual(e.tokenProviderName, "UserPassTokenProvider");
             assert.strictEqual(e.context.userName, username);
         }
-    }).timeout(10000);
+    });
 
     it("test app key", async () => {
         const cluster = "https://somecluster.kusto.windows.net";
@@ -52,7 +52,7 @@ describe("test errors", () => {
             assert.strictEqual(e.tokenProviderName, "ApplicationKeyTokenProvider");
             assert.strictEqual(e.context.clientId, appId);
         }
-    }).timeout(10000);
+    });
 
     it("h", async () => {
         const cluster = "https://somecluster.kusto.windows.net";
@@ -81,7 +81,7 @@ describe("test errors", () => {
             assert.ok(e instanceof KustoAuthenticationError);
             assert.strictEqual(e.context.clientId, appId);
         }
-    }).timeout(10000);
+    });
 
     // Does not throw anymore - behavior is printing to console by @azure/identity
     it("device code without function", () => {
@@ -108,11 +108,11 @@ describe("test errors", () => {
             assert.strictEqual(e.tokenProviderName, "MsiTokenProvider");
             assert.strictEqual(e.context.clientId, clientId);
         }
-    }).timeout(10000);
+    });
 });
 
 describe("Test providers", () => {
-    before(() => {
+    beforeAll(() => {
         CloudSettings.getInstance().cloudCache["https://somecluster.kusto.windows.net"] = CloudSettings.getInstance().defaultCloudInfo;
     });
 
@@ -159,7 +159,7 @@ describe("Test providers", () => {
         const helper = new AadHelper(kcsb);
         const token = await helper.getAuthHeader();
         assert.notStrictEqual(token, null);
-    }).timeout(10000);
+    });
 
     manualLoginTest(
         "APP_ID",
@@ -178,7 +178,7 @@ describe("Test providers", () => {
         const helper = new AadHelper(kcsb);
         const token = await helper.getAuthHeader();
         assert.notStrictEqual(token, null);
-    }).timeout(10000);
+    });
 
     manualLoginTest(
         "APP_ID",
@@ -196,7 +196,7 @@ describe("Test providers", () => {
         const helper = new AadHelper(kcsb);
         const token = await helper.getAuthHeader();
         assert.notStrictEqual(token, null);
-    }).timeout(10000);
+    });
 
     manualLoginTest()("test az login", async () => {
         const cluster = "https://somecluster.kusto.windows.net";
@@ -206,7 +206,7 @@ describe("Test providers", () => {
         const helper = new AadHelper(kcsb);
         const token = await helper.getAuthHeader();
         assert.notStrictEqual(token, null);
-    }).timeout(30000);
+    });
 
     manualLoginTest()("test device code", async () => {
         const cluster = "https://somecluster.kusto.windows.net";
@@ -216,7 +216,7 @@ describe("Test providers", () => {
         const helper = new AadHelper(kcsb);
         const token = await helper.getAuthHeader();
         assert.notStrictEqual(token, null);
-    }).timeout(60000);
+    });
 
     manualLoginTest()("test user prompt", async () => {
         const cluster = "https://somecluster.kusto.windows.net";
@@ -226,7 +226,7 @@ describe("Test providers", () => {
         const helper = new AadHelper(kcsb);
         const token = await helper.getAuthHeader();
         assert.notStrictEqual(token, null);
-    }).timeout(60000);
+    });
 
     manualLoginTest("TEST_MSI", "MSI_ID")("test msi user", async () => {
         const cluster = "https://somecluster.kusto.windows.net";
@@ -236,7 +236,7 @@ describe("Test providers", () => {
         const helper = new AadHelper(kcsb);
         const token = await helper.getAuthHeader();
         assert.notStrictEqual(token, null);
-    }).timeout(30000);
+    });
 
     manualLoginTest("TEST_MSI")("test msi system", async () => {
         const cluster = "https://somecluster.kusto.windows.net";
@@ -246,5 +246,5 @@ describe("Test providers", () => {
         const helper = new AadHelper(kcsb);
         const token = await helper.getAuthHeader();
         assert.notStrictEqual(token, null);
-    }).timeout(30000);
+    });
 });

@@ -15,7 +15,7 @@ These include testing related packages as well as styling ([eslint](https://esli
 
 ## Testing
 
-This project uses [mocha](https://mochajs.org/) for testing.
+This project uses jest for testing.
 
 First, enter the directory of the package to run the tests on:
 
