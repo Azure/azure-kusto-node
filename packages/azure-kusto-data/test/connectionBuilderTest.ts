@@ -64,18 +64,18 @@ const DEFAULT_AUTHORITY = "organizations";
 
 describe("KustoConnectionStringBuilder", () => {
     describe("validation tests", () => {
-        it("throws when empty connection string is provided", () => {
+        it.concurrent("throws when empty connection string is provided", () => {
             assert.throws(() => new KustoConnectionStringBuilder(" "), Error, "Missing connection string");
         });
 
-        it("removes trailing dashes from data source", () => {
+        it.concurrent("removes trailing dashes from data source", () => {
             const kcsbForward = new KustoConnectionStringBuilder("https://test.kusto.windows.net/");
             assert.strictEqual(kcsbForward.dataSource, "https://test.kusto.windows.net");
             const kcsbBack = new KustoConnectionStringBuilder("https://test.kusto.windows.net\\");
             assert.strictEqual(kcsbBack.dataSource, "https://test.kusto.windows.net");
         });
 
-        it("throws when user or password is empty", () => {
+        it.concurrent("throws when user or password is empty", () => {
             assert.throws(
                 () => KustoConnectionStringBuilder.withAadUserPasswordAuthentication("https://test.kusto.windows.net/", " ", "password"),
                 Error,
@@ -88,7 +88,7 @@ describe("KustoConnectionStringBuilder", () => {
             );
         });
 
-        it("throws when appId or appKey is empty", () => {
+        it.concurrent("throws when appId or appKey is empty", () => {
             assert.throws(
                 () => KustoConnectionStringBuilder.withAadApplicationKeyAuthentication("https://test.kusto.windows.net/", " ", "password"),
                 Error,
@@ -106,7 +106,7 @@ describe("KustoConnectionStringBuilder", () => {
             );
         });
 
-        it("throws when certificate values are empty", () => {
+        it.concurrent("throws when certificate values are empty", () => {
             assert.throws(
                 () => KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication("https://test.kusto.windows.net/", " ", "private", "thumb"),
                 Error,
@@ -127,7 +127,7 @@ describe("KustoConnectionStringBuilder", () => {
     });
 
     describe("#constructor(connectionString)", () => {
-        it("from string with no creds", () => {
+        it.concurrent("from string with no creds", () => {
             const kcsbs = [
                 new KustoConnectionStringBuilder("localhost"),
                 new KustoConnectionStringBuilder("data Source=localhost"),
@@ -150,7 +150,7 @@ describe("KustoConnectionStringBuilder", () => {
             const expectedUser = "test";
             const expectedPassword = "Pa$$w0rd";
 
-            it("without authority id", () => {
+            it.concurrent("without authority id", () => {
                 const kcsbs = [
                     new KustoConnectionStringBuilder(`localhost;AAD User ID=${expectedUser};password=${expectedPassword};AAD Federated Security=True`),
                     new KustoConnectionStringBuilder(
@@ -184,7 +184,7 @@ describe("KustoConnectionStringBuilder", () => {
                 );
             });
 
-            it("with authority id", () => {
+            it.concurrent("with authority id", () => {
                 const expectedAuthorityId = "test-authority";
 
                 const kcsbs = [
@@ -229,7 +229,7 @@ describe("KustoConnectionStringBuilder", () => {
             const expectedUuid = uuidv4();
             const expectedKey = "key of application";
 
-            it("without authority id", () => {
+            it.concurrent("without authority id", () => {
                 const kcsbs = [
                     new KustoConnectionStringBuilder(
                         `localhost;Application client Id=${expectedUuid};application Key=${expectedKey};AAD Federated Security=True`
@@ -263,7 +263,7 @@ describe("KustoConnectionStringBuilder", () => {
                 );
             });
 
-            it("with authority id", () => {
+            it.concurrent("with authority id", () => {
                 const expectedAuthorityId = "test-authority";
 
                 const kcsbs = [
@@ -309,7 +309,7 @@ describe("KustoConnectionStringBuilder", () => {
             const expectedAuthorityId = "test-authority";
             const cert5xc = true;
 
-            it("with authority id", () => {
+            it.concurrent("with authority id", () => {
                 const kcsbs = [
                     new KustoConnectionStringBuilder(
                         `localhost;Application client Id=${appId};application Certificate PrivateKey=${privateKey};Authority Id=${expectedAuthorityId};application certificate x5c=${cert5xc};AAD Federated Security=True`
@@ -343,7 +343,7 @@ describe("KustoConnectionStringBuilder", () => {
                 );
             });
 
-            it("without authority id", () => {
+            it.concurrent("without authority id", () => {
                 const kcsbs = [
                     new KustoConnectionStringBuilder(
                         `localhost;Application client Id=${appId};application Certificate PrivateKey=${privateKey};application certificate x5c=${cert5xc};AAD Federated Security=True`
@@ -376,7 +376,7 @@ describe("KustoConnectionStringBuilder", () => {
                 );
             });
 
-            it("without 3xc", () => {
+            it.concurrent("without 3xc", () => {
                 const kcsbs = [
                     new KustoConnectionStringBuilder(
                         `localhost;Application client Id=${appId};application Certificate PrivateKey=${privateKey};AAD Federated Security=True`
@@ -408,7 +408,7 @@ describe("KustoConnectionStringBuilder", () => {
             });
         });
 
-        it("from aad device auth", () => {
+        it.concurrent("from aad device auth", () => {
             const kcsbs = [KustoConnectionStringBuilder.withAadDeviceAuthentication("localhost", DEFAULT_AUTHORITY, (res) => res)];
 
             const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
@@ -431,7 +431,7 @@ describe("KustoConnectionStringBuilder", () => {
         });
 
         describe("from msi auth", () => {
-            it("without clientId and timeout", () => {
+            it.concurrent("without clientId and timeout", () => {
                 const kcsbs = [KustoConnectionStringBuilder.withSystemManagedIdentity("localhost")];
 
                 const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
@@ -451,7 +451,7 @@ describe("KustoConnectionStringBuilder", () => {
                 );
             });
 
-            it("with clientId and timeout", () => {
+            it.concurrent("with clientId and timeout", () => {
                 const msiClientId = "clientId";
                 const timeoutMs = 10;
                 const kcsbs = [KustoConnectionStringBuilder.withUserManagedIdentity("localhost", msiClientId, DEFAULT_AUTHORITY, timeoutMs)];
@@ -547,7 +547,7 @@ describe("KustoConnectionStringBuilder", () => {
         });
 
         describe("interactive login", () => {
-            it("without optional params", () => {
+            it.concurrent("without optional params", () => {
                 const kcsbs = [KustoConnectionStringBuilder.withUserPrompt("localhost", { tenantId: DEFAULT_AUTHORITY })];
 
                 const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
@@ -567,7 +567,7 @@ describe("KustoConnectionStringBuilder", () => {
                 );
             });
 
-            it("with optional params", () => {
+            it.concurrent("with optional params", () => {
                 const loginHint = "myUser";
                 const timeoutMs = 10;
                 const kcsbs = [KustoConnectionStringBuilder.withUserPrompt("localhost", { tenantId: DEFAULT_AUTHORITY, loginHint }, timeoutMs)];

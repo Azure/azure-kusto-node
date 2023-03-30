@@ -40,14 +40,14 @@ describe("KustoClient", () => {
         };
 
         for (const [url, expected] of Object.entries(tests)) {
-            it(`should return ${expected} for ${url}`, () => {
+            it.concurrent(`should return ${expected} for ${url}`, () => {
                 const client = new KustoClient(url);
                 assert.strictEqual(client.cluster, expected);
             });
         }
     });
     describe("#constructor", () => {
-        it("valid", () => {
+        it.concurrent("valid", () => {
             const url = "https://cluster.kusto.windows.net";
             const client = new KustoClient(url);
 
@@ -57,7 +57,7 @@ describe("KustoClient", () => {
     });
 
     describe("timeout", () => {
-        it("ClientRequestProperties.ToJSON doesn't affect results", () => {
+        it.concurrent("ClientRequestProperties.ToJSON doesn't affect results", () => {
             const url = "https://cluster.kusto.windows.net";
             const client = new KustoClient(url);
             const clientRequestProps = new ClientRequestProperties();
@@ -80,7 +80,7 @@ describe("KustoClient", () => {
     });
 
     describe("#_parseResponse()", () => {
-        it("valid v1", () => {
+        it.concurrent("valid v1", () => {
             const url = "https://cluster.kusto.windows.net";
             const client = new KustoClient(url);
 
@@ -88,7 +88,7 @@ describe("KustoClient", () => {
             assert.strictEqual((response as KustoResponseDataSetV1).version, "1.0");
         });
 
-        it("valid v1 more data", () => {
+        it.concurrent("valid v1 more data", () => {
             const url = "https://cluster.kusto.windows.net";
             const client = new KustoClient(url);
 
@@ -96,7 +96,7 @@ describe("KustoClient", () => {
             assert.strictEqual((response as KustoResponseDataSetV1).version, "1.0");
         });
 
-        it("valid v2", () => {
+        it.concurrent("valid v2", () => {
             const url = "https://cluster.kusto.windows.net";
             const client = new KustoClient(url);
 
@@ -104,7 +104,7 @@ describe("KustoClient", () => {
             assert.strictEqual((response as KustoResponseDataSetV2).version, "2.0");
         });
 
-        it("valid v2 raw", () => {
+        it.concurrent("valid v2 raw", () => {
             const url = "https://cluster.kusto.windows.net";
             const client = new KustoClient(url);
 
@@ -114,7 +114,7 @@ describe("KustoClient", () => {
             assert.strictEqual(response, v2Response);
         });
 
-        it("malformed body", () => {
+        it.concurrent("malformed body", () => {
             const url = "https://cluster.kusto.windows.net";
             const client = new KustoClient(url);
             try {
@@ -131,7 +131,7 @@ describe("KustoClient", () => {
             assert.fail();
         });
 
-        it("erred v2 not partial", () => {
+        it.concurrent("erred v2 not partial", () => {
             const url = "https://cluster.kusto.windows.net";
             const client = new KustoClient(url);
 
@@ -144,7 +144,7 @@ describe("KustoClient", () => {
             assert.fail();
         });
 
-        it("setTimout for request", async () => {
+        it.concurrent("setTimout for request", async () => {
             const url = "https://cluster.kusto.windows.net";
             const client = new KustoClient(url);
 
@@ -166,7 +166,7 @@ describe("KustoClient", () => {
             await client.execute("Database", "Table | count", clientRequestProps);
         });
 
-        it("setClientTimout for request", async () => {
+        it.concurrent("setClientTimout for request", async () => {
             const url = "https://cluster.kusto.windows.net";
             const client = new KustoClient(url);
 
@@ -185,7 +185,7 @@ describe("KustoClient", () => {
             await client.execute("Database", "Table | count", clientRequestProps);
         });
 
-        it("default timeout for query", async () => {
+        it.concurrent("default timeout for query", async () => {
             const url = "https://cluster.kusto.windows.net";
             const client = new KustoClient(url);
 
@@ -200,7 +200,7 @@ describe("KustoClient", () => {
             await client.execute("Database", "Table | count");
         });
 
-        it("default timeout for admin", async () => {
+        it.concurrent("default timeout for admin", async () => {
             const url = "https://cluster.kusto.windows.net";
             const client = new KustoClient(url);
             client.aadHelper.getAuthHeader = () => {
@@ -214,7 +214,7 @@ describe("KustoClient", () => {
             await client.execute("Database", ".show database DataBase schema");
         });
 
-        it("set clientRequestId for request", async () => {
+        it.concurrent("set clientRequestId for request", async () => {
             const url = "https://cluster.kusto.windows.net";
             const client = new KustoClient(url);
             const clientRequestId = `MyApp.MyActivity;${uuidv4()}`;
@@ -238,7 +238,7 @@ describe("KustoClient", () => {
             await client.execute("Database", "Table | count", clientRequestProps);
         });
 
-        it("executeQueryV1", async () => {
+        it.concurrent("executeQueryV1", async () => {
             const url = "https://cluster.kusto.windows.net";
             const client = new KustoClient(url);
 
@@ -306,7 +306,7 @@ describe("KustoClient", () => {
                 });
             });
 
-            it(`executeStreamingIngest should have a default database`, async () => {
+            it.concurrent(`executeStreamingIngest should have a default database`, async () => {
                 const sClient = new KustoClient("Data Source=https://cluster.kusto.windows.net;Initial Catalog=db1");
                 sClient._doRequest = (endpoint) => {
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -316,7 +316,7 @@ describe("KustoClient", () => {
                 await sClient.executeStreamingIngest(null, "Table", Readable.from(""), null, null);
             });
 
-            it(`executeStreamingIngest provided db should overwrite database`, async () => {
+            it.concurrent(`executeStreamingIngest provided db should overwrite database`, async () => {
                 const sClient = new KustoClient("Data Source=https://cluster.kusto.windows.net;Initial Catalog=db1");
                 sClient._doRequest = (endpoint) => {
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -326,7 +326,7 @@ describe("KustoClient", () => {
                 await sClient.executeStreamingIngest("db2", "Table", Readable.from(""), "csv", null);
             });
 
-            it(`executeStreamingIngest without db should have a default database`, async () => {
+            it.concurrent(`executeStreamingIngest without db should have a default database`, async () => {
                 const sNoDbClient = new KustoClient("Data Source=https://cluster.kusto.windows.net");
                 sNoDbClient._doRequest = (endpoint) => {
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -337,7 +337,7 @@ describe("KustoClient", () => {
                 await sNoDbClient.executeStreamingIngest(null, "Table", Readable.from(""), "csv", null);
             });
 
-            it(`executeStreamingIngest without db provided db should overwrite database`, async () => {
+            it.concurrent(`executeStreamingIngest without db provided db should overwrite database`, async () => {
                 const sNoDbClient = new KustoClient("Data Source=https://cluster.kusto.windows.net");
                 sNoDbClient._doRequest = (endpoint) => {
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -349,7 +349,7 @@ describe("KustoClient", () => {
         });
     });
     describe("Close", () => {
-        it("Client should not be useable when closed", async () => {
+        it.concurrent("Client should not be useable when closed", async () => {
             const c = new KustoClient("Data Source=https://cluster.kusto.windows.net");
             c.close();
             await assert.rejects(c.execute("db", "Table | count"), /Client is closed/);

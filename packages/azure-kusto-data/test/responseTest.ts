@@ -8,7 +8,7 @@ import { KustoResponseDataSetV2, V2Frames } from "../src/response";
 
 describe("KustoResultDataSet", () => {
     describe("#constructor()", () => {
-        it("valid input", () => {
+        it.concurrent("valid input", () => {
             const actual = new KustoResponseDataSetV2(v2Response as V2Frames);
 
             assert.strictEqual(actual.primaryResults.length, 1);

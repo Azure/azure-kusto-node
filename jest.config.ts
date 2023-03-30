@@ -14,6 +14,7 @@ const baseConfig: Config = {
 
 const config: JestConfigWithTsJest = {
     testTimeout: 240000,
+    maxConcurrency: 200,
     projects: [
         {
             displayName: "azure-kusto-data",

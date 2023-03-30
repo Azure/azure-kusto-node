@@ -39,7 +39,7 @@ describe("KustoResultRow", () => {
 
         const inputColumns = rawColumns.map((c, i) => new KustoResultColumn(c, i));
 
-        it("initialize properly", () => {
+        it.concurrent("initialize properly", () => {
             const inputValues = ["2016-06-06T15:35:00Z", "foo", 101, 3.14, false, "1.02:03:04.567"];
 
             const actual = new KustoResultRow(inputColumns, inputValues);
@@ -47,7 +47,7 @@ describe("KustoResultRow", () => {
             assert.strictEqual(actual.columns.length, inputColumns.length);
         });
 
-        it("column ordinal affects order", () => {
+        it.concurrent("column ordinal affects order", () => {
             const inputValues = ["2016-06-06T15:35:00Z", "foo", 101, 3.14, false, "1.02:03:04.567"];
 
             const reverseOrderColumns = rawColumns.slice().reverse();
@@ -76,7 +76,7 @@ describe("KustoResultRow", () => {
             }
         });
 
-        it("custom parsers", () => {
+        it.concurrent("custom parsers", () => {
             const inputValues = ["2016-06-06T15:35:00Z", "foo", 101, 3.14, false, "1.02:03:04.567"];
 
             const reverseOrderColumns = rawColumns.slice().reverse();
@@ -100,7 +100,7 @@ describe("KustoResultRow", () => {
             }
         });
 
-        it("mismatching data - less data than columns", () => {
+        it.concurrent("mismatching data - less data than columns", () => {
             const inputValues = ["2016-06-06T15:35:00Z", "foo", 101, 3.14, false, "1.02:03:04.567"];
 
             const actual = new KustoResultRow(inputColumns, inputValues);
@@ -108,7 +108,7 @@ describe("KustoResultRow", () => {
             assert.strictEqual(actual.columns.length, inputColumns.length);
         });
 
-        it("mismatching data - less columns than data ", () => {
+        it.concurrent("mismatching data - less columns than data ", () => {
             const inputValues = ["2016-06-06T15:35:00Z", "foo", 101, 3.14, false, "1.02:03:04.567"];
 
             const actual = new KustoResultRow(inputColumns, inputValues);
@@ -116,7 +116,7 @@ describe("KustoResultRow", () => {
             assert.strictEqual(actual.columns.length, inputColumns.length);
         });
 
-        it("mismatching data - type mismatch ", () => {
+        it.concurrent("mismatching data - type mismatch ", () => {
             const inputValues = ["2016-06-06T15:35:00Z", "foo", 101, 3.14, false, "1.02:03:04.567"];
 
             const actual = new KustoResultRow(inputColumns, inputValues);
@@ -124,7 +124,7 @@ describe("KustoResultRow", () => {
             assert.strictEqual(actual.columns.length, inputColumns.length);
         });
 
-        it("iterate data", () => {
+        it.concurrent("iterate data", () => {
             const inputValues = ["2016-06-06T15:35:00Z", "foo", 101, 3.14, false, "1.02:03:04.567"];
 
             const actual = new KustoResultRow(inputColumns, inputValues);
@@ -142,7 +142,7 @@ describe("KustoResultRow", () => {
             assert.strictEqual(i, inputValues.length);
         });
 
-        it("mapped props", () => {
+        it.concurrent("mapped props", () => {
             const inputValues = ["2016-06-06T15:35:00Z", "foo", 101, 3.14, false, "1.02:03:04.567"];
 
             const expectedValues = [new Date("2016-06-06T15:35:00Z"), "foo", 101, 3.14, false, 93784567];
@@ -164,7 +164,7 @@ describe("KustoResultRow", () => {
             assert.strictEqual(actual.TimeFlying.toString(), expectedValues[5].toString());
         });
 
-        it("value at", () => {
+        it.concurrent("value at", () => {
             const inputValues = ["2016-06-06T15:35:00Z", "foo", 101, 3.14, false, "1.02:03:04.567"];
 
             const expectedValues = [new Date("2016-06-06T15:35:00Z"), "foo", 101, 3.14, false, 93784567];
@@ -209,13 +209,13 @@ describe("KustoResultColumn", () => {
             },
         ];
 
-        it("valid input", () => {
+        it.concurrent("valid input", () => {
             const actual = new KustoResultColumn(rawColumns[1], 0);
 
             assert.strictEqual(actual.name, rawColumns[1].ColumnName);
         });
 
-        it("invalid input - missing props", () => {
+        it.concurrent("invalid input - missing props", () => {
             const actualMissingType = new KustoResultColumn(rawColumns[2], 0);
             const actualMissingName = new KustoResultColumn(rawColumns[3], 0);
 
@@ -227,13 +227,13 @@ describe("KustoResultColumn", () => {
 
 describe("KustoResultTable", () => {
     describe("#constructor()", () => {
-        it("valid initialization", () => {
+        it.concurrent("valid initialization", () => {
             const actual = new KustoResultTable(v2Response[2]);
 
             assert.strictEqual(actual.columns.length, 6);
             assert.strictEqual(actual._rows.length, 3);
         });
-        it("iterate over rows", () => {
+        it.concurrent("iterate over rows", () => {
             const actual = new KustoResultTable(v2Response[2]);
 
             const rows = [];
@@ -244,7 +244,7 @@ describe("KustoResultTable", () => {
 
             assert.strictEqual(rows.length, 3);
         });
-        it("iterate over rows with custom parsers", () => {
+        it.concurrent("iterate over rows with custom parsers", () => {
             const actual = new KustoResultTable(v2Response[2]);
             const dateParser = (t: string) => t + "-date";
             const timeParser = (t: string) => t + "-time";
@@ -261,21 +261,21 @@ describe("KustoResultTable", () => {
         });
 
         describe("test defaultTimespanParser", () => {
-            it("test nanoseconds", () => {
+            it.concurrent("test nanoseconds", () => {
                 const actual = new KustoResultTable(v2Response[2]);
                 const timeParser = actual.timeSpanParser;
                 const time = timeParser("00:00:00.000000005");
                 assert.strictEqual(time, 0.000005);
             });
 
-            it("test complex timespan", () => {
+            it.concurrent("test complex timespan", () => {
                 const actual = new KustoResultTable(v2Response[2]);
                 const timeParser = actual.timeSpanParser;
                 const time = timeParser("1.02:03:04.0050006");
                 assert.strictEqual(time, 93784005.0006);
             });
 
-            it("test negative", () => {
+            it.concurrent("test negative", () => {
                 const actual = new KustoResultTable(v2Response[2]);
                 const timeParser = actual.timeSpanParser;
                 const time = timeParser("-1.02:03:04.0050006");

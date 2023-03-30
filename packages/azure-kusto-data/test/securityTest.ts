@@ -9,19 +9,18 @@ import { KustoAuthenticationError } from "../src/errors";
 import { CredentialUnavailableError } from "@azure/identity";
 import { loginTest, manualLoginTest } from "./data/testUtils";
 
+beforeAll(() => {
+    CloudSettings.getInstance().cloudCache["https://somecluster.kusto.windows.net"] = CloudSettings.getInstance().defaultCloudInfo;
+});
 describe("test errors", () => {
-    beforeAll(() => {
-        CloudSettings.getInstance().cloudCache["https://somecluster.kusto.windows.net"] = CloudSettings.getInstance().defaultCloudInfo;
-    });
-
-    it("no data source", () => {
+    it.concurrent("no data source", () => {
         const kcsb = new KustoConnectionStringBuilder("test");
         kcsb.dataSource = "";
 
         assert.throws(() => new AadHelper(kcsb), Error, "Invalid string builder - missing dataSource");
     });
 
-    it("test user pass", async () => {
+    it.concurrent("test user pass", async () => {
         const cluster = "https://somecluster.kusto.windows.net";
         const username = "username@microsoft.com";
         const kcsb = KustoConnectionStringBuilder.withAadUserPasswordAuthentication(cluster, username, "password", "organizations");
@@ -37,7 +36,7 @@ describe("test errors", () => {
         }
     });
 
-    it("test app key", async () => {
+    it.concurrent("test app key", async () => {
         const cluster = "https://somecluster.kusto.windows.net";
         const appId = "86f7361f-15b7-4f10-aef5-3ce66ac73766";
         const key = "private_key";
@@ -54,7 +53,7 @@ describe("test errors", () => {
         }
     });
 
-    it("h", async () => {
+    it.concurrent("h", async () => {
         const cluster = "https://somecluster.kusto.windows.net";
         const appId = "86f7361f-15b7-4f10-aef5-3ce66ac73766";
         const privateKey =
@@ -84,7 +83,7 @@ describe("test errors", () => {
     });
 
     // Does not throw anymore - behavior is printing to console by @azure/identity
-    it("device code without function", () => {
+    it.concurrent("device code without function", () => {
         const kcsb = new KustoConnectionStringBuilder("https://somecluster.kusto.windows.net");
         kcsb.aadFederatedSecurity = true;
         kcsb.authorityId = "organizations";
@@ -93,7 +92,7 @@ describe("test errors", () => {
         assert.doesNotThrow(() => new AadHelper(kcsb));
     });
 
-    it("test msi", async () => {
+    it.concurrent("test msi", async () => {
         const cluster = "https://somecluster.kusto.windows.net";
         const clientId = "86f7361f-15b7-4f10-aef5-3ce66ac73766";
         const kcsb = KustoConnectionStringBuilder.withUserManagedIdentity(cluster, clientId, "organizations", 1);
@@ -116,7 +115,7 @@ describe("Test providers", () => {
         CloudSettings.getInstance().cloudCache["https://somecluster.kusto.windows.net"] = CloudSettings.getInstance().defaultCloudInfo;
     });
 
-    it("test null", async () => {
+    it.concurrent("test null", async () => {
         const cluster = "https://somecluster.kusto.windows.net";
         const kcsb = new KustoConnectionStringBuilder(cluster);
 
@@ -125,7 +124,7 @@ describe("Test providers", () => {
         assert.strictEqual(token, null);
     });
 
-    it("test access token", async () => {
+    it.concurrent("test access token", async () => {
         const cluster = "https://somecluster.kusto.windows.net";
         const kcsb = KustoConnectionStringBuilder.withAccessToken(cluster, "somekey");
 
@@ -134,7 +133,7 @@ describe("Test providers", () => {
         assert.strictEqual(token, "Bearer somekey");
     });
 
-    it("test callback token provider", async () => {
+    it.concurrent("test callback token provider", async () => {
         const cluster = "https://somecluster.kusto.windows.net";
         const kcsb = KustoConnectionStringBuilder.withTokenProvider(cluster, () => Promise.resolve("somekey"));
 

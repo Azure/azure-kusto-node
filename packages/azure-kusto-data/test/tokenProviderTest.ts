@@ -7,7 +7,7 @@ import { UserPassTokenProvider } from "../src/tokenProvider";
 
 describe("CloudInfo", () => {
     describe("#CloudInfo", () => {
-        it("mfa off", async () => {
+        it.concurrent("mfa off", async () => {
             const fakeUri = "https://fakeurl_mfa.kusto.windows.net";
             CloudSettings.getInstance().cloudCache[fakeUri] = {
                 LoginEndpoint: process.env.AadAuthorityUri || "https://login.microsoftonline.com",
@@ -28,7 +28,7 @@ describe("CloudInfo", () => {
             assert.strictEqual(provider.scopes[0], "https://fakeurl.kusto.windows.net/.default");
         });
 
-        it("mfa off", async () => {
+        it.concurrent("mfa off", async () => {
             const fakeUri2 = "https://fakeurl2.kusto.windows.net";
             CloudSettings.getInstance().cloudCache[fakeUri2] = {
                 LoginEndpoint: process.env.AadAuthorityUri || "https://login.microsoftonline.com",

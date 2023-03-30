@@ -18,7 +18,7 @@ describe(`Browser Unit tests`, () => {
     const storage = "https://storage.blob.windows.net/container";
 
     describe("Kcsb", () => {
-        it("Fail to create non-browser compatible authentication", () => {
+        it.concurrent("Fail to create non-browser compatible authentication", () => {
             try {
                 ConnectionStringBuilder.withAadApplicationKeyAuthentication(cluster, "", "");
             } catch (ex) {
@@ -28,10 +28,10 @@ describe(`Browser Unit tests`, () => {
 
             assert.fail();
         });
-        it("Create browser compatible authentication with params", () => {
+        it.concurrent("Create browser compatible authentication with params", () => {
             ConnectionStringBuilder.withUserPrompt(cluster, { redirectUri: "redirect", clientId: "cid" });
         });
-        it("Create browser compatible authentication must provide clientId", () => {
+        it.concurrent("Create browser compatible authentication must provide clientId", () => {
             try {
                 ConnectionStringBuilder.withUserPrompt(cluster, { redirectUri: "redirect" });
             } catch (ex) {
@@ -41,7 +41,7 @@ describe(`Browser Unit tests`, () => {
 
             assert.fail();
         });
-        it("Create browser compatible authentication must provide redirectUri", () => {
+        it.concurrent("Create browser compatible authentication must provide redirectUri", () => {
             try {
                 ConnectionStringBuilder.withUserPrompt(cluster, { clientId: "cid" });
             } catch (ex) {
@@ -51,7 +51,7 @@ describe(`Browser Unit tests`, () => {
 
             assert.fail();
         });
-        it("Ingest from browser calls the right components", async () => {
+        it.concurrent("Ingest from browser calls the right components", async () => {
             const sandbox = sinon.createSandbox();
 
             const mockedIngestClient = new IngestClient("http://test.kusto.com", {
