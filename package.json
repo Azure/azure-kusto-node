@@ -3,7 +3,7 @@
     "private": true,
     "scripts": {
         "build": "lerna run build",
-        "prepublish": "npm run build",
+        "prepublish": "npm run build && npm run webpackBuild",
         "exampleData": "npm run build && node packages/azure-kusto-data/example.js",
         "exampleIngest": "npm run build && node packages/azure-kusto-ingest/example.js",
         "lint": "eslint -c .eslintrc.js --ext .ts .",
@@ -38,6 +38,7 @@
         "jest": "^29.5.0",
         "jest-junit": "^15.0.0",
         "lerna": "^6.5.1",
+        "npm": "^9.6.2",
         "prettier": "^2.8.4",
         "rimraf": "^3.0.2",
         "shx": "^0.3.4",
