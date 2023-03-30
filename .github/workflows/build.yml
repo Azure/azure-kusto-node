@@ -17,7 +17,7 @@ jobs:
           cache: "npm"
           cache-dependency-path: |
             package-lock.json
-      - run: npm run ci
+      - run: npm ci
       - run: npm run checkFormat
       - run: npm run lint
       - run: npm run testPipeline
