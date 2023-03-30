@@ -61,7 +61,7 @@ const main = (): void => {
             public path: string,
             public rows: number,
             public ingestionProperties: (t: string) => IngestionProperties,
-            public testOnstreamingIngestion = true
+            public testOnStreamingIngestion = true
         ) {}
     }
 
@@ -108,7 +108,7 @@ const main = (): void => {
         new TestDataItem("json_gz_with_mapping", getTestResourcePath("dataset_gzip.json.gz"), 2, ingestionPropertiesWithColumnMapping, false),
     ] as const;
 
-    type Table = `${typeof tables[number]}_${typeof testItems[number]["description"]}`;
+    type Table = `${(typeof tables)[number]}_${(typeof testItems)[number]["description"]}`;
 
     const testSuffix = `_node_e2e_${new Date().getTime()}_${Math.floor(Math.random() * 100000)}`;
     const tableWithItems = tables.map((t) => testItems.map((tI) => `${t}_${tI.description}`)).flat() as Table[];
@@ -198,7 +198,7 @@ const main = (): void => {
         describe("StreamingIngestClient", () => {
             it.concurrent.each(
                 testItems
-                    .filter((i) => i.testOnstreamingIngestion)
+                    .filter((i) => i.testOnStreamingIngestion)
                     .map((i) => {
                         return { item: i };
                     })
@@ -214,7 +214,7 @@ const main = (): void => {
 
             it.concurrent.each(
                 testItems
-                    .filter((i) => i.testOnstreamingIngestion)
+                    .filter((i) => i.testOnStreamingIngestion)
                     .map((i) => {
                         return { item: i };
                     })
@@ -236,7 +236,7 @@ const main = (): void => {
         describe("ManagedStreamingIngestClient", () => {
             it.concurrent.each(
                 testItems
-                    .filter((i) => i.testOnstreamingIngestion)
+                    .filter((i) => i.testOnStreamingIngestion)
                     .map((i) => {
                         return { item: i };
                     })
@@ -251,7 +251,7 @@ const main = (): void => {
             });
             it.concurrent.each(
                 testItems
-                    .filter((i) => i.testOnstreamingIngestion)
+                    .filter((i) => i.testOnStreamingIngestion)
                     .map((i) => {
                         return { item: i };
                     })
