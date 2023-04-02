@@ -41,7 +41,7 @@ describe("ResourceManager", () => {
     };
 
     describe("#constructor()", () => {
-        it("valid input", () => {
+        it.concurrent("valid input", () => {
             const resourceManager = new ResourceManager(new KustoClient("https://cluster.kusto.windows.net"));
 
             assert.strictEqual(resourceManager.ingestClientResources, null);
@@ -50,7 +50,7 @@ describe("ResourceManager", () => {
     });
 
     describe("#getIngestClientResourcesFromService()", () => {
-        it("valid input", async () => {
+        it.concurrent("valid input", async () => {
             const client = new KustoClient("https://cluster.kusto.windows.net");
             sinon.stub(client, "execute").returns(Promise.resolve(mockedResourcesResponse as KustoResponseDataSet));
 
@@ -63,7 +63,7 @@ describe("ResourceManager", () => {
             assert.strictEqual(resources.securedReadyForAggregationQueues!.length, 2);
         });
 
-        it("error response", async () => {
+        it.concurrent("error response", async () => {
             const client = new KustoClient("https://cluster.kusto.windows.net");
             sinon.stub(client, "execute").throwsException(new Error("Kusto request erred (403)"));
 
@@ -80,7 +80,7 @@ describe("ResourceManager", () => {
     });
 
     describe("#getResourceByName()", () => {
-        it("valid input", () => {
+        it.concurrent("valid input", () => {
             const resourceManager = new ResourceManager(new KustoClient("https://cluster.kusto.windows.net"));
 
             const resources = resourceManager.getResourceByName(mockedResourcesResponse.primaryResults[0], "TempStorage");
@@ -89,7 +89,7 @@ describe("ResourceManager", () => {
     });
 
     describe("#refreshIngestClientResources()", () => {
-        it("should refresh", async () => {
+        it.concurrent("should refresh", async () => {
             const resourceManager = new ResourceManager(new KustoClient("https://cluster.kusto.windows.net"));
 
             const call = sinon.stub(resourceManager, "getIngestClientResourcesFromService");
@@ -98,7 +98,7 @@ describe("ResourceManager", () => {
             assert.strictEqual(call.calledOnce, true);
         });
 
-        it("shouldn't refresh", async () => {
+        it.concurrent("shouldn't refresh", async () => {
             const resourceManager = new ResourceManager(new KustoClient("https://cluster.kusto.windows.net"));
 
             const call = sinon.stub(resourceManager, "getIngestClientResourcesFromService");

@@ -339,3 +339,4 @@ dist-esm/
 .npmrc
 types/
 dist/
+!jest.config.ts

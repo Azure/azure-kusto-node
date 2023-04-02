@@ -14,6 +14,13 @@
         "moduleResolution": "node",
         "inlineSources": true
     },
-    "include": ["**/src/**/*.ts", "**/test/**/*.ts", "**/index.ts"],
-    "exclude": ["node_modules"]
+    "include": [
+        "**/src/**/*.ts",
+        "**/test/**/*.ts",
+        "**/index.ts",
+        "*.ts"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
 }

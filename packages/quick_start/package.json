@@ -4,7 +4,7 @@
     "description": "Quick start Node sample app",
     "main": "src/SampleApp.js",
     "scripts": {
-        "build": "tsc",
+        "build": "tsc -b",
         "quick_start": "npx ts-node src/SampleApp.ts --esm"
     },
     "dependencies": {
