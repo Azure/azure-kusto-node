@@ -34,7 +34,7 @@ const main = (): void => {
     }
 
     const engineKcsb = ConnectionStringBuilder.withAadApplicationKeyAuthentication(process.env.ENGINE_CONNECTION_STRING ?? "", appId, appKey, tenantId);
-    engineKcsb.applicationNameForTracing = "NodeE2ETest";
+    engineKcsb.applicationNameForTracing = "wew";
 
     const queryClient = new Client(engineKcsb);
     const streamingIngestClient = new StreamingIngestClient(engineKcsb);
