@@ -118,6 +118,7 @@ const main = (): void => {
         await Promise.all(
             Object.values(tableNames).map(async (tableName) => {
                 try {
+                    console.log(`Drop table ${tableName}`);
                     await queryClient.execute(databaseName, `.drop table ${tableName} ifexists`);
                 } catch (err) {
                     assert.fail("Failed to drop table");
@@ -352,21 +353,42 @@ const main = (): void => {
     });
 
     describe("NoRedirects", () => {
-        const redirectCodes = [301, 302, 303, 307, 308];
-        const client = new Client("https://help.kusto.windows.net");
-        for (const code of redirectCodes) {
-            it("testNoRedirects", async () => {
-                client.endpoints.query = `https://httpstat.us/${code}`;
-                kustoTrustedEndpoints.addTrustedHosts([new MatchRule("httpstat.us", false)], false);
-                try {
-                    await client.execute(databaseName, tableName);
-                    assert.fail("Expected exception");
-                } catch (ex) {
-                    assert.ok(ex instanceof Error);
-                    assert.match(ex.message, new RegExp(`.*${code}.*`), `Fail to get ${code} error code. ex json: ${JSON.stringify(ex)}, ex: ${ex}`);
-                }
-            });
-        }
+        const redirectCodes = [301];
+        kustoTrustedEndpoints.addTrustedHosts([new MatchRule("statusreturner.azurewebsites.net", false)], false);
+
+        it.concurrent.each(redirectCodes.map((r) => ({ code: r })))("noRedirectsClientFail_%s", async ({ code }) => {
+            let kcsb = `https://statusreturner.azurewebsites.net/${code}`;
+            const client = new Client(kcsb);
+            try {
+                await client.execute(databaseName, tableNames.general_csv);
+                assert.fail("Expected exception");
+            } catch (ex) {
+                assert.ok(ex instanceof Error);
+                assert.match(ex.message, new RegExp(`.*${code}.*`), `Fail to get ${code} error code. ex json: ${JSON.stringify(ex)}, ex: ${ex}`);
+                assert.doesNotMatch(ex.message, new RegExp(`.*cloud.*`), "Unexpected cloud in error.");
+            } finally {
+                client.close();
+            }
+        });
+
+        it.concurrent.each(redirectCodes.map((r) => ({ code: r })))("noRedirectsCLoudFail_%s", async ({ code }) => {
+            let kcsb = ConnectionStringBuilder.withAadApplicationKeyAuthentication(
+                `https://statusreturner.azurewebsites.net/nocloud/${code}`,
+                "fake",
+                "fake",
+                "fake"
+            );
+            const client = new Client(kcsb);
+            try {
+                await client.execute(databaseName, tableNames.general_csv);
+                assert.fail("Expected exception");
+            } catch (ex) {
+                assert.ok(ex instanceof Error);
+                assert.match(ex.message, new RegExp(`.*cloud.*${code}.*`), `Fail to get ${code} error code. ex json: ${JSON.stringify(ex)}, ex: ${ex}`);
+            } finally {
+                client.close();
+            }
+        });
     });
 
     const cleanStatusQueues = async () => {

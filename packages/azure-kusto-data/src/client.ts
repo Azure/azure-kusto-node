@@ -7,7 +7,6 @@ import { KustoResponseDataSet, KustoResponseDataSetV1, KustoResponseDataSetV2, V
 import ConnectionStringBuilder from "./connectionBuilder";
 import ClientRequestProperties from "./clientRequestProperties";
 import { ThrottlingError } from "./errors";
-import { SDK_VERSION } from "./version";
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 import http from "http";
 import https from "https";
@@ -57,12 +56,14 @@ export class KustoClient {
         const headers = {
             Accept: "application/json",
             "Accept-Encoding": "gzip,deflate",
-            "x-ms-client-version": `Kusto.Node.Client:${SDK_VERSION}`,
             Connection: "Keep-Alive",
         };
         const axiosProps: AxiosRequestConfig = {
             headers,
             validateStatus: (status: number) => status === 200,
+            maxBodyLength: Infinity,
+            maxContentLength: Infinity,
+            maxRedirects: 0,
         };
         // http and https are Node modules and are not found in browsers
         if (isNode) {
@@ -72,7 +73,7 @@ export class KustoClient {
         }
         axiosProps.cancelToken = this.cancelToken.token;
 
-        this.axiosInstance = axios.create();
+        this.axiosInstance = axios.create(axiosProps);
     }
 
     async execute(db: string | null, query: string, properties?: ClientRequestProperties) {
@@ -206,7 +207,6 @@ export class KustoClient {
         const axiosConfig: AxiosRequestConfig = {
             headers,
             timeout,
-            maxRedirects: 0,
         };
 
         let axiosResponse;
