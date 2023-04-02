@@ -357,7 +357,7 @@ const main = (): void => {
         kustoTrustedEndpoints.addTrustedHosts([new MatchRule("statusreturner.azurewebsites.net", false)], false);
 
         it.concurrent.each(redirectCodes.map((r) => ({ code: r })))("noRedirectsClientFail_%s", async ({ code }) => {
-            let kcsb = `https://statusreturner.azurewebsites.net/${code}`;
+            const kcsb = `https://statusreturner.azurewebsites.net/${code}`;
             const client = new Client(kcsb);
             try {
                 await client.execute(databaseName, tableNames.general_csv);
@@ -372,7 +372,7 @@ const main = (): void => {
         });
 
         it.concurrent.each(redirectCodes.map((r) => ({ code: r })))("noRedirectsCLoudFail_%s", async ({ code }) => {
-            let kcsb = ConnectionStringBuilder.withAadApplicationKeyAuthentication(
+            const kcsb = ConnectionStringBuilder.withAadApplicationKeyAuthentication(
                 `https://statusreturner.azurewebsites.net/nocloud/${code}`,
                 "fake",
                 "fake",
