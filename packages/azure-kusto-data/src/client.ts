@@ -45,8 +45,8 @@ export class KustoClient {
         }
         const url = new URL(this.connectionString.dataSource);
         this.cluster = url.toString();
-        if (!this.cluster.endsWith("/")) {
-            this.cluster += "/";
+        if (this.cluster.endsWith("/")) {
+            this.cluster = this.cluster.slice(0, -1);
         }
         this.defaultDatabase = this.connectionString.initialCatalog;
         this.endpoints = {

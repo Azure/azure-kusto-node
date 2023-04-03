@@ -16,7 +16,7 @@ import v1Response from "./data/response/v1.json";
 import v1_2Response from "./data/response/v1_2.json";
 import { Readable } from "stream";
 import ConnectionBuilder from "../src/connectionBuilder";
-import { CloudSettings } from "../src/cloudSettings";
+import { CloudSettings } from "azure-kusto-data";
 import { toMilliseconds } from "../src/timeUtils";
 
 enum ExecutionType {
@@ -33,10 +33,10 @@ describe("KustoClient", () => {
         const tests = {
             "https://kusto.test.com": "https://kusto.test.com",
             "https://kusto.test.com/": "https://kusto.test.com",
-            "https://kusto.test.com/test": "https://kusto.test.com",
+            "https://kusto.test.com/test": "https://kusto.test.com/test",
             "https://kusto.test.com:4242": "https://kusto.test.com:4242",
             "https://kusto.test.com:4242/": "https://kusto.test.com:4242",
-            "https://kusto.test.com:4242/test": "https://kusto.test.com:4242",
+            "https://kusto.test.com:4242/test": "https://kusto.test.com:4242/test",
         };
 
         for (const [url, expected] of Object.entries(tests)) {
