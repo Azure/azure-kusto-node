@@ -203,6 +203,11 @@ export class KustoClient {
         timeout: number,
         properties?: ClientRequestProperties | null
     ): Promise<KustoResponseDataSet> {
+        // replace non-ascii characters with ? in headers
+        for (const key of Object.keys(headers)) {
+            headers[key] = headers[key].replace(/[^\x00-\x7F]+/g, "?");
+        }
+
         const axiosConfig = {
             headers,
             timeout,
@@ -212,8 +217,13 @@ export class KustoClient {
         try {
             axiosResponse = await this.axiosInstance.post(endpoint, payload, axiosConfig);
         } catch (error: unknown) {
-            if (axios.isAxiosError(error) && error.response) {
-                if (error.response.status === 429) {
+            if (axios.isAxiosError(error)) {
+                // Since it's impossible to modify the error request object, the only way to censor the Authorization header is to remove it.
+                error.request = undefined;
+                if (error?.config?.headers) {
+                    error.config.headers["Authorization"] = "<REDACTED>";
+                }
+                if (error.response && error.response.status === 429) {
                     throw new ThrottlingError("POST request failed with status 429 (Too Many Requests)", error);
                 }
             }
