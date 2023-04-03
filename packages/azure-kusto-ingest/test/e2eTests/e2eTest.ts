@@ -371,7 +371,7 @@ const main = (): void => {
             }
         });
 
-        it.concurrent.each(redirectCodes.map((r) => ({ code: r })))("noRedirectsCLoudFail_%s", async ({ code }) => {
+        it.concurrent.each(redirectCodes.map((r) => ({ code: r })))("noRedirectsCloudFail_%s", async ({ code }) => {
             const kcsb = ConnectionStringBuilder.withAadApplicationKeyAuthentication(
                 `https://statusreturner.azurewebsites.net/nocloud/${code}`,
                 "fake",

@@ -44,7 +44,7 @@ export class KustoClient {
             throw new Error("Cluster url is required");
         }
         const url = new URL(this.connectionString.dataSource);
-        this.cluster = `${url.protocol}//${url.hostname}${url.port ? `:${url.port}` : ""}`;
+        this.cluster = url.toString();
         this.defaultDatabase = this.connectionString.initialCatalog;
         this.endpoints = {
             [ExecutionType.Mgmt]: `${this.cluster}/v1/rest/mgmt`,
