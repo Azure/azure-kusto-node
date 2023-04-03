@@ -45,6 +45,9 @@ export class KustoClient {
         }
         const url = new URL(this.connectionString.dataSource);
         this.cluster = url.toString();
+        if (!this.cluster.endsWith("/")) {
+            this.cluster += "/";
+        }
         this.defaultDatabase = this.connectionString.initialCatalog;
         this.endpoints = {
             [ExecutionType.Mgmt]: `${this.cluster}/v1/rest/mgmt`,
