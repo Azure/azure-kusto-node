@@ -6,7 +6,7 @@ import ClientRequestProperties from "./clientRequestProperties";
 import KustoConnectionStringBuilder from "./connectionBuilder";
 import * as KustoDataErrors from "./errors";
 import { toMilliseconds } from "./timeUtils";
-import { CloudSettings } from "./cloudSettings";
+import CloudSettings from "./cloudSettings";
 import { kustoTrustedEndpoints, MatchRule } from "./kustoTrustedEndpoints";
 
 const TimeUtils = { toMilliseconds };

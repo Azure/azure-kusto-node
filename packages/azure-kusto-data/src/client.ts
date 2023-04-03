@@ -12,7 +12,7 @@ import http from "http";
 import https from "https";
 import { isNode } from "@azure/core-util";
 import { kustoTrustedEndpoints } from "./kustoTrustedEndpoints";
-import { CloudSettings } from "./cloudSettings";
+import CloudSettings from "./cloudSettings";
 import { toMilliseconds } from "./timeUtils";
 import { KustoHeaders } from "./clientDetails";
 
@@ -129,7 +129,7 @@ export class KustoClient {
         properties?: ClientRequestProperties | null
     ): Promise<KustoResponseDataSet> {
         this.ensureOpen();
-        kustoTrustedEndpoints.validateTrustedEndpoint(endpoint, (await CloudSettings.getInstance().getCloudInfoForCluster(this.cluster)).LoginEndpoint);
+        kustoTrustedEndpoints.validateTrustedEndpoint(endpoint, (await CloudSettings.getCloudInfoForCluster(this.cluster)).LoginEndpoint);
         db = this.getDb(db);
         const headers: { [header: string]: string } = {};
 

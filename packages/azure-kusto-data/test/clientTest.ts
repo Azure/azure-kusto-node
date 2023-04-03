@@ -26,7 +26,7 @@ enum ExecutionType {
     QueryV1 = "queryv1",
 }
 
-CloudSettings.getInstance().cloudCache["https://cluster.kusto.windows.net"] = CloudSettings.getInstance().defaultCloudInfo;
+CloudSettings.writeToCache("https://cluster.kusto.windows.net");
 
 describe("KustoClient", () => {
     describe("url test", () => {

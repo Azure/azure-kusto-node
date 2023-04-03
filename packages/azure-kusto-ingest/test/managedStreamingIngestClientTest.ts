@@ -92,7 +92,7 @@ describe("ManagedStreamingIngestClient", () => {
         }
     };
 
-    CloudSettings.getInstance().cloudCache.engine = CloudSettings.getInstance().defaultCloudInfo;
+    CloudSettings.writeToCache("engine");
 
     const testUuid = "9c565db6-ddcd-4b2d-bb6e-17525aab254d";
 

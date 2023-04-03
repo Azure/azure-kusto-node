@@ -157,8 +157,8 @@ const main = (): void => {
     describe(`E2E Tests`, () => {
         describe("cloud info", () => {
             it.concurrent("cloud info 404", async () => {
-                const cloudInfo = await CloudSettings.getInstance().getCloudInfoForCluster("https://www.microsoft.com");
-                assert.strictEqual(cloudInfo, CloudSettings.getInstance().defaultCloudInfo);
+                const cloudInfo = await CloudSettings.getCloudInfoForCluster("https://www.microsoft.com");
+                assert.strictEqual(cloudInfo, CloudSettings.defaultCloudInfo);
             });
         });
 
