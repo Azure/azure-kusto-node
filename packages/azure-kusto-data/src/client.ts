@@ -221,7 +221,7 @@ export class KustoClient {
                 // Since it's impossible to modify the error request object, the only way to censor the Authorization header is to remove it.
                 error.request = undefined;
                 if (error?.config?.headers) {
-                    error.config.headers["Authorization"] = "<REDACTED>";
+                    error.config.headers.Authorization = "<REDACTED>";
                 }
                 if (error.response && error.response.status === 429) {
                     throw new ThrottlingError("POST request failed with status 429 (Too Many Requests)", error);

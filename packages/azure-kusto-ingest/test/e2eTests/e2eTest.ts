@@ -324,7 +324,7 @@ const main = (): void => {
                 } catch (ex) {
                     const exTyped = ex as { request: unknown; config: { headers: { [k: string]: string } } };
                     assert.strictEqual(exTyped.request, undefined);
-                    assert.strictEqual(exTyped.config.headers["Authorization"], "<REDACTED>");
+                    assert.strictEqual(exTyped.config.headers.Authorization, "<REDACTED>");
                     return;
                 }
                 assert.fail(`General BadRequest`);

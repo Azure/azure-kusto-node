@@ -9,14 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Remove authorization header from errors
-- Escape non-ascii headers to align with the service
+-   Remove authorization header from errors
+-   Escape non-ascii headers to align with the service
 
 ## [5.0.2] - 2023-03-20
 
 ### Added
 
-- Internal devops improvements
+-   Internal devops improvements
 
 ## [5.0.1] - 2023-02-23
 
