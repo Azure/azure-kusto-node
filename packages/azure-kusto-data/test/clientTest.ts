@@ -16,7 +16,7 @@ import v1Response from "./data/response/v1.json";
 import v1_2Response from "./data/response/v1_2.json";
 import { Readable } from "stream";
 import ConnectionBuilder from "../src/connectionBuilder";
-import { CloudSettings } from "azure-kusto-data";
+import { CloudSettings } from "../src/cloudSettings";
 import { toMilliseconds } from "../src/timeUtils";
 
 enum ExecutionType {

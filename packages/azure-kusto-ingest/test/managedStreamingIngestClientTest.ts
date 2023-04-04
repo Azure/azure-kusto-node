@@ -11,10 +11,9 @@ import { DataFormat, IngestionProperties, IngestionPropertiesInput } from "../sr
 import KustoManagedStreamingIngestClient from "../src/managedStreamingIngestClient";
 import { Readable } from "stream";
 import { QueueSendMessageResponse } from "@azure/storage-queue";
-import { CloudSettings } from "azure-kusto-data/src/cloudSettings";
+import { CloudSettings, KustoConnectionStringBuilder } from "azure-kusto-data";
 import assert from "assert";
 import uuidValidate from "uuid-validate";
-import { KustoConnectionStringBuilder } from "azure-kusto-data";
 
 type IngestFromStreamStub = sinon.SinonStub<[StreamDescriptor | Readable | ArrayBuffer, IngestionPropertiesInput?, string?], Promise<QueueSendMessageResponse>>;
 
