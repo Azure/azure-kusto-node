@@ -16,12 +16,14 @@ import assert from "assert";
 import uuidValidate from "uuid-validate";
 
 type IngestFromStreamStub = sinon.SinonStub<[StreamDescriptor | Readable | ArrayBuffer, IngestionPropertiesInput?, string?], Promise<QueueSendMessageResponse>>;
-
+beforeAll(() => {
+    CloudSettings.writeToCache("https://cluster.kusto.windows.net");
+});
 describe("ManagedStreamingIngestClient", () => {
     const getMockedClient = () => {
         const sandbox = sinon.createSandbox();
-        const mockedStreamingIngestClient = new StreamingIngestClient("http://test.kusto.com");
-        const mockedIngestClient = new KustoIngestClient("http://test.kusto.com");
+        const mockedStreamingIngestClient = new StreamingIngestClient("https://cluster.kusto.windows.net");
+        const mockedIngestClient = new KustoIngestClient("https://cluster.kusto.windows.net");
         const streamStub = sinon.stub(mockedStreamingIngestClient, "ingestFromStream");
         const queuedStub = sinon.stub(mockedIngestClient, "ingestFromStream");
 
@@ -91,8 +93,6 @@ describe("ManagedStreamingIngestClient", () => {
         }
     };
 
-    CloudSettings.writeToCache("engine");
-
     const testUuid = "9c565db6-ddcd-4b2d-bb6e-17525aab254d";
 
     describe("standard", () => {
@@ -156,8 +156,8 @@ describe("ManagedStreamingIngestClient", () => {
 
             it.concurrent("should fallback when size is too big", async () => {
                 // Mock ManagedStreamingIngestClient with mocked streamingIngestClient
-                const mockedStreamingIngestClient = new StreamingIngestClient("http://test.kusto.com");
-                const mockedIngestClient = new KustoIngestClient("http://test.kusto.com");
+                const mockedStreamingIngestClient = new StreamingIngestClient("https://cluster.kusto.windows.net");
+                const mockedIngestClient = new KustoIngestClient("https://cluster.kusto.windows.net");
                 const sandbox = sinon.createSandbox();
                 const streamStub = sinon.stub(mockedStreamingIngestClient, "ingestFromStream");
                 streamStub.throws(new Error("Should not be called"));
