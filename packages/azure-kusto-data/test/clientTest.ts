@@ -26,7 +26,9 @@ enum ExecutionType {
     QueryV1 = "queryv1",
 }
 
-CloudSettings.writeToCache("https://cluster.kusto.windows.net");
+beforeAll(() => {
+    CloudSettings.writeToCache("https://cluster.kusto.windows.net");
+});
 
 describe("KustoClient", () => {
     describe("url test", () => {
