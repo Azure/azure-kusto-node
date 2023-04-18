@@ -1,0 +1,36 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          registry-url: https://registry.npmjs.org/
+          cache: "npm"
+          cache-dependency-path: |
+            package-lock.json
+      - name: Publish new versions
+        run: |
+          npm install -g npm@latest
+          npm ci
+          npm run build
+          lerna publish from-git --yes
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+      - name: Package
+        run: |
+          lerna exec -- npm pack
+      - name: Github Release
+        uses: docker://antonyurchenko/git-release:latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: packages/azure-kusto-data/*.tgz packages/azure-kusto-ingest/*.tgz packages/quick_start/*.tgz

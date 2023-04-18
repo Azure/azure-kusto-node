@@ -10,11 +10,21 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
     static readonly DefaultDatabaseName = "NetDefaultDB";
     static readonly SecretReplacement = "****";
 
-    static withAadUserPasswordAuthentication(_connectionString: string, _userId: string, _password: string, _authorityId?: string) {
+    static withAadUserPasswordAuthentication(
+        _connectionString: string,
+        _userId: string,
+        _password: string,
+        _authorityId?: string
+    ): KustoConnectionStringBuilder {
         throw new Error("Not supported in browser - use withUserPrompt instead");
     }
 
-    static withAadApplicationKeyAuthentication(_connectionString: string, _aadAppId: string, _appKey: string, _authorityId?: string) {
+    static withAadApplicationKeyAuthentication(
+        _connectionString: string,
+        _aadAppId: string,
+        _appKey: string,
+        _authorityId?: string
+    ): KustoConnectionStringBuilder {
         throw new Error("Not supported in browser - use withUserPrompt instead");
     }
 
@@ -24,27 +34,31 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
         _applicationCertificatePrivateKey: string,
         _authorityId?: string,
         _applicationCertificateSendX5c?: boolean
-    ) {
+    ): KustoConnectionStringBuilder {
         throw new Error("Not supported in browser - use withUserPrompt instead");
     }
 
-    static withAadDeviceAuthentication(_connectionString: string, _authorityId?: string, _deviceCodeCallback?: (response: DeviceCodeInfo) => void) {
+    static withAadDeviceAuthentication(
+        _connectionString: string,
+        _authorityId?: string,
+        _deviceCodeCallback?: (response: DeviceCodeInfo) => void
+    ): KustoConnectionStringBuilder {
         throw new Error("Not supported in browser - use withUserPrompt instead");
     }
 
-    static withSystemManagedIdentity(_connectionString: string, _authorityId?: string, _timeoutMs?: number) {
+    static withSystemManagedIdentity(_connectionString: string, _authorityId?: string, _timeoutMs?: number): KustoConnectionStringBuilder {
         throw new Error("Not supported in browser - use withUserPrompt instead");
     }
 
-    static withUserManagedIdentity(_connectionString: string, _msiClientId: string, _authorityId?: string, _timeoutMs?: number) {
+    static withUserManagedIdentity(_connectionString: string, _msiClientId: string, _authorityId?: string, _timeoutMs?: number): KustoConnectionStringBuilder {
         throw new Error("Not supported in browser - use withUserPrompt instead");
     }
 
-    static withAzLoginIdentity(_connectionString: string, _authorityId?: string, _timeoutMs?: number) {
+    static withAzLoginIdentity(_connectionString: string, _authorityId?: string, _timeoutMs?: number): KustoConnectionStringBuilder {
         throw new Error("Not supported in browser - use withUserPrompt instead");
     }
 
-    static withAccessToken(connectionString: string, accessToken: string) {
+    static withAccessToken(connectionString: string, accessToken: string): KustoConnectionStringBuilder {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         kcsb.aadFederatedSecurity = true;
 
@@ -53,7 +67,7 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
         return kcsb;
     }
 
-    static withTokenProvider(connectionString: string, tokenProvider: () => Promise<string>) {
+    static withTokenProvider(connectionString: string, tokenProvider: () => Promise<string>): KustoConnectionStringBuilder {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         kcsb.aadFederatedSecurity = true;
 
@@ -66,7 +80,7 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
         connectionString: string,
         interactiveCredentialOptions: InteractiveBrowserCredentialNodeOptions | InteractiveBrowserCredentialInBrowserOptions,
         timeoutMs?: number
-    ) {
+    ): KustoConnectionStringBuilder {
         if (!interactiveCredentialOptions) {
             throw new Error(
                 "Invalid parameters - You must provide interactiveCredentialOptions={clientId: string, redirectUri:string} to authenticate with user prompt in browser."

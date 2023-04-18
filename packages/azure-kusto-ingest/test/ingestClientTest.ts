@@ -12,7 +12,7 @@ import { Readable } from "stream";
 
 describe("KustoIngestClient", () => {
     describe("#constructor()", () => {
-        it("valid input", () => {
+        it.concurrent("valid input", () => {
             const ingestClient = new KustoIngestClient("https://cluster.kusto.windows.net", {
                 database: "db",
                 table: "table",
@@ -28,7 +28,7 @@ describe("KustoIngestClient", () => {
     });
 
     describe("#_resolveProperties()", () => {
-        it("empty default props", () => {
+        it.concurrent("empty default props", () => {
             const newProps = new IngestionProperties({
                 database: "db",
                 table: "table",
@@ -42,7 +42,7 @@ describe("KustoIngestClient", () => {
             assert.strictEqual(actual.format, "json");
         });
 
-        it("new props object", () => {
+        it.concurrent("new props object", () => {
             const newProps = {
                 database: "db",
                 table: "table",
@@ -56,7 +56,7 @@ describe("KustoIngestClient", () => {
             assert.strictEqual(actual.format, "json");
         });
 
-        it("empty new props", () => {
+        it.concurrent("empty new props", () => {
             const defaultProps = new IngestionProperties({
                 database: "db",
                 table: "table",
@@ -70,7 +70,7 @@ describe("KustoIngestClient", () => {
             assert.strictEqual(actual.format, "json");
         });
 
-        it("default props object", () => {
+        it.concurrent("default props object", () => {
             const defaultProps = {
                 database: "db",
                 table: "table",
@@ -84,7 +84,7 @@ describe("KustoIngestClient", () => {
             assert.strictEqual(actual.format, "json");
         });
 
-        it("both exists props", () => {
+        it.concurrent("both exists props", () => {
             const defaultProps = new IngestionProperties({
                 database: "db",
                 table: "table",
@@ -107,7 +107,7 @@ describe("KustoIngestClient", () => {
             assert.strictEqual(actual.reportMethod, ReportMethod.Queue);
         });
 
-        it("both exists objects", () => {
+        it.concurrent("both exists objects", () => {
             const defaultProps = {
                 database: "db",
                 table: "table",
@@ -131,7 +131,7 @@ describe("KustoIngestClient", () => {
             assert.strictEqual(actual.reportMethod, ReportMethod.Table);
         });
 
-        it("test defaults", () => {
+        it.concurrent("test defaults", () => {
             const defaultProps = {
                 database: "db",
                 table: "table",
@@ -159,7 +159,7 @@ describe("KustoIngestClient", () => {
                 (s: string, p: IngestionPropertiesInput) =>
                     KustoManagedStreamingIngestClient.fromEngineConnectionString(new KustoConnectionStringBuilder(s), p),
             ].forEach((clientType) => {
-                it(`${clientType} - test default database`, () => {
+                it.concurrent(`${clientType} - test default database`, () => {
                     const defaultProps: IngestionPropertiesInput = {
                         table: "table",
                     };
@@ -178,7 +178,7 @@ describe("KustoIngestClient", () => {
                     assert.strictEqual(actual.reportMethod, ReportMethod.Queue);
                 });
 
-                it(`${clientType} - test default database with defaultProps`, () => {
+                it.concurrent(`${clientType} - test default database with defaultProps`, () => {
                     const defaultProps: IngestionPropertiesInput = {
                         table: "table",
                         database: "db",
@@ -198,7 +198,7 @@ describe("KustoIngestClient", () => {
                     assert.strictEqual(actual.reportMethod, ReportMethod.Queue);
                 });
 
-                it(`${clientType} - test default database with given props`, () => {
+                it.concurrent(`${clientType} - test default database with given props`, () => {
                     const defaultProps: IngestionPropertiesInput = {
                         table: "table",
                         database: "db",
@@ -221,12 +221,12 @@ describe("KustoIngestClient", () => {
             });
         });
 
-        it("default both", () => {
+        it.concurrent("default both", () => {
             const client = new KustoIngestClient("https://cluster.region.kusto.windows.net");
 
             assert.throws(() => client._getMergedProps(), new IngestionPropertiesValidationError("Must define a target table"));
         });
-        it("empty both", () => {
+        it.concurrent("empty both", () => {
             const client = new KustoIngestClient("https://cluster.region.kusto.windows.net");
             client.defaultDatabase = undefined;
 
@@ -235,25 +235,25 @@ describe("KustoIngestClient", () => {
     });
 
     describe("#ingestFromFile()", () => {
-        it("valid input", () => {
+        it.concurrent("valid input", () => {
             // TODO: not sure a unit test will be useful here
         });
     });
 
     describe("#ingestFromStream()", () => {
-        it("valid input", () => {
+        it.concurrent("valid input", () => {
             // TODO: not sure a unit test will be useful here
         });
     });
 
     describe("#ingestFromBlob()", () => {
-        it("valid input", () => {
+        it.concurrent("valid input", () => {
             // TODO: not sure a unit test will be useful here
         });
     });
 
     describe("Close", () => {
-        it("Queued Client should not be useable when closed", async () => {
+        it.concurrent("Queued Client should not be useable when closed", async () => {
             const c = new KustoIngestClient("Data Source=https://cluster.kusto.windows.net");
             c.close();
             await assert.rejects(c.ingestFromFile("test1"), /Client is closed/);
@@ -261,14 +261,14 @@ describe("KustoIngestClient", () => {
             await assert.rejects(c.ingestFromBlob("test1"), /Client is closed/);
         });
 
-        it("Streaming Client should not be useable when closed", async () => {
+        it.concurrent("Streaming Client should not be useable when closed", async () => {
             const c = new KustoStreamingIngestClient("Data Source=https://cluster.kusto.windows.net");
             c.close();
             await assert.rejects(c.ingestFromFile("test1"), /Client is closed/);
             await assert.rejects(c.ingestFromStream(Readable.from("")), /Client is closed/);
         });
 
-        it("Managed Client should not be useable when closed", async () => {
+        it.concurrent("Managed Client should not be useable when closed", async () => {
             const c = new KustoManagedStreamingIngestClient("Data Source=https://cluster.kusto.windows.net", "Data Source=https://cluster.kusto.windows.net");
             c.close();
             await assert.rejects(c.ingestFromFile("test1"), /Client is closed/);

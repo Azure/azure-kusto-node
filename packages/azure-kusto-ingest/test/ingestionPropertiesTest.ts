@@ -2,26 +2,28 @@
 // Licensed under the MIT License.
 
 import assert from "assert";
-import { DataFormat, IngestionMappingKind, IngestionProperties } from "../src/ingestionProperties";
-
-import { IngestionBlobInfo } from "../src/ingestionBlobInfo";
-import { BlobDescriptor } from "../src/descriptors";
 import {
     ApacheAvroColumnMapping,
     AvroColumnMapping,
     ConstantTransformation,
     CsvColumnMapping,
+    DataFormat,
     FieldTransformation,
+    IngestionMappingKind,
+    IngestionProperties,
     JsonColumnMapping,
     OrcColumnMapping,
     ParquetColumnMapping,
     SStreamColumnMapping,
     W3CLogFileMapping,
-} from "../src/columnMappings";
+} from "azure-kusto-ingest";
+
+import { IngestionBlobInfo } from "../src/ingestionBlobInfo";
+import { BlobDescriptor } from "../src/descriptors";
 
 describe("IngestionProperties", () => {
     describe("#constructor()", () => {
-        it("valid input", () => {
+        it.concurrent("valid input", () => {
             const props = new IngestionProperties({ database: "db", table: "table", format: DataFormat.CSV });
 
             assert.strictEqual(props.database, "db");
@@ -31,7 +33,7 @@ describe("IngestionProperties", () => {
     });
 
     describe("#merge()", () => {
-        it("valid input", () => {
+        it.concurrent("valid input", () => {
             const props = new IngestionProperties({ database: "db", table: "table", format: DataFormat.CSV });
 
             const otherProps = new IngestionProperties({ ingestionMappingReference: "CsvMappingRef" });
@@ -46,7 +48,7 @@ describe("IngestionProperties", () => {
     });
 
     describe("#validate()", () => {
-        it("valid input", () => {
+        it.concurrent("valid input", () => {
             const props = new IngestionProperties({
                 database: "db",
                 table: "table",
@@ -57,7 +59,7 @@ describe("IngestionProperties", () => {
             props.validate();
         });
 
-        it("invalid input", () => {
+        it.concurrent("invalid input", () => {
             const props = new IngestionProperties({});
 
             try {
@@ -70,13 +72,13 @@ describe("IngestionProperties", () => {
             assert.fail("Expected an exception");
         });
 
-        it("json without mapping should succeed", () => {
+        it.concurrent("json without mapping should succeed", () => {
             const props = new IngestionProperties({ database: "db", table: "table", format: DataFormat.JSON });
 
             props.validate();
         });
 
-        it("Should error when mapping object doesn't match mapping type", () => {
+        it.concurrent("Should error when mapping object doesn't match mapping type", () => {
             const props = new IngestionProperties({
                 database: "db",
                 table: "table",
@@ -95,7 +97,7 @@ describe("IngestionProperties", () => {
             assert.fail("Expected an exception");
         });
 
-        it("Should error when mapping object doesn't match mapping type multiple objects", () => {
+        it.concurrent("Should error when mapping object doesn't match mapping type multiple objects", () => {
             const props = new IngestionProperties({
                 database: "db",
                 table: "table",
@@ -122,7 +124,7 @@ describe("IngestionProperties", () => {
             assert.fail("Expected an exception");
         });
 
-        it("Should error when format doesn't match mapping type", () => {
+        it.concurrent("Should error when format doesn't match mapping type", () => {
             const props = new IngestionProperties({
                 database: "db",
                 table: "table",
@@ -141,7 +143,7 @@ describe("IngestionProperties", () => {
             assert.fail("Expected an exception");
         });
 
-        it("Should error when format doesn't match implicit mapping type", () => {
+        it.concurrent("Should error when format doesn't match implicit mapping type", () => {
             const props = new IngestionProperties({
                 database: "db",
                 table: "table",
@@ -162,7 +164,7 @@ describe("IngestionProperties", () => {
         describe("Should return the correct mapping when passing Ordinal", () => {
             const types = [CsvColumnMapping];
             types.forEach((type) => {
-                it(`should handle correctly for type ${type}`, () => {
+                it.concurrent(`should handle correctly for type ${type}`, () => {
                     const result = [
                         { Column: "a", Properties: { Ordinal: "0" } },
                         {
@@ -190,7 +192,7 @@ describe("IngestionProperties", () => {
                 W3CLogFileMapping,
             ];
             types.forEach((type) => {
-                it(`should handle correctly for type ${type}`, () => {
+                it.concurrent(`should handle correctly for type ${type}`, () => {
                     const result = [
                         { Column: "a", Properties: { ConstValue: "const_value" } },
                         {
@@ -224,7 +226,7 @@ describe("IngestionProperties", () => {
             };
 
             types.forEach((type) => {
-                it(`should handle correctly for type ${type}`, () => {
+                it.concurrent(`should handle correctly for type ${type}`, () => {
                     const result = [
                         { Column: "a", Properties: { ConstValue: "custom toString" } },
                         {
@@ -251,7 +253,7 @@ describe("IngestionProperties", () => {
                 W3CLogFileMapping,
             ];
             types.forEach((type) => {
-                it(`should handle correctly for type ${type}`, () => {
+                it.concurrent(`should handle correctly for type ${type}`, () => {
                     const result = [
                         { Column: "a", Properties: { ConstValue: "const_value" } },
                         {
@@ -273,7 +275,7 @@ describe("IngestionProperties", () => {
         describe("Should return the correct mapping when passing Path", () => {
             const types = [JsonColumnMapping, AvroColumnMapping, ApacheAvroColumnMapping, SStreamColumnMapping, ParquetColumnMapping, OrcColumnMapping];
             types.forEach((type) => {
-                it(`should handle correctly for type ${type}`, () => {
+                it.concurrent(`should handle correctly for type ${type}`, () => {
                     const result = [
                         { Column: "a", Properties: { Path: "$.a" } },
                         {
@@ -292,7 +294,7 @@ describe("IngestionProperties", () => {
         describe("Should return the correct mapping when passing Path with transformations and types", () => {
             const types = [JsonColumnMapping, AvroColumnMapping, ApacheAvroColumnMapping, SStreamColumnMapping, ParquetColumnMapping, OrcColumnMapping];
             types.forEach((type) => {
-                it(`should handle correctly for type ${type}`, () => {
+                it.concurrent(`should handle correctly for type ${type}`, () => {
                     const result = [
                         {
                             Column: "a",
@@ -319,7 +321,7 @@ describe("IngestionProperties", () => {
         describe("Should return the correct mapping when passing Field with transformations and types", () => {
             const types = [W3CLogFileMapping, AvroColumnMapping, ApacheAvroColumnMapping, SStreamColumnMapping, ParquetColumnMapping, OrcColumnMapping];
             types.forEach((type) => {
-                it(`should handle correctly for type ${type}`, () => {
+                it.concurrent(`should handle correctly for type ${type}`, () => {
                     const result = [
                         {
                             Column: "a",
@@ -343,7 +345,7 @@ describe("IngestionProperties", () => {
             });
         });
 
-        it("json mapping as additional props on ingestion blob info", () => {
+        it.concurrent("json mapping as additional props on ingestion blob info", () => {
             const columns = [new JsonColumnMapping("Id", "$.Id", "int"), new JsonColumnMapping("Value", "$.value", "dynamic")];
             const props = new IngestionProperties({
                 database: "db",

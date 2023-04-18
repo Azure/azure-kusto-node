@@ -14,6 +14,11 @@
         "moduleResolution": "node",
         "inlineSources": true
     },
-    "include": ["**/src/**/*.ts", "**/test/**/*.ts", "**/index.ts"],
-    "exclude": ["node_modules"]
+    "include": [
+        "webpack.config.ts"
+    ],
+    "exclude": [
+        "node_modules",
+        "jest.config.ts"
+    ]
 }

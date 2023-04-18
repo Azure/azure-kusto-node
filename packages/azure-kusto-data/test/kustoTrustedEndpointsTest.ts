@@ -7,7 +7,7 @@ const DEFAULT_PUBLIC_LOGIN_URL = "https://login.microsoftonline.com";
 const CHINA_CLOUD_LOGIN = "https://login.partner.microsoftonline.cn";
 
 describe("kustoTrustedEndpoints", function () {
-    it("Random kusto endpoints", function () {
+    it.concurrent("Random kusto endpoints", function () {
         for (const c of [
             "https://127.0.0.1",
             "https://127.1.2.3",
@@ -104,7 +104,7 @@ describe("kustoTrustedEndpoints", function () {
         }
     });
 
-    it("test well known kusto endpoints national clouds", function () {
+    it.concurrent("test well known kusto endpoints national clouds", function () {
         for (const c of [
             `https://kustozszokb5yrauyq.kusto.chinacloudapi.cn,${CHINA_CLOUD_LOGIN}`,
             "https://kustofrbwrznltavls.kusto.usgovcloudapi.net,https://login.microsoftonline.us",
@@ -122,7 +122,7 @@ describe("kustoTrustedEndpoints", function () {
         }
     });
 
-    it("test well known kusto endpoints proxy test", function () {
+    it.concurrent("test well known kusto endpoints proxy test", function () {
         for (const c of [
             `https://kusto.aria.microsoft.com,${DEFAULT_PUBLIC_LOGIN_URL}`,
             `https://ade.applicationinsights.io,${DEFAULT_PUBLIC_LOGIN_URL}`,
@@ -138,7 +138,7 @@ describe("kustoTrustedEndpoints", function () {
         }
     });
 
-    it("test_well_known_kusto_endpoints_proxy_test", function () {
+    it.concurrent("test_well_known_kusto_endpoints_proxy_test", function () {
         for (const c of [
             `https://kusto.aria.microsoft.com,${DEFAULT_PUBLIC_LOGIN_URL}`,
             `https://ade.applicationinsights.io,${DEFAULT_PUBLIC_LOGIN_URL}`,
@@ -154,7 +154,7 @@ describe("kustoTrustedEndpoints", function () {
         }
     });
 
-    it("test_well_known_kusto_endpoints_proxy_negative_test", function () {
+    it.concurrent("test_well_known_kusto_endpoints_proxy_negative_test", function () {
         for (const clusterName of [
             "https://cluster.kusto.aria.microsoft.com",
             "https://cluster.eu.kusto.aria.microsoft.com",
@@ -167,7 +167,7 @@ describe("kustoTrustedEndpoints", function () {
             checkEndpoint(clusterName, DEFAULT_PUBLIC_LOGIN_URL, true);
         }
     });
-    it("test_well_known_kusto_endpoints_negative", function () {
+    it.concurrent("test_well_known_kusto_endpoints_negative", function () {
         for (const clusterName of [
             "https://localhostess",
             "https://127.0.0.1.a",
@@ -179,7 +179,7 @@ describe("kustoTrustedEndpoints", function () {
             checkEndpoint(clusterName, DEFAULT_PUBLIC_LOGIN_URL, true);
         }
     });
-    it("test_well_known_kusto_endpoints_override", function () {
+    it.concurrent("test_well_known_kusto_endpoints_override", function () {
         try {
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             kustoTrustedEndpoints.setOverridePolicy((_) => true);
@@ -199,7 +199,7 @@ describe("kustoTrustedEndpoints", function () {
         }
     });
 
-    it("test_wellKnownKustoEndpoints_AdditionalWebsites", function () {
+    it.concurrent("test_wellKnownKustoEndpoints_AdditionalWebsites", function () {
         kustoTrustedEndpoints.addTrustedHosts([new MatchRule(".someotherdomain1.net", false)], true);
 
         // 2nd call - to validate that addition works
