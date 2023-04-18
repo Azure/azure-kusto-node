@@ -66,7 +66,7 @@ const main = (): void => {
             public description: string,
             public path: string,
             public rows: number,
-            public ingestionProperties: (t: string) => IngestionProperties,
+            public ingestionPropertiesCallback: (t: string) => IngestionProperties,
             public testOnStreamingIngestion = true
         ) {}
     }
@@ -176,7 +176,7 @@ const main = (): void => {
             )("ingestFromFile_$item.description", async ({ item }) => {
                 const table = tableNames[("queued_file" + "_" + item.description) as Table];
                 try {
-                    await ingestClient.ingestFromFile(item.path, item.ingestionProperties(table));
+                    await ingestClient.ingestFromFile(item.path, item.ingestionPropertiesCallback(table));
                 } catch (err) {
                     assert.fail(`Failed to ingest ${item.description}, ${util.format(err)}`);
                 }
@@ -194,7 +194,7 @@ const main = (): void => {
                 }
                 const table = tableNames[("queued_stream" + "_" + item.description) as Table];
                 try {
-                    await ingestClient.ingestFromStream(stream, item.ingestionProperties(table));
+                    await ingestClient.ingestFromStream(stream, item.ingestionPropertiesCallback(table));
                 } catch (err) {
                     assert.fail(`Failed to ingest ${item.description} - ${util.format(err)}`);
                 }
@@ -212,7 +212,7 @@ const main = (): void => {
             )("ingestFromFile_$item.description", async ({ item }) => {
                 const table = tableNames[("streaming_file" + "_" + item.description) as Table];
                 try {
-                    await streamingIngestClient.ingestFromFile(item.path, item.ingestionProperties(table));
+                    await streamingIngestClient.ingestFromFile(item.path, item.ingestionPropertiesCallback(table));
                 } catch (err) {
                     assert.fail(`Failed to ingest ${item.description} - ${util.format(err)}`);
                 }
@@ -232,7 +232,7 @@ const main = (): void => {
                 }
                 const table = tableNames[("streaming_stream" + "_" + item.description) as Table];
                 try {
-                    await streamingIngestClient.ingestFromStream(stream, item.ingestionProperties(table));
+                    await streamingIngestClient.ingestFromStream(stream, item.ingestionPropertiesCallback(table));
                 } catch (err) {
                     assert.fail(`Failed to ingest ${item.description} - ${util.format(err)}`);
                 }
@@ -250,7 +250,7 @@ const main = (): void => {
             )("ingestFromFile_$item.description", async ({ item }) => {
                 const table = tableNames[("managed_file" + "_" + item.description) as Table];
                 try {
-                    await managedStreamingIngestClient.ingestFromFile(item.path, item.ingestionProperties(table));
+                    await managedStreamingIngestClient.ingestFromFile(item.path, item.ingestionPropertiesCallback(table));
                 } catch (err) {
                     assert.fail(`Failed to ingest ${item.description} - ${util.format(err)}`);
                 }
@@ -269,7 +269,7 @@ const main = (): void => {
                 }
                 const table = tableNames[("managed_stream" + "_" + item.description) as Table];
                 try {
-                    await managedStreamingIngestClient.ingestFromStream(stream, item.ingestionProperties(table));
+                    await managedStreamingIngestClient.ingestFromStream(stream, item.ingestionPropertiesCallback(table));
                 } catch (err) {
                     assert.fail(`Failed to ingest ${item.description} - ${util.format(err)}`);
                 }
@@ -287,7 +287,7 @@ const main = (): void => {
             const checkSuccess = async () => {
                 const item = testItems[0];
                 const table = tableNames[("status_success" + "_" + item.description) as Table];
-                const ingestionProperties = item.ingestionProperties(table);
+                const ingestionProperties = item.ingestionPropertiesCallback(table);
                 ingestionProperties.reportLevel = ReportLevel.FailuresAndSuccesses;
                 try {
                     await ingestClient.ingestFromFile(item.path, ingestionProperties);
@@ -309,7 +309,7 @@ const main = (): void => {
             const checkFail = async () => {
                 const item = testItems[0];
                 const table = tableNames[("status_fail" + "_" + item.description) as Table];
-                const ingestionProperties = item.ingestionProperties(table);
+                const ingestionProperties = item.ingestionPropertiesCallback(table);
                 ingestionProperties.reportLevel = ReportLevel.FailuresAndSuccesses;
                 ingestionProperties.database = "invalid";
                 try {
