@@ -5,14 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [5.0.2] - 2023-04-18
 
 ### Fixed
 
 -   Remove authorization header from errors
 -   Escape non-ascii headers to align with the service
-
-## [5.0.2] - 2023-03-20
 
 ### Added
 
@@ -28,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+-   [BREAKING] - the minimal version for NodeJS is now 16
 -   [BREAKING] - removed moment.js from project and fixed timespan parsing:
     -   By default, Timespan will now be parsed into a number of milliseconds by default, matching Date substraction
     -   By default, Datetime fields will now be parsed into a native Date object

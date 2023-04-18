@@ -14,8 +14,7 @@ export type CloudInfo = {
 /**
  * This class holds data for all cloud instances, and returns the specific data instance by parsing the dns suffix from a URL
  */
-export class CloudSettings {
-    private static instance: CloudSettings = new CloudSettings();
+class CloudSettings {
     METADATA_ENDPOINT = "/v1/rest/auth/metadata";
     defaultCloudInfo: CloudInfo = {
         LoginEndpoint: process.env.AadAuthorityUri || "https://login.microsoftonline.com",
@@ -27,13 +26,16 @@ export class CloudSettings {
     };
     cloudCache: { [kustoUri: string]: CloudInfo } = {};
 
-    private constructor() {}
-
-    static getInstance(): CloudSettings {
-        return CloudSettings.instance;
+    writeToCache(url: string, info?: CloudInfo) {
+        this.cloudCache[this.normalizeUrl(url)] = info ?? this.defaultCloudInfo;
     }
 
+    getFromCache = (kustoUri: string) => this.cloudCache[this.normalizeUrl(kustoUri)];
+
+    deleteFromCache = (kustoUri: string) => delete this.cloudCache[this.normalizeUrl(kustoUri)];
+
     async getCloudInfoForCluster(kustoUri: string): Promise<CloudInfo> {
+        kustoUri = this.normalizeUrl(kustoUri);
         if (kustoUri in this.cloudCache) {
             return this.cloudCache[kustoUri];
         }
@@ -51,6 +53,7 @@ export class CloudSettings {
                     // 'https://sandbox-46-11.reactblade.portal.azure.net' has been blocked by CORS policy: The 'Access-Control-Allow-Origin' header has a value
                     // 'https://sandbox-46-10.reactblade.portal.azure.net' that is not equal to the supplied origin.
                 },
+                maxRedirects: 0,
             });
             if (response.status === 200) {
                 this.cloudCache[kustoUri] = response.data.AzureAD || this.defaultCloudInfo;
@@ -68,7 +71,20 @@ export class CloudSettings {
         return this.cloudCache[kustoUri];
     }
 
+    private normalizeUrl(kustoUri: string) {
+        const url = new URL(kustoUri);
+        const urlString = url.toString();
+        if (urlString.endsWith("/")) {
+            return urlString.slice(0, urlString.length - 1);
+        }
+        return urlString;
+    }
+
     static getAuthorityUri(cloudInfo: CloudInfo, authorityId?: string): string {
         return cloudInfo.LoginEndpoint + "/" + (authorityId || "organizations");
     }
 }
+
+const cloudSettings = new CloudSettings();
+export { cloudSettings as CloudSettings };
+export default cloudSettings;

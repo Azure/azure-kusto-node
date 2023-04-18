@@ -10,7 +10,7 @@ import { CredentialUnavailableError } from "@azure/identity";
 import { loginTest, manualLoginTest } from "./data/testUtils";
 
 beforeAll(() => {
-    CloudSettings.getInstance().cloudCache["https://somecluster.kusto.windows.net"] = CloudSettings.getInstance().defaultCloudInfo;
+    CloudSettings.writeToCache("https://somecluster.kusto.windows.net");
 });
 describe("test errors", () => {
     it.concurrent("no data source", () => {
@@ -112,7 +112,7 @@ describe("test errors", () => {
 
 describe("Test providers", () => {
     beforeAll(() => {
-        CloudSettings.getInstance().cloudCache["https://somecluster.kusto.windows.net"] = CloudSettings.getInstance().defaultCloudInfo;
+        CloudSettings.writeToCache("https://somecluster.kusto.windows.net");
     });
 
     it.concurrent("test null", async () => {
