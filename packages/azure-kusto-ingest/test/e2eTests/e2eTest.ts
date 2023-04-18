@@ -34,7 +34,7 @@ const main = (): void => {
     }
 
     const engineKcsb = ConnectionStringBuilder.withAadApplicationKeyAuthentication(process.env.ENGINE_CONNECTION_STRING ?? "", appId, appKey, tenantId);
-    engineKcsb.applicationNameForTracing = "NodeE2ETest";
+    engineKcsb.applicationNameForTracing = "NodeE2ETest_ø";
 
     const queryClient = new Client(engineKcsb);
     const streamingIngestClient = new StreamingIngestClient(engineKcsb);
@@ -322,6 +322,9 @@ const main = (): void => {
                 try {
                     await queryClient.executeQuery(databaseName, "invalidSyntax ");
                 } catch (ex) {
+                    const exTyped = ex as { request: unknown; config: { headers: { [k: string]: string } } };
+                    assert.strictEqual(exTyped.request, undefined);
+                    assert.strictEqual(exTyped.config.headers.Authorization, "<REDACTED>");
                     return;
                 }
                 assert.fail(`General BadRequest`);
