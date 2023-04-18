@@ -1,6 +1,6 @@
 {
     "name": "azure-kusto-ingest",
-    "version": "5.0.1",
+    "version": "5.0.2",
     "description": "Azure Data Explorer Ingestion SDK",
     "module": "dist-esm/src/index.js",
     "types": "./types/src/index.d.ts",
@@ -61,7 +61,7 @@
         "@types/tmp": "^0.2.3",
         "@types/uuid": "^8.3.4",
         "@types/uuid-validate": "0.0.1",
-        "azure-kusto-data": "*",
+        "azure-kusto-data": "^5.0.2",
         "browserify-zlib": "0.2.0",
         "stream-array": "^1.1.2",
         "stream-browserify": "3.0.0",
