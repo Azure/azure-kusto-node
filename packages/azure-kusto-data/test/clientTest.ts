@@ -26,17 +26,19 @@ enum ExecutionType {
     QueryV1 = "queryv1",
 }
 
-CloudSettings.getInstance().cloudCache["https://cluster.kusto.windows.net"] = CloudSettings.getInstance().defaultCloudInfo;
+beforeAll(() => {
+    CloudSettings.writeToCache("https://cluster.kusto.windows.net");
+});
 
 describe("KustoClient", () => {
     describe("url test", () => {
         const tests = {
             "https://kusto.test.com": "https://kusto.test.com",
             "https://kusto.test.com/": "https://kusto.test.com",
-            "https://kusto.test.com/test": "https://kusto.test.com",
+            "https://kusto.test.com/test": "https://kusto.test.com/test",
             "https://kusto.test.com:4242": "https://kusto.test.com:4242",
             "https://kusto.test.com:4242/": "https://kusto.test.com:4242",
-            "https://kusto.test.com:4242/test": "https://kusto.test.com:4242",
+            "https://kusto.test.com:4242/test": "https://kusto.test.com:4242/test",
         };
 
         for (const [url, expected] of Object.entries(tests)) {

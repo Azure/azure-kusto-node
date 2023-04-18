@@ -7,12 +7,18 @@ import assert from "assert";
 import fs, { ReadStream } from "fs";
 import IngestClient from "../../src/ingestClient";
 import KustoIngestStatusQueues from "../../src/status";
-import { Client, ClientRequestProperties, KustoConnectionStringBuilder as ConnectionStringBuilder } from "azure-kusto-data";
+import {
+    Client,
+    ClientRequestProperties,
+    CloudSettings,
+    KustoConnectionStringBuilder as ConnectionStringBuilder,
+    kustoTrustedEndpoints,
+    MatchRule,
+} from "azure-kusto-data";
 import StreamingIngestClient from "../../src/streamingIngestClient";
 import ManagedStreamingIngestClient from "../../src/managedStreamingIngestClient";
 import { CompressionType, StreamDescriptor } from "../../src/descriptors";
 import { DataFormat, IngestionProperties, JsonColumnMapping, ReportLevel } from "../../src";
-import { CloudSettings } from "azure-kusto-data/src/cloudSettings";
 import { sleep } from "../../src/retry";
 import util from "util";
 
@@ -118,6 +124,7 @@ const main = (): void => {
         await Promise.all(
             Object.values(tableNames).map(async (tableName) => {
                 try {
+                    console.log(`Drop table ${tableName}`);
                     await queryClient.execute(databaseName, `.drop table ${tableName} ifexists`);
                 } catch (err) {
                     assert.fail("Failed to drop table");
@@ -156,8 +163,8 @@ const main = (): void => {
     describe(`E2E Tests`, () => {
         describe("cloud info", () => {
             it.concurrent("cloud info 404", async () => {
-                const cloudInfo = await CloudSettings.getInstance().getCloudInfoForCluster("https://www.microsoft.com");
-                assert.strictEqual(cloudInfo, CloudSettings.getInstance().defaultCloudInfo);
+                const cloudInfo = await CloudSettings.getCloudInfoForCluster("https://www.microsoft.com");
+                assert.strictEqual(cloudInfo, CloudSettings.defaultCloudInfo);
             });
         });
 
@@ -348,6 +355,45 @@ const main = (): void => {
                 }
                 assert.fail(`Didn't throw executionTimeout`);
             });
+        });
+    });
+
+    describe("NoRedirects", () => {
+        const redirectCodes = [301];
+        kustoTrustedEndpoints.addTrustedHosts([new MatchRule("statusreturner.azurewebsites.net", false)], false);
+
+        it.concurrent.each(redirectCodes.map((r) => ({ code: r })))("noRedirectsClientFail_%s", async ({ code }) => {
+            const kcsb = `https://statusreturner.azurewebsites.net/${code}`;
+            const client = new Client(kcsb);
+            try {
+                await client.execute(databaseName, tableNames.general_csv);
+                assert.fail("Expected exception");
+            } catch (ex) {
+                assert.ok(ex instanceof Error);
+                assert.match(ex.message, new RegExp(`.*${code}.*`), `Fail to get ${code} error code. ex json: ${JSON.stringify(ex)}, ex: ${ex}`);
+                assert.doesNotMatch(ex.message, new RegExp(`.*cloud.*`), "Unexpected cloud in error.");
+            } finally {
+                client.close();
+            }
+        });
+
+        it.concurrent.each(redirectCodes.map((r) => ({ code: r })))("noRedirectsCloudFail_%s", async ({ code }) => {
+            const kcsb = ConnectionStringBuilder.withAadApplicationKeyAuthentication(
+                `https://statusreturner.azurewebsites.net/nocloud/${code}`,
+                "fake",
+                "fake",
+                "fake"
+            );
+            const client = new Client(kcsb);
+            try {
+                await client.execute(databaseName, tableNames.general_csv);
+                assert.fail("Expected exception");
+            } catch (ex) {
+                assert.ok(ex instanceof Error);
+                assert.match(ex.message, new RegExp(`.*cloud.*${code}.*`), `Fail to get ${code} error code. ex json: ${JSON.stringify(ex)}, ex: ${ex}`);
+            } finally {
+                client.close();
+            }
         });
     });
 

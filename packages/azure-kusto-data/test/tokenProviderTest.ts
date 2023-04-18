@@ -9,14 +9,14 @@ describe("CloudInfo", () => {
     describe("#CloudInfo", () => {
         it.concurrent("mfa off", async () => {
             const fakeUri = "https://fakeurl_mfa.kusto.windows.net";
-            CloudSettings.getInstance().cloudCache[fakeUri] = {
+            CloudSettings.writeToCache(fakeUri, {
                 LoginEndpoint: process.env.AadAuthorityUri || "https://login.microsoftonline.com",
                 LoginMfaRequired: false,
                 KustoClientAppId: "1234",
                 KustoClientRedirectUri: "https://microsoft/kustoclient",
                 KustoServiceResourceId: "https://fakeurl.kusto.windows.net",
                 FirstPartyAuthorityUrl: "https://login.microsoftonline.com/8cdef31-a31e-4b4a-93e4-5f571e91255a",
-            };
+            });
 
             const provider = new UserPassTokenProvider(fakeUri, "auth_test", "a", "b");
             try {
@@ -30,14 +30,14 @@ describe("CloudInfo", () => {
 
         it.concurrent("mfa off", async () => {
             const fakeUri2 = "https://fakeurl2.kusto.windows.net";
-            CloudSettings.getInstance().cloudCache[fakeUri2] = {
+            CloudSettings.writeToCache(fakeUri2, {
                 LoginEndpoint: process.env.AadAuthorityUri || "https://login.microsoftonline.com",
                 LoginMfaRequired: true,
                 KustoClientAppId: "1234",
                 KustoClientRedirectUri: "https://microsoft/kustoclient",
                 KustoServiceResourceId: "https://fakeurl.kusto.windows.net",
                 FirstPartyAuthorityUrl: "https://login.microsoftonline.com/f8cdef31-a31e-4b4a-93e4-5f571e91255a",
-            };
+            });
 
             const provider = new UserPassTokenProvider(fakeUri2, "auth_test", "a", "b");
             try {

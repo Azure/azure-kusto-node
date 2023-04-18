@@ -109,7 +109,7 @@ export abstract class CloudSettingsTokenProvider extends TokenProviderBase {
     async acquireToken(): Promise<TokenResponse> {
         if (!this.initialized) {
             if (this.cloudInfo == null) {
-                this.cloudInfo = await CloudSettings.getInstance().getCloudInfoForCluster(this.kustoUri);
+                this.cloudInfo = await CloudSettings.getCloudInfoForCluster(this.kustoUri);
                 let resourceUri = this.cloudInfo.KustoServiceResourceId;
                 if (this.cloudInfo.LoginMfaRequired) {
                     resourceUri = resourceUri.replace(".kusto.", ".kustomfa.");

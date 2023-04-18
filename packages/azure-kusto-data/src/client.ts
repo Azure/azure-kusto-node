@@ -7,13 +7,12 @@ import { KustoResponseDataSet, KustoResponseDataSetV1, KustoResponseDataSetV2, V
 import ConnectionStringBuilder from "./connectionBuilder";
 import ClientRequestProperties from "./clientRequestProperties";
 import { ThrottlingError } from "./errors";
-import { SDK_VERSION } from "./version";
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 import http from "http";
 import https from "https";
 import { isNode } from "@azure/core-util";
 import { kustoTrustedEndpoints } from "./kustoTrustedEndpoints";
-import { CloudSettings } from "./cloudSettings";
+import CloudSettings from "./cloudSettings";
 import { toMilliseconds } from "./timeUtils";
 import { KustoHeaders } from "./clientDetails";
 
@@ -45,7 +44,10 @@ export class KustoClient {
             throw new Error("Cluster url is required");
         }
         const url = new URL(this.connectionString.dataSource);
-        this.cluster = `${url.protocol}//${url.hostname}${url.port ? `:${url.port}` : ""}`;
+        this.cluster = url.toString();
+        if (this.cluster.endsWith("/")) {
+            this.cluster = this.cluster.slice(0, -1);
+        }
         this.defaultDatabase = this.connectionString.initialCatalog;
         this.endpoints = {
             [ExecutionType.Mgmt]: `${this.cluster}/v1/rest/mgmt`,
@@ -57,12 +59,14 @@ export class KustoClient {
         const headers = {
             Accept: "application/json",
             "Accept-Encoding": "gzip,deflate",
-            "x-ms-client-version": `Kusto.Node.Client:${SDK_VERSION}`,
             Connection: "Keep-Alive",
         };
         const axiosProps: AxiosRequestConfig = {
             headers,
             validateStatus: (status: number) => status === 200,
+            maxBodyLength: Infinity,
+            maxContentLength: Infinity,
+            maxRedirects: 0,
         };
         // http and https are Node modules and are not found in browsers
         if (isNode) {
@@ -72,7 +76,7 @@ export class KustoClient {
         }
         axiosProps.cancelToken = this.cancelToken.token;
 
-        this.axiosInstance = axios.create();
+        this.axiosInstance = axios.create(axiosProps);
     }
 
     async execute(db: string | null, query: string, properties?: ClientRequestProperties) {
@@ -125,7 +129,7 @@ export class KustoClient {
         properties?: ClientRequestProperties | null
     ): Promise<KustoResponseDataSet> {
         this.ensureOpen();
-        kustoTrustedEndpoints.validateTrustedEndpoint(endpoint, (await CloudSettings.getInstance().getCloudInfoForCluster(this.cluster)).LoginEndpoint);
+        kustoTrustedEndpoints.validateTrustedEndpoint(endpoint, (await CloudSettings.getCloudInfoForCluster(this.cluster)).LoginEndpoint);
         db = this.getDb(db);
         const headers: { [header: string]: string } = {};
 
@@ -203,7 +207,7 @@ export class KustoClient {
         timeout: number,
         properties?: ClientRequestProperties | null
     ): Promise<KustoResponseDataSet> {
-        const axiosConfig = {
+        const axiosConfig: AxiosRequestConfig = {
             headers,
             timeout,
         };
