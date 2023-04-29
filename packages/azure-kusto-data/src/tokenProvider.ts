@@ -177,6 +177,19 @@ export abstract class AzureIdentityProvider extends CloudSettingsTokenProvider {
 }
 
 /**
+ * TokenCredentialProvider receives any TokenCredential to create a token with.
+ */
+export class TokenCredentialProvider extends AzureIdentityProvider {
+    constructor(kustoUri: string, private tokenCredential: TokenCredential, timeoutMs?: number) {
+        super(kustoUri, undefined, timeoutMs);
+    }
+
+    getCredential(): TokenCredential {
+        return this.tokenCredential;
+    }
+}
+
+/**
  * UserPromptProvider will pop up a login prompt to acquire a token.
  */
 export class UserPromptProvider extends AzureIdentityProvider {
@@ -251,8 +264,8 @@ export class UserPassTokenProvider extends AzureIdentityProvider {
     userName: string;
     password: string;
     homeAccountId?: string;
-    constructor(kustoUri: string, userName: string, password: string, authorityId: string) {
-        super(kustoUri, authorityId, undefined);
+    constructor(kustoUri: string, userName: string, password: string, authorityId: string, timeoutMs?: number) {
+        super(kustoUri, authorityId, timeoutMs);
         this.userName = userName;
         this.password = password;
     }
@@ -274,8 +287,8 @@ export class UserPassTokenProvider extends AzureIdentityProvider {
  * Acquire a token from  Device Login flow
  */
 export class DeviceLoginTokenProvider extends AzureIdentityProvider {
-    constructor(kustoUri: string, private deviceCodeCallback?: (response: DeviceCodeInfo) => void, authorityId?: string) {
-        super(kustoUri, authorityId, undefined);
+    constructor(kustoUri: string, private deviceCodeCallback?: (response: DeviceCodeInfo) => void, authorityId?: string, timeoutMs?: number) {
+        super(kustoUri, authorityId, timeoutMs);
     }
 
     getCredential(): TokenCredential {
@@ -292,21 +305,35 @@ export class DeviceLoginTokenProvider extends AzureIdentityProvider {
  * Passing the public certificate is optional and will result in Subject Name & Issuer Authentication
  */
 export class ApplicationCertificateTokenProvider extends AzureIdentityProvider {
-    constructor(kustoUri: string, private appClientId: string, private certPrivateKey: string, private sendX5c?: boolean, authorityId?: string) {
-        super(kustoUri, authorityId!);
+    constructor(
+        kustoUri: string,
+        private appClientId: string,
+        private certPrivateKey?: string,
+        private certPath?: string,
+        private sendX5c?: boolean,
+        authorityId?: string,
+        timeoutMs?: number
+    ) {
+        super(kustoUri, authorityId!, timeoutMs);
     }
 
     getCredential(): TokenCredential {
-        return new ClientCertificateCredential(
-            this.authorityId!,
-            this.appClientId!,
-            {
-                certificate: this.certPrivateKey,
-            } as ClientCertificatePEMCertificate,
-            {
-                sendCertificateChain: this.sendX5c,
-            } as ClientCertificateCredentialOptions
-        );
+        if (this.certPrivateKey) {
+            return new ClientCertificateCredential(
+                this.authorityId!,
+                this.appClientId!,
+                {
+                    certificate: this.certPrivateKey,
+                } as ClientCertificatePEMCertificate,
+                {
+                    sendCertificateChain: this.sendX5c,
+                } as ClientCertificateCredentialOptions
+            );
+        }
+
+        return new ClientCertificateCredential(this.authorityId!, this.appClientId!, this.certPath!, {
+            sendCertificateChain: this.sendX5c,
+        } as ClientCertificateCredentialOptions);
     }
 
     context(): Record<string, any> {
@@ -322,8 +349,8 @@ export class ApplicationCertificateTokenProvider extends AzureIdentityProvider {
  * Acquire a token from MSAL with application id and Key
  */
 export class ApplicationKeyTokenProvider extends AzureIdentityProvider {
-    constructor(kustoUri: string, private appClientId: string, private appKey: string, authorityId: string) {
-        super(kustoUri, authorityId);
+    constructor(kustoUri: string, private appClientId: string, private appKey: string, authorityId: string, timeoutMs?: number) {
+        super(kustoUri, authorityId, timeoutMs);
     }
 
     getCredential(): TokenCredential {

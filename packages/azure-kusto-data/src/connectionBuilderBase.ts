@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { DeviceCodeInfo, InteractiveBrowserCredentialInBrowserOptions, InteractiveBrowserCredentialNodeOptions } from "@azure/identity";
+import { DeviceCodeInfo, InteractiveBrowserCredentialInBrowserOptions, InteractiveBrowserCredentialNodeOptions, TokenCredential } from "@azure/identity";
 import { KeyOfType } from "./typeUtilts";
 
 interface MappingType {
@@ -53,6 +53,10 @@ export const KeywordMapping: KeywordMappingRecordType = Object.freeze<Readonly<K
         validNames: ["Application Certificate PrivateKey"],
         isSecret: true,
     },
+    applicationCertificatePath: {
+        mappedTo: "Application Certificate path",
+        validNames: ["Application Certificate path"],
+    },
     applicationCertificateSendX5c: {
         mappedTo: "Application Certificate x5c",
         validNames: ["application certificate x5c", "Application Certificate Send Public Certificate", "Application Certificate SendX5c", "SendX5c"],
@@ -92,6 +96,7 @@ export abstract class KustoConnectionStringBuilderBase {
     msiClientId?: string;
     applicationKey?: string;
     applicationCertificatePrivateKey?: string;
+    applicationCertificatePath?: string;
     applicationCertificateSendX5c?: boolean;
     authorityId: string = "organizations";
     deviceCodeCallback?: (response: DeviceCodeInfo) => void;
@@ -103,6 +108,7 @@ export abstract class KustoConnectionStringBuilderBase {
     useAzLoginAuth?: boolean;
     useManagedIdentityAuth?: boolean;
     interactiveCredentialOptions?: InteractiveBrowserCredentialNodeOptions | InteractiveBrowserCredentialInBrowserOptions;
+    tokenCredential?: TokenCredential;
 
     constructor(connectionString: string) {
         if (connectionString.trim().length === 0) throw new Error("Missing connection string");
