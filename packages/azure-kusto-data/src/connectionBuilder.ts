@@ -3,6 +3,7 @@
 
 import { DeviceCodeInfo, InteractiveBrowserCredentialInBrowserOptions, InteractiveBrowserCredentialNodeOptions } from "@azure/identity";
 import { KustoConnectionStringBuilderBase } from "./connectionBuilderBase";
+import fs from "fs";
 
 /*
  * A builder for Kusto connection strings
@@ -45,17 +46,24 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
     static withAadApplicationCertificateAuthentication(
         connectionString: string,
         aadAppId: string,
-        applicationCertificatePrivateKey: string,
+        applicationCertificatePrivateKeyOrPath: string,
         authorityId?: string,
         applicationCertificateSendX5c?: boolean
     ): KustoConnectionStringBuilder {
         if (aadAppId.trim().length === 0) throw new Error("Invalid app id");
-        if (applicationCertificatePrivateKey.trim().length === 0) throw new Error("Invalid certificate");
+        if (applicationCertificatePrivateKeyOrPath.trim().length === 0) throw new Error("Invalid certificate key or path");
 
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         kcsb.aadFederatedSecurity = true;
         kcsb.applicationClientId = aadAppId;
-        kcsb.applicationCertificatePrivateKey = applicationCertificatePrivateKey;
+        try {
+            fs.lstatSync("test.txt");
+            kcsb.applicationCertificatePath = applicationCertificatePrivateKeyOrPath;
+        } catch (e) {
+            // No such file
+            kcsb.applicationCertificatePrivateKey = applicationCertificatePrivateKeyOrPath;
+        }
+
         kcsb.applicationCertificateSendX5c = applicationCertificateSendX5c;
 
         if (authorityId) {
