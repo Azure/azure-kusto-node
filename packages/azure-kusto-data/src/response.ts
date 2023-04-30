@@ -156,7 +156,7 @@ export class KustoResponseDataSetV1 extends KustoResponseDataSet {
             QueryResult: WellKnownDataSet.PrimaryResult,
             QueryProperties: WellKnownDataSet.QueryProperties,
             QueryStatus: WellKnownDataSet.QueryCompletionInformation,
-            PrimaryResult: WellKnownDataSet.PrimaryResult
+            PrimaryResult: WellKnownDataSet.PrimaryResult,
         };
     }
 
