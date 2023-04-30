@@ -12,9 +12,9 @@ import {
     UsernamePasswordCredential,
     InteractiveBrowserCredentialInBrowserOptions,
     InteractiveBrowserCredentialNodeOptions,
+    InteractiveBrowserCredential
 } from "@azure/identity";
 import { TokenCredential } from "@azure/core-auth";
-import { InteractiveBrowserCredential } from "@azure/identity";
 import { CloudInfo, CloudSettings } from "./cloudSettings";
 
 export declare type TokenResponse = {

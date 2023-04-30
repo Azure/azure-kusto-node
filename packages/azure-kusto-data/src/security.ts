@@ -3,7 +3,7 @@
 import KustoConnectionStringBuilder from "./connectionBuilder";
 import * as TokenProvider from "./tokenProvider";
 import { KustoAuthenticationError } from "./errors";
-import { BasicTokenProvider, CallbackTokenProvider, TokenProviderBase, UserPromptProvider } from "./tokenProvider";
+import { BasicTokenProvider, CallbackTokenProvider, TokenProviderBase, UserPromptProvider, TokenCredentialProvider } from "./tokenProvider";
 
 export class AadHelper {
     tokenProvider?: TokenProviderBase;
@@ -46,7 +46,7 @@ export class AadHelper {
         } else if (kcsb.useDeviceCodeAuth) {
             this.tokenProvider = new TokenProvider.DeviceLoginTokenProvider(kcsb.dataSource, kcsb.deviceCodeCallback, kcsb.authorityId, kcsb.timeoutMs);
         } else if (kcsb.tokenCredential) {
-            this.tokenProvider = new TokenProvider.TokenCredentialProvider(kcsb.dataSource, kcsb.tokenCredential, kcsb.timeoutMs);
+            this.tokenProvider = new TokenCredentialProvider(kcsb.dataSource, kcsb.tokenCredential, kcsb.timeoutMs);
         }
     }
 

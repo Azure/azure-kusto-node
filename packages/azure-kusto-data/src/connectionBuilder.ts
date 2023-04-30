@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { DeviceCodeInfo, InteractiveBrowserCredentialInBrowserOptions, InteractiveBrowserCredentialNodeOptions } from "@azure/identity";
+import { DeviceCodeInfo, InteractiveBrowserCredentialInBrowserOptions, InteractiveBrowserCredentialNodeOptions, TokenCredential } from "@azure/identity";
 import { KustoConnectionStringBuilderBase } from "./connectionBuilderBase";
 import fs from "fs";
 
@@ -169,6 +169,13 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
         }
 
         kcsb.timeoutMs = timeoutMs;
+
+        return kcsb;
+    }
+
+    static withTokenCredential(connectionString: string, credential: TokenCredential): KustoConnectionStringBuilder {
+        const kcsb = new KustoConnectionStringBuilder(connectionString);
+        kcsb.tokenCredential = credential;
 
         return kcsb;
     }
