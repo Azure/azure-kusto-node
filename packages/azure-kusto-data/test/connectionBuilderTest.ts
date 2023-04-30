@@ -324,6 +324,7 @@ describe("KustoConnectionStringBuilder", () => {
                 kcsb1.aadFederatedSecurity = true;
                 kcsb1.applicationClientId = appId;
                 kcsb1.authorityId = expectedAuthorityId;
+                kcsb1.applicationCertificatePrivateKey = privateKey;
                 kcsb1.applicationCertificateSendX5c = cert5xc;
                 kcsbs.push(kcsb1);
 
@@ -356,6 +357,7 @@ describe("KustoConnectionStringBuilder", () => {
                 const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
                 kcsb1.aadFederatedSecurity = true;
                 kcsb1.applicationClientId = appId;
+                kcsb1.applicationCertificatePrivateKey = privateKey;
                 kcsb1.applicationCertificateSendX5c = cert5xc;
                 kcsbs.push(kcsb1);
 
@@ -388,6 +390,7 @@ describe("KustoConnectionStringBuilder", () => {
                 const kcsb1 = new KustoConnectionStringBuilder("server=localhost");
                 kcsb1.aadFederatedSecurity = true;
                 kcsb1.applicationClientId = appId;
+                kcsb1.applicationCertificatePrivateKey = privateKey;
                 kcsbs.push(kcsb1);
 
                 doComparsion(
