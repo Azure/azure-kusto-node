@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { DeviceCodeInfo, InteractiveBrowserCredentialInBrowserOptions, InteractiveBrowserCredentialNodeOptions } from "@azure/identity";
+import { DeviceCodeInfo, InteractiveBrowserCredentialInBrowserOptions, InteractiveBrowserCredentialNodeOptions, TokenCredential } from "@azure/identity";
 import { KustoConnectionStringBuilderBase } from "./connectionBuilderBase";
 
 /*
@@ -45,19 +45,31 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
     static withAadApplicationCertificateAuthentication(
         connectionString: string,
         aadAppId: string,
-        applicationCertificatePrivateKey: string,
+        applicationCertificatePrivateKey?: string,
         authorityId?: string,
-        applicationCertificateSendX5c?: boolean
+        applicationCertificateSendX5c?: boolean,
+        applicationCertificatePrivatePath?: string
     ): KustoConnectionStringBuilder {
         if (aadAppId.trim().length === 0) throw new Error("Invalid app id");
-        if (applicationCertificatePrivateKey.trim().length === 0) throw new Error("Invalid certificate");
-
         const kcsb = new KustoConnectionStringBuilder(connectionString);
+        if (!applicationCertificatePrivatePath) {
+            if (!applicationCertificatePrivateKey) {
+                throw new Error("withAadApplicationCertificateAuthentication should specify either a cert key or a path");
+            }
+
+            if (applicationCertificatePrivateKey.trim().length === 0) throw new Error("Invalid certificate key");
+            kcsb.applicationCertificatePrivateKey = applicationCertificatePrivateKey;
+        } else {
+            if (applicationCertificatePrivateKey) {
+                throw new Error("withAadApplicationCertificateAuthentication should specify either a cert key or a path");
+            }
+
+            kcsb.applicationCertificatePath = applicationCertificatePrivatePath;
+        }
+
         kcsb.aadFederatedSecurity = true;
         kcsb.applicationClientId = aadAppId;
-        kcsb.applicationCertificatePrivateKey = applicationCertificatePrivateKey;
         kcsb.applicationCertificateSendX5c = applicationCertificateSendX5c;
-
         if (authorityId) {
             kcsb.authorityId = authorityId;
         }
@@ -161,6 +173,13 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
         }
 
         kcsb.timeoutMs = timeoutMs;
+
+        return kcsb;
+    }
+
+    static withTokenCredential(connectionString: string, credential: TokenCredential): KustoConnectionStringBuilder {
+        const kcsb = new KustoConnectionStringBuilder(connectionString);
+        kcsb.tokenCredential = credential;
 
         return kcsb;
     }
