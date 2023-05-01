@@ -7,10 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Not released
 
-## Added 
+## Added
 
-- ConnectionBuilder accept path to certificate
-- new static method ConnectionBuilder.withTokenCredential
+-   ConnectionBuilder accept path to certificate
+-   new static method ConnectionBuilder.withTokenCredential
 
 ## [5.0.2] - 2023-04-18
 

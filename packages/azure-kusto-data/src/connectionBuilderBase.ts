@@ -106,7 +106,7 @@ export abstract class KustoConnectionStringBuilderBase {
     interactiveCredentialOptions?: InteractiveBrowserCredentialNodeOptions | InteractiveBrowserCredentialInBrowserOptions;
     tokenCredential?: TokenCredential;
 
-// discarded from to mapped names for security
+    // discarded from to mapped names for security
     applicationCertificatePath?: string;
     public applicationNameForTracing: string | null = null;
     public userNameForTracing: string | null = null;
