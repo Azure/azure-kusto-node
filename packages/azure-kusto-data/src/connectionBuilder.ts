@@ -51,7 +51,6 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
         authorityId?: string,
         applicationCertificateSendX5c?: boolean
     ): KustoConnectionStringBuilder {
-
         if (aadAppId.trim().length === 0) throw new Error("Invalid app id");
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         if (!applicationCertificatePrivatePath) {
@@ -62,7 +61,7 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
             if (applicationCertificatePrivateKey.trim().length === 0) throw new Error("Invalid certificate key");
             kcsb.applicationCertificatePrivateKey = applicationCertificatePrivateKey;
         } else {
-            if (applicationCertificatePrivateKey){
+            if (applicationCertificatePrivateKey) {
                 throw new Error("withAadApplicationCertificateAuthentication should specify either a cert key or a path");
             }
 

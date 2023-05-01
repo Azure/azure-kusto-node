@@ -12,7 +12,7 @@ import {
     UsernamePasswordCredential,
     InteractiveBrowserCredentialInBrowserOptions,
     InteractiveBrowserCredentialNodeOptions,
-    InteractiveBrowserCredential
+    InteractiveBrowserCredential,
 } from "@azure/identity";
 import { TokenCredential } from "@azure/core-auth";
 import { CloudInfo, CloudSettings } from "./cloudSettings";
