@@ -59,7 +59,7 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
                 throw new Error("withAadApplicationCertificateAuthentication should specify either a cert key or a path");
             }
 
-            if (applicationCertificatePrivateKey.trim().length === 0) throw new Error("Invalid certificate key or path");
+            if (applicationCertificatePrivateKey.trim().length === 0) throw new Error("Invalid certificate key");
             kcsb.applicationCertificatePrivateKey = applicationCertificatePrivateKey;
         } else {
             if (applicationCertificatePrivateKey){
@@ -71,16 +71,7 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
 
         kcsb.aadFederatedSecurity = true;
         kcsb.applicationClientId = aadAppId;
-        try {
-            fs.lstatSync("test.txt");
-            kcsb.applicationCertificatePath = applicationCertificatePrivateKeyOrPath;
-        } catch (e) {
-            // No such file
-            kcsb.applicationCertificatePrivateKey = applicationCertificatePrivateKeyOrPath;
-        }
-
         kcsb.applicationCertificateSendX5c = applicationCertificateSendX5c;
-
         if (authorityId) {
             kcsb.authorityId = authorityId;
         }
