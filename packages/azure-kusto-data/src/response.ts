@@ -156,6 +156,7 @@ export class KustoResponseDataSetV1 extends KustoResponseDataSet {
             QueryResult: WellKnownDataSet.PrimaryResult,
             QueryProperties: WellKnownDataSet.QueryProperties,
             QueryStatus: WellKnownDataSet.QueryCompletionInformation,
+            PrimaryResult: WellKnownDataSet.PrimaryResult,
         };
     }
 
@@ -187,6 +188,10 @@ export class KustoResponseDataSetV1 extends KustoResponseDataSet {
                 this.tables[i].name = current.Name;
                 this.tables[i].id = current.Id;
                 this.tables[i].kind = KustoResponseDataSetV1.getTablesKinds()[current.Kind];
+
+                if (this.tables[i].kind === WellKnownDataSet.PrimaryResult) {
+                    this.primaryResults.push(this.tables[i]);
+                }
             }
         }
 

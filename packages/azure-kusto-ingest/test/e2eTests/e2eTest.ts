@@ -139,8 +139,6 @@ const main = (): void => {
         await Promise.all(
             Object.values(tableNames).map(async (tableName) => {
                 try {
-                    // run in parallel
-
                     await queryClient.execute(databaseName, `.create table ${tableName} ${tableColumns}`);
                     await queryClient.execute(databaseName, `.alter table ${tableName} policy streamingingestion enable`);
                     await queryClient.execute(databaseName, ".clear database cache streamingingestion schema");
@@ -397,6 +395,22 @@ const main = (): void => {
             } finally {
                 client.close();
             }
+        });
+    });
+
+    describe("Mgmt Parsing", () => {
+        it.concurrent("Parse .show tables correctly", async () => {
+            const result = await queryClient.execute(databaseName, ".show tables | project TableName, DatabaseName");
+            expect(result.tables.length).toBeGreaterThan(0);
+            expect(result.primaryResults.length).toBe(1);
+            expect(result.primaryResults[0].columns.map((c) => c.name)).toEqual(["TableName", "DatabaseName"]);
+        });
+
+        it.concurrent("Parse .show database correctly", async () => {
+            const result = await queryClient.execute(databaseName, `.show database ${databaseName}  policy retention | project ChildEntities, EntityType`);
+            expect(result.tables.length).toBeGreaterThan(0);
+            expect(result.primaryResults.length).toBe(1);
+            expect(result.primaryResults[0].columns.map((c) => c.name)).toEqual(["ChildEntities", "EntityType"]);
         });
     });
 
