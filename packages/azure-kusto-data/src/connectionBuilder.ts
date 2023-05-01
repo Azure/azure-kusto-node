@@ -3,7 +3,6 @@
 
 import { DeviceCodeInfo, InteractiveBrowserCredentialInBrowserOptions, InteractiveBrowserCredentialNodeOptions, TokenCredential } from "@azure/identity";
 import { KustoConnectionStringBuilderBase } from "./connectionBuilderBase";
-import fs from "fs";
 
 /*
  * A builder for Kusto connection strings

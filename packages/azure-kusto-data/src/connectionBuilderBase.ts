@@ -54,10 +54,6 @@ export const KeywordMapping: KeywordMappingRecordType = Object.freeze<Readonly<K
         validNames: ["Application Certificate PrivateKey"],
         isSecret: true,
     },
-    applicationCertificatePath: {
-        mappedTo: "Application Certificate path",
-        validNames: ["Application Certificate path"],
-    },
     applicationCertificateSendX5c: {
         mappedTo: "Application Certificate x5c",
         validNames: ["application certificate x5c", "Application Certificate Send Public Certificate", "Application Certificate SendX5c", "SendX5c"],
@@ -97,7 +93,6 @@ export abstract class KustoConnectionStringBuilderBase {
     msiClientId?: string;
     applicationKey?: string;
     applicationCertificatePrivateKey?: string;
-    applicationCertificatePath?: string;
     applicationCertificateSendX5c?: boolean;
     authorityId: string = "organizations";
     deviceCodeCallback?: (response: DeviceCodeInfo) => void;
@@ -111,6 +106,8 @@ export abstract class KustoConnectionStringBuilderBase {
     interactiveCredentialOptions?: InteractiveBrowserCredentialNodeOptions | InteractiveBrowserCredentialInBrowserOptions;
     tokenCredential?: TokenCredential;
 
+// discarded from to mapped names for security
+    applicationCertificatePath?: string;
     public applicationNameForTracing: string | null = null;
     public userNameForTracing: string | null = null;
 
