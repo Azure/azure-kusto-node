@@ -31,9 +31,10 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
     static withAadApplicationCertificateAuthentication(
         _connectionString: string,
         _aadAppId: string,
-        _applicationCertificatePrivateKey: string,
+        _applicationCertificatePrivateKey?: string,
         _authorityId?: string,
-        _applicationCertificateSendX5c?: boolean
+        _applicationCertificateSendX5c?: boolean,
+        _applicationCertificatePath?: string
     ): KustoConnectionStringBuilder {
         throw new Error("Not supported in browser - use withUserPrompt instead");
     }

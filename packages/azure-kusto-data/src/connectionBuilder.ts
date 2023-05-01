@@ -47,9 +47,9 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
         connectionString: string,
         aadAppId: string,
         applicationCertificatePrivateKey?: string,
-        applicationCertificatePrivatePath?: string,
         authorityId?: string,
-        applicationCertificateSendX5c?: boolean
+        applicationCertificateSendX5c?: boolean,
+        applicationCertificatePrivatePath?: string
     ): KustoConnectionStringBuilder {
         if (aadAppId.trim().length === 0) throw new Error("Invalid app id");
         const kcsb = new KustoConnectionStringBuilder(connectionString);
