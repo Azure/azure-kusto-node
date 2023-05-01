@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { DeviceCodeInfo, InteractiveBrowserCredentialInBrowserOptions, InteractiveBrowserCredentialNodeOptions } from "@azure/identity";
+import { DeviceCodeInfo, InteractiveBrowserCredentialInBrowserOptions, InteractiveBrowserCredentialNodeOptions, TokenCredential } from "@azure/identity";
 import { KeyOfType } from "./typeUtilts";
 import { ClientDetails } from "./clientDetails";
 
@@ -104,7 +104,10 @@ export abstract class KustoConnectionStringBuilderBase {
     useAzLoginAuth?: boolean;
     useManagedIdentityAuth?: boolean;
     interactiveCredentialOptions?: InteractiveBrowserCredentialNodeOptions | InteractiveBrowserCredentialInBrowserOptions;
+    tokenCredential?: TokenCredential;
 
+    // discarded from to mapped names for security
+    applicationCertificatePath?: string;
     public applicationNameForTracing: string | null = null;
     public userNameForTracing: string | null = null;
 
