@@ -33,7 +33,7 @@ See the SDK [best practices guide](https://docs.microsoft.com/azure/data-explore
 
 ## Platforms compatibility
 
-The Azure Kusto SDK for is built for Node **v14.x.x** and above.
+The Azure Kusto SDK for is built for Node **v16.x.x** and above.
 
 ## Looking for SDKs for other languages/platforms?
 - [Python](https://github.com/azure/azure-kusto-python)
