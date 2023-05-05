@@ -41,8 +41,14 @@ export class ClientDetails {
 
     static defaultUser(): string {
         if (isNode) {
-            const info = userInfo();
-            return info.username || (process.env.USERDOMAIN ? `${process.env.USERDOMAIN}\\${process.env.USERNAME}` : process.env.USERNAME) || None;
+            let username: string | undefined;
+            try {
+                username = userInfo().username
+            } catch (_) {
+                /* Ignore possible errors like "uv_os_get_passwd returned ENOMEM" */
+            }
+
+            return username || (process.env.USERDOMAIN ? `${process.env.USERDOMAIN}\\${process.env.USERNAME}` : process.env.USERNAME) || None;
         } else {
             return None;
         }
