@@ -44,8 +44,13 @@ export class ClientDetails {
             let username: string | undefined;
             try {
                 username = userInfo().username
-            } catch (_) {
-                /* Ignore possible errors like "uv_os_get_passwd returned ENOMEM" */
+            } catch (err: any) {
+                /* Ignore possible errors like "uv_os_get_passwd returned ENOMEM" that may occur in some environments. */
+
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                if (err.info?.code !== 'ENOMEM') {
+                    throw err;
+                }
             }
 
             return username || (process.env.USERDOMAIN ? `${process.env.USERDOMAIN}\\${process.env.USERNAME}` : process.env.USERNAME) || None;
