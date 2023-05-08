@@ -88,6 +88,14 @@ const main = (): void => {
             format: DataFormat.CSV,
             flushImmediately: true,
         });
+    const ingestionPropertiesWithIgnoreFirstRecord = (t: string) =>
+        new IngestionProperties({
+            database: databaseName,
+            table: t,
+            format: DataFormat.CSV,
+            ignoreFirstRecord: true,
+            flushImmediately: true,
+        });
     const ingestionPropertiesWithMappingReference = (t: string) =>
         new IngestionProperties({
             database: databaseName,
@@ -107,6 +115,7 @@ const main = (): void => {
 
     const testItems = [
         new TestDataItem("csv", getTestResourcePath("dataset.csv"), 10, ingestionPropertiesWithoutMapping),
+        new TestDataItem("csv_ignore_first_record", getTestResourcePath("dataset.csv"), 9, ingestionPropertiesWithIgnoreFirstRecord, false),
         new TestDataItem("csv_gz", getTestResourcePath("dataset_gzip.csv.gz"), 10, ingestionPropertiesWithoutMapping),
         new TestDataItem("json_with_mapping_ref", getTestResourcePath("dataset.json"), 2, ingestionPropertiesWithMappingReference),
         new TestDataItem("json_gz_with_mapping_ref", getTestResourcePath("dataset_gzip.json.gz"), 2, ingestionPropertiesWithMappingReference),
