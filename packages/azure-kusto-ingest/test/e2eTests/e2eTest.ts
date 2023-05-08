@@ -360,7 +360,7 @@ const main = (): void => {
                     await queryClient.executeQuery(databaseName, tableNames.general_csv, properties);
                 } catch (ex: unknown) {
                     assert.ok(ex instanceof Error);
-                    assert.match(ex.message, /.*Query is expired.*/, `Fail to get "Query is expired". ex json: ${JSON.stringify(ex)}, ex: ${ex}`);
+                    assert.match(ex.message, /.*Request failed with status code 504.*/, `Fail to get "Query is expired". ex json: ${JSON.stringify(ex)}, ex: ${ex}`);
                     return;
                 }
                 assert.fail(`Didn't throw executionTimeout`);
