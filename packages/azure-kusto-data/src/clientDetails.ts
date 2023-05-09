@@ -41,8 +41,19 @@ export class ClientDetails {
 
     static defaultUser(): string {
         if (isNode) {
-            const info = userInfo();
-            return info.username || (process.env.USERDOMAIN ? `${process.env.USERDOMAIN}\\${process.env.USERNAME}` : process.env.USERNAME) || None;
+            let username: string | undefined;
+            try {
+                username = userInfo().username;
+            } catch (err: any) {
+                /* Ignore possible errors like "uv_os_get_passwd returned ENOMEM" that may occur in some environments. */
+
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                if (err.info?.code !== "ENOMEM") {
+                    throw err;
+                }
+            }
+
+            return username || (process.env.USERDOMAIN ? `${process.env.USERDOMAIN}\\${process.env.USERNAME}` : process.env.USERNAME) || None;
         } else {
             return None;
         }
