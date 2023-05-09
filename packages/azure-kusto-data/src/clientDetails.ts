@@ -43,12 +43,12 @@ export class ClientDetails {
         if (isNode) {
             let username: string | undefined;
             try {
-                username = userInfo().username
+                username = userInfo().username;
             } catch (err: any) {
                 /* Ignore possible errors like "uv_os_get_passwd returned ENOMEM" that may occur in some environments. */
 
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                if (err.info?.code !== 'ENOMEM') {
+                if (err.info?.code !== "ENOMEM") {
                     throw err;
                 }
             }
