@@ -74,6 +74,9 @@ export class IngestionBlobInfo {
         if (ingestionProperties.format) {
             additionalProperties.format = ingestionProperties.format;
         }
+        if (ingestionProperties.ignoreFirstRecord) {
+            additionalProperties.ignoreFirstRecord = ingestionProperties.ignoreFirstRecord;
+        }
 
         this.AdditionalProperties = additionalProperties;
     }
