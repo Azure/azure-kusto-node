@@ -163,7 +163,7 @@ const main = (): void => {
                         await queryClient.execute(databaseName, `.drop table ${tableName} ifexists`);
                         return;
                     }
-                    assert.fail("Failed to drop table" + err);
+                    assert.fail("Failed to drop table" + util.format(err));
                 }
             })
         );
