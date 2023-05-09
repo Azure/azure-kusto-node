@@ -5,8 +5,7 @@ import { IngestionPropertiesInput } from "./ingestionProperties";
 
 import { StreamDescriptor } from "./descriptors";
 import { FileDescriptor } from "./fileDescriptor.browser";
-import { AbstractKustoClient } from "./abstractKustoClient";
-import { Client as KustoClient, KustoConnectionStringBuilder } from "azure-kusto-data";
+import { KustoConnectionStringBuilder } from "azure-kusto-data";
 import { KustoResponseDataSet } from "azure-kusto-data/src/response";
 import { tryFileToBuffer } from "./streamUtils.browser";
 import { KustoStreamingIngestClientBase } from "./streamingIngestClientBase";
