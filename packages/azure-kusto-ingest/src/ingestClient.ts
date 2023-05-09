@@ -50,7 +50,11 @@ export class KustoIngestClient extends KustoIngestClientBase {
         const blobName = generateBlobName(descriptor, props);
 
         const blockBlobClient = await this.resourceManager.getBlockBlobClient(blobName);
-        await blockBlobClient.uploadStream(descriptor.stream as Readable);
+        if (descriptor.stream instanceof Buffer) {
+            await blockBlobClient.uploadData(descriptor.stream as Buffer);
+        } else {
+            await blockBlobClient.uploadStream(descriptor.stream as Readable);
+        }
 
         return this.ingestFromBlob(new BlobDescriptor(blockBlobClient.url), props); // descriptor.size?
     }

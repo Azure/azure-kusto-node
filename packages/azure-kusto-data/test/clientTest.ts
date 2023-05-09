@@ -357,4 +357,19 @@ describe("KustoClient", () => {
             await assert.rejects(c.execute("db", "Table | count"), /Client is closed/);
         });
     });
+    describe("client should construct right endpoint for stream from blob", () => {
+        it.concurrent("Should use ", async () => {
+            const client = new KustoClient("Data Source=https://cluster.kusto.windows.net");
+            client._doRequest = (endpoint, executionType, _, payload) => {
+                assert.ok(endpoint.indexOf("/db2/") > 0);
+                assert.ok(endpoint.indexOf("/Table") > 0);
+                assert.ok(endpoint.indexOf("streamFormat=csvMap") > 0);
+                assert.ok(endpoint.indexOf("sourceKind=uri") > 0);
+                assert.equal(executionType, ExecutionType.Ingest);
+                assert.ok(Object.prototype.hasOwnProperty.call(payload, "sourceUri"));
+                return Promise.resolve(new KustoResponseDataSetV2([]));
+            };
+            await client.executeStreamingIngestFromBlob("db2", "Table", "bloby", "csvMap", null);
+        });
+    });
 });

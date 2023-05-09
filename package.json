@@ -9,7 +9,7 @@
         "lint": "eslint -c .eslintrc.js --ext .ts .",
         "lintFix": "eslint --fix -c .eslintrc.js --ext .ts .",
         "test": "jest",
-        "testE2E": "npm run test",
+        "testE2E": "npm run test -- -t \"E2E Tests\" ",
         "testNoE2E": "npm run test -- --testPathIgnorePatterns /.*e2e.*/",
         "testData": "npm run test -- --selectProjects azure-kusto-data",
         "testIngest": "npm run test -- --selectProjects azure-kusto-ingest",

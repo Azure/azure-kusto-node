@@ -9,13 +9,11 @@ import { AbstractKustoClient } from "./abstractKustoClient";
 import { Client as KustoClient, KustoConnectionStringBuilder } from "azure-kusto-data";
 import { KustoResponseDataSet } from "azure-kusto-data/src/response";
 import { tryFileToBuffer } from "./streamUtils.browser";
+import { KustoStreamingIngestClientBase } from "./streamingIngestClientBase";
 
-class KustoStreamingIngestClient extends AbstractKustoClient {
-    private kustoClient: KustoClient;
+class KustoStreamingIngestClient extends KustoStreamingIngestClientBase {
     constructor(kcsb: string | KustoConnectionStringBuilder, defaultProps?: IngestionPropertiesInput) {
-        super(defaultProps);
-        this.kustoClient = new KustoClient(kcsb);
-        this.defaultDatabase = this.kustoClient.defaultDatabase;
+        super(kcsb, defaultProps);
     }
 
     /**
@@ -44,13 +42,6 @@ class KustoStreamingIngestClient extends AbstractKustoClient {
 
         const descriptor: FileDescriptor = file instanceof FileDescriptor ? file : new FileDescriptor(file);
         return this.ingestFromStream(await tryFileToBuffer(descriptor), ingestionProperties);
-    }
-
-    close() {
-        if (!this._isClosed) {
-            this.kustoClient.close();
-        }
-        super.close();
     }
 }
 
