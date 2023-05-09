@@ -28,7 +28,7 @@ enum ExecutionType {
     QueryV1 = "queryv1",
 }
 
-export type RequestEntity = { query?: string, stream?: any, blob?: string }
+export type RequestEntity = { query?: string; stream?: any; blob?: string };
 
 export class KustoClient {
     connectionString: ConnectionStringBuilder;
@@ -91,7 +91,7 @@ export class KustoClient {
     }
 
     async executeQuery(db: string | null, query: string, properties?: ClientRequestProperties) {
-        return this._execute(this.endpoints[ExecutionType.Query], ExecutionType.Query, db, { query } , properties);
+        return this._execute(this.endpoints[ExecutionType.Query], ExecutionType.Query, db, { query }, properties);
     }
 
     async executeQueryV1(db: string | null, query: string, properties?: ClientRequestProperties) {
@@ -99,7 +99,7 @@ export class KustoClient {
     }
 
     async executeMgmt(db: string | null, query: string, properties?: ClientRequestProperties) {
-        return this._execute(this.endpoints[ExecutionType.Mgmt], ExecutionType.Mgmt, db, {query}, properties);
+        return this._execute(this.endpoints[ExecutionType.Mgmt], ExecutionType.Mgmt, db, { query }, properties);
     }
 
     async executeStreamingIngest(
@@ -121,7 +121,7 @@ export class KustoClient {
             properties.clientRequestId = clientRequestId;
         }
 
-        return this._execute(endpoint, ExecutionType.Ingest, db, {stream}, properties);
+        return this._execute(endpoint, ExecutionType.Ingest, db, { stream }, properties);
     }
 
     async executeStreamingIngestFromBlob(
@@ -186,9 +186,9 @@ export class KustoClient {
             } else {
                 headers["Content-Type"] = "application/json";
             }
-        } else if (entity.blob){
+        } else if (entity.blob) {
             payloadContent = {
-                sourceUri: entity.blob
+                sourceUri: entity.blob,
             };
             clientRequestPrefix = "KNC.executeStreamingIngestFromBlob;";
             headers["Content-Type"] = "application/json";

@@ -16,14 +16,11 @@ export abstract class KustoStreamingIngestClientBase extends AbstractKustoClient
         this.defaultDatabase = this.kustoClient.defaultDatabase;
     }
 
-    async ingestFromBlob(blob: string | BlobDescriptor,
-            ingestionProperties?: IngestionPropertiesInput,
-            clientRequestId?: string
-        ): Promise<any> {
+    async ingestFromBlob(blob: string | BlobDescriptor, ingestionProperties?: IngestionPropertiesInput, clientRequestId?: string): Promise<any> {
         const props = this._getMergedProps(ingestionProperties);
         const descriptor = blob instanceof BlobDescriptor ? blob : new BlobDescriptor(blob);
         // No need to check blob size if it was given to us that it's not empty
-        if (descriptor.size === 0){
+        if (descriptor.size === 0) {
             const blobClient = new BlobServiceClient(descriptor.path);
             const blobProps = await blobClient.getProperties();
             const length = parseInt(blobProps._response.headers.get("contentLength") || "0", 10);
@@ -32,12 +29,14 @@ export abstract class KustoStreamingIngestClientBase extends AbstractKustoClient
             }
         }
 
-        return await this.kustoClient.executeStreamingIngestFromBlob(props.database as string,
-                props.table as string,
-                descriptor.path,
-                props.format,
-                props.ingestionMappingReference ?? null,
-                clientRequestId);
+        return await this.kustoClient.executeStreamingIngestFromBlob(
+            props.database as string,
+            props.table as string,
+            descriptor.path,
+            props.format,
+            props.ingestionMappingReference ?? null,
+            clientRequestId
+        );
     }
 
     close() {

@@ -57,14 +57,14 @@ const main = (): void => {
     const managedStreamingIngestClient = new ManagedStreamingIngestClient(engineKcsb, dmKcsb);
     const mockedStreamingIngestClient = new StreamingIngestClient(engineKcsb);
     const streamStub = sinon.stub(mockedStreamingIngestClient, "ingestFromStream");
-    streamStub.throws( { "@permanent": false });
+    streamStub.throws({ "@permanent": false });
     const mockedManagedClient: KustoManagedStreamingIngestClient = Object.setPrototypeOf(
         {
             streamingIngestClient: mockedStreamingIngestClient,
             queuedIngestClient: ingestClient,
             baseSleepTimeSecs: 0,
             baseJitterSecs: 0,
-            defaultProps: new IngestionProperties({})
+            defaultProps: new IngestionProperties({}),
         },
         KustoManagedStreamingIngestClient.prototype
     );
@@ -178,15 +178,16 @@ const main = (): void => {
                     await queryClient.execute(databaseName, `.create table ${tableName} ${tableColumns}`);
                     await queryClient.execute(databaseName, `.alter table ${tableName} policy streamingingestion enable`);
                     await queryClient.execute(databaseName, ".clear database cache streamingingestion schema");
-                    try{
+                    try {
                         await queryClient.execute(
                             databaseName,
                             `.alter table ${tableName} policy ingestionbatching @'{"MaximumBatchingTimeSpan":"00:00:10", "MaximumNumberOfItems": 500, "MaximumRawDataSizeMB": 1024}'`
                         );
                         await dmKustoClient.execute(
                             KustoConnectionStringBuilder.DefaultDatabaseName,
-                            `.refresh database '${databaseName}' table '${tableName}' cache ingestionbatchingpolicy`);
-                    } catch(err) {
+                            `.refresh database '${databaseName}' table '${tableName}' cache ingestionbatchingpolicy`
+                        );
+                    } catch (err) {
                         console.error("Failed refreshing policies from DM: " + util.format(err));
                     }
 

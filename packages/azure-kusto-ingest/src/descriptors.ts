@@ -23,7 +23,7 @@ export const getSourceId = (sourceId: string | null): string => {
 };
 
 export abstract class AbstractDescriptor {
-    constructor(public sourceId: string | null = null, public size: number | null = null){
+    constructor(public sourceId: string | null = null, public size: number | null = null) {
         this.sourceId = getSourceId(sourceId);
     }
 }
@@ -32,8 +32,12 @@ export class StreamDescriptor extends AbstractDescriptor {
     /**
      * Use Readable for Node.js and ArrayBuffer in browser
      */
-    constructor(readonly stream: Readable | ArrayBuffer, sourceId: string | null = null, public compressionType: CompressionType = CompressionType.None,
-        size: number | null = null) {
+    constructor(
+        readonly stream: Readable | ArrayBuffer,
+        sourceId: string | null = null,
+        public compressionType: CompressionType = CompressionType.None,
+        size: number | null = null
+    ) {
         super(sourceId, size);
     }
 
@@ -52,7 +56,7 @@ export class StreamDescriptor extends AbstractDescriptor {
 
 export class BlobDescriptor extends AbstractDescriptor {
     constructor(readonly path: string, size: number | null = null, sourceId: string | null = null) {
-      super(sourceId, size);
+        super(sourceId, size);
     }
 }
 
