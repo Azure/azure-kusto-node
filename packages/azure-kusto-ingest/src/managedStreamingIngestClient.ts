@@ -97,9 +97,10 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
         this.ensureOpen();
         const props = this._getMergedProps(ingestionProperties);
         let descriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
-        const result = isNode ? await tryStreamToArray(descriptor.stream as Readable, maxStreamSize) : descriptor.stream;
+        let result = isNode ? await tryStreamToArray(descriptor.stream as Readable, maxStreamSize) : descriptor.stream;
         descriptor = new StreamDescriptor(result).merge(descriptor);
         let streamingResult: Promise<any> | null = null;
+        // tryStreamToArray returns a Buffer in NodeJS impl if stream size is small enouph
         if ((isNode && result instanceof Buffer) || !isNode) {
             streamingResult = await this.streamWithRetry(
                 isNode ? descriptor.size ?? 0 : (descriptor.stream as ArrayBuffer).byteLength,
@@ -108,6 +109,8 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
                 clientRequestId,
                 result
             );
+
+            result = isNode ? streamify([result]) : descriptor.stream;
         }
 
         return streamingResult ?? this.queuedIngestClient.ingestFromStream(new StreamDescriptor(result).merge(descriptor), props);
