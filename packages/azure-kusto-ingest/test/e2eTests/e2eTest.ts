@@ -437,7 +437,7 @@ const main = (): void => {
                     assert.match(
                         ex.message,
                         /.*Request failed with status code 504.*/,
-                        `Fail to get "Query is expired". ex json: ${JSON.stringify(ex)}, ex: ${ex}`
+                        `Fail to get "Query is expired". ex json: ${util.format(ex)}, ex: ${ex}`
                     );
                     return;
                 }
