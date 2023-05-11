@@ -24,6 +24,7 @@ import { sleep } from "../../src/retry";
 import util from "util";
 import ResourceManager from "../../src/resourceManager";
 import { v4 as uuidv4 } from "uuid";
+import pathlib from "path";
 
 interface ParsedJsonMapping {
     Properties: { Path: string };
@@ -293,9 +294,8 @@ const main = (): void => {
                     })
             )("ingestFromBlob_$item.description", async ({ item }) => {
                 const resourceManager = new ResourceManager(dmKustoClient);
-                const blob = await resourceManager.getBlockBlobClient(uuidv4() + item.path);
+                const blob = await resourceManager.getBlockBlobClient(uuidv4() + pathlib.basename(item.path));
                 await blob.uploadFile(item.path);
-
                 const table = tableNames[("streaming_blob" + "_" + item.description) as Table];
                 try {
                     await streamingIngestClient.ingestFromBlob(blob.url, item.ingestionPropertiesCallback(table));

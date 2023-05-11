@@ -6,7 +6,6 @@ import { IngestionPropertiesInput } from "./ingestionProperties";
 import { BlobDescriptor } from "./descriptors";
 import { AbstractKustoClient } from "./abstractKustoClient";
 import { Client as KustoClient, KustoConnectionStringBuilder } from "azure-kusto-data";
-import { BlobServiceClient } from "@azure/storage-blob";
 
 export abstract class KustoStreamingIngestClientBase extends AbstractKustoClient {
     protected kustoClient: KustoClient;
@@ -20,14 +19,7 @@ export abstract class KustoStreamingIngestClientBase extends AbstractKustoClient
         const props = this._getMergedProps(ingestionProperties);
         const descriptor = blob instanceof BlobDescriptor ? blob : new BlobDescriptor(blob);
         // No need to check blob size if it was given to us that it's not empty
-        if (descriptor.size === 0) {
-            const blobClient = new BlobServiceClient(descriptor.path);
-            const blobProps = await blobClient.getProperties();
-            const length = parseInt(blobProps._response.headers.get("contentLength") || "0", 10);
-            if (length === 0) {
-                throw new Error("Empty blob.");
-            }
-        }
+        await descriptor.fillSize();
 
         return await this.kustoClient.executeStreamingIngestFromBlob(
             props.database as string,

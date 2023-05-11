@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 import uuidValidate from "uuid-validate";
 import { Readable } from "stream";
 import IngestionProperties from "./ingestionProperties";
+import { BlobClient } from "@azure/storage-blob";
 
 export enum CompressionType {
     ZIP = ".zip",
@@ -57,6 +58,20 @@ export class StreamDescriptor extends AbstractDescriptor {
 export class BlobDescriptor extends AbstractDescriptor {
     constructor(readonly path: string, size: number | null = null, sourceId: string | null = null) {
         super(sourceId, size);
+    }
+
+    async fillSize(): Promise<void> {
+        if (!this.size) {
+            const blobClient = new BlobClient(this.path);
+            const blobProps = await blobClient.getProperties();
+            const length = blobProps.contentLength;
+            if (length !== undefined) {
+                if (length === 0) {
+                    throw new Error("Empty blob.");
+                }
+                this.size = length;
+            }
+        }
     }
 }
 

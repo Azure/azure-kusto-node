@@ -16,7 +16,6 @@ import streamify from "stream-array";
 import { Readable } from "stream";
 import { ExponentialRetry } from "./retry";
 import { isNode } from "@azure/core-util";
-import { BlobServiceClient } from "@azure/storage-blob";
 
 const maxStreamSize = 1024 * 1024 * 4;
 const attemptCount = 3;
@@ -133,17 +132,9 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
         const props = this._getMergedProps(ingestionProperties);
         const descriptor = blob instanceof BlobDescriptor ? blob : new BlobDescriptor(blob);
         // No need to check blob size if it was given to us that it's not empty
-        if (descriptor.size === 0) {
-            const blobClient = new BlobServiceClient(descriptor.path);
-            const blobProps = await blobClient.getProperties();
-            const length = parseInt(blobProps._response.headers.get("contentLength") || "0", 10);
-            if (length === 0) {
-                throw new Error("Empty blob.");
-            }
-            descriptor.size = length;
-        }
+        await descriptor.fillSize();
 
-        const streamingResult = await this.streamWithRetry(length, descriptor, props, clientRequestId);
+        const streamingResult = await this.streamWithRetry(descriptor.size ?? 0, descriptor, props, clientRequestId);
         return streamingResult ?? this.queuedIngestClient.ingestFromBlob(descriptor, props);
     }
 
