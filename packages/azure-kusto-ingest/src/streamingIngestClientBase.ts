@@ -21,12 +21,13 @@ export abstract class KustoStreamingIngestClientBase extends AbstractKustoClient
         // No need to check blob size if it was given to us that it's not empty
         await descriptor.fillSize();
 
-        return await this.kustoClient.executeStreamingIngestFromBlob(
+        return await this.kustoClient.executeStreamingIngest(
             props.database as string,
             props.table as string,
-            descriptor.path,
+            undefined,
             props.format,
             props.ingestionMappingReference ?? null,
+            descriptor.path,
             clientRequestId
         );
     }

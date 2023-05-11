@@ -154,15 +154,19 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
                     const sourceId =
                         clientRequestId ??
                         `KNC.executeManagedStreamingIngest${isBlob ? "FromBlob" : "FromStream"};${descriptor.sourceId};${retry.currentAttempt}`;
-                    return isBlob
-                        ? this.streamingIngestClient.ingestFromBlob(descriptor as BlobDescriptor, props, sourceId)
-                        : isNode
-                        ? await this.streamingIngestClient.ingestFromStream(
-                              new StreamDescriptor(streamify([stream])).merge(descriptor as StreamDescriptor),
-                              props,
-                              sourceId
-                          )
-                        : await this.streamingIngestClient.ingestFromStream(descriptor as StreamDescriptor, props, sourceId);
+                    if (isBlob) {
+                        return this.streamingIngestClient.ingestFromBlob(descriptor as BlobDescriptor, props, sourceId);
+                    }
+
+                    if (isNode) {
+                        return await this.streamingIngestClient.ingestFromStream(
+                            new StreamDescriptor(streamify([stream])).merge(descriptor as StreamDescriptor),
+                            props,
+                            sourceId
+                        );
+                    }
+
+                    return await this.streamingIngestClient.ingestFromStream(descriptor as StreamDescriptor, props, sourceId);
                 } catch (err: unknown) {
                     const oneApiError = err as { "@permanent"?: boolean };
                     if (oneApiError["@permanent"]) {

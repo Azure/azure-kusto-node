@@ -369,7 +369,7 @@ describe("KustoClient", () => {
                 assert.ok(Object.prototype.hasOwnProperty.call(payload, "sourceUri"));
                 return Promise.resolve(new KustoResponseDataSetV2([]));
             };
-            await client.executeStreamingIngestFromBlob("db2", "Table", "bloby", "csvMap", null);
+            await client.executeStreamingIngest("db2", "Table", undefined, "csvMap", null, "bloby");
         });
     });
 });

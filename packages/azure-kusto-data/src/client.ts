@@ -28,7 +28,7 @@ enum ExecutionType {
     QueryV1 = "queryv1",
 }
 
-export type RequestEntity = { query?: string; stream?: any; blob?: string };
+export type RequestEntity = { query: string } | { stream: any } | { blob: string };
 
 export class KustoClient {
     connectionString: ConnectionStringBuilder;
@@ -108,6 +108,7 @@ export class KustoClient {
         stream: any,
         streamFormat: any,
         mappingName: string | null,
+        blob?: string,
         clientRequestId?: string
     ): Promise<KustoResponseDataSet> {
         let endpoint = `${this.endpoints[ExecutionType.Ingest]}/${this.getDb(db)}/${table}?streamFormat=${streamFormat}`;
@@ -115,26 +116,8 @@ export class KustoClient {
             endpoint += `&mappingName=${mappingName}`;
         }
 
-        let properties: ClientRequestProperties | null = null;
-        if (clientRequestId) {
-            properties = new ClientRequestProperties();
-            properties.clientRequestId = clientRequestId;
-        }
-
-        return this._execute(endpoint, ExecutionType.Ingest, db, { stream }, properties);
-    }
-
-    async executeStreamingIngestFromBlob(
-        db: string | null,
-        table: string,
-        blob: string,
-        format: any,
-        mappingName: string | null,
-        clientRequestId?: string
-    ): Promise<KustoResponseDataSet> {
-        let endpoint = `${this.endpoints[ExecutionType.Ingest]}/${this.getDb(db)}/${table}?streamFormat=${format}&sourceKind=uri`;
-        if (mappingName != null) {
-            endpoint += `&mappingName=${mappingName}`;
+        if (blob) {
+            endpoint += `&sourceKind=uri`;
         }
 
         let properties: ClientRequestProperties | null = null;
@@ -143,7 +126,7 @@ export class KustoClient {
             properties.clientRequestId = clientRequestId;
         }
 
-        return this._execute(endpoint, ExecutionType.Ingest, db, { blob }, properties);
+        return this._execute(endpoint, ExecutionType.Ingest, db, blob ? { blob } : { stream }, properties);
     }
 
     async _execute(
@@ -163,7 +146,7 @@ export class KustoClient {
 
         const timeout = this._getClientTimeout(executionType, properties);
         let payloadContent: any = "";
-        if (entity.query != null) {
+        if ("query" in entity) {
             payload = {
                 db,
                 csl: entity.query,
@@ -177,7 +160,7 @@ export class KustoClient {
 
             headers["Content-Type"] = "application/json; charset=utf-8";
             clientRequestPrefix = "KNC.execute;";
-        } else if (entity.stream) {
+        } else if ("stream" in entity) {
             payloadContent = entity.stream;
             clientRequestPrefix = "KNC.executeStreamingIngest;";
             if (isNode) {
@@ -186,7 +169,7 @@ export class KustoClient {
             } else {
                 headers["Content-Type"] = "application/json";
             }
-        } else if (entity.blob) {
+        } else if ("blob" in entity) {
             payloadContent = {
                 sourceUri: entity.blob,
             };
