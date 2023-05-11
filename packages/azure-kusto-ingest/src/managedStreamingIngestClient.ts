@@ -101,7 +101,7 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
         let streamingResult: Promise<any> | null = null;
         // tryStreamToArray returns a Buffer in NodeJS impl if stream size is small enouph
         if ((isNode && result instanceof Buffer) || !isNode) {
-            streamingResult = await this.streamWithRetry(
+            streamingResult = await this.streamWithRetries(
                 isNode ? descriptor.size ?? 0 : (descriptor.stream as ArrayBuffer).byteLength,
                 descriptor,
                 props,
@@ -134,11 +134,11 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
         // No need to check blob size if it was given to us that it's not empty
         await descriptor.fillSize();
 
-        const streamingResult = await this.streamWithRetry(descriptor.size ?? 0, descriptor, props, clientRequestId);
+        const streamingResult = await this.streamWithRetries(descriptor.size ?? 0, descriptor, props, clientRequestId);
         return streamingResult ?? this.queuedIngestClient.ingestFromBlob(descriptor, props);
     }
 
-    async streamWithRetry(
+    async streamWithRetries(
         length: number,
         descriptor: AbstractDescriptor,
         props?: IngestionPropertiesInput,
