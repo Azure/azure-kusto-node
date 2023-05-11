@@ -177,7 +177,6 @@ const main = (): void => {
                 try {
                     await queryClient.execute(databaseName, `.create table ${tableName} ${tableColumns}`);
                     await queryClient.execute(databaseName, `.alter table ${tableName} policy streamingingestion enable`);
-                    await queryClient.execute(databaseName, ".clear database cache streamingingestion schema");
                     try {
                         await queryClient.execute(
                             databaseName,
@@ -204,6 +203,8 @@ const main = (): void => {
                 }
             })
         );
+
+        await queryClient.execute(databaseName, ".clear database cache streamingingestion schema");
     });
     describe(`E2E Tests`, () => {
         describe("cloud info", () => {
