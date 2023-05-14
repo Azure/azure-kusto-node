@@ -93,7 +93,7 @@ describe("ResourceManager", () => {
         it.concurrent("should refresh", async () => {
             const resourceManager = new ResourceManager(new KustoClient("https://cluster.kusto.windows.net"));
 
-            const call = sinon.stub(resourceManager, "getIngestClientResourcesFromService");
+            const call = sinon.stub(resourceManager, "getIngestClientResourcesFromService").returns(Promise.resolve(new IngestClientResources([], [], [], [])));
 
             await resourceManager.refreshIngestClientResources();
             assert.strictEqual(call.calledOnce, true);
