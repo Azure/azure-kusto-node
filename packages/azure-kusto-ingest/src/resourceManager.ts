@@ -26,6 +26,7 @@ export class IngestClientResources {
 
 export class ResourceManager {
     public readonly refreshPeriod: number;
+    public refreshPeriodOnError: number;
     public ingestClientResources: IngestClientResources | null;
     public ingestClientResourcesLastUpdate: number | null;
     public authorizationContext: string | null;
@@ -33,9 +34,11 @@ export class ResourceManager {
 
     private baseSleepTimeSecs = 1;
     private baseJitterSecs = 1;
+    private _isClosed: boolean = false;
 
     constructor(readonly kustoClient: Client, readonly isBrowser: boolean = false) {
         this.refreshPeriod = TimeUtils.toMilliseconds(1, 0, 0);
+        this.refreshPeriodOnError = TimeUtils.toMilliseconds(0, 10, 0);
 
         this.ingestClientResources = null;
         this.ingestClientResourcesLastUpdate = null;
@@ -46,14 +49,28 @@ export class ResourceManager {
 
     async refreshIngestClientResources(): Promise<IngestClientResources> {
         const now = Date.now();
+        let error: Error | null = null;
         if (
             !this.ingestClientResources ||
             !this.ingestClientResourcesLastUpdate ||
             this.ingestClientResourcesLastUpdate + this.refreshPeriod <= now ||
             !this.ingestClientResources.valid()
         ) {
-            this.ingestClientResources = await this.getIngestClientResourcesFromService();
-            this.ingestClientResourcesLastUpdate = now;
+            try {
+                this.ingestClientResources = await this.getIngestClientResourcesFromService();
+                this.ingestClientResourcesLastUpdate = now;
+            } catch (e) {
+                error = e as Error;
+                setTimeout(() => {
+                    if (!this._isClosed) {
+                        this.refreshIngestClientResources().catch(() => {});
+                    }
+                }, this.refreshPeriodOnError);
+            }
+        }
+
+        if (!this.ingestClientResources) {
+            throw new Error(`Failed to fetch ingestion resources from service.  ${error?.message}.\r\n ${error?.stack}`);
         }
 
         return this.ingestClientResources;
@@ -98,13 +115,25 @@ export class ResourceManager {
 
     async refreshAuthorizationContext(): Promise<string> {
         const now = Date.now();
+        let error: Error | null = null;
         if (!this.authorizationContext?.trim() || !this.authorizationContextLastUpdate || this.authorizationContextLastUpdate + this.refreshPeriod <= now) {
             this.authorizationContext = await this.getAuthorizationContextFromService();
             this.authorizationContextLastUpdate = now;
-
-            if (this.authorizationContext == null) {
-                throw new Error("Authorization context can't be null");
+            try {
+                this.ingestClientResources = await this.getIngestClientResourcesFromService();
+                this.ingestClientResourcesLastUpdate = now;
+            } catch (e) {
+                error = e as Error;
+                setTimeout(() => {
+                    if (!this._isClosed) {
+                        this.refreshAuthorizationContext().catch(() => {});
+                    }
+                }, 1000 * 30);
             }
+        }
+
+        if (this.authorizationContext == null) {
+            throw new Error(`Failed to fetch Authorization context from service.  ${error?.message}.\r\n ${error?.stack}`);
         }
 
         return this.authorizationContext;
@@ -162,6 +191,7 @@ export class ResourceManager {
 
     close() {
         this.kustoClient.close();
+        this._isClosed = true;
     }
 }
 

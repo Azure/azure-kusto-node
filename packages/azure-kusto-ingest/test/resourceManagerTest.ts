@@ -5,9 +5,10 @@ import assert from "assert";
 
 import sinon from "sinon";
 
-import { Client as KustoClient } from "azure-kusto-data";
-import { IngestClientResources, ResourceManager } from "../src/resourceManager";
+import { Client as KustoClient, TimeUtils } from "azure-kusto-data";
+import { IngestClientResources, ResourceManager, ResourceURI } from "../src/resourceManager";
 import { KustoResponseDataSet } from "azure-kusto-data/types/src/response";
+import { sleep } from "../src/retry";
 
 describe("ResourceManager", () => {
     const rows = [
@@ -98,15 +99,33 @@ describe("ResourceManager", () => {
             assert.strictEqual(call.calledOnce, true);
         });
 
-        it.concurrent("shouldn't refresh", async () => {
-            const resourceManager = new ResourceManager(new KustoClient("https://cluster.kusto.windows.net"));
-
-            const call = sinon.stub(resourceManager, "getIngestClientResourcesFromService");
+        it.concurrent("Should use cached resources if available", async () => {
+            // Setup with pre-existing resources
+            const client = new KustoClient("https://cluster.kusto.windows.net");
+            const resourceManager = new ResourceManager(client);
+            resourceManager.refreshPeriodOnError = TimeUtils.toMilliseconds(0, 0, 2);
+            const sin = sinon.stub(resourceManager, "getIngestClientResourcesFromService");
             resourceManager.ingestClientResourcesLastUpdate = Date.now();
-            resourceManager.ingestClientResources = new IngestClientResources([], [], [], []);
+            const initialResources = new IngestClientResources([], [], [], []);
+            resourceManager.ingestClientResources = initialResources;
 
+            // Expect resources to not be re-fetched as old values are still ok
             await resourceManager.refreshIngestClientResources();
-            assert.strictEqual(call.calledOnce, false);
+            assert.strictEqual(sin.calledOnce, false);
+
+            // Set values to be considered old, refresh throws but resource manager returns old resources
+            const date = new Date();
+            date.setDate(date.getDate() + 1);
+            resourceManager.ingestClientResourcesLastUpdate = date.getDate();
+            sin.throwsException(new Error());
+            const res = await resourceManager.refreshIngestClientResources();
+            assert.strictEqual(res, initialResources);
+
+            // Resources should be fetched in the backend after last error, expect resources to equal the new ones
+            const secondResources = new IngestClientResources([new ResourceURI("")], [], [], []);
+            sin.returns(Promise.resolve(secondResources));
+            await sleep(resourceManager.refreshPeriodOnError + 100);
+            assert.strictEqual(resourceManager.ingestClientResources, secondResources);
         });
     });
 });
