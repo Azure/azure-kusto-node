@@ -3,8 +3,6 @@
 
 /* eslint-disable no-console */
 
-import assert from "assert";
-import fs, { ReadStream } from "fs";
 import IngestClient from "../../src/ingestClient";
 import KustoIngestStatusQueues from "../../src/status";
 import {
@@ -21,18 +19,20 @@ import ManagedStreamingIngestClient from "../../src/managedStreamingIngestClient
 import { CompressionType, StreamDescriptor } from "../../src/descriptors";
 import { DataFormat, IngestionProperties, JsonColumnMapping, ReportLevel } from "../../src";
 import { sleep } from "../../src/retry";
-import util from "util";
 import ResourceManager from "../../src/resourceManager";
+
+import assert from "assert";
+import fs, { ReadStream } from "fs";
+import util from "util";
 import { v4 as uuidv4 } from "uuid";
 import pathlib from "path";
+import sinon from "sinon";
 
 interface ParsedJsonMapping {
     Properties: { Path: string };
     column: string;
     datatype: string;
 }
-import KustoManagedStreamingIngestClient from "../../src/managedStreamingIngestClient";
-import sinon from "sinon";
 
 const databaseName = process.env.TEST_DATABASE;
 const appId = process.env.APP_ID;
@@ -59,7 +59,7 @@ const main = (): void => {
     const mockedStreamingIngestClient = new StreamingIngestClient(engineKcsb);
     const streamStub = sinon.stub(mockedStreamingIngestClient, "ingestFromStream");
     streamStub.throws({ "@permanent": false });
-    const mockedManagedClient: KustoManagedStreamingIngestClient = Object.setPrototypeOf(
+    const mockedManagedClient: ManagedStreamingIngestClient = Object.setPrototypeOf(
         {
             streamingIngestClient: mockedStreamingIngestClient,
             queuedIngestClient: ingestClient,
@@ -67,7 +67,7 @@ const main = (): void => {
             baseJitterSecs: 0,
             defaultProps: new IngestionProperties({}),
         },
-        KustoManagedStreamingIngestClient.prototype
+        ManagedStreamingIngestClient.prototype
     );
 
     const tables = [
