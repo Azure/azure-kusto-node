@@ -3,7 +3,7 @@
 
 import { IngestionPropertiesInput } from "./ingestionProperties";
 
-import { StreamDescriptor } from "./descriptors";
+import { AbstractDescriptor, BlobDescriptor, StreamDescriptor } from "./descriptors";
 import { FileDescriptor } from "./fileDescriptor";
 import { AbstractKustoClient } from "./abstractKustoClient";
 import { KustoConnectionStringBuilder } from "azure-kusto-data";
@@ -88,35 +88,31 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
     /**
      * Use Readable for Node.js and ArrayBuffer in browser
      */
-    async ingestFromStream(stream: StreamDescriptor | Readable | ArrayBuffer, ingestionProperties?: IngestionPropertiesInput): Promise<any> {
+    async ingestFromStream(
+        stream: StreamDescriptor | Readable | ArrayBuffer,
+        ingestionProperties?: IngestionPropertiesInput,
+        clientRequestId?: string
+    ): Promise<any> {
         this.ensureOpen();
         const props = this._getMergedProps(ingestionProperties);
-        const descriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
-
+        let descriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
         let result = isNode ? await tryStreamToArray(descriptor.stream as Readable, maxStreamSize) : descriptor.stream;
-
-        if ((isNode && result instanceof Buffer) || (!isNode && (descriptor.stream as ArrayBuffer).byteLength < maxStreamSize)) {
-            // If we get buffer that means it was less than the max size, so we can do streamingIngestion
-            const retry = new ExponentialRetry(attemptCount, this.baseSleepTimeSecs, this.baseJitterSecs);
-            while (retry.shouldTry()) {
-                try {
-                    const sourceId = `KNC.executeManagedStreamingIngest;${descriptor.sourceId};${retry.currentAttempt}`;
-                    return isNode
-                        ? await this.streamingIngestClient.ingestFromStream(new StreamDescriptor(streamify([result])).merge(descriptor), props, sourceId)
-                        : await this.streamingIngestClient.ingestFromStream(descriptor, props, sourceId);
-                } catch (err: unknown) {
-                    const oneApiError = err as { "@permanent"?: boolean };
-                    if (oneApiError["@permanent"]) {
-                        throw err;
-                    }
-                    await retry.backoff();
-                }
-            }
+        descriptor = new StreamDescriptor(result).merge(descriptor);
+        let streamingResult: Promise<any> | null = null;
+        // tryStreamToArray returns a Buffer in NodeJS impl if stream size is small enouph
+        if ((isNode && result instanceof Buffer) || !isNode) {
+            streamingResult = await this.streamWithRetries(
+                isNode ? descriptor.size ?? 0 : (descriptor.stream as ArrayBuffer).byteLength,
+                descriptor,
+                props,
+                clientRequestId,
+                result
+            );
 
             result = isNode ? streamify([result]) : descriptor.stream;
         }
 
-        return await this.queuedIngestClient.ingestFromStream(new StreamDescriptor(result).merge(descriptor), ingestionProperties);
+        return streamingResult ?? this.queuedIngestClient.ingestFromStream(new StreamDescriptor(result).merge(descriptor), props);
     }
 
     /**
@@ -130,6 +126,60 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
 
         const stream = file instanceof FileDescriptor ? await tryFileToBuffer(file) : await tryFileToBuffer(new FileDescriptor(file));
         return await this.ingestFromStream(stream, ingestionProperties);
+    }
+
+    async ingestFromBlob(blob: string | BlobDescriptor, ingestionProperties?: IngestionPropertiesInput, clientRequestId?: string): Promise<any> {
+        const props = this._getMergedProps(ingestionProperties);
+        const descriptor = blob instanceof BlobDescriptor ? blob : new BlobDescriptor(blob);
+        // No need to check blob size if it was given to us that it's not empty
+        await descriptor.fillSize();
+
+        const streamingResult = await this.streamWithRetries(descriptor.size ?? 0, descriptor, props, clientRequestId);
+        return streamingResult ?? this.queuedIngestClient.ingestFromBlob(descriptor, props);
+    }
+
+    async streamWithRetries(
+        length: number,
+        descriptor: AbstractDescriptor,
+        props?: IngestionPropertiesInput,
+        clientRequestId?: string,
+        stream?: Readable | ArrayBuffer
+    ): Promise<any> {
+        const isBlob = descriptor instanceof BlobDescriptor;
+        if (length <= maxStreamSize) {
+            // If we get buffer that means it was less than the max size, so we can do streamingIngestion
+            const retry = new ExponentialRetry(attemptCount, this.baseSleepTimeSecs, this.baseJitterSecs);
+            while (retry.shouldTry()) {
+                try {
+                    const sourceId =
+                        clientRequestId ??
+                        `KNC.executeManagedStreamingIngest${isBlob ? "FromBlob" : "FromStream"};${descriptor.sourceId};${retry.currentAttempt}`;
+                    if (isBlob) {
+                        return this.streamingIngestClient.ingestFromBlob(descriptor as BlobDescriptor, props, sourceId);
+                    }
+
+                    if (isNode) {
+                        return await this.streamingIngestClient.ingestFromStream(
+                            new StreamDescriptor(streamify([stream])).merge(descriptor as StreamDescriptor),
+                            props,
+                            sourceId
+                        );
+                    }
+
+                    return await this.streamingIngestClient.ingestFromStream(descriptor as StreamDescriptor, props, sourceId);
+                } catch (err: unknown) {
+                    const oneApiError = err as { "@permanent"?: boolean };
+                    if (oneApiError["@permanent"]) {
+                        throw err;
+                    }
+                    await retry.backoff();
+                }
+            }
+
+            stream = isBlob ? undefined : isNode ? streamify([stream]) : (descriptor as StreamDescriptor).stream;
+        }
+
+        return null;
     }
 
     close() {

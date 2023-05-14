@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 
 import pako from "pako";
-import { CompressionType, FileDescriptorBase, getSourceId } from "./descriptors";
+import { AbstractDescriptor, CompressionType, FileDescriptorBase } from "./descriptors";
 
-export class FileDescriptor implements FileDescriptorBase {
+export class FileDescriptor extends AbstractDescriptor implements FileDescriptorBase {
     size: number | null;
     zipped: boolean;
     compressionType: CompressionType;
@@ -12,13 +12,13 @@ export class FileDescriptor implements FileDescriptorBase {
 
     constructor(
         readonly file: Blob,
-        readonly sourceId: string | null = null,
+        sourceId: string | null = null,
         size: number | null = null,
         compressionType: CompressionType = CompressionType.None,
         readonly extension?: string,
         readonly name?: string
     ) {
-        this.sourceId = getSourceId(sourceId);
+        super(sourceId);
         this.compressionType = compressionType;
         this.size = size || file.size;
         this.zipped = compressionType !== CompressionType.None || this.extension === ".gz" || this.extension === ".zip";

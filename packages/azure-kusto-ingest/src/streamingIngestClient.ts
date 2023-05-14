@@ -6,18 +6,15 @@ import { IngestionPropertiesInput } from "./ingestionProperties";
 import { CompressionType, StreamDescriptor } from "./descriptors";
 import { FileDescriptor } from "./fileDescriptor";
 import zlib from "zlib";
-import { AbstractKustoClient } from "./abstractKustoClient";
-import { Client as KustoClient, KustoConnectionStringBuilder } from "azure-kusto-data";
+import { KustoConnectionStringBuilder } from "azure-kusto-data";
 import { KustoResponseDataSet } from "azure-kusto-data/src/response";
 import { fileToStream } from "./streamUtils";
 import { Readable } from "stream";
+import { KustoStreamingIngestClientBase } from "./streamingIngestClientBase";
 
-class KustoStreamingIngestClient extends AbstractKustoClient {
-    private kustoClient: KustoClient;
+class KustoStreamingIngestClient extends KustoStreamingIngestClientBase {
     constructor(kcsb: string | KustoConnectionStringBuilder, defaultProps?: IngestionPropertiesInput) {
-        super(defaultProps);
-        this.kustoClient = new KustoClient(kcsb);
-        this.defaultDatabase = this.kustoClient.defaultDatabase;
+        super(kcsb, defaultProps);
     }
 
     /**
@@ -57,13 +54,6 @@ class KustoStreamingIngestClient extends AbstractKustoClient {
 
         const descriptor: FileDescriptor = file instanceof FileDescriptor ? file : new FileDescriptor(file);
         return this.ingestFromStream(await fileToStream(descriptor), ingestionProperties);
-    }
-
-    close() {
-        if (!this._isClosed) {
-            this.kustoClient.close();
-        }
-        super.close();
     }
 }
 
