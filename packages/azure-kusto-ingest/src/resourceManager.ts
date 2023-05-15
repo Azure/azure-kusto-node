@@ -73,6 +73,8 @@ export class ResourceManager {
                 if (!resoures.valid()) {
                     throw new Error("Unexpected error occured - fetched data returned missing resource");
                 }
+
+                return resoures;
             } catch (error: unknown) {
                 if (!(error instanceof KustoDataErrors.ThrottlingError)) {
                     throw error;
@@ -115,7 +117,7 @@ export class ResourceManager {
         if (!resource || !lastRefresh || lastRefresh + this.refreshPeriod <= now) {
             try {
                 if (isAuthContextFetch) {
-                    this.authorizationContext = await this.getAuthorizationContext();
+                    this.authorizationContext = await this.getAuthorizationContextFromService();
                     this.authorizationContextLastUpdate = now;
                 } else {
                     this.ingestClientResources = await this.getIngestClientResourcesFromService();
@@ -125,9 +127,7 @@ export class ResourceManager {
                 error = e as Error;
                 setTimeout(() => {
                     if (!this._isClosed) {
-                        if (isAuthContextFetch) {
-                            this.refreshIngestClientResources().catch(() => {});
-                        }
+                        this.tryRefresh(isAuthContextFetch).catch(() => {});
                     }
                 }, this.refreshPeriodOnError);
             }
