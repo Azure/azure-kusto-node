@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 import uuidValidate from "uuid-validate";
 import { Readable } from "stream";
 import IngestionProperties from "./ingestionProperties";
+import { BlobClient } from "@azure/storage-blob";
 
 export enum CompressionType {
     ZIP = ".zip",
@@ -22,18 +23,23 @@ export const getSourceId = (sourceId: string | null): string => {
     return uuidv4();
 };
 
-export class StreamDescriptor {
-    size: number | null;
-    compressionType: CompressionType;
-    sourceId: string;
+export abstract class AbstractDescriptor {
+    constructor(public sourceId: string | null = null, public size: number | null = null) {
+        this.sourceId = getSourceId(sourceId);
+    }
+}
 
+export class StreamDescriptor extends AbstractDescriptor {
     /**
      * Use Readable for Node.js and ArrayBuffer in browser
      */
-    constructor(readonly stream: Readable | ArrayBuffer, sourceId: string | null = null, compressionType: CompressionType = CompressionType.None) {
-        this.size = null;
-        this.compressionType = compressionType;
-        this.sourceId = getSourceId(sourceId);
+    constructor(
+        readonly stream: Readable | ArrayBuffer,
+        sourceId: string | null = null,
+        public compressionType: CompressionType = CompressionType.None,
+        size: number | null = null
+    ) {
+        super(sourceId, size);
     }
 
     merge(other: StreamDescriptor) {
@@ -49,13 +55,23 @@ export class StreamDescriptor {
     }
 }
 
-export class BlobDescriptor {
-    size: number | null;
-    sourceId: string;
-
+export class BlobDescriptor extends AbstractDescriptor {
     constructor(readonly path: string, size: number | null = null, sourceId: string | null = null) {
-        this.size = size;
-        this.sourceId = getSourceId(sourceId);
+        super(sourceId, size);
+    }
+
+    async fillSize(): Promise<void> {
+        if (!this.size) {
+            const blobClient = new BlobClient(this.path);
+            const blobProps = await blobClient.getProperties();
+            const length = blobProps.contentLength;
+            if (length !== undefined) {
+                if (length === 0) {
+                    throw new Error("Empty blob.");
+                }
+                this.size = length;
+            }
+        }
     }
 }
 

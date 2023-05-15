@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { IngestionProperties, IngestionPropertiesInput } from "./ingestionProperties";
-import { StreamDescriptor, FileDescriptorBase } from "./descriptors";
+import { StreamDescriptor, FileDescriptorBase, BlobDescriptor } from "./descriptors";
 
 export abstract class AbstractKustoClient {
     public defaultProps: IngestionProperties;
@@ -25,6 +25,7 @@ export abstract class AbstractKustoClient {
         if (!props.database) {
             props.database = this.defaultDatabase;
         }
+
         props.validate();
         return props;
     }
@@ -32,6 +33,8 @@ export abstract class AbstractKustoClient {
     abstract ingestFromStream(stream: StreamDescriptor, ingestionProperties: IngestionPropertiesInput): Promise<any>;
 
     abstract ingestFromFile(file: FileDescriptorBase | string | Blob, ingestionProperties: IngestionPropertiesInput): Promise<any>;
+
+    abstract ingestFromBlob(blob: string | BlobDescriptor, ingestionProperties?: IngestionPropertiesInput): Promise<any>;
 
     public close(): void {
         this._isClosed = true;

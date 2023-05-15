@@ -6,17 +6,15 @@ import pathlib from "path";
 import fs from "fs";
 import { file as tmpFile } from "tmp-promise";
 import { promisify } from "util";
-import { CompressionType, FileDescriptorBase, getSourceId } from "./descriptors";
+import { AbstractDescriptor, CompressionType, FileDescriptorBase } from "./descriptors";
 
 /**
  * Describes a file to be ingested. Use string to describe a local path in Node.JS and Blob object in browsers
  */
-export class FileDescriptor implements FileDescriptorBase {
-    size: number | null;
+export class FileDescriptor extends AbstractDescriptor implements FileDescriptorBase {
     zipped: boolean;
     compressionType: CompressionType;
     cleanupTmp?: () => Promise<void>;
-    sourceId: string;
 
     constructor(
         /**
@@ -29,12 +27,11 @@ export class FileDescriptor implements FileDescriptorBase {
         readonly extension?: string, // Extracted from file name by default
         readonly name?: string // Extracted from file name by default
     ) {
-        this.sourceId = getSourceId(sourceId);
+        super(sourceId, size);
         this.compressionType = compressionType;
         this.name = name ? name : pathlib.basename(this.file as string);
         this.extension = extension ? extension : pathlib.extname(this.file as string).toLowerCase();
 
-        this.size = size;
         this.zipped = compressionType !== CompressionType.None || this.extension === ".gz" || this.extension === ".zip";
     }
 
