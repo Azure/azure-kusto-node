@@ -48,29 +48,9 @@ export class ResourceManager {
     }
 
     async refreshIngestClientResources(): Promise<IngestClientResources> {
-        const now = Date.now();
-        let error: Error | null = null;
-        if (
-            !this.ingestClientResources ||
-            !this.ingestClientResourcesLastUpdate ||
-            this.ingestClientResourcesLastUpdate + this.refreshPeriod <= now ||
-            !this.ingestClientResources.valid()
-        ) {
-            try {
-                this.ingestClientResources = await this.getIngestClientResourcesFromService();
-                this.ingestClientResourcesLastUpdate = now;
-            } catch (e) {
-                error = e as Error;
-                setTimeout(() => {
-                    if (!this._isClosed) {
-                        this.refreshIngestClientResources().catch(() => {});
-                    }
-                }, this.refreshPeriodOnError);
-            }
-        }
-
+        const error = await this.tryRefresh(false);
         if (!this.ingestClientResources) {
-            throw new Error(`Failed to fetch ingestion resources from service.  ${error?.message}.\r\n ${error?.stack}`);
+            throw new Error(`Failed to fetch ingestion resources from service.  ${error?.message}.\n ${error?.stack}`);
         }
 
         return this.ingestClientResources;
@@ -83,12 +63,16 @@ export class ResourceManager {
                 const cmd = `.get ingestion resources ${this.isBrowser ? `with (EnableBlobCors='true', EnableQueueCors='true', EnableTableCors='true')` : ""}`;
                 const response = await this.kustoClient.execute("NetDefaultDB", cmd);
                 const table = response.primaryResults[0];
-                return new IngestClientResources(
+                const resoures = new IngestClientResources(
                     this.getResourceByName(table, "SecuredReadyForAggregationQueue"),
                     this.getResourceByName(table, "FailedIngestionsQueue"),
                     this.getResourceByName(table, "SuccessfulIngestionsQueue"),
                     this.getResourceByName(table, "TempStorage")
                 );
+
+                if (!resoures.valid()) {
+                    throw new Error("Unexpected error occured - fetched data returned missing resource");
+                }
             } catch (error: unknown) {
                 if (!(error instanceof KustoDataErrors.ThrottlingError)) {
                     throw error;
@@ -114,29 +98,45 @@ export class ResourceManager {
     }
 
     async refreshAuthorizationContext(): Promise<string> {
+        const error = await this.tryRefresh(true);
+
+        if (this.authorizationContext == null) {
+            throw new Error(`Failed to fetch Authorization context from service.  ${error?.message}.\n ${error?.stack}`);
+        }
+
+        return this.authorizationContext;
+    }
+
+    async tryRefresh(isAuthContextFetch: boolean): Promise<Error | null> {
+        const resource = isAuthContextFetch ? this.authorizationContext?.trim() : this.ingestClientResources;
+        const lastRefresh = isAuthContextFetch ? this.authorizationContextLastUpdate : this.ingestClientResourcesLastUpdate;
         const now = Date.now();
         let error: Error | null = null;
-        if (!this.authorizationContext?.trim() || !this.authorizationContextLastUpdate || this.authorizationContextLastUpdate + this.refreshPeriod <= now) {
-            this.authorizationContext = await this.getAuthorizationContextFromService();
-            this.authorizationContextLastUpdate = now;
+        if (
+            !resource || !lastRefresh ||
+            lastRefresh + this.refreshPeriod <= now
+        ) {
             try {
-                this.ingestClientResources = await this.getIngestClientResourcesFromService();
-                this.ingestClientResourcesLastUpdate = now;
+                if (isAuthContextFetch) {
+                    this.authorizationContext = await this.getAuthorizationContext();
+                    this.authorizationContextLastUpdate = now;
+                } else {
+                    this.ingestClientResources = await this.getIngestClientResourcesFromService();
+                    this.ingestClientResourcesLastUpdate = now;
+                }
             } catch (e) {
                 error = e as Error;
                 setTimeout(() => {
                     if (!this._isClosed) {
-                        this.refreshAuthorizationContext().catch(() => {});
+                        if (isAuthContextFetch) {
+                            this.refreshIngestClientResources().catch(() => {});
+                        }
                     }
-                }, 1000 * 30);
+                }, this.refreshPeriodOnError);
             }
         }
 
-        if (this.authorizationContext == null) {
-            throw new Error(`Failed to fetch Authorization context from service.  ${error?.message}.\r\n ${error?.stack}`);
-        }
-
-        return this.authorizationContext;
+        return error;
     }
 
     async getAuthorizationContextFromService() {
