@@ -3,8 +3,6 @@
 
 /* eslint-disable no-console */
 
-import assert from "assert";
-import fs, { ReadStream } from "fs";
 import IngestClient from "../../src/ingestClient";
 import KustoIngestStatusQueues from "../../src/status";
 import {
@@ -12,6 +10,7 @@ import {
     ClientRequestProperties,
     CloudSettings,
     KustoConnectionStringBuilder as ConnectionStringBuilder,
+    KustoConnectionStringBuilder,
     kustoTrustedEndpoints,
     MatchRule,
 } from "azure-kusto-data";
@@ -20,7 +19,14 @@ import ManagedStreamingIngestClient from "../../src/managedStreamingIngestClient
 import { CompressionType, StreamDescriptor } from "../../src/descriptors";
 import { DataFormat, IngestionProperties, JsonColumnMapping, ReportLevel } from "../../src";
 import { sleep } from "../../src/retry";
+import ResourceManager from "../../src/resourceManager";
+
+import assert from "assert";
+import fs, { ReadStream } from "fs";
 import util from "util";
+import { v4 as uuidv4 } from "uuid";
+import pathlib from "path";
+import sinon from "sinon";
 
 interface ParsedJsonMapping {
     Properties: { Path: string };
@@ -46,8 +52,23 @@ const main = (): void => {
     const streamingIngestClient = new StreamingIngestClient(engineKcsb);
     const dmKcsb = ConnectionStringBuilder.withAadApplicationKeyAuthentication(process.env.DM_CONNECTION_STRING ?? "", appId, appKey, tenantId);
     const ingestClient = new IngestClient(dmKcsb);
+    const dmKustoClient = new Client(dmKcsb);
+
     const statusQueues = new KustoIngestStatusQueues(ingestClient);
     const managedStreamingIngestClient = new ManagedStreamingIngestClient(engineKcsb, dmKcsb);
+    const mockedStreamingIngestClient = new StreamingIngestClient(engineKcsb);
+    const streamStub = sinon.stub(mockedStreamingIngestClient, "ingestFromStream");
+    streamStub.throws({ "@permanent": false });
+    const mockedManagedClient: ManagedStreamingIngestClient = Object.setPrototypeOf(
+        {
+            streamingIngestClient: mockedStreamingIngestClient,
+            queuedIngestClient: ingestClient,
+            baseSleepTimeSecs: 0,
+            baseJitterSecs: 0,
+            defaultProps: new IngestionProperties({}),
+        },
+        ManagedStreamingIngestClient.prototype
+    );
 
     const tables = [
         "general",
@@ -55,7 +76,9 @@ const main = (): void => {
         "queued_stream",
         "streaming_file",
         "streaming_stream",
+        "streaming_blob",
         "managed_file",
+        "managed_mocked_file",
         "managed_stream",
         "status_success",
         "status_fail",
@@ -131,12 +154,17 @@ const main = (): void => {
 
     afterAll(async () => {
         await Promise.all(
-            Object.values(tableNames).map(async (tableName) => {
+            Object.values(tableNames).map(async (tableName, i) => {
                 try {
                     console.log(`Drop table ${tableName}`);
                     await queryClient.execute(databaseName, `.drop table ${tableName} ifexists`);
-                } catch (err) {
-                    assert.fail("Failed to drop table");
+                } catch (err: unknown) {
+                    if ((err as Error)?.name.includes("Throttling")) {
+                        await sleep(i * 100);
+                        await queryClient.execute(databaseName, `.drop table ${tableName} ifexists`);
+                        return;
+                    }
+                    assert.fail("Failed to drop table" + util.format(err));
                 }
             })
         );
@@ -150,7 +178,18 @@ const main = (): void => {
                 try {
                     await queryClient.execute(databaseName, `.create table ${tableName} ${tableColumns}`);
                     await queryClient.execute(databaseName, `.alter table ${tableName} policy streamingingestion enable`);
-                    await queryClient.execute(databaseName, ".clear database cache streamingingestion schema");
+                    try {
+                        await queryClient.execute(
+                            databaseName,
+                            `.alter table ${tableName} policy ingestionbatching @'{"MaximumBatchingTimeSpan":"00:00:10", "MaximumNumberOfItems": 500, "MaximumRawDataSizeMB": 1024}'`
+                        );
+                        await dmKustoClient.execute(
+                            KustoConnectionStringBuilder.DefaultDatabaseName,
+                            `.refresh database '${databaseName}' table '${tableName}' cache ingestionbatchingpolicy`
+                        );
+                    } catch (err) {
+                        console.error("Failed refreshing policies from DM: " + util.format(err));
+                    }
 
                     console.log("Create table ingestion mapping");
                     try {
@@ -165,8 +204,9 @@ const main = (): void => {
                 }
             })
         );
-    });
 
+        await queryClient.execute(databaseName, ".clear database cache streamingingestion schema");
+    });
     describe(`E2E Tests`, () => {
         describe("cloud info", () => {
             it.concurrent("cloud info 404", async () => {
@@ -245,9 +285,44 @@ const main = (): void => {
                 }
                 await assertRowsCount(item, table as Table);
             });
+
+            it.concurrent.each(
+                testItems
+                    .filter((i) => i.testOnStreamingIngestion)
+                    .map((i) => {
+                        return { item: i };
+                    })
+            )("ingestFromBlob_$item.description", async ({ item }) => {
+                const resourceManager = new ResourceManager(dmKustoClient);
+                const blob = await resourceManager.getBlockBlobClient(uuidv4() + pathlib.basename(item.path));
+                await blob.uploadFile(item.path);
+                const table = tableNames[("streaming_blob" + "_" + item.description) as Table];
+                try {
+                    await streamingIngestClient.ingestFromBlob(blob.url, item.ingestionPropertiesCallback(table));
+                } catch (err) {
+                    assert.fail(`Failed to ingest ${item.description} - ${util.format(err)}`);
+                }
+                await assertRowsCount(item, table as Table);
+            });
         });
 
         describe("ManagedStreamingIngestClient", () => {
+            it.concurrent.each(
+                testItems
+                    .filter((i) => i.testOnStreamingIngestion)
+                    .map((i) => {
+                        return { item: i };
+                    })
+            )("ingestFromFile_$item.description", async ({ item }) => {
+                // Expect mocked client to retry stream after transient failure and succeed from queue with same stream
+                const table = tableNames[("managed_mocked_file" + "_" + item.description) as Table];
+                try {
+                    await mockedManagedClient.ingestFromFile(item.path, item.ingestionPropertiesCallback(table));
+                } catch (err) {
+                    assert.fail(`Failed to ingest ${item.description} - ${util.format(err)}`);
+                }
+                await assertRowsCount(item, table as Table);
+            });
             it.concurrent.each(
                 testItems
                     .filter((i) => i.testOnStreamingIngestion)
@@ -363,7 +438,7 @@ const main = (): void => {
                     assert.match(
                         ex.message,
                         /.*Request failed with status code 504.*/,
-                        `Fail to get "Query is expired". ex json: ${JSON.stringify(ex)}, ex: ${ex}`
+                        `Fail to get "Query is expired". ex json: ${util.format(ex)}, ex: ${ex}`
                     );
                     return;
                 }

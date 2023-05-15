@@ -83,7 +83,7 @@ describe("ManagedStreamingIngestClient", () => {
 
             assert(call.args[2]);
             const [prefix, actualSourceId, attemptCount] = call.args[2].split(";");
-            assert.strictEqual(prefix, "KNC.executeManagedStreamingIngest");
+            assert.strictEqual(prefix, "KNC.executeManagedStreamingIngestFromStream");
             if (sourceId) {
                 assert.strictEqual(actualSourceId, sourceId);
             } else {
