@@ -112,10 +112,7 @@ export class ResourceManager {
         const lastRefresh = isAuthContextFetch ? this.authorizationContextLastUpdate : this.ingestClientResourcesLastUpdate;
         const now = Date.now();
         let error: Error | null = null;
-        if (
-            !resource || !lastRefresh ||
-            lastRefresh + this.refreshPeriod <= now
-        ) {
+        if (!resource || !lastRefresh || lastRefresh + this.refreshPeriod <= now) {
             try {
                 if (isAuthContextFetch) {
                     this.authorizationContext = await this.getAuthorizationContext();
