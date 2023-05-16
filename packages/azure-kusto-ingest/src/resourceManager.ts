@@ -34,7 +34,6 @@ export class ResourceManager {
 
     private baseSleepTimeSecs = 1;
     private baseJitterSecs = 1;
-    private _isClosed: boolean = false;
 
     constructor(readonly kustoClient: Client, readonly isBrowser: boolean = false) {
         this.refreshPeriod = TimeUtils.toMilliseconds(1, 0, 0);
@@ -125,11 +124,6 @@ export class ResourceManager {
                 }
             } catch (e) {
                 error = e as Error;
-                setTimeout(() => {
-                    if (!this._isClosed) {
-                        this.tryRefresh(isAuthContextFetch).catch(() => {});
-                    }
-                }, this.refreshPeriodOnError);
             }
         }
 
@@ -188,7 +182,6 @@ export class ResourceManager {
 
     close() {
         this.kustoClient.close();
-        this._isClosed = true;
     }
 }
 

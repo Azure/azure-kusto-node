@@ -120,12 +120,6 @@ describe("ResourceManager", () => {
             sin.throwsException(new Error());
             const res = await resourceManager.refreshIngestClientResources();
             assert.strictEqual(res, initialResources);
-
-            // Resources should be fetched in the backend after last error, expect resources to equal the new ones
-            const secondResources = new IngestClientResources([new ResourceURI("")], [], [], []);
-            sin.returns(Promise.resolve(secondResources));
-            await sleep(resourceManager.refreshPeriodOnError + 100);
-            assert.strictEqual(resourceManager.ingestClientResources, secondResources);
         });
     });
 });
