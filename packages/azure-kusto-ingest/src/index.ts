@@ -36,12 +36,15 @@ import {
 } from "./columnMappings";
 
 export { Transformation as ColumnMappingTransformation } from "./columnMappings";
-
-export const IngestClient = KustoIngestClient;
-export const StreamingIngestClient = streamingIngestClient;
-export const ManagedStreamingIngestClient = managedStreamingIngestClient;
-export const IngestStatusQueues = KustoIngestStatusQueues;
+export { KustoIngestClient as IngestClient };
+export { streamingIngestClient as StreamingIngestClient };
+export { managedStreamingIngestClient as ManagedStreamingIngestClient };
+export { KustoIngestStatusQueues as IngestStatusQueues };
 export { IngestionProperties } from "./ingestionProperties";
+
+/**
+ * @deprecated - import directly instead. Export const is not exporting type.
+ */
 export const IngestionDescriptors = {
     BlobDescriptor,
     FileDescriptor,
@@ -68,6 +71,8 @@ export {
     ConstantTransformation,
     FieldTransformation,
     ColumnMapping,
+    BlobDescriptor,
+    StreamDescriptor,
 };
 
 /**

@@ -153,59 +153,52 @@ const main = (): void => {
     const tableNames = Object.fromEntries(tableWithItems.map((t) => [t, t + testSuffix])) as Record<Table, string>;
 
     afterAll(async () => {
-        await Promise.all(
-            Object.values(tableNames).map(async (tableName, i) => {
-                try {
-                    console.log(`Drop table ${tableName}`);
-                    await queryClient.execute(databaseName, `.drop table ${tableName} ifexists`);
-                } catch (err: unknown) {
-                    if ((err as Error)?.name.includes("Throttling")) {
-                        await sleep(i * 100);
-                        await queryClient.execute(databaseName, `.drop table ${tableName} ifexists`);
-                        return;
-                    }
-                    assert.fail("Failed to drop table" + util.format(err));
-                }
-            })
-        );
+        const cmd = ".drop tables (" + Object.values(tableNames).toString() + ") ifexists";
+        await queryClient.execute(databaseName, cmd);
         queryClient.close();
         ingestClient.close();
     });
 
     beforeAll(async () => {
-        await Promise.all(
-            Object.values(tableNames).map(async (tableName) => {
-                try {
-                    await queryClient.execute(databaseName, `.create table ${tableName} ${tableColumns}`);
-                    await queryClient.execute(databaseName, `.alter table ${tableName} policy streamingingestion enable`);
+        try {
+            await Promise.all(
+                Object.values(tableNames).map(async (tableName, i) => {
+                    const tableCommands = async (database: string, table: string) => {
+                        await queryClient.execute(database, `.create-merge table ${table} ${tableColumns}`);
+                        await queryClient.execute(database, `.alter table ${table} policy streamingingestion enable`);
+                        try {
+                            await queryClient.execute(
+                                database,
+                                `.alter table ${table} policy ingestionbatching @'{"MaximumBatchingTimeSpan":"00:00:10", "MaximumNumberOfItems": 500, "MaximumRawDataSizeMB": 1024}'`
+                            );
+                            await dmKustoClient.execute(
+                                KustoConnectionStringBuilder.DefaultDatabaseName,
+                                `.refresh database '${database}' table '${table}' cache ingestionbatchingpolicy`
+                            );
+                        } catch (err) {
+                            console.error("Failed refreshing policies from DM: " + util.format(err));
+                        }
+
+                        console.log("Create table ingestion mapping");
+                        await queryClient.execute(database, `.create-or-alter table ${table} ingestion json mapping '${mappingName}' '${mapping}'`);
+                    };
                     try {
-                        await queryClient.execute(
-                            databaseName,
-                            `.alter table ${tableName} policy ingestionbatching @'{"MaximumBatchingTimeSpan":"00:00:10", "MaximumNumberOfItems": 500, "MaximumRawDataSizeMB": 1024}'`
-                        );
-                        await dmKustoClient.execute(
-                            KustoConnectionStringBuilder.DefaultDatabaseName,
-                            `.refresh database '${databaseName}' table '${tableName}' cache ingestionbatchingpolicy`
-                        );
+                        await tableCommands(databaseName, tableName);
                     } catch (err) {
-                        console.error("Failed refreshing policies from DM: " + util.format(err));
+                        console.log(`Creating table ${tableName}, with columns ${tableColumns}`);
+                        if ((err as Error)?.name.includes("Throttling")) {
+                            await sleep(i * 100);
+                            await tableCommands(databaseName, tableName);
+                        }
+                        assert.fail(`Failed to create table $,{tableName} ${err} ${databaseName}, error: ${util.format(err)}`);
                     }
+                })
+            );
 
-                    console.log("Create table ingestion mapping");
-                    try {
-                        await queryClient.execute(databaseName, `.create-or-alter table ${tableName} ingestion json mapping '${mappingName}' '${mapping}'`);
-                    } catch (err) {
-                        assert.fail("Failed to create table ingestion mapping, error: " + util.format(err));
-                    }
-                } catch (err) {
-                    console.log(`Creating table ${tableName}, with columns ${tableColumns}`);
-
-                    assert.fail(`Failed to create table $,{tableName} ${err} ${databaseName}, error: ${util.format(err)}`);
-                }
-            })
-        );
-
-        await queryClient.execute(databaseName, ".clear database cache streamingingestion schema");
+            await queryClient.execute(databaseName, ".clear database cache streamingingestion schema");
+        } catch (e) {
+            assert.fail(util.format(e));
+        }
     });
     describe(`E2E Tests`, () => {
         describe("cloud info", () => {
