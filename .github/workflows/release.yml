@@ -17,14 +17,6 @@ jobs:
           cache: "npm"
           cache-dependency-path: |
             package-lock.json
-      - name: Publish new versions
-        run: |
-          npm install -g npm@latest
-          npm ci
-          npm run build
-          lerna publish from-git --yes
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
       - name: Package
         run: |
           lerna exec -- npm pack
@@ -34,3 +26,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           args: packages/azure-kusto-data/*.tgz packages/azure-kusto-ingest/*.tgz packages/quick_start/*.tgz
+      - name: Publish new versions
+        run: |
+          npm install -g npm@latest
+          npm ci
+          npm run build
+          lerna publish from-git --yes
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
