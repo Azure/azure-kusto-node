@@ -5,25 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-# [5.1.0] - 2023-06-13
+## [5.1.0] - 2023-06-13
 
-## Added
-* Streaming from blob url is now supported (in ManagedStreamingIngest too)
+### Added
 
-## Fixed 
-* More robust handling of errors in queued ingestion (resource manager improvements)
-* Fixed exports using the wrong types
+-   Streaming from blob url is now supported (in ManagedStreamingIngest too)
 
-# [5.0.4] - 2023-05-09
+### Fixed
 
-## Fixed
+-   More robust handling of errors in queued ingestion (resource manager improvements)
+-   Fixed exports using the wrong types
+
+## [5.0.4] - 2023-05-09
+
+### Fixed
 
 -   `IgnoreFirstRecord` ingestion option is now supported
 -   Edge case in getting the username on azure functions environments is now handled by @Apokalypt
 
 ## [5.0.3] - 2023-04-30
 
-## Added
+### Added
 
 -   ConnectionStringBuilder now accepts certificate path
 -   ConnectionStringBuilder now accepts a TokenCredential
