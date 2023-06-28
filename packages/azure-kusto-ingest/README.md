@@ -10,19 +10,19 @@
 const IngestClient = require("azure-kusto-ingest").IngestClient;
 const IngestionProps = require("azure-kusto-ingest").IngestionProperties;
 const KustoConnectionStringBuilder = require("azure-kusto-data").KustoConnectionStringBuilder;
-const { DataFormat, JsonColumnMapping } = require("azure-kusto-ingest");
+const {DataFormat, JsonColumnMapping} = require("azure-kusto-ingest");
 
 const kcsb = KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(`https://ingest-${cluster}.kusto.windows.net`, appId, appKey, authorityId);
 
 const ingestionProps = new IngestionProps({
-    database: "Database",
-    table: "Table",
-    format: DataFormat.JSON,
-    ingestionMapping: [
-        new JsonColumnMapping("TargetColumn1", "$.sourceProp1"),
-        new JsonColumnMapping("TargetColumn2", "$.sourceProp2"),
-        new JsonColumnMapping("TargetColumn3", "$.sourceProp3"),
-    ],
+  database: "Database",
+  table: "Table",
+  format: DataFormat.JSON,
+  ingestionMapping: [
+    JsonColumnMapping.withPath("TargetColumn1", "$.sourceProp1"),
+    JsonColumnMapping.withPath("TargetColumn2", "$.sourceProp2"),
+    JsonColumnMapping.withPath("TargetColumn3", "$.sourceProp3"),
+  ],
 });
 
 const ingestClient = new IngestClient(kcsb, ingestionProps);
@@ -120,9 +120,9 @@ Example props:
 
 ```javascript
 const ingestionProps = new IngestionProps("Database", "Table", DataFormat.JSON, [
-    new JsonColumnMapping("TargetColumn1", "$.sourceProp1"),
-    new JsonColumnMapping("TargetColumn2", "$.sourceProp2"),
-    new JsonColumnMapping("TargetColumn3", "$.sourceProp3"),
+  JsonColumnMapping.withPath("TargetColumn1", "$.sourceProp1"),
+  JsonColumnMapping.withPath("TargetColumn2", "$.sourceProp2"),
+  JsonColumnMapping.withPath("TargetColumn3", "$.sourceProp3"),
 ]);
 ```
 
@@ -142,7 +142,7 @@ catch(err){
     console.log(err);
 }
 console.log("Ingestion from stream DONE");
-
+````
 
 #### From File
 
@@ -180,60 +180,59 @@ Enabling is done simply but setting the `reportLevel` Ingestion Property to `Rep
 For Example:
 
 ```javascript
-const IngestClient = require("azure-kusto-ingest").IngestClient;
-const IngestStatusQueues = require("azure-kusto-ingest").IngestStatusQueues;
-const IngestionProps = require("azure-kusto-ingest").IngestionProperties;
-const { ReportLevel, ReportMethod } = require("azure-kusto-ingest");
-const KustoConnectionStringBuilder = require("azure-kusto-data").KustoConnectionStringBuilder;
-const { DataFormat, JsonColumnMapping } = require("azure-kusto-ingest");
-const fs = require("fs");
+const IngestClient = require('azure-kusto-ingest').IngestClient;
+const IngestStatusQueues = require('azure-kusto-ingest').IngestStatusQueues;
+const IngestionProps = require('azure-kusto-ingest').IngestionProperties;
+const {ReportLevel, ReportMethod} = require('azure-kusto-ingest');
+const KustoConnectionStringBuilder = require('azure-kusto-data').KustoConnectionStringBuilder;
+const {DataFormat, JsonColumnMapping} = require('azure-kusto-ingest');
+const fs = require('fs');
 
 const ingestClient = new IngestClient(
     KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(`https://ingest-${clusterName}.kusto.windows.net`, appId, appKey, authorityId),
-    new IngestionProps(
-        "db",
-        "table",
-        DataFormat.JSON,
-        [new JsonColumnMapping("Id", "$.id"), new JsonColumnMapping("Type", "$.type"), new JsonColumnMapping("Value", "$.type")],
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        ReportLevel.FailuresAndSuccesses,
-        ReportMethod.Queue
-    )
+    new IngestionProps({
+      database: 'Database',
+      table: 'Table',
+      format: DataFormat.JSON,
+      ingestionMapping: [
+        JsonColumnMapping.withPath('TargetColumn1', '$.sourceProp1'),
+        JsonColumnMapping.withPath('TargetColumn2', '$.sourceProp2'),
+        JsonColumnMapping.withPath('TargetColumn3', '$.sourceProp3'),
+      ],
+      ingestionMappingType: IngestionMappingKind.JSON,
+      reportLevel: ReportLevel.FailuresAndSuccesses,
+      reportMethod: ReportMethod.Queue,
+    })
 );
 
 const statusQueues = new IngestStatusQueues(ingestClient);
 
 async function waitForStatus() {
-    while ((await statusQueues.failure.isEmpty()) && (await statusQueues.success.isEmpty())) {
-        await new Promise((resolve) => {
-            setTimeout(resolve, 1000);
-        });
-    }
+  while ((await statusQueues.failure.isEmpty()) && (await statusQueues.success.isEmpty())) {
+    await new Promise((resolve) => {
+      setTimeout(resolve, 1000);
+    });
+  }
 
-    const successes = statusQueues.success.pop();
-    for (let success of successes) {
-        console.log(JSON.stringify(success));
-    }
+  const successes = statusQueues.success.pop();
+  for (let success of successes) {
+    console.log(JSON.stringify(success));
+  }
 
-    const failures = statusQueues.failure.pop();
-    for (let failure of failures) {
-        console.log(JSON.stringify(failure));
-    }
+  const failures = statusQueues.failure.pop();
+  for (let failure of failures) {
+    console.log(JSON.stringify(failure));
+  }
 }
 
 async function ingestFromFile() {
-    try {
-        await ingestClient.ingestFromFile("file.json", null);
-    } catch (err) {
-        console.log(err);
-    }
-    console.log("Wait for ingestion status...");
-    await waitForStatus();
+  try {
+    await ingestClient.ingestFromFile('file.json', null);
+  } catch (err) {
+    console.log(err);
+  }
+  console.log('Wait for ingestion status...');
+  await waitForStatus();
 }
 ```
 

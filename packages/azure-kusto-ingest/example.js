@@ -20,9 +20,9 @@ const props = new IngestionProps({
     table: "Table",
     format: DataFormat.JSON,
     ingestionMapping: [
-        new JsonColumnMapping("TargetColumn1", "$.sourceProp1"),
-        new JsonColumnMapping("TargetColumn2", "$.sourceProp2"),
-        new JsonColumnMapping("TargetColumn3", "$.sourceProp3"),
+        JsonColumnMapping.withPath("TargetColumn1", "$.sourceProp1"),
+        JsonColumnMapping.withPath("TargetColumn2", "$.sourceProp2"),
+        JsonColumnMapping.withPath("TargetColumn3", "$.sourceProp3"),
     ],
     ingestionMappingType: IngestionMappingKind.JSON,
     reportLevel: ReportLevel.FailuresAndSuccesses,

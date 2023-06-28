@@ -346,7 +346,7 @@ describe("IngestionProperties", () => {
         });
 
         it.concurrent("json mapping as additional props on ingestion blob info", () => {
-            const columns = [new JsonColumnMapping("Id", "$.Id", "int"), new JsonColumnMapping("Value", "$.value", "dynamic")];
+            const columns = [JsonColumnMapping.withPath("Id", "$.Id", "int"), JsonColumnMapping.withPath("Value", "$.value", "dynamic")];
             const props = new IngestionProperties({
                 database: "db",
                 table: "table",
