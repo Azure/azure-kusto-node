@@ -19,8 +19,6 @@ import {
     ValidationPolicy,
 } from "./ingestionProperties";
 
-import { BlobDescriptor, CompressionType, StreamDescriptor } from "./descriptors";
-import { FileDescriptor } from "./fileDescriptor";
 import {
     ApacheAvroColumnMapping,
     AvroColumnMapping,
@@ -34,13 +32,17 @@ import {
     SStreamColumnMapping,
     W3CLogFileMapping,
 } from "./columnMappings";
+import { BlobDescriptor, CompressionType, StreamDescriptor } from "./descriptors";
+import { FileDescriptor } from "./fileDescriptor";
 
 export { Transformation as ColumnMappingTransformation } from "./columnMappings";
-export { KustoIngestClient as IngestClient };
-export { streamingIngestClient as StreamingIngestClient };
-export { managedStreamingIngestClient as ManagedStreamingIngestClient };
-export { KustoIngestStatusQueues as IngestStatusQueues };
 export { IngestionProperties } from "./ingestionProperties";
+export {
+    KustoIngestClient as IngestClient,
+    KustoIngestStatusQueues as IngestStatusQueues,
+    managedStreamingIngestClient as ManagedStreamingIngestClient,
+    streamingIngestClient as StreamingIngestClient,
+};
 
 /**
  * @deprecated - import directly instead. Export const is not exporting type.
@@ -52,27 +54,28 @@ export const IngestionDescriptors = {
 };
 
 export {
-    JsonColumnMapping,
-    CsvColumnMapping,
+    ApacheAvroColumnMapping,
     AvroColumnMapping,
-    ParquetColumnMapping,
+    BlobDescriptor,
+    ColumnMapping,
+    CompressionType,
+    ConstantTransformation,
+    CsvColumnMapping,
+    DataFormat,
+    FieldTransformation,
+    FileDescriptor,
+    IngestionMappingKind,
+    JsonColumnMapping,
     OrcColumnMapping,
-    W3CLogFileMapping,
-    ValidationPolicy,
+    ParquetColumnMapping,
     ReportLevel,
     ReportMethod,
+    SStreamColumnMapping,
+    StreamDescriptor,
     ValidationImplications,
     ValidationOptions,
-    DataFormat,
-    IngestionMappingKind,
-    CompressionType,
-    ApacheAvroColumnMapping,
-    SStreamColumnMapping,
-    ConstantTransformation,
-    FieldTransformation,
-    ColumnMapping,
-    BlobDescriptor,
-    StreamDescriptor,
+    ValidationPolicy,
+    W3CLogFileMapping,
 };
 
 /**

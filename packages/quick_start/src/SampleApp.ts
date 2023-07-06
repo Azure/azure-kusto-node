@@ -1,15 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import fs from "fs";
-import Utils, { Authentication, Ingestion, Queries } from "./Utils";
-import Console from "console";
-import KustoClient from "azure-kusto-data/src/client";
-import IngestClient, { KustoIngestClient } from "azure-kusto-ingest/src/ingestClient";
-import { DataFormat } from "azure-kusto-ingest";
-import readline from "readline";
+import { Client as KustoClient } from "azure-kusto-data";
+import { DataFormat, IngestClient } from "azure-kusto-ingest";
 import { dataFormatMappingKind } from "azure-kusto-ingest/src/ingestionProperties";
+import Console from "console";
+import fs from "fs";
+import readline from "readline";
 import { v4 as uuidv4 } from "uuid";
+import Utils, { Authentication, Ingestion, Queries } from "./Utils";
 
 enum SourceType {
     LocalFileSource = "localfilesource",
@@ -96,7 +95,7 @@ class SampleApp {
             Utils.errorHandler("Connection String error. Please validate your configuration file.");
         } else {
             const kustoClient = new KustoClient(kustoConnectionString);
-            const ingestClient = new KustoIngestClient(ingestConnectionString);
+            const ingestClient = new IngestClient(ingestConnectionString);
 
             await this.preIngestionQuerying(config, kustoClient);
 
@@ -250,7 +249,7 @@ class SampleApp {
      * @param ingestClient Client to ingest data
      * @private
      */
-    private static async ingestion(config: ConfigJson, kustoClient: KustoClient, ingestClient: KustoIngestClient) {
+    private static async ingestion(config: ConfigJson, kustoClient: KustoClient, ingestClient: IngestClient) {
         for (const dataFile of config.data) {
             const dfVal: string = dataFile.format.toLowerCase();
             let dataFormat: DataFormat;

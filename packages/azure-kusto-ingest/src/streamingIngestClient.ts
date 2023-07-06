@@ -3,13 +3,12 @@
 
 import { IngestionPropertiesInput } from "./ingestionProperties";
 
+import { KustoConnectionStringBuilder, KustoResponseDataSet } from "azure-kusto-data";
+import { Readable } from "stream";
+import zlib from "zlib";
 import { CompressionType, StreamDescriptor } from "./descriptors";
 import { FileDescriptor } from "./fileDescriptor";
-import zlib from "zlib";
-import { KustoConnectionStringBuilder } from "azure-kusto-data";
-import { KustoResponseDataSet } from "azure-kusto-data/src/response";
 import { fileToStream } from "./streamUtils";
-import { Readable } from "stream";
 import { KustoStreamingIngestClientBase } from "./streamingIngestClientBase";
 
 class KustoStreamingIngestClient extends KustoStreamingIngestClientBase {

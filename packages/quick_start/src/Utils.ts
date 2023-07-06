@@ -1,17 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import KustoConnectionStringBuilder from "azure-kusto-data/src/connectionBuilder";
-import fs from "fs";
-import ClientRequestProperties from "azure-kusto-data/src/clientRequestProperties";
-import { v4 as uuidv4 } from "uuid";
-import { DataFormat } from "azure-kusto-ingest";
+import { ClientRequestProperties, Client as KustoClient, KustoConnectionStringBuilder } from "azure-kusto-data";
+import { BlobDescriptor, DataFormat, FileDescriptor, IngestClient } from "azure-kusto-ingest";
 import IngestionProperties, { dataFormatMappingKind } from "azure-kusto-ingest/src/ingestionProperties";
 import Console from "console";
-import KustoClient from "azure-kusto-data/src/client";
-import IngestClient from "azure-kusto-ingest/src/ingestClient";
-import { BlobDescriptor } from "azure-kusto-ingest/src/descriptors";
-import { FileDescriptor } from "azure-kusto-ingest/src/fileDescriptor";
+import fs from "fs";
+import { v4 as uuidv4 } from "uuid";
 import { AuthenticationModeOptions } from "./SampleApp";
 
 /**

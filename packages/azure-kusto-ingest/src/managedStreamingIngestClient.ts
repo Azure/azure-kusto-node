@@ -3,19 +3,18 @@
 
 import { IngestionPropertiesInput } from "./ingestionProperties";
 
+import { isNode } from "@azure/core-util";
+import { QueueSendMessageResponse } from "@azure/storage-queue";
+import { KustoConnectionStringBuilder, KustoResponseDataSet } from "azure-kusto-data";
+import { Readable } from "stream";
+import streamify from "stream-array";
+import { AbstractKustoClient } from "./abstractKustoClient";
 import { AbstractDescriptor, BlobDescriptor, StreamDescriptor } from "./descriptors";
 import { FileDescriptor } from "./fileDescriptor";
-import { AbstractKustoClient } from "./abstractKustoClient";
-import { KustoConnectionStringBuilder } from "azure-kusto-data";
-import { KustoResponseDataSet } from "azure-kusto-data/src/response";
-import StreamingIngestClient from "./streamingIngestClient";
-import { tryFileToBuffer, tryStreamToArray } from "./streamUtils";
 import IngestClient from "./ingestClient";
-import { QueueSendMessageResponse } from "@azure/storage-queue";
-import streamify from "stream-array";
-import { Readable } from "stream";
 import { ExponentialRetry } from "./retry";
-import { isNode } from "@azure/core-util";
+import { tryFileToBuffer, tryStreamToArray } from "./streamUtils";
+import StreamingIngestClient from "./streamingIngestClient";
 
 const maxStreamSize = 1024 * 1024 * 4;
 const attemptCount = 3;

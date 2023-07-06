@@ -5,10 +5,8 @@ import assert from "assert";
 
 import sinon from "sinon";
 
-import { Client as KustoClient, TimeUtils } from "azure-kusto-data";
-import { IngestClientResources, ResourceManager, ResourceURI } from "../src/resourceManager";
-import { KustoResponseDataSet } from "azure-kusto-data/types/src/response";
-import { sleep } from "../src/retry";
+import { Client as KustoClient, KustoResponseDataSet, TimeUtils } from "azure-kusto-data";
+import { IngestClientResources, ResourceManager } from "../src/resourceManager";
 
 describe("ResourceManager", () => {
     const rows = [
