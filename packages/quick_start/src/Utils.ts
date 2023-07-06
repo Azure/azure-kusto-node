@@ -2,9 +2,8 @@
 // Licensed under the MIT License.
 
 import { ClientRequestProperties, Client as KustoClient, KustoConnectionStringBuilder } from "azure-kusto-data";
-import { BlobDescriptor, DataFormat, IngestClient } from "azure-kusto-ingest";
+import { BlobDescriptor, DataFormat, FileDescriptor, IngestClient } from "azure-kusto-ingest";
 import IngestionProperties, { dataFormatMappingKind } from "azure-kusto-ingest/src/ingestionProperties";
-import { FileDescriptor } from "azure-kusto-ingest/types/src/fileDescriptor";
 import Console from "console";
 import fs from "fs";
 import { v4 as uuidv4 } from "uuid";
