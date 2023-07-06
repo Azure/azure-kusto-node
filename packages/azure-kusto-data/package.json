@@ -43,6 +43,7 @@
     },
     "files": [
         "dist-esm/src/*.js",
+        "dist-esm/src/*.js.map",
         "types/src/*.d.ts",
         "tsconfig.tsbuildinfo",
         "dist-esm/src/wellKnownKustoEndpoints.json"
