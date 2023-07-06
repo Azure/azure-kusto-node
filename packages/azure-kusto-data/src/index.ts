@@ -14,7 +14,12 @@ const TimeUtils = { toMilliseconds };
 
 export {
     KustoClient as Client,
-    ClientRequestProperties, CloudSettings, KustoConnectionStringBuilder,
-    KustoDataErrors, KustoResponseDataSet, kustoTrustedEndpoints,
-    MatchRule, TimeUtils
+    ClientRequestProperties,
+    CloudSettings,
+    KustoConnectionStringBuilder,
+    KustoDataErrors,
+    KustoResponseDataSet,
+    kustoTrustedEndpoints,
+    MatchRule,
+    TimeUtils,
 };

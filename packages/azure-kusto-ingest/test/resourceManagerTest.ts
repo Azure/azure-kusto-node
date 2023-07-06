@@ -5,7 +5,7 @@ import assert from "assert";
 
 import sinon from "sinon";
 
-import { Client as KustoClient, KustoResponseDataSet } from "azure-kusto-data";
+import { Client as KustoClient, KustoResponseDataSet, TimeUtils } from "azure-kusto-data";
 import { IngestClientResources, ResourceManager } from "../src/resourceManager";
 
 describe("ResourceManager", () => {
