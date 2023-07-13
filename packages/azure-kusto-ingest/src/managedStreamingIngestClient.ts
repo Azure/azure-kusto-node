@@ -107,7 +107,7 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
                 result
             );
 
-            result = isNode ? result : descriptor.stream;
+            result = isNode ? readableToStream(result) : descriptor.stream;
         }
 
         return streamingResult ?? this.queuedIngestClient.ingestFromStream(new StreamDescriptor(result).merge(descriptor), props);
