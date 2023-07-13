@@ -174,7 +174,7 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
                 }
             }
 
-            stream = isBlob ? undefined : isNode ? readableToStream(stream!) : (descriptor as StreamDescriptor).stream;
+            stream = isBlob ? undefined : isNode && stream ? readableToStream(stream) : (descriptor as StreamDescriptor).stream;
         }
 
         return null;
