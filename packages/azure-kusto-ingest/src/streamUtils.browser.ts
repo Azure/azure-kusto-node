@@ -21,5 +21,5 @@ export const tryStreamToArray = async (stream: any): Promise<Buffer> => {
 
 // NOT USED
 export const readableToStream = (stream: ArrayBuffer): ArrayBuffer => {
-    return stream
-}
+    return stream;
+};

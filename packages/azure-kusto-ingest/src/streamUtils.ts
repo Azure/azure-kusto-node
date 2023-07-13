@@ -60,5 +60,5 @@ export const tryStreamToArray = async (stream: Readable, maxBufferSize: number):
 };
 
 export const readableToStream = (stream: Readable | ArrayBuffer): Readable => {
-    return streamify([stream])
-}
+    return streamify([stream]);
+};
