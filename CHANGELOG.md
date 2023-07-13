@@ -9,8 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
--  Some internal types exposed as they are retuned to the user.
--  Remove streamify from browser flow 
+-   Some internal types exposed as they are retuned to the user.
+-   Remove streamify from browser flow
 
 ### Added
 
