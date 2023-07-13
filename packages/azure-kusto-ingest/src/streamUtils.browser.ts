@@ -18,3 +18,8 @@ export const tryFileToBuffer = async (file: FileDescriptor): Promise<StreamDescr
 export const tryStreamToArray = async (stream: any): Promise<Buffer> => {
     return Promise.resolve(stream);
 };
+
+// NOT USED
+export const readableToStream = (stream: ArrayBuffer): ArrayBuffer => {
+    return stream
+}
