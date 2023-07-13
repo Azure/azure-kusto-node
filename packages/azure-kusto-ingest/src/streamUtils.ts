@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { CompressionType, StreamDescriptor } from "./descriptors";
-import { FileDescriptor } from "./fileDescriptor";
 import fs from "fs";
 import { PassThrough, Readable } from "stream";
 import streamify from "stream-array";
+import { CompressionType, StreamDescriptor } from "./descriptors";
+import { FileDescriptor } from "./fileDescriptor";
 
 // Returns fs.ReadStream for node and NodeJS.ReadableStream in browser
 export const fileToStream = (fileDescriptor: FileDescriptor): Promise<StreamDescriptor> => {
@@ -57,4 +57,8 @@ export const tryStreamToArray = async (stream: Readable, maxBufferSize: number):
         stream.on("data", dataHandler);
         stream.on("end", endListener);
     });
+};
+
+export const readableToStream = (stream: Readable | ArrayBuffer): Readable => {
+    return streamify([stream]);
 };

@@ -7,13 +7,12 @@ import { isNode } from "@azure/core-util";
 import { QueueSendMessageResponse } from "@azure/storage-queue";
 import { KustoConnectionStringBuilder, KustoResponseDataSet } from "azure-kusto-data";
 import { Readable } from "stream";
-import streamify from "stream-array";
 import { AbstractKustoClient } from "./abstractKustoClient";
 import { AbstractDescriptor, BlobDescriptor, StreamDescriptor } from "./descriptors";
 import { FileDescriptor } from "./fileDescriptor";
 import IngestClient from "./ingestClient";
 import { ExponentialRetry } from "./retry";
-import { tryFileToBuffer, tryStreamToArray } from "./streamUtils";
+import { readableToStream, tryFileToBuffer, tryStreamToArray } from "./streamUtils";
 import StreamingIngestClient from "./streamingIngestClient";
 
 const maxStreamSize = 1024 * 1024 * 4;
@@ -108,7 +107,7 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
                 result
             );
 
-            result = isNode ? streamify([result]) : descriptor.stream;
+            result = isNode ? readableToStream(result) : descriptor.stream;
         }
 
         return streamingResult ?? this.queuedIngestClient.ingestFromStream(new StreamDescriptor(result).merge(descriptor), props);
@@ -159,7 +158,7 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
 
                     if (isNode) {
                         return await this.streamingIngestClient.ingestFromStream(
-                            new StreamDescriptor(streamify([stream])).merge(descriptor as StreamDescriptor),
+                            new StreamDescriptor(readableToStream(stream!)).merge(descriptor as StreamDescriptor),
                             props,
                             sourceId
                         );
@@ -175,7 +174,7 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
                 }
             }
 
-            stream = isBlob ? undefined : isNode ? streamify([stream]) : (descriptor as StreamDescriptor).stream;
+            stream = isBlob ? undefined : isNode && stream ? readableToStream(stream) : (descriptor as StreamDescriptor).stream;
         }
 
         return null;
