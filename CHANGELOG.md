@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   Some internal types exposed as they are retuned to the user.
 -   Remove streamify from browser flow
+-   Default tenant of user prompt was nullified if options were given
 
 ### Added
 
