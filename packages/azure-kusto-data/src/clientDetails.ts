@@ -53,7 +53,7 @@ export class ClientDetails {
                 }
             }
 
-            return username || (process.env.USERDOMAIN ? `${process.env.USERDOMAIN}\\${process.env.USERNAME}` : process.env.USERNAME) || None;
+            return username || (process?.env.USERDOMAIN ? `${process?.env.USERDOMAIN}\\${process?.env.USERNAME}` : process?.env.USERNAME) || None;
         } else {
             return None;
         }

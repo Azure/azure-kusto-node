@@ -17,7 +17,7 @@ export type CloudInfo = {
 class CloudSettings {
     METADATA_ENDPOINT = "/v1/rest/auth/metadata";
     defaultCloudInfo: CloudInfo = {
-        LoginEndpoint: process.env.AadAuthorityUri || "https://login.microsoftonline.com",
+        LoginEndpoint: process?.env.AadAuthorityUri || "https://login.microsoftonline.com",
         LoginMfaRequired: false,
         KustoClientAppId: "db662dc1-0cfe-4e1c-a843-19a68e65be58",
         KustoClientRedirectUri: "https://microsoft/kustoclient",
