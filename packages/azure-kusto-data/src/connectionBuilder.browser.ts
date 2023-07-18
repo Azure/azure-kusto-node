@@ -96,14 +96,18 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
         if (!redirectUri) {
             throw new Error("Invalid parameters - You must provide a redirectUri registered on the SPA app");
         }
+        
+        if (tenantId) {
+            kcsb.authorityId = tenantId;
+        } else {
+            interactiveCredentialOptions.tenantId = kcsb.authorityId;
+        }
 
         kcsb.interactiveCredentialOptions = interactiveCredentialOptions;
         kcsb.aadFederatedSecurity = true;
         kcsb.applicationClientId = clientId;
         kcsb.useUserPromptAuth = true;
-        if (tenantId) {
-            kcsb.authorityId = tenantId;
-        }
+        
         kcsb.timeoutMs = timeoutMs;
 
         return kcsb;

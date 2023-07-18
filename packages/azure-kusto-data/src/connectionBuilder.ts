@@ -170,6 +170,8 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
         kcsb.useUserPromptAuth = true;
         if (tenantId) {
             kcsb.authorityId = tenantId;
+        } else if (options) {
+            options.tenantId = kcsb.authorityId;
         }
 
         kcsb.timeoutMs = timeoutMs;
