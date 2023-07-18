@@ -80,7 +80,7 @@ class CloudSettings {
         return urlString;
     }
 
-    static getAuthorityUri(cloudInfo: CloudInfo, authorityId?: string): string {
+    getAuthorityUri(cloudInfo: CloudInfo, authorityId?: string): string {
         return cloudInfo.LoginEndpoint + "/" + (authorityId || "organizations");
     }
 }

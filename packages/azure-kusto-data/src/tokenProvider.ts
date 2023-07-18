@@ -1,22 +1,22 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+import { TokenCredential } from "@azure/core-auth";
 import {
     AzureCliCredential,
-    ManagedIdentityCredential,
-    ClientSecretCredential,
     ClientCertificateCredential,
     ClientCertificateCredentialOptions,
     ClientCertificatePEMCertificate,
+    ClientSecretCredential,
     DeviceCodeCredential,
     DeviceCodeInfo,
-    UsernamePasswordCredential,
+    InteractiveBrowserCredential,
     InteractiveBrowserCredentialInBrowserOptions,
     InteractiveBrowserCredentialNodeOptions,
-    InteractiveBrowserCredential,
+    ManagedIdentityCredential,
+    UsernamePasswordCredential,
 } from "@azure/identity";
-import { TokenCredential } from "@azure/core-auth";
 import { CloudInfo, CloudSettings } from "./cloudSettings";
-
+// import * as CloudSettingsStatic from "./cloudSettings"
 export declare type TokenResponse = {
     tokenType: string;
     accessToken: string;
@@ -208,7 +208,7 @@ export class UserPromptProvider extends AzureIdentityProvider {
     getCredential(): TokenCredential {
         return new InteractiveBrowserCredential({
             ...this.interactiveCredentialOptions,
-            tenantId: this.authorityId,
+            tenantId: this.authorityId || "organizations",
             clientId: this.interactiveCredentialOptions?.clientId ?? this.cloudInfo.KustoClientAppId,
             redirectUri: this.interactiveCredentialOptions?.redirectUri ?? `http://localhost:${this.getRandomPortInRange()}/`,
         });
