@@ -62,14 +62,13 @@ export class KustoClient {
         var headers: AxiosRequestHeaders = {
             Accept: "application/json",
         };
-        
+
         if (isNode) {
             headers = {
                 ...headers,
                 "Accept-Encoding": "gzip,deflate",
                 Connection: "Keep-Alive",
-            }
-            
+            };
         }
         const axiosProps: AxiosRequestConfig = {
             headers,
