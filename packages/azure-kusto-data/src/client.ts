@@ -1,20 +1,20 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { v4 as uuidv4 } from "uuid";
-import AadHelper from "./security";
-import { KustoResponseDataSet, KustoResponseDataSetV1, KustoResponseDataSetV2, V1, V2Frames } from "./response";
-import ConnectionStringBuilder from "./connectionBuilder";
-import ClientRequestProperties from "./clientRequestProperties";
-import { ThrottlingError } from "./errors";
-import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
+import { isNode } from "@azure/core-util";
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosRequestHeaders } from "axios";
 import http from "http";
 import https from "https";
-import { isNode } from "@azure/core-util";
-import { kustoTrustedEndpoints } from "./kustoTrustedEndpoints";
-import CloudSettings from "./cloudSettings";
-import { toMilliseconds } from "./timeUtils";
+import { v4 as uuidv4 } from "uuid";
 import { KustoHeaders } from "./clientDetails";
+import ClientRequestProperties from "./clientRequestProperties";
+import CloudSettings from "./cloudSettings";
+import ConnectionStringBuilder from "./connectionBuilder";
+import { ThrottlingError } from "./errors";
+import { kustoTrustedEndpoints } from "./kustoTrustedEndpoints";
+import { KustoResponseDataSet, KustoResponseDataSetV1, KustoResponseDataSetV2, V1, V2Frames } from "./response";
+import AadHelper from "./security";
+import { toMilliseconds } from "./timeUtils";
 
 const COMMAND_TIMEOUT_IN_MILLISECS = toMilliseconds(0, 10, 30);
 const QUERY_TIMEOUT_IN_MILLISECS = toMilliseconds(0, 4, 30);
@@ -58,11 +58,19 @@ export class KustoClient {
             [ExecutionType.QueryV1]: `${this.cluster}/v1/rest/query`,
         };
         this.aadHelper = new AadHelper(this.connectionString);
-        const headers = {
+
+        var headers: AxiosRequestHeaders = {
             Accept: "application/json",
-            "Accept-Encoding": "gzip,deflate",
-            Connection: "Keep-Alive",
         };
+        
+        if (isNode) {
+            headers = {
+                ...headers,
+                "Accept-Encoding": "gzip,deflate",
+                Connection: "Keep-Alive",
+            }
+            
+        }
         const axiosProps: AxiosRequestConfig = {
             headers,
             validateStatus: (status: number) => status === 200,
