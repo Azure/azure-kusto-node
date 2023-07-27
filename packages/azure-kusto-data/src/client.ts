@@ -59,7 +59,7 @@ export class KustoClient {
         };
         this.aadHelper = new AadHelper(this.connectionString);
 
-        var headers: AxiosRequestHeaders = {
+        let headers: AxiosRequestHeaders = {
             Accept: "application/json",
         };
 
