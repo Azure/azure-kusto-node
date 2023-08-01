@@ -6,6 +6,7 @@ import { BlobDescriptor, DataFormat, FileDescriptor, IngestClient } from "azure-
 import IngestionProperties, { dataFormatMappingKind } from "azure-kusto-ingest/src/ingestionProperties";
 import Console from "console";
 import fs from "fs";
+import util from "util";
 import { v4 as uuidv4 } from "uuid";
 import { AuthenticationModeOptions } from "./SampleApp";
 
@@ -21,8 +22,8 @@ export default abstract class Utils {
      */
     public static errorHandler(error: string, ex: any = null): never {
         Console.log(`Script failed with error: ${error}`);
-        if (!ex) {
-            Console.log(`Exception: ${ex}`);
+        if (ex) {
+            Console.log(`Exception: ${util.format(ex)}`);
         }
 
         process.exit(1);
@@ -173,7 +174,7 @@ export class Queries extends Utils {
      * @param command The command to run. can either be management(control) command or query.
      * @param scope Working scope
      */
-    public static async executeCommand(kustoClient: KustoClient, databaseName: string, command: string, scope: string) {
+    public static async executeCommand(kustoClient: KustoClient, databaseName: string, command: string, scope: string, exit: boolean = true) {
         try {
             const clientRequestProperties = this.createClientRequestProperties(scope);
             const responseDataSet = await kustoClient.execute(databaseName, command, clientRequestProperties);
@@ -184,7 +185,9 @@ export class Queries extends Utils {
                 Console.log(row.toJSON());
             }
         } catch (ex: any) {
-            this.errorHandler(`Failed to execute command: '${command}'`, ex);
+            if (exit) {
+                this.errorHandler(`Failed to execute command: '${command}'`, ex);
+            }
         }
     }
 }

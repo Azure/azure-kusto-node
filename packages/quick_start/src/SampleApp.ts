@@ -96,8 +96,9 @@ class SampleApp {
         } else {
             const kustoClient = new KustoClient(kustoConnectionString);
             const ingestClient = new IngestClient(ingestConnectionString);
+            const ingestServiceCmdClient = new KustoClient(ingestConnectionString);
 
-            await this.preIngestionQuerying(config, kustoClient);
+            await this.preIngestionQuerying(config, kustoClient, ingestServiceCmdClient);
 
             if (config.ingestData) {
                 await this.ingestion(config, kustoClient, ingestClient);
@@ -138,7 +139,7 @@ class SampleApp {
      * @param config ConfigJson object containing the SampleApp configuration
      * @param kustoClient Client to run commands
      */
-    private static async preIngestionQuerying(config: ConfigJson, kustoClient: KustoClient) {
+    private static async preIngestionQuerying(config: ConfigJson, kustoClient: KustoClient, ingestServiceCmdClient: KustoClient) {
         if (config.useExistingTable) {
             if (config.alterTable) {
                 // Tip: Usually table was originally created with a schema appropriate for the data being ingested, so this wouldn't be needed.
@@ -165,10 +166,12 @@ class SampleApp {
         //   3) More than 5 minutes have passed since the first file was queued for ingestion for the same table by the same user
         //  For more information about customizing the ingestion batching policy, see:
         // https://docs.microsoft.com/azure/data-explorer/kusto/management/batchingpolicy
-        // TODO: Change if needed. Disabled to prevent an existing batching policy from being unintentionally changed
-        if (false && config.batchingPolicy != null) {
+        // TODO: Change if needed. Disabled on existing tables to prevent an existing batching policy from being unintentionally changed
+        if (!config.useExistingTable && config.batchingPolicy != null) {
             await this.waitForUserToProceed(`Alter the batching policy for table '${config.databaseName}.${config.tableName}'`);
-            await this.alterBatchingPolicy(kustoClient, config.databaseName, config.tableName, config.batchingPolicy);
+            await this.alterBatchingPolicy(kustoClient, config.databaseName, config.tableName, config.batchingPolicy, ingestServiceCmdClient);
+        } else {
+            Console.log(`\nStep 'Alter the batching policy' was skipped to avoid changing existing policy - change code if needed.`);
         }
     }
 
@@ -231,14 +234,22 @@ class SampleApp {
      * @param tableName Table name
      * @param batchingPolicy Ingestion batching policy
      */
-    private static async alterBatchingPolicy(kustoClient: KustoClient, databaseName: string, tableName: string, batchingPolicy: string) {
+    private static async alterBatchingPolicy(
+        kustoClient: KustoClient,
+        databaseName: string,
+        tableName: string,
+        batchingPolicy: string,
+        ingestServiceCmdClient: KustoClient
+    ) {
         // Tip 1: Though most users should be fine with the defaults, to speed up ingestion, such as during development and in this sample app, we opt to
         // modify the default ingestion policy to ingest data after at most 10 seconds.
         // Tip 2: This is generally a one-time configuration.
         // Tip 3: You can also skip the batching for some files using the Flush-Immediately property, though this option should be used with care as it is
         // inefficient.
-        const command = `.alter table ${tableName} policy ingestionbatching @'${batchingPolicy}'`;
+        let command = `.alter table ${tableName} policy ingestionbatching @"${batchingPolicy}"`;
         await Queries.executeCommand(kustoClient, databaseName, command, "Node_SampleApp_ControlCommand");
+        command = `.refresh database .refresh database '${databaseName}' table '${tableName}' cache ingestionbatchingpolicy`;
+        await Queries.executeCommand(ingestServiceCmdClient, databaseName, command, "Node_SampleApp_ControlCommand", false);
     }
 
     /**

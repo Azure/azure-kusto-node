@@ -248,6 +248,9 @@ export class KustoClient {
                 if (error?.config?.headers) {
                     error.config.headers.Authorization = "<REDACTED>";
                 }
+                if (error?.response?.request?._header) {
+                    error.response.request._header = "<REDACTED>";
+                }
                 if (error.response && error.response.status === 429) {
                     throw new ThrottlingError("POST request failed with status 429 (Too Many Requests)", error);
                 }
