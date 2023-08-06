@@ -248,7 +248,9 @@ export class KustoClient {
                 if (error?.config?.headers) {
                     error.config.headers.Authorization = "<REDACTED>";
                 }
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 if (error?.response?.request?._header) {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                     error.response.request._header = "<REDACTED>";
                 }
                 if (error.response && error.response.status === 429) {
