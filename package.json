@@ -55,6 +55,7 @@
         "jsonwebtoken": "^9.0.0"
     },
     "workspaces": [
-        "packages/*"
+        "packages/azure-kusto-data",
+        "packages/azure-kusto-ingest"
     ]
 }
