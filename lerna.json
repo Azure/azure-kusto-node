@@ -1,3 +1,7 @@
 {
-  "version": "5.2.0"
+  "version": "5.2.0",
+  "packages": [
+    "packages/azure-kusto-data",
+    "pacakges/azure-kusto-ingest"
+  ]
 }
