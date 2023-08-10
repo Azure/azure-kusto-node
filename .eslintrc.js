@@ -27,7 +27,8 @@ module.exports = {
         "node_modules",
         "**/*.d.ts",
         "**/*.js",
-        "webpack.config.ts"
+        "webpack.config.ts",
+        "vite.config.ts"
     ],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
