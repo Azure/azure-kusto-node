@@ -27,7 +27,6 @@ module.exports = {
         "node_modules",
         "**/*.d.ts",
         "**/*.js",
-        "**/*.tsx",
         "webpack.config.ts",
         "vite.config.ts"
     ],
