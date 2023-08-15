@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 export const GetTakeQuery = (query: string, count: number) => {
     return `${query} | take ${count}`;
 };

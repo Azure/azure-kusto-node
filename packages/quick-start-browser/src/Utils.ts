@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 import { DataFormat } from "azure-kusto-ingest";
 
 export const dataFormatMappingKind = (dataFormat: DataFormat): any => {

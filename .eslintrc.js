@@ -27,12 +27,13 @@ module.exports = {
         "node_modules",
         "**/*.d.ts",
         "**/*.js",
+        "**/*.tsx",
         "webpack.config.ts",
         "vite.config.ts"
     ],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
-        "project": ["tsconfig.json","packages/azure-kusto-data/tsconfig.json","packages/azure-kusto-ingest/tsconfig.json","packages/quick_start/tsconfig.json"],
+        "project": ["tsconfig.json","packages/azure-kusto-data/tsconfig.json","packages/azure-kusto-ingest/tsconfig.json","packages/quick_start/tsconfig.json","packages/quick-start-browser/tsconfig.json"],
         "sourceType": "module"
     },
     "plugins": [
