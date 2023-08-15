@@ -116,7 +116,7 @@ function App() {
                     ))}
                 </Dropdown>
             </div>
-            {state.ingestOrQuery == "Ingest" ? (
+            {state.ingestOrQuery === "Ingest" ? (
                 <IngestFlow ingestClient={ingestClient} config={config} queryClient={queryClient}></IngestFlow>
             ) : (
                 <QueryFlow

@@ -26,7 +26,20 @@ export const CreateTable: React.FunctionComponent<CreateTableProps> = ({
     databaseName,
     setTableCreated,
 }) => {
-    const [state, setState] = React.useState<CreateTableState>({ tableSchema });
+    const [schema, setSchema] = React.useState<CreateTableState>({ tableSchema });
+    const onTableCreateClick = () => {
+        setSchema({ ongoing: true, tableSchema });
+        const command = `.create table ${tableName} ${schema.tableSchema}`;
+        queryClient
+            .executeMgmt(databaseName, command)
+            .then((_) => {
+                setSchema({ ongoing: false, tableSchema });
+                setTableCreated(true);
+            })
+            .catch((e) => {
+                setSchema({ ongoing: false, tableSchema, err: e });
+            });
+    };
     return tableCreated ? (
         <p>Table created successfully{String.fromCharCode(10003)}</p>
     ) : (
@@ -34,26 +47,11 @@ export const CreateTable: React.FunctionComponent<CreateTableProps> = ({
             <InputText
                 label="Table schema"
                 onChange={(_, data: string) => {
-                    setState({ tableSchema: data });
+                    setSchema({ tableSchema: data });
                 }}
                 defaultValue={tableSchema || ""}
             />
-            <Button
-                disabled={state.ongoing || !state.tableSchema}
-                onClick={() => {
-                    setState({ ongoing: true, tableSchema });
-                    const command = `.create table ${tableName} ${state.tableSchema}`;
-                    queryClient
-                        .executeMgmt(databaseName, command)
-                        .then((_) => {
-                            setState({ ongoing: false, tableSchema });
-                            setTableCreated(true);
-                        })
-                        .catch((e) => {
-                            setState({ ongoing: false, tableSchema, err: e });
-                        });
-                }}
-            >
+            <Button disabled={schema.ongoing || !schema.tableSchema} onClick={onTableCreateClick}>
                 Create table
             </Button>
         </div>

@@ -10,7 +10,7 @@ interface TextProps {
     error?: string;
     disabled?: boolean;
 }
-export const RowAligned: React.FunctionComponent<{ children: React.ReactNode }> = (props) => {
+export const RowAligned: React.FC<{ children: React.ReactNode }> = (props) => {
     return (
         <div
             style={{
@@ -37,7 +37,7 @@ export const InputText: React.FunctionComponent<TextProps> = (props) => {
             >
                 <Input
                     disabled={props.disabled}
-                    style={{ outlineStyle: "auto", paddingLeft: 5, maxWidth: props.maxWidth || 400, borderColor: "red" }}
+                    style={{ outlineStyle: "auto", paddingLeft: 5, maxWidth: props.maxWidth || 400 }}
                     onChange={(p, v) => {
                         props.onChange(p, v.value);
                     }}

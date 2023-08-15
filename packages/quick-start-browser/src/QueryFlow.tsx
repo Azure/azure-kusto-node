@@ -1,6 +1,8 @@
 import { Button, Spinner, Text } from "@fluentui/react-components";
+import { tokens } from "@fluentui/react-theme";
 import { Client, KustoResponseDataSet } from "azure-kusto-data";
 import React from "react";
+import { GetTakeQuery } from "./CslCommandsGenerator";
 import { ResultTable } from "./ResultTable";
 
 interface QueryFlowProps {
@@ -33,7 +35,7 @@ export const QueryFlow: React.FunctionComponent<QueryFlowProps> = ({ queryClient
                     onClick={() => {
                         setState({ ongoing: true });
                         queryClient
-                            ?.execute(database, table + "| take 10")
+                            ?.execute(database, GetTakeQuery(table, 10))
                             .then((res) => {
                                 setState({ res });
                             })
@@ -42,20 +44,18 @@ export const QueryFlow: React.FunctionComponent<QueryFlowProps> = ({ queryClient
                             });
                     }}
                 >
-                    Run Query ({table + "| take 10"})
+                    Run Query ({GetTakeQuery(table, 10)})
                 </Button>
             )}
 
             {state.res && (
-                <div
-                //  style={{ paddingTop: 30 }}
-                >
+                <div>
                     <ResultTable resultTable={state.res.primaryResults[0]} />
                 </div>
             )}
             <div>
                 {state.err && (
-                    <Text style={{ color: "#e37d80" }}>
+                    <Text style={{ color: tokens.colorPaletteRedForeground1 }}>
                         {`Error ${(state.err as any).response?.data?.error?.code ?? ""}: ${
                             (state.err as any).response?.data?.error["@message"] ?? state.err.message
                         }`}

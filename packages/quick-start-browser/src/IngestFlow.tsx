@@ -2,11 +2,14 @@ import { Button, Dropdown, Link, Option, Spinner, Text } from "@fluentui/react-c
 import { Client } from "azure-kusto-data";
 import { DataFormat, IngestClient } from "azure-kusto-ingest";
 
+import { tokens } from "@fluentui/react-theme";
 import React from "react";
 import { v4 } from "uuid";
 import { BrowseFiles } from "./BrowseFiles";
+import { GetAlterBatchingPolicyCommand, GetCreateOrAlterTable } from "./CslCommandsGenerator";
 import { InputText } from "./InputText";
 import { ConfigData, ConfigJson } from "./UpperFields";
+import { dataFormatMappingKind } from "./Utils";
 
 interface IngestFlowProps {
     ingestClient: IngestClient | null;
@@ -43,7 +46,7 @@ export const IngestFlow: React.FunctionComponent<IngestFlowProps> = ({ ingestCli
             state.err = undefined;
             setState({ ...state });
             if (config.batchingPolicy && !state.btachingSet) {
-                const command = `.alter table ${config.tableName} policy ingestionbatching @"${config.batchingPolicy}"`;
+                const command = GetAlterBatchingPolicyCommand(config.tableName, config.batchingPolicy);
                 await queryClient!.executeMgmt(config.databaseName, command);
                 state.btachingSet = true;
                 setState({ ...state });
@@ -52,12 +55,10 @@ export const IngestFlow: React.FunctionComponent<IngestFlowProps> = ({ ingestCli
             if (mappingValue && !state.mappingSet && !state.configData.useExistingMapping) {
                 const ingestionMappingKind = dataFormatMappingKind(state.configData.format as DataFormat);
                 const mappingName = state.configData.mappingName ? state.configData.mappingName : "DefaultQuickstartMapping" + v4().substring(0, 4);
-                const command = `.create-or-alter table ${
-                    config.tableName
-                } ingestion ${ingestionMappingKind.toLowerCase()} mapping '${mappingName}' '${mappingValue}'`;
+                const command = GetCreateOrAlterTable(config.tableName, ingestionMappingKind, mappingName, mappingValue);
                 await queryClient?.executeMgmt(config.databaseName, command);
             }
-            if (state.fileBlob == "File") {
+            if (state.fileBlob === "File") {
                 await ingestClient?.ingestFromFile(state.file!, {
                     table: config.tableName,
                     database: config.databaseName,
@@ -78,7 +79,7 @@ export const IngestFlow: React.FunctionComponent<IngestFlowProps> = ({ ingestCli
         }
     };
 
-    const canIngest = !ingestClient || !queryClient || (state.fileBlob == "File" ? !state?.file : !state.configData.dataSourceUri);
+    const canIngest = !ingestClient || !queryClient || (state.fileBlob === "File" ? !state?.file : !state.configData.dataSourceUri);
     return (
         <>
             {state.success ? (
@@ -130,16 +131,15 @@ export const IngestFlow: React.FunctionComponent<IngestFlowProps> = ({ ingestCli
                             label="Mapping value"
                             onChange={(_, data: string) => {
                                 state.configData.mappingValue = data;
-                                setState({ ...state });
+                                setState(state);
                             }}
                             defaultValue={state.configData.mappingValue || ""}
                         />
                     )}
-                    {state.fileBlob == "File" ? (
+                    {state.fileBlob === "File" ? (
                         <BrowseFiles
                             setFile={(file: File) => {
-                                state.file = file;
-                                setState({ ...state });
+                                setState((prev) => ({ ...prev, file }));
                             }}
                             fileName={state?.file?.name}
                         />
@@ -155,7 +155,7 @@ export const IngestFlow: React.FunctionComponent<IngestFlowProps> = ({ ingestCli
                     )}
                     {state.ongoing ? (
                         <>
-                            <Spinner></Spinner>
+                            <Spinner />
                             <p>Running query...</p>
                         </>
                     ) : (
@@ -166,7 +166,7 @@ export const IngestFlow: React.FunctionComponent<IngestFlowProps> = ({ ingestCli
                         </div>
                     )}
                     {state?.err && (
-                        <Text style={{ color: "#e37d80" }}>
+                        <Text style={{ color: tokens.colorPaletteRedForeground1 }}>
                             {`Error ${(state.err as any).response?.data?.error?.code ?? ""}: ${
                                 (state.err as any).response?.data?.error["@message"] ?? state.err.message
                             }`}
@@ -176,29 +176,4 @@ export const IngestFlow: React.FunctionComponent<IngestFlowProps> = ({ ingestCli
             )}
         </>
     );
-};
-
-export const dataFormatMappingKind = (dataFormat: DataFormat): any => {
-    switch (dataFormat.toLowerCase()) {
-        case DataFormat.JSON:
-            return "Json";
-        case DataFormat.SINGLEJSON:
-            return "Json";
-        case DataFormat.MULTIJSON:
-            return "Json";
-        case DataFormat.AVRO:
-            return "Avro";
-        case DataFormat.PARQUET:
-            return "Parquet";
-        case DataFormat.SSTREAM:
-            return "Sstream";
-        case DataFormat.ORC:
-            return "Orc";
-        case DataFormat.APACHEAVRO:
-            return "ApacheAvro";
-        case DataFormat.W3CLogFile:
-            return "W3CLogFile";
-        default:
-            return "Csv";
-    }
 };
