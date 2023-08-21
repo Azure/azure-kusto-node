@@ -3,7 +3,6 @@ import { Client } from "azure-kusto-data";
 import { DataFormat, IngestClient } from "azure-kusto-ingest";
 
 import { tokens } from "@fluentui/react-theme";
-import { dataFormatMappingKind } from "azure-kusto-ingest";
 import React from "react";
 import { v4 } from "uuid";
 import { BrowseFiles } from "./BrowseFiles";
@@ -32,6 +31,32 @@ interface IngestState {
     hasMappingValue: boolean;
     fileBlob?: "File" | "Blob";
 }
+
+// TODO remove once exposed in next version of ingest sdk
+export const dataFormatMappingKind = (dataFormat: DataFormat): any => {
+    switch (dataFormat.toLowerCase()) {
+        case DataFormat.JSON:
+            return "Json";
+        case DataFormat.SINGLEJSON:
+            return "Json";
+        case DataFormat.MULTIJSON:
+            return "Json";
+        case DataFormat.AVRO:
+            return "Avro";
+        case DataFormat.PARQUET:
+            return "Parquet";
+        case DataFormat.SSTREAM:
+            return "Sstream";
+        case DataFormat.ORC:
+            return "Orc";
+        case DataFormat.APACHEAVRO:
+            return "ApacheAvro";
+        case DataFormat.W3CLogFile:
+            return "W3CLogFile";
+        default:
+            return "Csv";
+    }
+};
 
 export const IngestFlow: React.FunctionComponent<IngestFlowProps> = ({ ingestClient, config, queryClient }) => {
     const [state, setState] = React.useState<IngestState>({
@@ -64,6 +89,7 @@ export const IngestFlow: React.FunctionComponent<IngestFlowProps> = ({ ingestCli
                     database: config.databaseName,
                     ignoreFirstRecord: config.ignoreFirstRecord,
                     ingestionMappingReference: state.configData.mappingValue ? undefined : state.configData.mappingName,
+                    format: state.configData.format as DataFormat,
                 });
             } else {
                 await ingestClient?.ingestFromBlob(state.configData.dataSourceUri!, {
@@ -86,7 +112,7 @@ export const IngestFlow: React.FunctionComponent<IngestFlowProps> = ({ ingestCli
                 <>
                     <p>Ingestion was queued successfully{checkMark}.</p>
                     <p>
-                        Go to query flow and refresh the query until new records appear. Alternatively go
+                        Go to query flow and refresh the query until new records appear. Alternatively go{" "}
                         {
                             <Link target="_blank" href={`${config.kustoUri}/${config.databaseName}?query=${config.tableName} | top 10 by ingestion_time()`}>
                                 here

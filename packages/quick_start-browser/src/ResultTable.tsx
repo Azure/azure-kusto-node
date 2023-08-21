@@ -11,7 +11,7 @@ import {
     TableColumnDefinition,
     createTableColumn,
 } from "@fluentui/react-components";
-import { KustoResultTable } from "azure-kusto-data";
+import { KustoResultTable } from "azure-kusto-data/types/src/models";
 
 type Row = any[];
 
@@ -27,7 +27,7 @@ const createColumn = (columnId: string, index: number) => {
             return columnId;
         },
         renderCell: (item) => {
-            return <TableCellLayout style={{ minWidth: "100px" }}>{item[index]}</TableCellLayout>;
+            return <TableCellLayout style={{ minWidth: "100px" }}>{JSON.stringify(item[index])}</TableCellLayout>;
         },
     });
 };
@@ -40,7 +40,7 @@ interface GridProps {
 const Grid: React.FunctionComponent<GridProps> = ({ items, columns }) => {
     let x = 0;
     return (
-        <DataGrid items={items} columns={columns} sortable getRowId={(item: any) => `${item}${x++}`} focusMode="composite">
+        <DataGrid style={{ overflow: "auto" }} items={items} columns={columns} sortable getRowId={(item: any) => `${item}${x++}`} focusMode="composite">
             <DataGridHeader>
                 <DataGridRow>{({ renderHeaderCell }) => <DataGridHeaderCell style={{ minWidth: 70 }}>{renderHeaderCell()}</DataGridHeaderCell>}</DataGridRow>
             </DataGridHeader>
