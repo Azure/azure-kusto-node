@@ -33,4 +33,5 @@ Not yet available.
 -   If you are having trouble running the app from your IDE, first check if the app runs from the command line, then consult the troubleshooting references of your IDE.
 
 #### Authenticaiton
-The authentication method used here is using a prompt window. A production app should better authenticate users itself and use the .withTokenProvider builder method of the Kusto clients 
+This example uses @azure/identity InteractiveBrowserCredential, the authentication app id used in this method is taken from the App id field, the app should be granted admin consent to Azure Data Explorer and allow the redirectUri of the url of the runing site. See steps [here](https://github.com/Azure/azure-sdk-for-js/tree/main/sdk/identity/identity/test/manual/interactive-browser-credential)
+A production app should better authenticate users itself and use the "withTokenProvide" builder method of the Kusto client connectionStringBuilder. 

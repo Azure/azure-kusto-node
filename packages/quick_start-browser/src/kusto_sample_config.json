@@ -1,8 +1,8 @@
 {
-    "kustoUri": "https://ohadprivateadx.westeurope.kusto.windows.net",
-    "ingestUri": "https://ingest-ohadprivateadx.westeurope.kusto.windows.net",
-    "databaseName": "OhadTestDB",
-    "tableName": "newTable",
+    "kustoUri": "https://cluster.westeurope.kusto.windows.net",
+    "ingestUri": "https://ingest-cluster.westeurope.kusto.windows.net",
+    "databaseName": "db",
+    "tableName": "table",
     "useExistingTable": true,
     "alterTable": true,
     "queryData": true,

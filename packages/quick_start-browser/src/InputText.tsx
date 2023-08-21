@@ -1,5 +1,6 @@
 import { Field, Input } from "@fluentui/react-components";
 
+export const checkMark = String.fromCharCode(10003);
 interface TextProps {
     required?: boolean;
     label: string;

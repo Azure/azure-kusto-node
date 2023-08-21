@@ -3,13 +3,13 @@ import { Client } from "azure-kusto-data";
 import { DataFormat, IngestClient } from "azure-kusto-ingest";
 
 import { tokens } from "@fluentui/react-theme";
+import { dataFormatMappingKind } from "azure-kusto-ingest";
 import React from "react";
 import { v4 } from "uuid";
 import { BrowseFiles } from "./BrowseFiles";
 import { GetAlterBatchingPolicyCommand, GetCreateOrAlterTable } from "./CslCommandsGenerator";
-import { InputText } from "./InputText";
+import { InputText, checkMark } from "./InputText";
 import { ConfigData, ConfigJson } from "./UpperFields";
-import { dataFormatMappingKind } from "./Utils";
 
 interface IngestFlowProps {
     ingestClient: IngestClient | null;
@@ -84,12 +84,11 @@ export const IngestFlow: React.FunctionComponent<IngestFlowProps> = ({ ingestCli
         <>
             {state.success ? (
                 <>
-                    <p>Ingestion was queued successfully{String.fromCharCode(10003)}.</p>
+                    <p>Ingestion was queued successfully{checkMark}.</p>
                     <p>
-                        {" "}
-                        Go to query flow and refresh the query until new records appear{"\n"}. Alternatively go{" "}
+                        Go to query flow and refresh the query until new records appear. Alternatively go
                         {
-                            <Link target="_blank" href={`${config.kustoUri}/${config.databaseName}?query=${config.tableName} | take 10`}>
+                            <Link target="_blank" href={`${config.kustoUri}/${config.databaseName}?query=${config.tableName} | top 10 by ingestion_time()`}>
                                 here
                             </Link>
                         }

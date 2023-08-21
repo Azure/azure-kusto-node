@@ -17,6 +17,7 @@ import {
     ValidationImplications,
     ValidationOptions,
     ValidationPolicy,
+    dataFormatMappingKind,
 } from "./ingestionProperties";
 
 import {
@@ -76,6 +77,7 @@ export {
     ValidationOptions,
     ValidationPolicy,
     W3CLogFileMapping,
+    dataFormatMappingKind,
 };
 
 /**

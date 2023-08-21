@@ -7,6 +7,7 @@ import CloudSettings from "./cloudSettings";
 import KustoConnectionStringBuilder from "./connectionBuilder";
 import * as KustoDataErrors from "./errors";
 import { kustoTrustedEndpoints, MatchRule } from "./kustoTrustedEndpoints";
+import { KustoResultColumn, KustoResultRow, KustoResultTable } from "./models";
 import { KustoResponseDataSet } from "./response";
 import { toMilliseconds } from "./timeUtils";
 
@@ -19,6 +20,9 @@ export {
     KustoConnectionStringBuilder,
     KustoDataErrors,
     KustoResponseDataSet,
+    KustoResultColumn,
+    KustoResultRow,
+    KustoResultTable,
     kustoTrustedEndpoints,
     MatchRule,
     TimeUtils,

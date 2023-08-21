@@ -1,7 +1,7 @@
 import { Button } from "@fluentui/react-components";
 import { Client } from "azure-kusto-data";
 import React from "react";
-import { InputText } from "./InputText";
+import { InputText, checkMark } from "./InputText";
 
 interface CreateTableProps {
     tableCreated: boolean;
@@ -41,7 +41,7 @@ export const CreateTable: React.FunctionComponent<CreateTableProps> = ({
             });
     };
     return tableCreated ? (
-        <p>Table created successfully{String.fromCharCode(10003)}</p>
+        <p>Table created successfully{checkMark}</p>
     ) : (
         <div style={{ paddingTop: 10 }}>
             <InputText
