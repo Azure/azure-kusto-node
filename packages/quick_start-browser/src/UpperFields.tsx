@@ -107,9 +107,7 @@ export const UpperFields: React.FunctionComponent<UpperFieldsProps> = ({ config,
             </p>
             <p style={{ marginBottom: 0, marginTop: 0 }}>
                 allow the redirectUri of the url of this site {locationToPrint}, see steps
-                <Link href="https://github.com/Azure/azure-sdk-for-js/tree/main/sdk/identity/identity/test/manual/interactive-browser-credential">
-                    here
-                </Link>.
+                <Link href="https://github.com/Azure/azure-sdk-for-js/tree/main/sdk/identity/identity/test/manual/interactive-browser-credential">here</Link>.
             </p>
             {/* TODO - change link to our docs once done */}
             <p style={{ marginTop: 0 }}>
