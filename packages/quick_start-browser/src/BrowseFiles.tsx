@@ -30,12 +30,12 @@ export const BrowseFiles: React.FunctionComponent<BrowseFilesProps> = ({ setFile
                 >
                     <input {...getInputProps()} />
                     <div style={{ margin: "auto", alignItems: "center", flexDirection: "column", display: "flex" }}>
-                        <ArrowUpload16Regular style={{ height: 75, width: 75, marginBottom: 10 }}></ArrowUpload16Regular>
+                        <ArrowUpload16Regular style={{ height: 65, width: 65, marginBottom: 10 }} />
                         <Link>Drop or browse</Link>
                     </div>
                 </div>
             ) : (
-                <DocumentMultiple20Regular style={{ height: 75, width: 75 }}></DocumentMultiple20Regular>
+                <DocumentMultiple20Regular style={{ height: 75, width: 75 }} />
             )}
         </div>
     );
