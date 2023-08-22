@@ -6,7 +6,7 @@ import { tokens } from "@fluentui/react-theme";
 import React from "react";
 import { v4 } from "uuid";
 import { BrowseFiles } from "./BrowseFiles";
-import { GetAlterBatchingPolicyCommand, GetCreateOrAlterTable } from "./CslCommandsGenerator";
+import { GetAlterBatchingPolicyCommand, GetCreateOrAlterTable, GetRefreshPolicyCommand } from "./CslCommandsGenerator";
 import { InputText, checkMark } from "./InputText";
 import { ConfigData, ConfigJson } from "./UpperFields";
 
@@ -14,6 +14,7 @@ interface IngestFlowProps {
     ingestClient: IngestClient | null;
     config: ConfigJson;
     queryClient: Client | null;
+    ingestAdminClient: Client | null;
 }
 
 type FileBlob = "File" | "Blob";
@@ -58,7 +59,7 @@ export const dataFormatMappingKind = (dataFormat: DataFormat): any => {
     }
 };
 
-export const IngestFlow: React.FunctionComponent<IngestFlowProps> = ({ ingestClient, config, queryClient }) => {
+export const IngestFlow: React.FunctionComponent<IngestFlowProps> = ({ ingestClient, config, queryClient, ingestAdminClient }) => {
     const [state, setState] = React.useState<IngestState>({
         configData: config.data[0] ?? ({} as ConfigData),
         ignoreFirstRecord: config.ignoreFirstRecord,
@@ -75,6 +76,8 @@ export const IngestFlow: React.FunctionComponent<IngestFlowProps> = ({ ingestCli
                 await queryClient!.executeMgmt(config.databaseName, command);
                 state.btachingSet = true;
                 setState({ ...state });
+                const commandRefresh = GetRefreshPolicyCommand(config.tableName, config.databaseName);
+                await ingestAdminClient!.executeMgmt(config.databaseName, commandRefresh);
             }
             const mappingValue = state.configData.mappingValue;
             if (mappingValue && !state.mappingSet && !state.configData.useExistingMapping) {

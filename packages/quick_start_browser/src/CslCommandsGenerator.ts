@@ -11,3 +11,7 @@ export const GetAlterBatchingPolicyCommand = (table: string, batchingPolicy: str
 export const GetCreateOrAlterTable = (table: string, ingestionMappingKind: string, mappingName: string, mappingValue: string) => {
     return `.create-or-alter table ${table} ingestion ${ingestionMappingKind.toLowerCase()} mapping '${mappingName}' '${mappingValue}'`;
 };
+
+export const GetRefreshPolicyCommand = (table: string, database: string) => {
+    return `.refresh database '${database}' table '${table}' cache ingestionbatchingpolicy`;
+}

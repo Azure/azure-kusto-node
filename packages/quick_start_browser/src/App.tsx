@@ -41,19 +41,18 @@ function App() {
         }
     }, [config.kustoUri, config.applicationId]);
 
-    const ingestClient = React.useMemo(() => {
+    const { ingestClient, ingestAdminClient } = React.useMemo(() => {
         try {
-            return config.applicationId && config.ingestUri
-                ? new IngestClient(
-                      KustoConnectionStringBuilder.withUserPrompt(config.ingestUri, {
-                          redirectUri: window.location.href,
-                          clientId: config.applicationId,
-                      })
-                  )
-                : null;
-        } catch (error) {
-            return null;
-        }
+            if (config.applicationId && config.ingestUri){
+                const kcsb = KustoConnectionStringBuilder.withUserPrompt(config.ingestUri, {
+                    redirectUri: window.location.href,
+                    clientId: config.applicationId,
+                })
+                return  { ingestClient:new IngestClient(kcsb), ingestAdminClient: new Client(kcsb) };
+            }
+        } catch (error) {}
+        return { ingestClient: null, ingestAdminClient: null};
+        
     }, [config.ingestUri, config.applicationId]);
 
     return (
@@ -117,7 +116,7 @@ function App() {
                 </Dropdown>
             </div>
             {state.ingestOrQuery === "Ingest" ? (
-                <IngestFlow ingestClient={ingestClient} config={config} queryClient={queryClient}></IngestFlow>
+                <IngestFlow ingestClient={ingestClient} config={config} queryClient={queryClient} ingestAdminClient={ingestAdminClient}></IngestFlow>
             ) : (
                 <QueryFlow
                     useExistingTable={config.useExistingTable}
