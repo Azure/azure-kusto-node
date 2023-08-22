@@ -32,7 +32,7 @@ module.exports = {
     ],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
-        "project": ["tsconfig.json","packages/azure-kusto-data/tsconfig.json","packages/azure-kusto-ingest/tsconfig.json","packages/quick_start/tsconfig.json","packages/quick_start-browser/tsconfig.json"],
+        "project": ["tsconfig.json","packages/azure-kusto-data/tsconfig.json","packages/azure-kusto-ingest/tsconfig.json","packages/quick_start/tsconfig.json","packages/quick_start_browser/tsconfig.json"],
         "sourceType": "module"
     },
     "plugins": [
