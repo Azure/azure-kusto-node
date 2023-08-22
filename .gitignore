@@ -327,8 +327,9 @@ __main.js
 *.d.ts.map
 *.d.ts
 
-# We still want example.js files
+# We still want example files
 !example.js
+!config-overrides.js
 
 **/.nyc_output
 **/coverage
