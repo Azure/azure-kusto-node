@@ -14,8 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- sample app for browser auth and run from react vite
-- Export from index.ts more classes that are exposed to user
+-   sample app for browser auth and run from react vite
+-   Export from index.ts more classes that are exposed to user
 
 ## [5.2.0] - 2023-07-18
 
