@@ -43,16 +43,15 @@ function App() {
 
     const { ingestClient, ingestAdminClient } = React.useMemo(() => {
         try {
-            if (config.applicationId && config.ingestUri){
+            if (config.applicationId && config.ingestUri) {
                 const kcsb = KustoConnectionStringBuilder.withUserPrompt(config.ingestUri, {
                     redirectUri: window.location.href,
                     clientId: config.applicationId,
-                })
-                return  { ingestClient:new IngestClient(kcsb), ingestAdminClient: new Client(kcsb) };
+                });
+                return { ingestClient: new IngestClient(kcsb), ingestAdminClient: new Client(kcsb) };
             }
         } catch (error) {}
-        return { ingestClient: null, ingestAdminClient: null};
-        
+        return { ingestClient: null, ingestAdminClient: null };
     }, [config.ingestUri, config.applicationId]);
 
     return (

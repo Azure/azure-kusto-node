@@ -14,4 +14,4 @@ export const GetCreateOrAlterTable = (table: string, ingestionMappingKind: strin
 
 export const GetRefreshPolicyCommand = (table: string, database: string) => {
     return `.refresh database '${database}' table '${table}' cache ingestionbatchingpolicy`;
-}
+};
