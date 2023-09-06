@@ -127,7 +127,6 @@ describe("kustoTrustedEndpoints", function () {
             `https://kusto.aria.microsoft.com,${DEFAULT_PUBLIC_LOGIN_URL}`,
             `https://ade.applicationinsights.io,${DEFAULT_PUBLIC_LOGIN_URL}`,
             `https://adx.monitor.azure.com,${DEFAULT_PUBLIC_LOGIN_URL}`,
-            `https://cluster.azureplayfab.com,${DEFAULT_PUBLIC_LOGIN_URL}`,
             `https://cluster.playfab.com,${DEFAULT_PUBLIC_LOGIN_URL}`,
             `https://cluster.playfabapi.com,${DEFAULT_PUBLIC_LOGIN_URL}`,
             `https://cluster.playfab.cn,${CHINA_CLOUD_LOGIN}`,
