@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import axios from "axios";
+import { isNode } from "@azure/core-util";
 
 export type CloudInfo = {
     LoginEndpoint: string;
@@ -61,11 +62,13 @@ class CloudSettings {
                 throw new Error(`Kusto returned an invalid cloud metadata response - ${response}`);
             }
         } catch (ex) {
-            if (axios.isAxiosError(ex) && ex.response?.status === 404) {
-                // For now as long not all proxies implement the metadata endpoint, if no endpoint exists return public cloud data
-                this.cloudCache[kustoUri] = this.defaultCloudInfo;
-            } else {
-                throw new Error(`Failed to get cloud info for cluster ${kustoUri} - ${ex}`);
+            if (axios.isAxiosError(ex)){
+                if (ex.response?.status === 404 || !isNode) {
+                    // For now as long not all proxies implement the metadata endpoint, if no endpoint exists return public cloud data
+                    this.cloudCache[kustoUri] = this.defaultCloudInfo;
+                } else {
+                    throw new Error(`Failed to get cloud info for cluster ${kustoUri} - ${ex}`);
+                }
             }
         }
         return this.cloudCache[kustoUri];
