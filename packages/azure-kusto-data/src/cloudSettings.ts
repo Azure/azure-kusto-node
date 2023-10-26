@@ -62,7 +62,7 @@ class CloudSettings {
                 throw new Error(`Kusto returned an invalid cloud metadata response - ${response}`);
             }
         } catch (ex) {
-            if (axios.isAxiosError(ex)){
+            if (axios.isAxiosError(ex)) {
                 if (ex.response?.status === 404 || !isNode) {
                     // For now as long not all proxies implement the metadata endpoint, if no endpoint exists return public cloud data
                     this.cloudCache[kustoUri] = this.defaultCloudInfo;
