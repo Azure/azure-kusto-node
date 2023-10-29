@@ -1,6 +1,8 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 import { Button, Dropdown, Link, Option, Spinner, Text } from "@fluentui/react-components";
 import { Client } from "azure-kusto-data";
-import { DataFormat, IngestClient } from "azure-kusto-ingest";
+import { DataFormat, IngestClient, dataFormatMappingKind } from "azure-kusto-ingest";
 
 import { tokens } from "@fluentui/react-theme";
 import React from "react";
@@ -32,32 +34,6 @@ interface IngestState {
     hasMappingValue: boolean;
     fileBlob?: "File" | "Blob";
 }
-
-// TODO remove once exposed in next version of ingest sdk
-export const dataFormatMappingKind = (dataFormat: DataFormat): any => {
-    switch (dataFormat.toLowerCase()) {
-        case DataFormat.JSON:
-            return "Json";
-        case DataFormat.SINGLEJSON:
-            return "Json";
-        case DataFormat.MULTIJSON:
-            return "Json";
-        case DataFormat.AVRO:
-            return "Avro";
-        case DataFormat.PARQUET:
-            return "Parquet";
-        case DataFormat.SSTREAM:
-            return "Sstream";
-        case DataFormat.ORC:
-            return "Orc";
-        case DataFormat.APACHEAVRO:
-            return "ApacheAvro";
-        case DataFormat.W3CLogFile:
-            return "W3CLogFile";
-        default:
-            return "Csv";
-    }
-};
 
 export const IngestFlow: React.FunctionComponent<IngestFlowProps> = ({ ingestClient, config, queryClient, ingestAdminClient }) => {
     const [state, setState] = React.useState<IngestState>({

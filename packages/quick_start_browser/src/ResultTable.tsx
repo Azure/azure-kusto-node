@@ -11,7 +11,7 @@ import {
     TableColumnDefinition,
     createTableColumn,
 } from "@fluentui/react-components";
-import { KustoResultTable } from "azure-kusto-data/types/src/models";
+import { KustoResultTable } from "azure-kusto-data";
 
 type Row = any[];
 
