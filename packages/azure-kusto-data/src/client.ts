@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { isNode } from "@azure/core-util";
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosRequestHeaders } from "axios";
+import axios, { AxiosInstance, AxiosRequestConfig, RawAxiosRequestHeaders } from "axios";
 import http from "http";
 import https from "https";
 import { v4 as uuidv4 } from "uuid";
@@ -59,7 +59,7 @@ export class KustoClient {
         };
         this.aadHelper = new AadHelper(this.connectionString);
 
-        let headers: AxiosRequestHeaders = {
+        let headers: RawAxiosRequestHeaders = {
             Accept: "application/json",
         };
 
@@ -88,7 +88,7 @@ export class KustoClient {
         this.axiosInstance = axios.create(axiosProps);
     }
 
-    async execute(db: string | null, query: string, properties?: ClientRequestProperties) {
+    async execute(db: string | null, query: string, properties?: ClientRequestProperties): Promise<KustoResponseDataSet> {
         query = query.trim();
         if (query.startsWith(MGMT_PREFIX)) {
             return this.executeMgmt(db, query, properties);
@@ -97,15 +97,15 @@ export class KustoClient {
         return this.executeQuery(db, query, properties);
     }
 
-    async executeQuery(db: string | null, query: string, properties?: ClientRequestProperties) {
+    async executeQuery(db: string | null, query: string, properties?: ClientRequestProperties): Promise<KustoResponseDataSet> {
         return this._execute(this.endpoints[ExecutionType.Query], ExecutionType.Query, db, { query }, properties);
     }
 
-    async executeQueryV1(db: string | null, query: string, properties?: ClientRequestProperties) {
+    async executeQueryV1(db: string | null, query: string, properties?: ClientRequestProperties): Promise<KustoResponseDataSet> {
         return this._execute(this.endpoints[ExecutionType.QueryV1], ExecutionType.QueryV1, db, { query }, properties);
     }
 
-    async executeMgmt(db: string | null, query: string, properties?: ClientRequestProperties) {
+    async executeMgmt(db: string | null, query: string, properties?: ClientRequestProperties): Promise<KustoResponseDataSet> {
         return this._execute(this.endpoints[ExecutionType.Mgmt], ExecutionType.Mgmt, db, { query }, properties);
     }
 
@@ -301,7 +301,7 @@ export class KustoClient {
         return executionType === ExecutionType.Query || executionType === ExecutionType.QueryV1 ? QUERY_TIMEOUT_IN_MILLISECS : COMMAND_TIMEOUT_IN_MILLISECS;
     }
 
-    public close() {
+    public close(): void {
         if (!this._isClosed) {
             this.cancelToken.cancel("Client Closed");
         }
