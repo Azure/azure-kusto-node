@@ -7,9 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unversioned
 
+## [5.2.2] - 2023-10-30
+
 ### Added
 
 -   Support new playfab domain
+
+### Fixed
+
+-   Fix browser support for proxy clusters (with no metadata)
 
 ## [5.2.1] - 2023-08-22
 

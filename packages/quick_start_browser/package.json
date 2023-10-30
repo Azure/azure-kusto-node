@@ -1,6 +1,6 @@
 {
   "name": "azure-kusto-quick-start-browser",
-  "version": "5.2.0",
+  "version": "5.2.2",
   "description": "Quick start browser react-vite sample app",
   "type": "module",
   "scripts": {
