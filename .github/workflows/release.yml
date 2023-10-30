@@ -28,7 +28,7 @@ jobs:
           args: packages/azure-kusto-data/*.tgz packages/azure-kusto-ingest/*.tgz packages/quick_start/*.tgz
       - name: Publish new versions
         run: |
-          npm install -g npm@latest
+          npm install -g npm@9.9.0
           npm ci
           npm run build
           lerna publish from-git --yes
