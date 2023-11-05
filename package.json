@@ -51,9 +51,6 @@
         "typescript": "^5.0.0",
         "webpack-cli": "^5.0.1"
     },
-    "overrides": {
-        "jsonwebtoken": "^9.0.0"
-    },
     "workspaces": [
         "packages/azure-kusto-data",
         "packages/azure-kusto-ingest"
