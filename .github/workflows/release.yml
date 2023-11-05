@@ -29,8 +29,7 @@ jobs:
       - name: Publish new versions
         run: |
           npm install -g npm@9.9.0
-          npm install --save-dev @nrwl/nx-linux-arm64-musl
-          npm ci
+          npm ci --include=optional
           npm run build
           lerna publish from-git --yes
         env:
