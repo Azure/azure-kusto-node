@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.2.2] - 2023-10-30
 
+### Fixed
+
+-  Bump @azure/identity to 3.3.2
+-  Fix nx on CI build
+
+## [5.2.2] - 2023-10-30
+
 ### Added
 
 -   Support new playfab domain
