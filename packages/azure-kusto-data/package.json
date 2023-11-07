@@ -1,6 +1,6 @@
 {
     "name": "azure-kusto-data",
-    "version": "5.2.2",
+    "version": "5.2.3",
     "description": "Azure Data Explorer Query SDK",
     "module": "dist-esm/src/index.js",
     "types": "./types/src/index.d.ts",
@@ -65,6 +65,5 @@
         "stream-http": "^3.2.0",
         "uuid": "^8.3.2"
     },
-
     "gitHead": "f8a5dae26d6d2ca2ab8b95953bb9b88a02e8e35d"
 }
