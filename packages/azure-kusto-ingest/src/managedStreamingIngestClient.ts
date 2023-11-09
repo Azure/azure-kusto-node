@@ -153,7 +153,7 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
                         clientRequestId ??
                         `KNC.executeManagedStreamingIngest${isBlob ? "FromBlob" : "FromStream"};${descriptor.sourceId};${retry.currentAttempt}`;
                     if (isBlob) {
-                        return this.streamingIngestClient.ingestFromBlob(descriptor as BlobDescriptor, props, sourceId);
+                        return await this.streamingIngestClient.ingestFromBlob(descriptor as BlobDescriptor, props, sourceId);
                     }
 
                     if (isNode) {

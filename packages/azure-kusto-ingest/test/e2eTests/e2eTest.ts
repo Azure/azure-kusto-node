@@ -286,12 +286,12 @@ const main = (): void => {
                         return { item: i };
                     })
             )("ingestFromBlob_$item.description", async ({ item }) => {
-                const resourceManager = new ResourceManager(dmKustoClient);
-                const blob = await resourceManager.getBlockBlobClient(uuidv4() + pathlib.basename(item.path));
-                await blob.uploadFile(item.path);
+                const blobName = uuidv4() + pathlib.basename(item.path);
+                const blobUri = await ingestClient.uploadToBlobWithRetry(item.path, blobName);
+
                 const table = tableNames[("streaming_blob" + "_" + item.description) as Table];
                 try {
-                    await streamingIngestClient.ingestFromBlob(blob.url, item.ingestionPropertiesCallback(table));
+                    await streamingIngestClient.ingestFromBlob(blobUri, item.ingestionPropertiesCallback(table));
                 } catch (err) {
                     assert.fail(`Failed to ingest ${item.description} - ${util.format(err)}`);
                 }

@@ -25,13 +25,12 @@ export class KustoIngestClient extends KustoIngestClientBase {
         const blob = descriptor.file as Blob;
         const props = this._getMergedProps(ingestionProperties);
 
-        const [fileToUpload, blockBlobClient] = await Promise.all([
-            descriptor.prepare(),
-            this.resourceManager.getBlockBlobClient(generateBlobName(descriptor, props)),
-        ]);
+        const fileToUpload = await descriptor.prepare();
+        const blobName = generateBlobName(descriptor, props)
 
-        await blockBlobClient.uploadData(fileToUpload);
-        return this.ingestFromBlob(new BlobDescriptor(blockBlobClient.url, blob.size, descriptor.sourceId), props);
+        const blobUri = await this.uploadToBlobWithRetry(fileToUpload, blobName);
+
+        return this.ingestFromBlob(new BlobDescriptor(blobUri, blob.size, descriptor.sourceId), props);
     }
 
     /**
@@ -42,10 +41,8 @@ export class KustoIngestClient extends KustoIngestClientBase {
         const props = this._getMergedProps(ingestionProperties);
         const descriptor: StreamDescriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
         const blobName = generateBlobName(descriptor, props);
-
-        const blockBlobClient = await this.resourceManager.getBlockBlobClient(blobName);
-        await blockBlobClient.uploadData(descriptor.stream as ArrayBuffer);
-        return this.ingestFromBlob(new BlobDescriptor(blockBlobClient.url), props); // descriptor.size?
+        const blobUri = await this.uploadToBlobWithRetry(descriptor, blobName);
+        return this.ingestFromBlob(new BlobDescriptor(blobUri), props); // descriptor.size?
     }
 }
 
