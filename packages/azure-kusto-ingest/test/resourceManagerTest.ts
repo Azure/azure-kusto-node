@@ -133,7 +133,7 @@ describe("ResourceManager", () => {
             assert.notStrictEqual(queues[1].accountName, queues[2].accountName);
             assert.notStrictEqual(queues[3].accountName, queues[4].accountName);
             assert.notStrictEqual(queues[4].accountName, queues[5].accountName);
-        })
+        });
     });
 
     describe("#getContainers()", () => {
@@ -149,6 +149,6 @@ describe("ResourceManager", () => {
             assert.notStrictEqual(queues[1].accountName, queues[2].accountName);
             assert.notStrictEqual(queues[3].accountName, queues[4].accountName);
             assert.notStrictEqual(queues[4].accountName, queues[5].accountName);
-        })
+        });
     });
 });

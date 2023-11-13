@@ -55,10 +55,9 @@ describe(`Browser Unit tests`, () => {
             });
 
             const queuedStub = sinon.stub(mockedIngestClient, "ingestFromBlob");
-            queuedStub. resolves({} as QueueSendMessageResponse);
+            queuedStub.resolves({} as QueueSendMessageResponse);
             const blobUploadStub = sinon.stub(mockedIngestClient, "uploadToBlobWithRetry");
             blobUploadStub.resolves("https://storage.blob.windows.net/container/file.json.gz");
-
 
             await mockedIngestClient.ingestFromFile({} as Blob);
             sandbox.assert.calledOnce(queuedStub);

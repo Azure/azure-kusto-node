@@ -15,7 +15,6 @@ import { BlobDescriptor, StreamDescriptor } from "./descriptors";
 import ResourceManager from "./resourceManager";
 import IngestionBlobInfo from "./ingestionBlobInfo";
 
-
 export abstract class KustoIngestClientBase extends AbstractKustoClient {
     resourceManager: ResourceManager;
 
@@ -28,7 +27,11 @@ export abstract class KustoIngestClientBase extends AbstractKustoClient {
         this.defaultDatabase = kustoClient.defaultDatabase;
     }
 
-    async ingestFromBlob(blob: string | BlobDescriptor, ingestionProperties?: IngestionPropertiesInput, maxRetries: number = KustoIngestClientBase.MaxNumberOfRetryAttempts): Promise<QueueSendMessageResponse> {
+    async ingestFromBlob(
+        blob: string | BlobDescriptor,
+        ingestionProperties?: IngestionPropertiesInput,
+        maxRetries: number = KustoIngestClientBase.MaxNumberOfRetryAttempts
+    ): Promise<QueueSendMessageResponse> {
         this.ensureOpen();
 
         const props = this._getMergedProps(ingestionProperties);
@@ -48,8 +51,7 @@ export abstract class KustoIngestClientBase extends AbstractKustoClient {
 
         for (let i = 0; i < retryCount; i++) {
             const queueClient = new QueueClient(queues[i].uri);
-            try
-            {
+            try {
                 const queueResponse = await queueClient.sendMessage(encoded);
                 this.resourceManager.reportResourceUsageResult(queueClient.accountName, true);
                 return queueResponse;
@@ -60,8 +62,11 @@ export abstract class KustoIngestClientBase extends AbstractKustoClient {
         throw new Error("Failed to send message to queue.");
     }
 
-    async uploadToBlobWithRetry(descriptor: string | Blob | StreamDescriptor ,blobName: string, maxRetries: number = KustoIngestClientBase.MaxNumberOfRetryAttempts) : Promise<string>
-    {
+    async uploadToBlobWithRetry(
+        descriptor: string | Blob | StreamDescriptor,
+        blobName: string,
+        maxRetries: number = KustoIngestClientBase.MaxNumberOfRetryAttempts
+    ): Promise<string> {
         const containers = await this.resourceManager.getContainers();
 
         if (containers == null || containers.length === 0) {
@@ -78,13 +83,12 @@ export abstract class KustoIngestClientBase extends AbstractKustoClient {
                 if (typeof descriptor == "string") {
                     await blockBlobClient.uploadFile(descriptor);
                 } else if (descriptor instanceof StreamDescriptor) {
-                    if (descriptor.stream instanceof Buffer)
-                    {
+                    if (descriptor.stream instanceof Buffer) {
                         await blockBlobClient.uploadData(descriptor.stream as Buffer);
                     } else if (descriptor.stream instanceof Readable) {
                         await blockBlobClient.uploadStream(descriptor.stream as Readable);
                     } else if (descriptor.stream instanceof ArrayBuffer) {
-                        await blockBlobClient.uploadData(descriptor.stream as ArrayBuffer)
+                        await blockBlobClient.uploadData(descriptor.stream as ArrayBuffer);
                     }
                 } else {
                     // for browser blob type

@@ -163,8 +163,7 @@ export class ResourceManager {
         return result;
     }
 
-    getRoundRobinRankedAndShuffledResources(resources: ResourceURI[]): ResourceURI[]
-    {
+    getRoundRobinRankedAndShuffledResources(resources: ResourceURI[]): ResourceURI[] {
         const rankedAccounts = this.getRankedAndShuffledStorageAccounts(resources);
         const result = new Array<ResourceURI>();
         let index = 0;

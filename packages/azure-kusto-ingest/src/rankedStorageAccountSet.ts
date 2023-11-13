@@ -7,7 +7,9 @@ export class RankedStorageAccountSet {
     public static readonly DefaultNumberOfBuckets: number = 6;
     public static readonly DefaultBucketDurationInSeconds: number = 10;
     public static readonly DefaultTiers: number[] = [90, 70, 30, 0];
-    public static readonly DefaultTimeProviderInSeconds: () => number = () => { return new Date().getTime() / 1000 };
+    public static readonly DefaultTimeProviderInSeconds: () => number = () => {
+        return new Date().getTime() / 1000;
+    };
 
     private accounts: Map<string, RankedStorageAccount>;
     private numberOfBuckets: number;
@@ -29,36 +31,32 @@ export class RankedStorageAccountSet {
     }
 
     logResultToAccount(accountName: string, result: boolean) {
-        if (!this.accounts.has(accountName))
-        {
+        if (!this.accounts.has(accountName)) {
             throw new Error("Storage account name is not part of the set.");
         }
         this.accounts.get(accountName)?.logResult(result);
     }
 
-    registerStorageAccount(accountName: string)
-    {
-        if (this.accounts.has(accountName))
-        {
+    registerStorageAccount(accountName: string) {
+        if (this.accounts.has(accountName)) {
             return;
         }
         this.accounts.set(accountName, new RankedStorageAccount(accountName, this.numberOfBuckets, this.bucketDuration, this.timeProvider));
     }
 
-    getStorageAccount(accountName: string) : RankedStorageAccount {
+    getStorageAccount(accountName: string): RankedStorageAccount {
         const account = this.accounts.get(accountName);
-        if (account)
-        {
+        if (account) {
             return account;
         }
-        throw new Error("Storage account name is not part of the set.")
+        throw new Error("Storage account name is not part of the set.");
     }
 
     getRankedShuffledAccounts(): RankedStorageAccount[] {
         const accountsByTier: RankedStorageAccount[][] = new Array<RankedStorageAccount[]>(this.tiers.length);
 
         // Group accounts by tier and rank
-        this.accounts.forEach( (account: RankedStorageAccount) => {
+        this.accounts.forEach((account: RankedStorageAccount) => {
             const rank = account.getRank() * 100;
             for (let i = 0; i < this.tiers.length; i++) {
                 if (rank >= this.tiers[i]) {
@@ -82,4 +80,3 @@ export class RankedStorageAccountSet {
         return accountsByTier.flat();
     }
 }
-

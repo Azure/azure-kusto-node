@@ -68,15 +68,17 @@ describe("RankedStorageAccountSet", () => {
             const set1 = new Set(shuffledAccounts1);
             const set2 = new Set(shuffledAccounts2);
             // check intersection
-            const intersection = new Set([...set1].filter(x => !set2.has(x)));
+            const intersection = new Set([...set1].filter((x) => !set2.has(x)));
             assert.equal(intersection.size, 0);
             // Check that the order is different
-            assert.notDeepEqual(shuffledAccounts1, shuffledAccounts2)
+            assert.notDeepEqual(shuffledAccounts1, shuffledAccounts2);
         });
 
         it("Validate rank when success rate is different.", () => {
             let time = 0;
-            const accounts = new RankedStorageAccountSet(undefined, undefined, undefined, () => {return time});
+            const accounts = new RankedStorageAccountSet(undefined, undefined, undefined, () => {
+                return time;
+            });
             // Register accounts
             for (let i = 1; i <= 5; i++) {
                 accounts.registerStorageAccount("account_" + i.toString());
@@ -100,13 +102,15 @@ describe("RankedStorageAccountSet", () => {
             assert.equal(accounts.getStorageAccount("account_1").getRank(), 1);
             expect(accounts.getStorageAccount("account_2").getRank()).toBeCloseTo(0.9);
             assert.equal(accounts.getStorageAccount("account_3").getRank(), 0.5);
-            expect(accounts.getStorageAccount("account_4").getRank()).toBeCloseTo(0.32)
+            expect(accounts.getStorageAccount("account_4").getRank()).toBeCloseTo(0.32);
             assert.equal(accounts.getStorageAccount("account_5").getRank(), 0);
         });
 
         it("Validate that newer results have more weight.", () => {
             let time = 0;
-            const accounts = new RankedStorageAccountSet(undefined, 1, undefined, () => {return time})
+            const accounts = new RankedStorageAccountSet(undefined, 1, undefined, () => {
+                return time;
+            });
             // Register accounts
             accounts.registerStorageAccount("account_1");
             // log results
