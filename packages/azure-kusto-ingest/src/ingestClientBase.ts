@@ -63,7 +63,7 @@ export abstract class KustoIngestClientBase extends AbstractKustoClient {
     }
 
     async uploadToBlobWithRetry(
-        descriptor: string | Blob | StreamDescriptor,
+        descriptor: string | Blob | ArrayBuffer | StreamDescriptor,
         blobName: string,
         maxRetries: number = KustoIngestClientBase.MaxNumberOfRetryAttempts
     ): Promise<string> {
@@ -85,11 +85,11 @@ export abstract class KustoIngestClientBase extends AbstractKustoClient {
                 } else if (descriptor instanceof StreamDescriptor) {
                     if (descriptor.stream instanceof Buffer) {
                         await blockBlobClient.uploadData(descriptor.stream as Buffer);
-                    } else if (descriptor.stream instanceof Readable) {
+                    } else {
                         await blockBlobClient.uploadStream(descriptor.stream as Readable);
-                    } else if (descriptor.stream instanceof ArrayBuffer) {
-                        await blockBlobClient.uploadData(descriptor.stream as ArrayBuffer);
                     }
+                } else if (descriptor instanceof ArrayBuffer) {
+                    await blockBlobClient.uploadData(descriptor);
                 } else {
                     // for browser blob type
                     await blockBlobClient.uploadData(descriptor);

@@ -41,7 +41,7 @@ export class KustoIngestClient extends KustoIngestClientBase {
         const props = this._getMergedProps(ingestionProperties);
         const descriptor: StreamDescriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
         const blobName = generateBlobName(descriptor, props);
-        const blobUri = await this.uploadToBlobWithRetry(descriptor, blobName);
+        const blobUri = await this.uploadToBlobWithRetry(descriptor.stream as ArrayBuffer, blobName);
         return this.ingestFromBlob(new BlobDescriptor(blobUri), props); // descriptor.size?
     }
 }
