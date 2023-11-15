@@ -12,22 +12,14 @@ export class RankedStorageAccountSet {
     };
 
     private accounts: Map<string, RankedStorageAccount>;
-    private numberOfBuckets: number;
-    private bucketDuration: number;
-    private tiers: number[];
-    private timeProvider: () => number;
 
     constructor(
-        numberOfBuckets: number = RankedStorageAccountSet.DefaultNumberOfBuckets,
-        bucketDuration: number = RankedStorageAccountSet.DefaultBucketDurationInSeconds,
-        tiers: number[] = RankedStorageAccountSet.DefaultTiers,
-        timeProvider: () => number = RankedStorageAccountSet.DefaultTimeProviderInSeconds
+        private numberOfBuckets: number = RankedStorageAccountSet.DefaultNumberOfBuckets,
+        private bucketDuration: number = RankedStorageAccountSet.DefaultBucketDurationInSeconds,
+        private tiers: number[] = RankedStorageAccountSet.DefaultTiers,
+        private timeProvider: () => number = RankedStorageAccountSet.DefaultTimeProviderInSeconds
     ) {
         this.accounts = new Map<string, RankedStorageAccount>();
-        this.numberOfBuckets = numberOfBuckets;
-        this.bucketDuration = bucketDuration;
-        this.tiers = tiers;
-        this.timeProvider = timeProvider;
     }
 
     logResultToAccount(accountName: string, result: boolean) {
@@ -56,18 +48,12 @@ export class RankedStorageAccountSet {
         const accountsByTier: RankedStorageAccount[][] = new Array<RankedStorageAccount[]>(this.tiers.length);
 
         // Group accounts by tier and rank
-        this.accounts.forEach((account: RankedStorageAccount) => {
+        for (const account of this.accounts.values()) {
             const rank = account.getRank() * 100;
-            for (let i = 0; i < this.tiers.length; i++) {
-                if (rank >= this.tiers[i]) {
-                    if (!accountsByTier[i]) {
-                        accountsByTier[i] = [];
-                    }
-                    accountsByTier[i].push(account);
-                    break;
-                }
-            }
-        });
+            const tierInedx = this.tiers.findIndex((tier) => rank >= tier);
+            accountsByTier[tierInedx] = accountsByTier[tierInedx] || [];
+            accountsByTier[tierInedx].push(account);
+        }
 
         // Shuffle each tier
         for (let i = 0; i < this.tiers.length; i++) {

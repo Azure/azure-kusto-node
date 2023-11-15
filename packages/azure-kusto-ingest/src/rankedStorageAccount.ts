@@ -1,41 +1,33 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 class StorageAccountStats {
-    public SuccessCount: number;
-    public TotalCount: number;
+    public successCount: number;
+    public totalCount: number;
 
     constructor() {
-        this.SuccessCount = 0;
-        this.TotalCount = 0;
+        this.successCount = 0;
+        this.totalCount = 0;
     }
 
-    log_result(success: boolean): void {
-        this.TotalCount += 1;
+    logResult(success: boolean): void {
+        this.totalCount += 1;
         if (success) {
-            this.SuccessCount += 1;
+            this.successCount += 1;
         }
     }
 
     reset(): void {
-        this.SuccessCount = 0;
-        this.TotalCount = 0;
+        this.successCount = 0;
+        this.totalCount = 0;
     }
 }
 
 export class RankedStorageAccount {
-    private accountName: string;
-    private numberOfBuckets: number;
-    private bucketDuration: number;
-    private timeProvider: () => number;
     private buckets: StorageAccountStats[];
     private lastUpdateTime: number;
     private currentBucketIndex: number;
 
-    constructor(accountName: string, numberOfBuckets: number, bucketDuration: number, timeProvider: () => number) {
-        this.accountName = accountName;
-        this.numberOfBuckets = numberOfBuckets;
-        this.bucketDuration = bucketDuration;
-        this.timeProvider = timeProvider;
+    constructor(private accountName: string, private numberOfBuckets: number, private bucketDuration: number, private timeProvider: () => number) {
         this.buckets = new Array<StorageAccountStats>(numberOfBuckets).fill(new StorageAccountStats()).map(() => new StorageAccountStats());
         this.lastUpdateTime = this.timeProvider();
         this.currentBucketIndex = 0;
@@ -43,7 +35,7 @@ export class RankedStorageAccount {
 
     logResult(success: boolean): void {
         this.currentBucketIndex = this.adjustForTimePassed();
-        this.buckets[this.currentBucketIndex].log_result(success);
+        this.buckets[this.currentBucketIndex].logResult(success);
     }
 
     getAccountName(): string {
@@ -74,10 +66,10 @@ export class RankedStorageAccount {
         for (let i = 1; i <= this.numberOfBuckets; i++) {
             const bucketIndex: number = (this.currentBucketIndex + i) % this.numberOfBuckets;
             const bucket: StorageAccountStats = this.buckets[bucketIndex];
-            if (bucket.TotalCount === 0) {
+            if (bucket.totalCount === 0) {
                 continue;
             }
-            const successRate: number = bucket.SuccessCount / bucket.TotalCount;
+            const successRate: number = bucket.successCount / bucket.totalCount;
             rank += successRate * i;
             totalWeight += i;
         }

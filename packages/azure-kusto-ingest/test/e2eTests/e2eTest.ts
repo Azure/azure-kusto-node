@@ -19,7 +19,6 @@ import ManagedStreamingIngestClient from "../../src/managedStreamingIngestClient
 import { CompressionType, StreamDescriptor } from "../../src/descriptors";
 import { DataFormat, IngestionProperties, JsonColumnMapping, ReportLevel } from "../../src";
 import { sleep } from "../../src/retry";
-import ResourceManager from "../../src/resourceManager";
 
 import assert from "assert";
 import fs, { ReadStream } from "fs";

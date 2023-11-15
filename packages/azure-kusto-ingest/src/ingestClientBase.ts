@@ -88,10 +88,7 @@ export abstract class KustoIngestClientBase extends AbstractKustoClient {
                     } else {
                         await blockBlobClient.uploadStream(descriptor.stream as Readable);
                     }
-                } else if (descriptor instanceof ArrayBuffer) {
-                    await blockBlobClient.uploadData(descriptor);
                 } else {
-                    // for browser blob type
                     await blockBlobClient.uploadData(descriptor);
                 }
                 this.resourceManager.reportResourceUsageResult(containerClient.accountName, true);
