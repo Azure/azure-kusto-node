@@ -19,7 +19,6 @@ import ManagedStreamingIngestClient from "../../src/managedStreamingIngestClient
 import { CompressionType, StreamDescriptor } from "../../src/descriptors";
 import { DataFormat, IngestionProperties, JsonColumnMapping, ReportLevel } from "../../src";
 import { sleep } from "../../src/retry";
-import ResourceManager from "../../src/resourceManager";
 
 import assert from "assert";
 import fs, { ReadStream } from "fs";
@@ -286,12 +285,12 @@ const main = (): void => {
                         return { item: i };
                     })
             )("ingestFromBlob_$item.description", async ({ item }) => {
-                const resourceManager = new ResourceManager(dmKustoClient);
-                const blob = await resourceManager.getBlockBlobClient(uuidv4() + pathlib.basename(item.path));
-                await blob.uploadFile(item.path);
+                const blobName = uuidv4() + pathlib.basename(item.path);
+                const blobUri = await ingestClient.uploadToBlobWithRetry(item.path, blobName);
+
                 const table = tableNames[("streaming_blob" + "_" + item.description) as Table];
                 try {
-                    await streamingIngestClient.ingestFromBlob(blob.url, item.ingestionPropertiesCallback(table));
+                    await streamingIngestClient.ingestFromBlob(blobUri, item.ingestionPropertiesCallback(table));
                 } catch (err) {
                     assert.fail(`Failed to ingest ${item.description} - ${util.format(err)}`);
                 }

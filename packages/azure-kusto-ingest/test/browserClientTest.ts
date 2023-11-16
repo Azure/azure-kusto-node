@@ -6,16 +6,11 @@
 import assert from "assert";
 import IngestClient from "../src/ingestClient.browser";
 import { KustoConnectionStringBuilder as ConnectionStringBuilder } from "azure-kusto-data/src/connectionBuilder.browser";
-import { Client } from "azure-kusto-data";
 import sinon from "sinon";
-import ResourceManager from "../src/resourceManager";
-import { BlockBlobClient } from "@azure/storage-blob";
 import { QueueSendMessageResponse } from "@azure/storage-queue";
-import { FileDescriptor as BrowserFileDescriptor } from "../src/fileDescriptor.browser";
 
 describe(`Browser Unit tests`, () => {
     const cluster = "https://somecluster.kusto.windows.net";
-    const storage = "https://storage.blob.windows.net/container";
 
     describe("Kcsb", () => {
         it.concurrent("Fail to create non-browser compatible authentication", () => {
@@ -58,20 +53,15 @@ describe(`Browser Unit tests`, () => {
                 table: "t1",
                 database: "d1",
             });
+
             const queuedStub = sinon.stub(mockedIngestClient, "ingestFromBlob");
             queuedStub.resolves({} as QueueSendMessageResponse);
+            const blobUploadStub = sinon.stub(mockedIngestClient, "uploadToBlobWithRetry");
+            blobUploadStub.resolves("https://storage.blob.windows.net/container/file.json.gz");
 
-            const resource = new BlockBlobClient(storage);
-            const resourceStub = sinon.stub(resource, "uploadData");
-            resourceStub.resolves();
-
-            const resourceManager = new ResourceManager(new Client(cluster));
-            const resourceManagerStub = sinon.stub(resourceManager, "getBlockBlobClient");
-            resourceManagerStub.returns(Promise.resolve<BlockBlobClient>(resource));
-            mockedIngestClient.resourceManager = resourceManager;
-            await mockedIngestClient.ingestFromFile(new BrowserFileDescriptor({} as Blob));
+            await mockedIngestClient.ingestFromFile({} as Blob);
             sandbox.assert.calledOnce(queuedStub);
-            sandbox.assert.calledOnce(resourceStub);
+            sandbox.assert.calledOnce(blobUploadStub);
         });
     });
 });

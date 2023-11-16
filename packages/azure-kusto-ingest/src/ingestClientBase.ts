@@ -3,19 +3,22 @@
 
 import { Client as KustoClient, KustoConnectionStringBuilder } from "azure-kusto-data";
 
-import { BlobDescriptor } from "./descriptors";
-
-import ResourceManager from "./resourceManager";
-
-import IngestionBlobInfo from "./ingestionBlobInfo";
+import { ContainerClient } from "@azure/storage-blob";
 
 import { QueueClient, QueueSendMessageResponse } from "@azure/storage-queue";
 
+import { Readable } from "stream";
+
 import { IngestionPropertiesInput } from "./ingestionProperties";
 import { AbstractKustoClient } from "./abstractKustoClient";
+import { BlobDescriptor, StreamDescriptor } from "./descriptors";
+import ResourceManager from "./resourceManager";
+import IngestionBlobInfo from "./ingestionBlobInfo";
 
 export abstract class KustoIngestClientBase extends AbstractKustoClient {
     resourceManager: ResourceManager;
+
+    static readonly MaxNumberOfRetryAttempts = 3;
 
     constructor(kcsb: string | KustoConnectionStringBuilder, defaultProps?: IngestionPropertiesInput, isBrowser?: boolean) {
         super(defaultProps);
@@ -24,7 +27,11 @@ export abstract class KustoIngestClientBase extends AbstractKustoClient {
         this.defaultDatabase = kustoClient.defaultDatabase;
     }
 
-    async ingestFromBlob(blob: string | BlobDescriptor, ingestionProperties?: IngestionPropertiesInput): Promise<QueueSendMessageResponse> {
+    async ingestFromBlob(
+        blob: string | BlobDescriptor,
+        ingestionProperties?: IngestionPropertiesInput,
+        maxRetries: number = KustoIngestClientBase.MaxNumberOfRetryAttempts
+    ): Promise<QueueSendMessageResponse> {
         this.ensureOpen();
 
         const props = this._getMergedProps(ingestionProperties);
@@ -36,16 +43,62 @@ export abstract class KustoIngestClientBase extends AbstractKustoClient {
         }
 
         const authorizationContext = await this.resourceManager.getAuthorizationContext();
-
-        const queueDetails = queues[Math.floor(Math.random() * queues.length)];
-
-        const queueClient = new QueueClient(queueDetails.uri);
-
         const ingestionBlobInfo = new IngestionBlobInfo(descriptor, props, authorizationContext);
         const ingestionBlobInfoJson = JSON.stringify(ingestionBlobInfo);
         const encoded = Buffer.from(ingestionBlobInfoJson).toString("base64");
 
-        return queueClient.sendMessage(encoded);
+        const retryCount = Math.min(maxRetries, queues.length);
+
+        for (let i = 0; i < retryCount; i++) {
+            const queueClient = new QueueClient(queues[i].uri);
+            try {
+                const queueResponse = await queueClient.sendMessage(encoded);
+                this.resourceManager.reportResourceUsageResult(queueClient.accountName, true);
+                return queueResponse;
+            } catch (_) {
+                this.resourceManager.reportResourceUsageResult(queueClient.accountName, false);
+            }
+        }
+        throw new Error("Failed to send message to queue.");
+    }
+
+    async uploadToBlobWithRetry(
+        descriptor: string | Blob | ArrayBuffer | StreamDescriptor,
+        blobName: string,
+        maxRetries: number = KustoIngestClientBase.MaxNumberOfRetryAttempts
+    ): Promise<string> {
+        const containers = await this.resourceManager.getContainers();
+
+        if (containers == null || containers.length === 0) {
+            throw new Error("Failed to get containers");
+        }
+
+        const retryCount = Math.min(maxRetries, containers.length);
+
+        // Go over all containers and try to upload the file to the first one that succeeds
+        for (let i = 0; i < retryCount; i++) {
+            const containerClient = new ContainerClient(containers[i].uri);
+            const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+            try {
+                if (typeof descriptor == "string") {
+                    await blockBlobClient.uploadFile(descriptor);
+                } else if (descriptor instanceof StreamDescriptor) {
+                    if (descriptor.stream instanceof Buffer) {
+                        await blockBlobClient.uploadData(descriptor.stream as Buffer);
+                    } else {
+                        await blockBlobClient.uploadStream(descriptor.stream as Readable);
+                    }
+                } else {
+                    await blockBlobClient.uploadData(descriptor);
+                }
+                this.resourceManager.reportResourceUsageResult(containerClient.accountName, true);
+                return blockBlobClient.url;
+            } catch (ex) {
+                this.resourceManager.reportResourceUsageResult(containerClient.accountName, false);
+            }
+        }
+
+        throw new Error("Failed to upload to blob.");
     }
 
     close() {
