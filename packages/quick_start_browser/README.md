@@ -34,4 +34,16 @@ Not yet available.
 
 #### Authenticaiton
 This example uses @azure/identity InteractiveBrowserCredential, the authentication app id used in this method is taken from the App id field, the app should be granted admin consent to Azure Data Explorer and allow the redirectUri of the url of the runing site. See steps [here](https://github.com/Azure/azure-sdk-for-js/tree/main/sdk/identity/identity/test/manual/interactive-browser-credential)
-A production app should better authenticate users itself and use the "withTokenProvide" builder method of the Kusto client connectionStringBuilder. 
+A production app should better authenticate users itself and use the "withTokenProvide" builder method of the Kusto client connectionStringBuilder.
+
+### Run the app with local changes to the data and ingest packages
+Run `npm run build` on root directory.
+Delete quick_start_browser/node_modules/azure-kust-data
+Delete quick_start_browser/node_modules/azure-kust-ingest
+Delete quick_start_browser/node_modules/.vite
+Delete quick_start_browser/package-lock.json
+cd packages/quick_start_browser directory.
+Run `npm install --save ..\azure-kusto-data\`
+Run `npm install --save ..\azure-kusto-ingest\`
+Run `npm install`
+Run `npm run dev`

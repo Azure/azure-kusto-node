@@ -341,3 +341,5 @@ dist-esm/
 types/
 dist/
 !jest.config.ts
+
+**/quick_start_browser/package-lock.json
