@@ -4,6 +4,7 @@
 import { Client, KustoDataErrors, TimeUtils } from "azure-kusto-data";
 import { ExponentialRetry } from "./retry";
 import { ContainerClient } from "@azure/storage-blob";
+import { TableClient } from "@azure/data-tables";
 
 const ATTEMPT_COUNT = 4;
 export class ResourceURI {
@@ -15,11 +16,12 @@ export class IngestClientResources {
         readonly securedReadyForAggregationQueues: ResourceURI[] | null = null,
         readonly failedIngestionsQueues: ResourceURI[] | null = null,
         readonly successfulIngestionsQueues: ResourceURI[] | null = null,
-        readonly containers: ResourceURI[] | null = null
+        readonly containers: ResourceURI[] | null = null,
+        readonly statusTable: ResourceURI[] | null = null
     ) {}
 
     valid() {
-        const resources = [this.securedReadyForAggregationQueues, this.failedIngestionsQueues, this.failedIngestionsQueues, this.containers];
+        const resources = [this.securedReadyForAggregationQueues, this.failedIngestionsQueues, this.failedIngestionsQueues, this.containers, this.statusTable];
         return resources.reduce((prev, current) => !!(prev && current), true);
     }
 }
@@ -66,7 +68,8 @@ export class ResourceManager {
                     this.getResourceByName(table, "SecuredReadyForAggregationQueue"),
                     this.getResourceByName(table, "FailedIngestionsQueue"),
                     this.getResourceByName(table, "SuccessfulIngestionsQueue"),
-                    this.getResourceByName(table, "TempStorage")
+                    this.getResourceByName(table, "TempStorage"),
+                    this.getResourceByName(table, "StatusTable")
                 );
 
                 if (!resoures.valid()) {
@@ -178,6 +181,23 @@ export class ResourceManager {
         const container = containers[Math.floor(Math.random() * containers.length)];
         const containerClient = new ContainerClient(container.uri);
         return containerClient.getBlockBlobClient(blobName);
+    }
+
+    async getStatusTable(){
+        return (await this.refreshIngestClientResources()).statusTable;
+    }
+
+    async getStatusTableClient(): Promise<TableClient>{
+        const tableRes = await this.getStatusTable()
+        if (!tableRes) {
+            throw new Error("Failed to get status table");
+        }
+
+        const tableUrl = new URL(tableRes[0].uri);
+        const origin = tableUrl.origin;
+        const sasToken = tableUrl.search;
+        const tableName = tableUrl.pathname.replace('/', '');
+        return new TableClient(origin + sasToken, tableName);
     }
 
     close() {

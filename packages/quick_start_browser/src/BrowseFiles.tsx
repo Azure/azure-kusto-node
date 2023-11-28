@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 import { Link } from "@fluentui/react";
 import { ArrowUpload16Regular, DocumentMultiple20Regular } from "@fluentui/react-icons";
 import React from "react";

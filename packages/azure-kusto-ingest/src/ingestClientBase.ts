@@ -11,8 +11,10 @@ import IngestionBlobInfo from "./ingestionBlobInfo";
 
 import { QueueClient, QueueSendMessageResponse } from "@azure/storage-queue";
 
-import { IngestionPropertiesInput } from "./ingestionProperties";
+import { IngestionPropertiesInput, ReportLevel, ReportMethod } from "./ingestionProperties";
 import { AbstractKustoClient } from "./abstractKustoClient";
+import { OperationStatus, IngestionStatus } from "./ingestionResult";
+import { TableClient, TableEntity } from "@azure/data-tables";
 
 export abstract class KustoIngestClientBase extends AbstractKustoClient {
     resourceManager: ResourceManager;
@@ -45,7 +47,37 @@ export abstract class KustoIngestClientBase extends AbstractKustoClient {
         const ingestionBlobInfoJson = JSON.stringify(ingestionBlobInfo);
         const encoded = Buffer.from(ingestionBlobInfoJson).toString("base64");
 
-        return queueClient.sendMessage(encoded);
+        const reportToTable = props.reportLevel !== ReportLevel.DoNotReport &&
+            props.reportMethod !== ReportMethod.Queue;
+        if (reportToTable) {
+            const statusTableClient: TableClient = await this.resourceManager.getStatusTableClient();
+            const time = Date.now().toString()
+            const status = {
+                Status: "Pending",
+                partitionKey: ingestionBlobInfo.Id,
+                rowKey: ingestionBlobInfo.Id,
+                Timestamp: time,
+                IngestionSourceId: ingestionBlobInfo.Id,
+                IngestionSourcePath: descriptor.path.split(/[?;]/)[0],
+                Database: props.database,
+                Table: props.table,
+                UpdatedOn: time,
+                Details: '',
+
+            } as TableEntity<IngestionStatus>;
+            await statusTableClient.createEntity(status);
+            // ingestionBlobInfo.setIngestionStatusInTable(status);
+            // IngestionStatusInTableDescription ingestionStatusInTable = new IngestionStatusInTableDescription();
+            // ingestionStatusInTable.setTableClient(statusTable.getTable());
+            // ingestionStatusInTable.setTableConnectionString(statusTable.getUri());
+            // ingestionStatusInTable.setPartitionKey(ingestionBlobInfo.getId().toString());
+            // ingestionStatusInTable.setRowKey(ingestionBlobInfo.getId().toString());
+            // ingestionBlobInfo.setIngestionStatusInTable(ingestionStatusInTable);
+            // statusTableClient.azureTableInsertEntity(statusTable.getTable(), new TableEntity(id, id).setProperties(status.getEntityProperties()));
+            // tableStatuses.add(ingestionBlobInfo.getIngestionStatusInTable());
+
+        }
+return queueClient.sendMessage(encoded);
     }
 
     close() {
