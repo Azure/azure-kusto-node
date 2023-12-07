@@ -5,10 +5,19 @@ import { Client, KustoDataErrors, TimeUtils } from "azure-kusto-data";
 import { ExponentialRetry } from "./retry";
 import { ContainerClient } from "@azure/storage-blob";
 import { TableClient } from "@azure/data-tables";
+import { RankedStorageAccountSet } from "./rankedStorageAccountSet";
+import { QueueClient } from "@azure/storage-queue";
 
 const ATTEMPT_COUNT = 4;
+
+export enum ResourceType {
+    Queue,
+    Container,
+    Table,
+}
+
 export class ResourceURI {
-    constructor(readonly uri: string) {}
+    constructor(readonly uri: string, readonly accountName: string, readonly resourceType: ResourceType) {}
 }
 
 export class IngestClientResources {
@@ -36,6 +45,7 @@ export class ResourceManager {
 
     private baseSleepTimeSecs = 1;
     private baseJitterSecs = 1;
+    private rankedStorageAccountSet: RankedStorageAccountSet;
 
     constructor(readonly kustoClient: Client, readonly isBrowser: boolean = false) {
         this.refreshPeriod = TimeUtils.toMilliseconds(1, 0, 0);
@@ -46,6 +56,8 @@ export class ResourceManager {
 
         this.authorizationContext = null;
         this.authorizationContextLastUpdate = null;
+
+        this.rankedStorageAccountSet = new RankedStorageAccountSet();
     }
 
     async refreshIngestClientResources(): Promise<IngestClientResources> {
@@ -65,11 +77,11 @@ export class ResourceManager {
                 const response = await this.kustoClient.execute("NetDefaultDB", cmd);
                 const table = response.primaryResults[0];
                 const resoures = new IngestClientResources(
-                    this.getResourceByName(table, "SecuredReadyForAggregationQueue"),
-                    this.getResourceByName(table, "FailedIngestionsQueue"),
-                    this.getResourceByName(table, "SuccessfulIngestionsQueue"),
-                    this.getResourceByName(table, "TempStorage"),
-                    this.getResourceByName(table, "IngestionsStatusTable")
+                    this.getResourceByName(table, "SecuredReadyForAggregationQueue", ResourceType.Queue),
+                    this.getResourceByName(table, "FailedIngestionsQueue", ResourceType.Queue),
+                    this.getResourceByName(table, "SuccessfulIngestionsQueue", ResourceType.Queue),
+                    this.getResourceByName(table, "TempStorage", ResourceType.Container),
+                    this.getResourceByName(table, "IngestionsStatusTable", ResourceType.Table)
                 );
 
                 if (!resoures.valid()) {
@@ -87,7 +99,7 @@ export class ResourceManager {
         throw new Error(`Failed to get ingestion resources from server - the request was throttled ${ATTEMPT_COUNT} times.`);
     }
 
-    getResourceByName(table: { rows: () => any }, resourceName: string): ResourceURI[] {
+    getResourceByName(table: { rows: () => any }, resourceName: string, resourceType: ResourceType): ResourceURI[] {
         const result: ResourceURI[] = [];
         for (const row of table.rows()) {
             const typedRow = row as {
@@ -95,8 +107,76 @@ export class ResourceManager {
                 StorageRoot: string;
             };
             if (typedRow.ResourceTypeName === resourceName) {
-                result.push(new ResourceURI(typedRow.StorageRoot));
+                let accountName = "";
+                if (resourceType === ResourceType.Queue) {
+                    accountName = new QueueClient(typedRow.StorageRoot).accountName;
+                } else if (resourceType === ResourceType.Container) {
+                    accountName = new ContainerClient(typedRow.StorageRoot).accountName;
+                }
+                result.push(new ResourceURI(typedRow.StorageRoot, accountName, resourceType));
             }
+        }
+        return result;
+    }
+
+    pupulateStorageAccounts() {
+        if (this.ingestClientResources == null) {
+            return;
+        }
+
+        // containers
+        const accounts = new Set<string>();
+        if (this.ingestClientResources.containers != null) {
+            for (const container of this.ingestClientResources.containers) {
+                accounts.add(container.accountName);
+            }
+        }
+        // queues
+        if (this.ingestClientResources.securedReadyForAggregationQueues != null) {
+            for (const queue of this.ingestClientResources.securedReadyForAggregationQueues) {
+                accounts.add(queue.accountName);
+            }
+        }
+
+        for (const account of accounts) {
+            this.rankedStorageAccountSet.registerStorageAccount(account);
+        }
+    }
+
+    groupResourcesByStorageAccount(resources: ResourceURI[]): Map<string, ResourceURI[]> {
+        const result = new Map<string, ResourceURI[]>();
+        for (const resource of resources) {
+            if (!result.has(resource.accountName)) {
+                result.set(resource.accountName, []);
+            }
+            result.get(resource.accountName)?.push(resource);
+        }
+        return result;
+    }
+
+    getRankedAndShuffledStorageAccounts(resources: ResourceURI[]): ResourceURI[][] {
+        const resourcesByAccount = this.groupResourcesByStorageAccount(resources);
+        const rankedStorageAccounts = this.rankedStorageAccountSet.getRankedShuffledAccounts();
+        const result = new Array<ResourceURI[]>();
+        for (const account of rankedStorageAccounts) {
+            const accountName = account.getAccountName();
+            if (resourcesByAccount.has(accountName)) {
+                result.push(resourcesByAccount.get(accountName) as ResourceURI[]);
+            }
+        }
+        return result;
+    }
+
+    getRoundRobinRankedAndShuffledResources(resources: ResourceURI[]): ResourceURI[] {
+        const rankedAccounts = this.getRankedAndShuffledStorageAccounts(resources);
+        const result = new Array<ResourceURI>();
+        let index = 0;
+        while (result.length < resources.length) {
+            const account = rankedAccounts[index % rankedAccounts.length];
+            if (account.length > 0) {
+                result.push(account.shift() as ResourceURI);
+            }
+            index++;
         }
         return result;
     }
@@ -124,6 +204,7 @@ export class ResourceManager {
                 } else {
                     this.ingestClientResources = await this.getIngestClientResourcesFromService();
                     this.ingestClientResourcesLastUpdate = now;
+                    this.pupulateStorageAccounts();
                 }
             } catch (e) {
                 error = e as Error;
@@ -154,7 +235,8 @@ export class ResourceManager {
     }
 
     async getIngestionQueues() {
-        return (await this.refreshIngestClientResources()).securedReadyForAggregationQueues;
+        const queues = (await this.refreshIngestClientResources()).securedReadyForAggregationQueues;
+        return queues ? this.getRoundRobinRankedAndShuffledResources(queues) : null;
     }
 
     async getFailedIngestionsQueues() {
@@ -166,7 +248,8 @@ export class ResourceManager {
     }
 
     async getContainers() {
-        return (await this.refreshIngestClientResources()).containers;
+        const containers = (await this.refreshIngestClientResources()).containers;
+        return containers ? this.getRoundRobinRankedAndShuffledResources(containers) : null;
     }
 
     async getAuthorizationContext(): Promise<string> {
@@ -183,12 +266,16 @@ export class ResourceManager {
         return containerClient.getBlockBlobClient(blobName);
     }
 
-    async getStatusTable(){
+    async getStatusTable() {
         return (await this.refreshIngestClientResources()).statusTable;
     }
 
     close() {
         this.kustoClient.close();
+    }
+
+    reportResourceUsageResult(accountName: string, success: boolean) {
+        this.rankedStorageAccountSet.logResultToAccount(accountName, success);
     }
 }
 
@@ -196,8 +283,8 @@ export const createStatusTableClient = (uri: string): TableClient => {
     const tableUrl = new URL(uri);
     const origin = tableUrl.origin;
     const sasToken = tableUrl.search;
-    const tableName = tableUrl.pathname.replace('/', '');
+    const tableName = tableUrl.pathname.replace("/", "");
     return new TableClient(origin + sasToken, tableName);
-}
+};
 
 export default ResourceManager;

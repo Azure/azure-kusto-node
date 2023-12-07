@@ -10,7 +10,6 @@ import { KustoIngestClient } from "../src/ingestClient";
 import { DataFormat, IngestionProperties, IngestionPropertiesInput } from "../src/ingestionProperties";
 import KustoManagedStreamingIngestClient from "../src/managedStreamingIngestClient";
 import { Readable } from "stream";
-import { QueueSendMessageResponse } from "@azure/storage-queue";
 import { CloudSettings, KustoConnectionStringBuilder } from "azure-kusto-data";
 import assert from "assert";
 import uuidValidate from "uuid-validate";

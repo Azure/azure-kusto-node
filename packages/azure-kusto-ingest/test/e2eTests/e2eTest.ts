@@ -25,10 +25,9 @@ import {
     ManagedStreamingIngestClient,
     StreamingIngestClient,
     IngestionStatus,
-    IngestionResult
+    IngestionResult,
 } from "../../src";
 import { sleep } from "../../src/retry";
-import ResourceManager from "../../src/resourceManager";
 
 import assert from "assert";
 import fs, { ReadStream } from "fs";
@@ -244,13 +243,13 @@ const main = (): void => {
                 props.reportMethod = ReportMethod.QueueAndTable;
                 try {
                     const res: IngestionResult = await ingestClient.ingestFromFile(item.path, props);
-                    assert.ok(res, "ingest result returned null or undefined")
-                    assert.ok(res instanceof TableReportIngestionResult)
+                    assert.ok(res, "ingest result returned null or undefined");
+                    assert.ok(res instanceof TableReportIngestionResult);
                     let status: IngestionStatus;
-                    const endTime = Date.now() +180000; // Timeout is 3 minutes
+                    const endTime = Date.now() + 180000; // Timeout is 3 minutes
                     while (Date.now() < endTime) {
                         status = await res.getIngestionStatusCollection();
-                        if(status.Status === "Pending"){
+                        if (status.Status === "Pending") {
                             await sleep(1000);
                         }
                     }
@@ -325,12 +324,12 @@ const main = (): void => {
                         return { item: i };
                     })
             )("ingestFromBlob_$item.description", async ({ item }) => {
-                const resourceManager = new ResourceManager(dmKustoClient);
-                const blob = await resourceManager.getBlockBlobClient(uuidv4() + pathlib.basename(item.path));
-                await blob.uploadFile(item.path);
+                const blobName = uuidv4() + pathlib.basename(item.path);
+                const blobUri = await ingestClient.uploadToBlobWithRetry(item.path, blobName);
+
                 const table = tableNames[("streaming_blob" + "_" + item.description) as Table];
                 try {
-                    await streamingIngestClient.ingestFromBlob(blob.url, item.ingestionPropertiesCallback(table));
+                    await streamingIngestClient.ingestFromBlob(blobUri, item.ingestionPropertiesCallback(table));
                 } catch (err) {
                     assert.fail(`Failed to ingest ${item.description} - ${util.format(err)}`);
                 }

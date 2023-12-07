@@ -27,9 +27,9 @@ export class KustoIngestClient extends KustoIngestClientBase {
 
         try {
             const blobName = generateBlobName(descriptor, props);
-            const [fileToUpload, blockBlobClient] = await Promise.all([descriptor.prepare(), this.resourceManager.getBlockBlobClient(blobName)]);
-            await blockBlobClient.uploadFile(fileToUpload);
-            return this.ingestFromBlob(new BlobDescriptor(blockBlobClient.url, descriptor.size, descriptor.sourceId), props);
+            const fileToUpload = await descriptor.prepare();
+            const blobUri = await this.uploadToBlobWithRetry(fileToUpload, blobName);
+            return this.ingestFromBlob(new BlobDescriptor(blobUri, descriptor.size, descriptor.sourceId), props);
         } finally {
             await descriptor.cleanup();
         }
@@ -38,24 +38,16 @@ export class KustoIngestClient extends KustoIngestClientBase {
     /**
      * Use Readable in Node.JS and ArrayBuffer in browser
      */
-    async ingestFromStream(
-        stream: StreamDescriptor | Readable | ArrayBuffer,
-        ingestionProperties?: IngestionPropertiesInput
-    ): Promise<IngestionResult> {
+    async ingestFromStream(stream: StreamDescriptor | Readable | ArrayBuffer, ingestionProperties?: IngestionPropertiesInput): Promise<IngestionResult> {
         this.ensureOpen();
         const props = this._getMergedProps(ingestionProperties);
         const descriptor: StreamDescriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
 
         const blobName = generateBlobName(descriptor, props);
 
-        const blockBlobClient = await this.resourceManager.getBlockBlobClient(blobName);
-        if (descriptor.stream instanceof Buffer) {
-            await blockBlobClient.uploadData(descriptor.stream as Buffer);
-        } else {
-            await blockBlobClient.uploadStream(descriptor.stream as Readable);
-        }
+        const blobUri = await this.uploadToBlobWithRetry(descriptor, blobName);
 
-        return this.ingestFromBlob(new BlobDescriptor(blockBlobClient.url), props); // descriptor.size?
+        return this.ingestFromBlob(new BlobDescriptor(blobUri), props); // descriptor.size?
     }
 }
 

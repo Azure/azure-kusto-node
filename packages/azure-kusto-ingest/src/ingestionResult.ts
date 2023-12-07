@@ -4,13 +4,12 @@
 import { TableClient, TableEntity } from "@azure/data-tables";
 import { ExponentialRetry } from "./retry";
 import { createStatusTableClient } from "./resourceManager";
-export interface IngestionResult
-{
+export interface IngestionResult {
     /// <summary>
     /// Retrieves the detailed ingestion status of
     /// all data ingestion operations into Kusto associated with this IKustoIngestionResult instance.
     /// </summary>
-    getIngestionStatusCollection() : Promise<IngestionStatus>;
+    getIngestionStatusCollection(): Promise<IngestionStatus>;
 }
 
 export const putRecordInTable = async (
@@ -22,7 +21,7 @@ export const putRecordInTable = async (
     rowKey: string,
     error?: string
 ): Promise<void> => {
-    const status = error !== undefined ? 'Failed' : 'Pending';
+    const status = error !== undefined ? "Failed" : "Pending";
     const blobBasePath = blobPath.split(/[?;]/)[0];
     const timestamp = Date.now();
     const entity: TableEntity<IngestionStatus> = {
@@ -35,7 +34,7 @@ export const putRecordInTable = async (
         Database: database,
         Table: table,
         UpdatedOn: timestamp.toString(),
-        Details: error || '',
+        Details: error || "",
     };
     const retry = new ExponentialRetry(3, 1, 1);
     while (retry.shouldTry()) {
@@ -45,27 +44,23 @@ export const putRecordInTable = async (
             await retry.backoff();
         }
     }
-
-}
-export type OperationStatus = "Pending" | "Succeeded" | "Failed" | "Queued" | "Skipped" |"PartiallySucceeded"
+};
+export type OperationStatus = "Pending" | "Succeeded" | "Failed" | "Queued" | "Skipped" | "PartiallySucceeded";
 
 export class TableReportIngestionResult implements IngestionResult {
-    public constructor(private ingestionStatusInTableDescription: IngestionStatusInTableDescription,
-                       public tableClient: TableClient | null = null) {
-    }
+    public constructor(private ingestionStatusInTableDescription: IngestionStatusInTableDescription, public tableClient: TableClient | null = null) {}
 
     public async getIngestionStatusCollection(): Promise<IngestionStatus> {
-        if(!this.tableClient){
-            this.tableClient = createStatusTableClient(this.ingestionStatusInTableDescription.tableConnectionString)
+        if (!this.tableClient) {
+            this.tableClient = createStatusTableClient(this.ingestionStatusInTableDescription.tableConnectionString);
         }
 
-        const t =  await this.tableClient.getEntity(this.ingestionStatusInTableDescription.partitionKey,this.ingestionStatusInTableDescription.rowKey);
+        const t = await this.tableClient.getEntity(this.ingestionStatusInTableDescription.partitionKey, this.ingestionStatusInTableDescription.rowKey);
         return t as unknown as IngestionStatus;
     }
 }
 
 export class IngestionStatusResult implements IngestionResult {
-
     constructor(private ingestionStatus: IngestionStatus) {
         this.ingestionStatus = ingestionStatus;
     }
@@ -76,9 +71,7 @@ export class IngestionStatusResult implements IngestionResult {
 }
 
 export class IngestionStatusInTableDescription {
-	constructor(public tableConnectionString: string, public partitionKey: string, public rowKey: string){
-
-    }
+    constructor(public tableConnectionString: string, public partitionKey: string, public rowKey: string) {}
 }
 
 export interface IngestionStatus {

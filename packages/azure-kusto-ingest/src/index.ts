@@ -9,12 +9,7 @@ import managedStreamingIngestClient from "./managedStreamingIngestClient";
 
 import KustoIngestStatusQueues from "./status";
 
-import {
-    IngestionResult,
-    OperationStatus,
-    IngestionStatus,
-    IngestionStatusInTableDescription
-} from "./ingestionResult"
+import { IngestionResult, OperationStatus, IngestionStatus, IngestionStatusInTableDescription } from "./ingestionResult";
 import {
     DataFormat,
     IngestionMappingKind,
@@ -87,7 +82,7 @@ export {
     IngestionResult,
     OperationStatus,
     IngestionStatus,
-    IngestionStatusInTableDescription
+    IngestionStatusInTableDescription,
 };
 
 /**
@@ -116,7 +111,7 @@ export const IngestionPropertiesEnums = {
     SStreamColumnMapping,
     ConstantTransformation,
     FieldTransformation,
-    ColumnMapping
+    ColumnMapping,
 };
 
 export { IngestionPropertiesValidationError } from "./errors";

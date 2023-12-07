@@ -250,8 +250,7 @@ export class IngestionProperties {
             }
         }
 
-        if (this.reportMethod !== ReportMethod.Queue && this.reportLevel === ReportLevel.FailuresOnly)
-        {
+        if (this.reportMethod !== ReportMethod.Queue && this.reportLevel === ReportLevel.FailuresOnly) {
             throw new IngestionPropertiesValidationError("ReportLevel.FailuresOnly is not supported with ReportMethod.Table");
         }
     }

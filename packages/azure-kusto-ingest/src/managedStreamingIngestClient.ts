@@ -126,7 +126,11 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
         return await this.ingestFromStream(stream, ingestionProperties);
     }
 
-    async ingestFromBlob(blob: string | BlobDescriptor, ingestionProperties?: IngestionPropertiesInput, clientRequestId?: string): Promise<KustoResponseDataSet | IngestionResult> {
+    async ingestFromBlob(
+        blob: string | BlobDescriptor,
+        ingestionProperties?: IngestionPropertiesInput,
+        clientRequestId?: string
+    ): Promise<KustoResponseDataSet | IngestionResult> {
         const props = this._getMergedProps(ingestionProperties);
         const descriptor = blob instanceof BlobDescriptor ? blob : new BlobDescriptor(blob);
         // No need to check blob size if it was given to us that it's not empty
@@ -153,7 +157,7 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
                         clientRequestId ??
                         `KNC.executeManagedStreamingIngest${isBlob ? "FromBlob" : "FromStream"};${descriptor.sourceId};${retry.currentAttempt}`;
                     if (isBlob) {
-                        return this.streamingIngestClient.ingestFromBlob(descriptor as BlobDescriptor, props, sourceId);
+                        return await this.streamingIngestClient.ingestFromBlob(descriptor as BlobDescriptor, props, sourceId);
                     }
 
                     if (isNode) {
