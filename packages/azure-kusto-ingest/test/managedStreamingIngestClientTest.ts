@@ -14,8 +14,9 @@ import { QueueSendMessageResponse } from "@azure/storage-queue";
 import { CloudSettings, KustoConnectionStringBuilder } from "azure-kusto-data";
 import assert from "assert";
 import uuidValidate from "uuid-validate";
+import { IngestionResult } from "../src/ingestionResult";
 
-type IngestFromStreamStub = sinon.SinonStub<[StreamDescriptor | Readable | ArrayBuffer, IngestionPropertiesInput?, string?], Promise<QueueSendMessageResponse>>;
+type IngestFromStreamStub = sinon.SinonStub<[StreamDescriptor | Readable | ArrayBuffer, IngestionPropertiesInput?, string?], Promise<IngestionResult>>;
 beforeAll(() => {
     CloudSettings.writeToCache("https://cluster.kusto.windows.net");
 });
@@ -131,7 +132,7 @@ describe("ManagedStreamingIngestClient", () => {
                 // Mock ManagedStreamingIngestClient with mocked streamingIngestClient
                 const transientError = { "@permanent": false };
                 streamStub.throws(transientError);
-                queuedStub.returns(Promise.resolve({} as QueueSendMessageResponse));
+                queuedStub.returns(Promise.resolve({} as IngestionResult));
 
                 managedClient._getMergedProps();
 
@@ -162,7 +163,7 @@ describe("ManagedStreamingIngestClient", () => {
                 const streamStub = sinon.stub(mockedStreamingIngestClient, "ingestFromStream");
                 streamStub.throws(new Error("Should not be called"));
                 const queuedStub = sinon.stub(mockedIngestClient, "ingestFromStream");
-                queuedStub.returns(Promise.resolve({} as QueueSendMessageResponse));
+                queuedStub.returns(Promise.resolve({} as IngestionResult));
                 const mockedManagedStreamingIngestClient: KustoManagedStreamingIngestClient = Object.setPrototypeOf(
                     {
                         streamingIngestClient: mockedStreamingIngestClient,

@@ -12,6 +12,7 @@ import ResourceManager from "../src/resourceManager";
 import { BlockBlobClient } from "@azure/storage-blob";
 import { QueueSendMessageResponse } from "@azure/storage-queue";
 import { FileDescriptor as BrowserFileDescriptor } from "../src/fileDescriptor.browser";
+import { IngestionResult } from "../src/ingestionResult";
 
 describe(`Browser Unit tests`, () => {
     const cluster = "https://somecluster.kusto.windows.net";
@@ -59,7 +60,7 @@ describe(`Browser Unit tests`, () => {
                 database: "d1",
             });
             const queuedStub = sinon.stub(mockedIngestClient, "ingestFromBlob");
-            queuedStub.resolves({} as QueueSendMessageResponse);
+            queuedStub.resolves({} as IngestionResult);
 
             const resource = new BlockBlobClient(storage);
             const resourceStub = sinon.stub(resource, "uploadData");

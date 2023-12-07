@@ -69,7 +69,7 @@ export class ResourceManager {
                     this.getResourceByName(table, "FailedIngestionsQueue"),
                     this.getResourceByName(table, "SuccessfulIngestionsQueue"),
                     this.getResourceByName(table, "TempStorage"),
-                    this.getResourceByName(table, "StatusTable")
+                    this.getResourceByName(table, "IngestionsStatusTable")
                 );
 
                 if (!resoures.valid()) {
@@ -187,22 +187,17 @@ export class ResourceManager {
         return (await this.refreshIngestClientResources()).statusTable;
     }
 
-    async getStatusTableClient(): Promise<TableClient>{
-        const tableRes = await this.getStatusTable()
-        if (!tableRes) {
-            throw new Error("Failed to get status table");
-        }
-
-        const tableUrl = new URL(tableRes[0].uri);
-        const origin = tableUrl.origin;
-        const sasToken = tableUrl.search;
-        const tableName = tableUrl.pathname.replace('/', '');
-        return new TableClient(origin + sasToken, tableName);
-    }
-
     close() {
         this.kustoClient.close();
     }
+}
+
+export const createStatusTableClient = (uri: string): TableClient => {
+    const tableUrl = new URL(uri);
+    const origin = tableUrl.origin;
+    const sasToken = tableUrl.search;
+    const tableName = tableUrl.pathname.replace('/', '');
+    return new TableClient(origin + sasToken, tableName);
 }
 
 export default ResourceManager;

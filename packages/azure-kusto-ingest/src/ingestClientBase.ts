@@ -5,16 +5,16 @@ import { Client as KustoClient, KustoConnectionStringBuilder } from "azure-kusto
 
 import { BlobDescriptor } from "./descriptors";
 
-import ResourceManager from "./resourceManager";
+import ResourceManager, { createStatusTableClient } from "./resourceManager";
 
 import IngestionBlobInfo from "./ingestionBlobInfo";
 
-import { QueueClient, QueueSendMessageResponse } from "@azure/storage-queue";
+import { QueueClient } from "@azure/storage-queue";
 
 import { IngestionPropertiesInput, ReportLevel, ReportMethod } from "./ingestionProperties";
 import { AbstractKustoClient } from "./abstractKustoClient";
-import { OperationStatus, IngestionStatus } from "./ingestionResult";
-import { TableClient, TableEntity } from "@azure/data-tables";
+import { IngestionStatus, TableReportIngestionResult, IngestionResult, IngestionStatusInTableDescription, IngestionStatusResult } from "./ingestionResult";
+import { TableEntity } from "@azure/data-tables";
 
 export abstract class KustoIngestClientBase extends AbstractKustoClient {
     resourceManager: ResourceManager;
@@ -26,7 +26,7 @@ export abstract class KustoIngestClientBase extends AbstractKustoClient {
         this.defaultDatabase = kustoClient.defaultDatabase;
     }
 
-    async ingestFromBlob(blob: string | BlobDescriptor, ingestionProperties?: IngestionPropertiesInput): Promise<QueueSendMessageResponse> {
+    async ingestFromBlob(blob: string | BlobDescriptor, ingestionProperties?: IngestionPropertiesInput): Promise<IngestionResult> {
         this.ensureOpen();
 
         const props = this._getMergedProps(ingestionProperties);
@@ -44,14 +44,15 @@ export abstract class KustoIngestClientBase extends AbstractKustoClient {
         const queueClient = new QueueClient(queueDetails.uri);
 
         const ingestionBlobInfo = new IngestionBlobInfo(descriptor, props, authorizationContext);
-        const ingestionBlobInfoJson = JSON.stringify(ingestionBlobInfo);
-        const encoded = Buffer.from(ingestionBlobInfoJson).toString("base64");
 
         const reportToTable = props.reportLevel !== ReportLevel.DoNotReport &&
             props.reportMethod !== ReportMethod.Queue;
+
+        const time = Date.now().toString();
         if (reportToTable) {
-            const statusTableClient: TableClient = await this.resourceManager.getStatusTableClient();
-            const time = Date.now().toString()
+            const statusTableUri = await this.resourceManager.getStatusTable();
+            const statusTableClient = createStatusTableClient(statusTableUri![0].uri);
+
             const status = {
                 Status: "Pending",
                 partitionKey: ingestionBlobInfo.Id,
@@ -63,21 +64,33 @@ export abstract class KustoIngestClientBase extends AbstractKustoClient {
                 Table: props.table,
                 UpdatedOn: time,
                 Details: '',
-
             } as TableEntity<IngestionStatus>;
             await statusTableClient.createEntity(status);
-            // ingestionBlobInfo.setIngestionStatusInTable(status);
-            // IngestionStatusInTableDescription ingestionStatusInTable = new IngestionStatusInTableDescription();
-            // ingestionStatusInTable.setTableClient(statusTable.getTable());
-            // ingestionStatusInTable.setTableConnectionString(statusTable.getUri());
-            // ingestionStatusInTable.setPartitionKey(ingestionBlobInfo.getId().toString());
-            // ingestionStatusInTable.setRowKey(ingestionBlobInfo.getId().toString());
-            // ingestionBlobInfo.setIngestionStatusInTable(ingestionStatusInTable);
-            // statusTableClient.azureTableInsertEntity(statusTable.getTable(), new TableEntity(id, id).setProperties(status.getEntityProperties()));
-            // tableStatuses.add(ingestionBlobInfo.getIngestionStatusInTable());
-
+            const desc = new IngestionStatusInTableDescription(statusTableUri![0].uri, ingestionBlobInfo.Id, ingestionBlobInfo.Id)
+            ingestionBlobInfo.IngestionStatusInTable = desc;
+            await this.sendQueueMessage(queueClient, ingestionBlobInfo);
+            return new TableReportIngestionResult(desc, statusTableClient);
         }
-return queueClient.sendMessage(encoded);
+
+        await this.sendQueueMessage(queueClient, ingestionBlobInfo);
+        return new IngestionStatusResult({
+            Status: "Queued",
+            partitionKey: ingestionBlobInfo.Id,
+            rowKey: ingestionBlobInfo.Id,
+            Timestamp: time,
+            IngestionSourceId: ingestionBlobInfo.Id,
+            IngestionSourcePath: descriptor.path.split(/[?;]/)[0],
+            Database: props.database,
+            Table: props.table,
+            UpdatedOn: time,
+            Details: '',
+        } as IngestionStatus);
+    }
+
+    private sendQueueMessage(queueClient: QueueClient, blobInfo: IngestionBlobInfo) {
+        const ingestionBlobInfoJson = JSON.stringify(blobInfo);
+        const encoded = Buffer.from(ingestionBlobInfoJson).toString("base64");
+        return queueClient.sendMessage(encoded);
     }
 
     close() {

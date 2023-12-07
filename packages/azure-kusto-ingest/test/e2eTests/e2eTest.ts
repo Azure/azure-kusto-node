@@ -3,7 +3,6 @@
 
 /* eslint-disable no-console */
 
-import IngestClient from "../../src/ingestClient";
 import KustoIngestStatusQueues from "../../src/status";
 import {
     Client,
@@ -14,10 +13,20 @@ import {
     kustoTrustedEndpoints,
     MatchRule,
 } from "azure-kusto-data";
-import StreamingIngestClient from "../../src/streamingIngestClient";
-import ManagedStreamingIngestClient from "../../src/managedStreamingIngestClient";
-import { CompressionType, StreamDescriptor } from "../../src/descriptors";
-import { DataFormat, IngestionProperties, JsonColumnMapping, ReportLevel } from "../../src";
+import {
+    IngestClient,
+    CompressionType,
+    StreamDescriptor,
+    DataFormat,
+    IngestionProperties,
+    JsonColumnMapping,
+    ReportLevel,
+    ReportMethod,
+    ManagedStreamingIngestClient,
+    StreamingIngestClient,
+    IngestionStatus,
+    IngestionResult
+} from "../../src";
 import { sleep } from "../../src/retry";
 import ResourceManager from "../../src/resourceManager";
 
@@ -27,6 +36,7 @@ import util from "util";
 import { v4 as uuidv4 } from "uuid";
 import pathlib from "path";
 import sinon from "sinon";
+import { TableReportIngestionResult } from "../../src/ingestionResult";
 
 interface ParsedJsonMapping {
     Properties: { Path: string };
@@ -217,6 +227,35 @@ const main = (): void => {
                 const table = tableNames[("queued_file" + "_" + item.description) as Table];
                 try {
                     await ingestClient.ingestFromFile(item.path, item.ingestionPropertiesCallback(table));
+                } catch (err) {
+                    assert.fail(`Failed to ingest ${item.description}, ${util.format(err)}`);
+                }
+                await assertRowsCount(item, table as Table);
+            });
+
+            it.concurrent.each(
+                testItems.map((i) => {
+                    return { item: i };
+                })
+            )("ingestFromFile_TableReporting_$item.description", async ({ item }) => {
+                const table = tableNames[("queued_file" + "_" + item.description) as Table];
+                const props = item.ingestionPropertiesCallback(table);
+                props.reportLevel = ReportLevel.FailuresAndSuccesses;
+                props.reportMethod = ReportMethod.QueueAndTable;
+                try {
+                    const res: IngestionResult = await ingestClient.ingestFromFile(item.path, props);
+                    assert.ok(res, "ingest result returned null or undefined")
+                    assert.ok(res instanceof TableReportIngestionResult)
+                    let status: IngestionStatus;
+                    const endTime = Date.now() +180000; // Timeout is 3 minutes
+                    while (Date.now() < endTime) {
+                        status = await res.getIngestionStatusCollection();
+                        if(status.Status === "Pending"){
+                            await sleep(1000);
+                        }
+                    }
+
+                    assert.equal(status!.Status, "Succeeded");
                 } catch (err) {
                     assert.fail(`Failed to ingest ${item.description}, ${util.format(err)}`);
                 }
