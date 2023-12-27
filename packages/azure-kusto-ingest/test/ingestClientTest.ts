@@ -118,6 +118,7 @@ describe("KustoIngestClient", () => {
                 ingestionMappingReference: "MappingRef",
                 format: DataFormat.AVRO,
                 reportMethod: ReportMethod.Table,
+                reportLevel: ReportLevel.FailuresAndSuccesses,
             };
 
             const client = new KustoIngestClient("https://cluster.region.kusto.windows.net", defaultProps);
@@ -127,7 +128,7 @@ describe("KustoIngestClient", () => {
             assert.strictEqual(actual.table, "table");
             assert.strictEqual(actual.format, "avro");
             assert.strictEqual(actual.ingestionMappingReference, "MappingRef");
-            assert.strictEqual(actual.reportLevel, ReportLevel.FailuresOnly);
+            assert.strictEqual(actual.reportLevel, ReportLevel.FailuresAndSuccesses);
             assert.strictEqual(actual.reportMethod, ReportMethod.Table);
         });
 
