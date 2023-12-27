@@ -107,7 +107,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
--   [BREAKING] - the minimal version for NodeJS is now 16
+-   [BREAKING] - the minimal version for NodeJS is now 18
 -   [BREAKING] - removed moment.js from project and fixed timespan parsing:
     -   By default, Timespan will now be parsed into a number of milliseconds by default, matching Date substraction
     -   By default, Datetime fields will now be parsed into a native Date object
