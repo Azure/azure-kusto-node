@@ -82,6 +82,7 @@ const main = (): void => {
     const tables = [
         "general",
         "queued_file",
+        "status_table",
         "queued_stream",
         "streaming_file",
         "streaming_stream",
@@ -237,7 +238,7 @@ const main = (): void => {
                     return { item: i };
                 })
             )("ingestFromFile_TableReporting_$item.description", async ({ item }) => {
-                const table = tableNames[("queued_file" + "_" + item.description) as Table];
+                const table = tableNames[("status_table" + "_" + item.description) as Table];
                 const props = item.ingestionPropertiesCallback(table);
                 props.reportLevel = ReportLevel.FailuresAndSuccesses;
                 props.reportMethod = ReportMethod.QueueAndTable;
