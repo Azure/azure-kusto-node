@@ -119,7 +119,7 @@ export class ResourceManager {
         return result;
     }
 
-    pupulateStorageAccounts() {
+    pupulateStorageAccounts(): void {
         if (this.ingestClientResources == null) {
             return;
         }
@@ -234,20 +234,20 @@ export class ResourceManager {
         throw new Error(`Failed to get identity token from server - the request was throttled ${ATTEMPT_COUNT} times.`);
     }
 
-    async getIngestionQueues() {
+    async getIngestionQueues(): Promise<ResourceURI[] | null> {
         const queues = (await this.refreshIngestClientResources()).securedReadyForAggregationQueues;
         return queues ? this.getRoundRobinRankedAndShuffledResources(queues) : null;
     }
 
-    async getFailedIngestionsQueues() {
+    async getFailedIngestionsQueues(): Promise<ResourceURI[] | null> {
         return (await this.refreshIngestClientResources()).failedIngestionsQueues;
     }
 
-    async getSuccessfulIngestionsQueues() {
+    async getSuccessfulIngestionsQueues(): Promise<ResourceURI[] | null> {
         return (await this.refreshIngestClientResources()).successfulIngestionsQueues;
     }
 
-    async getContainers() {
+    async getContainers(): Promise<ResourceURI[] | null> {
         const containers = (await this.refreshIngestClientResources()).containers;
         return containers ? this.getRoundRobinRankedAndShuffledResources(containers) : null;
     }
@@ -256,25 +256,15 @@ export class ResourceManager {
         return this.refreshAuthorizationContext();
     }
 
-    async getBlockBlobClient(blobName: string) {
-        const containers = await this.getContainers();
-        if (containers == null) {
-            throw new Error("Failed to get containers");
-        }
-        const container = containers[Math.floor(Math.random() * containers.length)];
-        const containerClient = new ContainerClient(container.uri);
-        return containerClient.getBlockBlobClient(blobName);
-    }
-
-    async getStatusTable() {
+    async getStatusTable(): Promise<ResourceURI[] | null> {
         return (await this.refreshIngestClientResources()).statusTable;
     }
 
-    close() {
+    close(): void {
         this.kustoClient.close();
     }
 
-    reportResourceUsageResult(accountName: string, success: boolean) {
+    reportResourceUsageResult(accountName: string, success: boolean): void {
         this.rankedStorageAccountSet.logResultToAccount(accountName, success);
     }
 }

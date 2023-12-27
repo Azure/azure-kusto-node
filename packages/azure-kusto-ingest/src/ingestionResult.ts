@@ -12,30 +12,7 @@ export interface IngestionResult {
     getIngestionStatusCollection(): Promise<IngestionStatus>;
 }
 
-export const putRecordInTable = async (
-    tableClient: TableClient,
-    database: string,
-    blobPath: string,
-    table: string,
-    partitionKey: string,
-    rowKey: string,
-    error?: string
-): Promise<void> => {
-    const status = error !== undefined ? "Failed" : "Pending";
-    const blobBasePath = blobPath.split(/[?;]/)[0];
-    const timestamp = Date.now();
-    const entity: TableEntity<IngestionStatus> = {
-        partitionKey,
-        rowKey,
-        Timestamp: timestamp.toString(),
-        Status: status,
-        IngestionSourceId: rowKey,
-        IngestionSourcePath: blobBasePath,
-        Database: database,
-        Table: table,
-        UpdatedOn: timestamp.toString(),
-        Details: error || "",
-    };
+export const putRecordInTable = async (tableClient: TableClient, entity: TableEntity<IngestionStatus>): Promise<void> => {
     const retry = new ExponentialRetry(3, 1, 1);
     while (retry.shouldTry()) {
         try {
@@ -45,7 +22,15 @@ export const putRecordInTable = async (
         }
     }
 };
-export type OperationStatus = "Pending" | "Succeeded" | "Failed" | "Queued" | "Skipped" | "PartiallySucceeded";
+
+export enum OperationStatus {
+    Pending = "Pending",
+    Succeede = "Succeeded",
+    Failed = "Failed",
+    Queued = "Queued",
+    Skipped = "Skipped",
+    PartiallySucceeded = "PartiallySucceeded",
+}
 
 export class TableReportIngestionResult implements IngestionResult {
     public constructor(private ingestionStatusInTableDescription: IngestionStatusInTableDescription, public tableClient: TableClient | null = null) {}
@@ -55,8 +40,10 @@ export class TableReportIngestionResult implements IngestionResult {
             this.tableClient = createStatusTableClient(this.ingestionStatusInTableDescription.tableConnectionString);
         }
 
-        const t = await this.tableClient.getEntity(this.ingestionStatusInTableDescription.partitionKey, this.ingestionStatusInTableDescription.rowKey);
-        return t as unknown as IngestionStatus;
+        return await this.tableClient.getEntity<IngestionStatus>(
+            this.ingestionStatusInTableDescription.partitionKey,
+            this.ingestionStatusInTableDescription.rowKey
+        );
     }
 }
 

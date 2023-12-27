@@ -10,10 +10,17 @@ import { ContainerClient } from "@azure/storage-blob";
 
 import { QueueClient } from "@azure/storage-queue";
 
-import { IngestionPropertiesInput, ReportLevel, ReportMethod } from "./ingestionProperties";
+import IngestionProperties, { IngestionPropertiesInput, ReportLevel, ReportMethod } from "./ingestionProperties";
 import { AbstractKustoClient } from "./abstractKustoClient";
-import { IngestionStatus, TableReportIngestionResult, IngestionResult, IngestionStatusInTableDescription, IngestionStatusResult } from "./ingestionResult";
-import { TableEntity } from "@azure/data-tables";
+import {
+    IngestionStatus,
+    TableReportIngestionResult,
+    IngestionResult,
+    IngestionStatusInTableDescription,
+    IngestionStatusResult,
+    OperationStatus,
+    putRecordInTable,
+} from "./ingestionResult";
 import { Readable } from "stream";
 
 import { BlobDescriptor, StreamDescriptor } from "./descriptors";
@@ -46,24 +53,16 @@ export abstract class KustoIngestClientBase extends AbstractKustoClient {
 
         const reportToTable = props.reportLevel !== ReportLevel.DoNotReport && props.reportMethod !== ReportMethod.Queue;
 
-        const time = Date.now().toString();
         if (reportToTable) {
             const statusTableUri = await this.resourceManager.getStatusTable();
-            const statusTableClient = createStatusTableClient(statusTableUri![0].uri);
+            if (!statusTableUri) {
+                throw new Error("Failed to get status table");
+            }
 
-            const status = {
-                Status: "Pending",
-                partitionKey: ingestionBlobInfo.Id,
-                rowKey: ingestionBlobInfo.Id,
-                Timestamp: time,
-                IngestionSourceId: ingestionBlobInfo.Id,
-                IngestionSourcePath: descriptor.path.split(/[?;]/)[0],
-                Database: props.database,
-                Table: props.table,
-                UpdatedOn: time,
-                Details: "",
-            } as TableEntity<IngestionStatus>;
-            await statusTableClient.createEntity(status);
+            const statusTableClient = createStatusTableClient(statusTableUri![0].uri);
+            const status = this.createStatusObject(props, OperationStatus.Pending, ingestionBlobInfo);
+            await putRecordInTable(statusTableClient, { ...status, partitionKey: ingestionBlobInfo.Id, rowKey: ingestionBlobInfo.Id });
+
             const desc = new IngestionStatusInTableDescription(statusTableUri![0].uri, ingestionBlobInfo.Id, ingestionBlobInfo.Id);
             ingestionBlobInfo.IngestionStatusInTable = desc;
             await this.sendQueueMessage(maxRetries, ingestionBlobInfo);
@@ -71,18 +70,7 @@ export abstract class KustoIngestClientBase extends AbstractKustoClient {
         }
 
         await this.sendQueueMessage(maxRetries, ingestionBlobInfo);
-        return new IngestionStatusResult({
-            Status: "Queued",
-            partitionKey: ingestionBlobInfo.Id,
-            rowKey: ingestionBlobInfo.Id,
-            Timestamp: time,
-            IngestionSourceId: ingestionBlobInfo.Id,
-            IngestionSourcePath: descriptor.path.split(/[?;]/)[0],
-            Database: props.database,
-            Table: props.table,
-            UpdatedOn: time,
-            Details: "",
-        } as IngestionStatus);
+        return new IngestionStatusResult(this.createStatusObject(props, OperationStatus.Queued, ingestionBlobInfo));
     }
 
     private async sendQueueMessage(maxRetries: number, blobInfo: IngestionBlobInfo) {
@@ -106,6 +94,20 @@ export abstract class KustoIngestClientBase extends AbstractKustoClient {
         }
 
         throw new Error("Failed to send message to queue.");
+    }
+
+    private createStatusObject(props: IngestionProperties, status: OperationStatus, ingestionBlobInfo: IngestionBlobInfo): IngestionStatus {
+        const time = Date.now().toString();
+        return {
+            Status: status,
+            Timestamp: time,
+            IngestionSourceId: ingestionBlobInfo.Id,
+            IngestionSourcePath: ingestionBlobInfo.BlobPath.split(/[?;]/)[0],
+            Database: props.database,
+            Table: props.table,
+            UpdatedOn: time,
+            Details: "",
+        } as IngestionStatus;
     }
 
     async uploadToBlobWithRetry(
