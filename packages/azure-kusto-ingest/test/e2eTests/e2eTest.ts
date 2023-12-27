@@ -551,7 +551,10 @@ const main = (): void => {
 
         const failures = await statusQueues.failure.pop();
         const successes = await statusQueues.success.pop();
-
+        console.log(`Successes: ${successes.length}, Failures: ${failures.length}`);
+        if (failures?.length){
+            console.log(`Failures: ${failures.map((f) => f.messageText)}`);
+        }
         return { SuccessCount: successes.length, FailureCount: failures.length };
     };
 
