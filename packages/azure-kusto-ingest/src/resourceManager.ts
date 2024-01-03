@@ -26,11 +26,11 @@ export class IngestClientResources {
         readonly failedIngestionsQueues: ResourceURI[] | null = null,
         readonly successfulIngestionsQueues: ResourceURI[] | null = null,
         readonly containers: ResourceURI[] | null = null,
-        readonly statusTable: ResourceURI[] | null = null
+        readonly statusTables: ResourceURI[] | null = null
     ) {}
 
     valid() {
-        const resources = [this.securedReadyForAggregationQueues, this.failedIngestionsQueues, this.failedIngestionsQueues, this.containers, this.statusTable];
+        const resources = [this.securedReadyForAggregationQueues, this.failedIngestionsQueues, this.failedIngestionsQueues, this.containers, this.statusTables];
         return resources.reduce((prev, current) => !!(prev && current), true);
     }
 }
@@ -256,8 +256,17 @@ export class ResourceManager {
         return this.refreshAuthorizationContext();
     }
 
-    async getStatusTable(): Promise<ResourceURI[] | null> {
-        return (await this.refreshIngestClientResources()).statusTable;
+    async getStatusTables(): Promise<ResourceURI[] | null> {
+        return (await this.refreshIngestClientResources()).statusTables;
+    }
+
+    async createStatusTable(){
+        const statusTables = await this.getStatusTables();
+        if (!statusTables) {
+            throw new Error("Failed to get status table");
+        }
+
+        return createStatusTableClient(statusTables![0].uri);
     }
 
     close(): void {

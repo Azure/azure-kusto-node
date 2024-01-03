@@ -54,16 +54,11 @@ export abstract class KustoIngestClientBase extends AbstractKustoClient {
         const reportToTable = props.reportLevel !== ReportLevel.DoNotReport && props.reportMethod !== ReportMethod.Queue;
 
         if (reportToTable) {
-            const statusTableUri = await this.resourceManager.getStatusTable();
-            if (!statusTableUri) {
-                throw new Error("Failed to get status table");
-            }
-
-            const statusTableClient = createStatusTableClient(statusTableUri![0].uri);
+            const statusTableClient = await this.resourceManager.createStatusTable();
             const status = this.createStatusObject(props, OperationStatus.Pending, ingestionBlobInfo);
             await putRecordInTable(statusTableClient, { ...status, partitionKey: ingestionBlobInfo.Id, rowKey: ingestionBlobInfo.Id });
 
-            const desc = new IngestionStatusInTableDescription(statusTableUri![0].uri, ingestionBlobInfo.Id, ingestionBlobInfo.Id);
+            const desc = new IngestionStatusInTableDescription(statusTableClient.url, ingestionBlobInfo.Id, ingestionBlobInfo.Id);
             ingestionBlobInfo.IngestionStatusInTable = desc;
             await this.sendQueueMessage(maxRetries, ingestionBlobInfo);
             return new TableReportIngestionResult(desc, statusTableClient);

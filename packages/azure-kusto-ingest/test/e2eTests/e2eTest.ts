@@ -63,7 +63,6 @@ const main = (): void => {
     const ingestClient = new IngestClient(dmKcsb);
     const dmKustoClient = new Client(dmKcsb);
 
-    const statusQueues = new KustoIngestStatusQueues(ingestClient);
     const managedStreamingIngestClient = new ManagedStreamingIngestClient(engineKcsb, dmKcsb);
     const mockedStreamingIngestClient = new StreamingIngestClient(engineKcsb);
     const streamStub = sinon.stub(mockedStreamingIngestClient, "ingestFromStream");
@@ -82,7 +81,6 @@ const main = (): void => {
     const tables = [
         "general",
         "queued_file",
-        "status_table",
         "queued_stream",
         "streaming_file",
         "streaming_stream",
@@ -391,53 +389,6 @@ const main = (): void => {
             });
         });
 
-        it.concurrent("KustoIngestStatusQueues", async () => {
-            try {
-                await cleanStatusQueues();
-            } catch (err) {
-                assert.fail(`Failed to Clean status queues - ${util.format(err)}`);
-            }
-
-            const checkSuccess = async () => {
-                const item = testItems[0];
-                const table = tableNames[("status_success" + "_" + item.description) as Table];
-                const ingestionProperties = item.ingestionPropertiesCallback(table);
-                ingestionProperties.reportLevel = ReportLevel.FailuresAndSuccesses;
-                try {
-                    await ingestClient.ingestFromFile(item.path, ingestionProperties);
-                    const status = await waitForStatus();
-                    assert.strictEqual(status.SuccessCount, 1);
-                    assert.strictEqual(status.FailureCount, 0);
-                } catch (err) {
-                    assert.fail(`Failed to ingest ${item.description} - ${util.format(err)}`);
-                }
-            };
-            await checkSuccess();
-
-            try {
-                await cleanStatusQueues();
-            } catch (err) {
-                assert.fail(`Failed to Clean status queues - ${util.format(err)}`);
-            }
-
-            const checkFail = async () => {
-                const item = testItems[0];
-                const table = tableNames[("status_fail" + "_" + item.description) as Table];
-                const ingestionProperties = item.ingestionPropertiesCallback(table);
-                ingestionProperties.reportLevel = ReportLevel.FailuresAndSuccesses;
-                ingestionProperties.database = "invalid";
-                try {
-                    await ingestClient.ingestFromFile(item.path, ingestionProperties);
-                    const status = await waitForStatus();
-                    assert.strictEqual(status.SuccessCount, 0);
-                    assert.strictEqual(status.FailureCount, 1);
-                } catch (err) {
-                    assert.fail(`Failed to ingest ${item.description} - ${util.format(err)}`);
-                }
-            };
-            await checkFail();
-        });
-
         describe("QueryClient", () => {
             it.concurrent("General BadRequest", async () => {
                 try {
@@ -533,30 +484,6 @@ const main = (): void => {
             expect(result.primaryResults[0].columns.map((c) => c.name)).toEqual(["ChildEntities", "EntityType"]);
         });
     });
-
-    const cleanStatusQueues = async () => {
-        while (!(await statusQueues.failure.isEmpty())) {
-            await statusQueues.failure.pop();
-        }
-
-        while (!(await statusQueues.success.isEmpty())) {
-            await statusQueues.success.pop();
-        }
-    };
-
-    const waitForStatus = async () => {
-        while ((await statusQueues.failure.isEmpty()) && (await statusQueues.success.isEmpty())) {
-            await sleep(500);
-        }
-
-        const failures = await statusQueues.failure.pop();
-        const successes = await statusQueues.success.pop();
-        console.log(`Successes: ${successes.length}, Failures: ${failures.length}`);
-        if (failures?.length) {
-            console.log(`Failures: ${failures.map((f) => f.messageText)}`);
-        }
-        return { SuccessCount: successes.length, FailureCount: failures.length };
-    };
 
     const assertRowsCount = async (testItem: TestDataItem, table: string) => {
         let count = 0;
