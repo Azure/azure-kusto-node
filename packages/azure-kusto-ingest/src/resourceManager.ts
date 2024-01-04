@@ -260,7 +260,7 @@ export class ResourceManager {
         return (await this.refreshIngestClientResources()).statusTables;
     }
 
-    async createStatusTable(){
+    async createStatusTable() {
         const statusTables = await this.getStatusTables();
         if (!statusTables) {
             throw new Error("Failed to get status table");
