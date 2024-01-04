@@ -90,6 +90,7 @@ const main = (): void => {
         "managed_stream",
         "status_success",
         "status_fail",
+        "status_table",
     ] as const;
 
     class TestDataItem {
