@@ -13,7 +13,7 @@ export enum WellKnownDataSet {
 type DateTimeParser = (value: string) => any;
 type TimeSpanParser = (value: string) => any;
 
-const defaultDatetimeParser: DateTimeParser = (t: string) => new Date(t);
+const defaultDatetimeParser: DateTimeParser = (t: string) => (t ? new Date(t) : null);
 const defaultTimespanParser: TimeSpanParser = parseKustoTimestampToMillis;
 
 export interface Table {
