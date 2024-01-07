@@ -69,7 +69,7 @@ describe("KustoResultRow", () => {
             for (let index = 0; index < inputColumns.length; index++) {
                 const currentActual = asJson[inputColumns[index].name as string];
                 if (typeof currentActual === "object") {
-                    assert.strictEqual((currentActual as object).toString(), expectedValues[index].toString());
+                    assert.strictEqual((currentActual as object).toString(), expectedValues[index]?.toString());
                 } else {
                     assert.strictEqual(currentActual, expectedValues[index]);
                 }
@@ -83,8 +83,8 @@ describe("KustoResultRow", () => {
             const actual = new KustoResultRow(
                 reverseOrderColumns.map((c, i) => new KustoResultColumn(c, rawColumns.length - i - 1)),
                 inputValues,
-                (t) => t + "-date",
-                (t) => t + "-time"
+                (t) => (t || "") + "-date",
+                (t) => (t || "") + "-time"
             );
 
             const asJson = actual.toJSON();
@@ -98,6 +98,27 @@ describe("KustoResultRow", () => {
                     assert.strictEqual(currentActual, expectedValues[index]);
                 }
             }
+        });
+
+        it.concurrent("default parsers nulls", () => {
+            const dates = ["2016-06-06T15:35:00Z", "", null];
+            const times = ["1.02:03:04.0050006", "", null];
+
+            const columns = [
+                new KustoResultColumn({ ColumnName: "date", ColumnType: "datetime" }, 0),
+                new KustoResultColumn({ ColumnName: "time", ColumnType: "timespan" }, 1),
+            ];
+            const actual = [
+                new KustoResultRow(columns, [dates[0], times[0]]),
+                new KustoResultRow(columns, [dates[1], times[1]]),
+                new KustoResultRow(columns, [dates[2], times[2]]),
+            ];
+
+            assert.strictEqual((actual[0].date as Date).toString(), new Date(dates[0]!).toString());
+            assert.strictEqual(actual[0].time, 93784005.0006);
+            assert.strictEqual(actual[1].date, null);
+            assert.strictEqual(actual[1].time, null);
+            assert.strictEqual(actual[2].date, null);
         });
 
         it.concurrent("mismatching data - less data than columns", () => {
@@ -246,8 +267,8 @@ describe("KustoResultTable", () => {
         });
         it.concurrent("iterate over rows with custom parsers", () => {
             const actual = new KustoResultTable(v2Response[2]);
-            const dateParser = (t: string) => t + "-date";
-            const timeParser = (t: string) => t + "-time";
+            const dateParser = (t: string | null) => (t || "") + "-date";
+            const timeParser = (t: string | null) => (t || "") + "-time";
             actual.dateTimeParser = dateParser;
             actual.timeSpanParser = timeParser;
 
