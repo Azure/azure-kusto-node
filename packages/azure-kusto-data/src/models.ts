@@ -10,10 +10,10 @@ export enum WellKnownDataSet {
     QueryProperties = "QueryProperties",
 }
 
-type DateTimeParser = (value: string) => any;
-type TimeSpanParser = (value: string) => any;
+type DateTimeParser = (value: string | null) => any;
+type TimeSpanParser = (value: string | null) => any;
 
-const defaultDatetimeParser: DateTimeParser = (t: string) => (t ? new Date(t) : null);
+const defaultDatetimeParser: DateTimeParser = (t: string | null) => (t ? new Date(t) : null);
 const defaultTimespanParser: TimeSpanParser = parseKustoTimestampToMillis;
 
 export interface Table {
