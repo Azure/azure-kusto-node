@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Support table status reporting like explained here https://learn.microsoft.com/en-us/azure/data-explorer/kusto/api/netfx/kusto-ingest-client-status
 -   When working with storage resources, use success/failure statistics and retry mechanism to improve ingestion stability
 
+### Changed
+
+-   [BREAKING] - The default converters for DateTime and TimeSpan will now return null if the value is null or an empty string. This is to align with the behavior of the service.
+
 ## [5.2.3] - 2023-11-07
 
 ### Fixed

@@ -8,9 +8,9 @@ export function toMilliseconds(hours: number, minutes: number, seconds: number) 
 // Format: [+|-]d.hh:mm:ss[.fffffff]
 const TimespanRegex = /^(-?)(?:(\d+).)?(\d{2}):(\d{2}):(\d{2}(\.\d+)?$)/;
 
-export function parseKustoTimestampToMillis(t: string | null): number {
-    if (t == null) {
-        return 0;
+export function parseKustoTimestampToMillis(t: string | null): number | null {
+    if (t == null || t === "") {
+        return null;
     }
     const match = TimespanRegex.exec(t);
     if (match) {
