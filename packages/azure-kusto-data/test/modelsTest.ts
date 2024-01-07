@@ -267,8 +267,8 @@ describe("KustoResultTable", () => {
         });
         it.concurrent("iterate over rows with custom parsers", () => {
             const actual = new KustoResultTable(v2Response[2]);
-            const dateParser = (t: string) => t + "-date";
-            const timeParser = (t: string) => t + "-time";
+            const dateParser = (t: string | null) => t + "-date";
+            const timeParser = (t: string | null) => t + "-time";
             actual.dateTimeParser = dateParser;
             actual.timeSpanParser = timeParser;
 
