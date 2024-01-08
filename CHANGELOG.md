@@ -7,7 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unversioned
 
-
 ### Changed
 
 -   [BREAKING] - Minimal node version is now 18
