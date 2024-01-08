@@ -15,7 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 -   [BREAKING] - The default converters for DateTime and TimeSpan will now return null if the value is null or an empty string. This is to align with the behavior of the service.
--   IngestClient returns Promise<IngestionResult> instead of Promise<QueueSendMessageResponse>
+-   [BREAKING] - IngestClient returns Promise<IngestionResult> instead of Promise<QueueSendMessageResponse>
+-   [BREAKING] - Minimal node version is now 18
 
 ## [5.2.3] - 2023-11-07
 
@@ -108,7 +109,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
--   [BREAKING] - the minimal version for NodeJS is now 18
+-   [BREAKING] - the minimal version for NodeJS is now 16
 -   [BREAKING] - removed moment.js from project and fixed timespan parsing:
     -   By default, Timespan will now be parsed into a number of milliseconds by default, matching Date substraction
     -   By default, Datetime fields will now be parsed into a native Date object
