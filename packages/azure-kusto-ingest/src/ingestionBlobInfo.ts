@@ -4,6 +4,7 @@
 import { v4 as uuidv4 } from "uuid";
 import { BlobDescriptor } from "./descriptors";
 import IngestionProperties, { ReportLevel, ReportMethod } from "./ingestionProperties";
+import { IngestionStatusInTableDescription } from "./ingestionResult";
 
 export class IngestionBlobInfo {
     BlobPath: string;
@@ -18,6 +19,7 @@ export class IngestionBlobInfo {
     SourceMessageCreationTime: Date;
     Id: string;
     AdditionalProperties: { [additional: string]: any };
+    IngestionStatusInTable: IngestionStatusInTableDescription | null = null;
 
     constructor(blobDescriptor: BlobDescriptor, ingestionProperties: IngestionProperties, authContext: string | null = null) {
         this.BlobPath = blobDescriptor.path;

@@ -9,6 +9,7 @@ import managedStreamingIngestClient from "./managedStreamingIngestClient";
 
 import KustoIngestStatusQueues from "./status";
 
+import { IngestionResult, OperationStatus, IngestionStatus, IngestionStatusInTableDescription } from "./ingestionResult";
 import {
     DataFormat,
     IngestionMappingKind,
@@ -78,6 +79,10 @@ export {
     ValidationPolicy,
     W3CLogFileMapping,
     dataFormatMappingKind,
+    IngestionResult,
+    OperationStatus,
+    IngestionStatus,
+    IngestionStatusInTableDescription,
 };
 
 /**

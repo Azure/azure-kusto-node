@@ -3,17 +3,27 @@
 
 import { Client as KustoClient, KustoConnectionStringBuilder } from "azure-kusto-data";
 
+import ResourceManager, { createStatusTableClient } from "./resourceManager";
+
+import IngestionBlobInfo from "./ingestionBlobInfo";
 import { ContainerClient } from "@azure/storage-blob";
 
-import { QueueClient, QueueSendMessageResponse } from "@azure/storage-queue";
+import { QueueClient } from "@azure/storage-queue";
 
+import IngestionProperties, { IngestionPropertiesInput, ReportLevel, ReportMethod } from "./ingestionProperties";
+import { AbstractKustoClient } from "./abstractKustoClient";
+import {
+    IngestionStatus,
+    TableReportIngestionResult,
+    IngestionResult,
+    IngestionStatusInTableDescription,
+    IngestionStatusResult,
+    OperationStatus,
+    putRecordInTable,
+} from "./ingestionResult";
 import { Readable } from "stream";
 
-import { IngestionPropertiesInput } from "./ingestionProperties";
-import { AbstractKustoClient } from "./abstractKustoClient";
 import { BlobDescriptor, StreamDescriptor } from "./descriptors";
-import ResourceManager from "./resourceManager";
-import IngestionBlobInfo from "./ingestionBlobInfo";
 
 export abstract class KustoIngestClientBase extends AbstractKustoClient {
     resourceManager: ResourceManager;
@@ -31,22 +41,40 @@ export abstract class KustoIngestClientBase extends AbstractKustoClient {
         blob: string | BlobDescriptor,
         ingestionProperties?: IngestionPropertiesInput,
         maxRetries: number = KustoIngestClientBase.MaxNumberOfRetryAttempts
-    ): Promise<QueueSendMessageResponse> {
+    ): Promise<IngestionResult> {
         this.ensureOpen();
 
         const props = this._getMergedProps(ingestionProperties);
 
         const descriptor = blob instanceof BlobDescriptor ? blob : new BlobDescriptor(blob);
+
+        const authorizationContext = await this.resourceManager.getAuthorizationContext();
+        const ingestionBlobInfo = new IngestionBlobInfo(descriptor, props, authorizationContext);
+
+        const reportToTable = props.reportLevel !== ReportLevel.DoNotReport && props.reportMethod !== ReportMethod.Queue;
+
+        if (reportToTable) {
+            const statusTableClient = await this.resourceManager.createStatusTable();
+            const status = this.createStatusObject(props, OperationStatus.Pending, ingestionBlobInfo);
+            await putRecordInTable(statusTableClient, { ...status, partitionKey: ingestionBlobInfo.Id, rowKey: ingestionBlobInfo.Id });
+
+            const desc = new IngestionStatusInTableDescription(statusTableClient.url, ingestionBlobInfo.Id, ingestionBlobInfo.Id);
+            ingestionBlobInfo.IngestionStatusInTable = desc;
+            await this.sendQueueMessage(maxRetries, ingestionBlobInfo);
+            return new TableReportIngestionResult(desc, statusTableClient);
+        }
+
+        await this.sendQueueMessage(maxRetries, ingestionBlobInfo);
+        return new IngestionStatusResult(this.createStatusObject(props, OperationStatus.Queued, ingestionBlobInfo));
+    }
+
+    private async sendQueueMessage(maxRetries: number, blobInfo: IngestionBlobInfo) {
         const queues = await this.resourceManager.getIngestionQueues();
         if (queues == null) {
             throw new Error("Failed to get queues");
         }
-
-        const authorizationContext = await this.resourceManager.getAuthorizationContext();
-        const ingestionBlobInfo = new IngestionBlobInfo(descriptor, props, authorizationContext);
-        const ingestionBlobInfoJson = JSON.stringify(ingestionBlobInfo);
+        const ingestionBlobInfoJson = JSON.stringify(blobInfo);
         const encoded = Buffer.from(ingestionBlobInfoJson).toString("base64");
-
         const retryCount = Math.min(maxRetries, queues.length);
 
         for (let i = 0; i < retryCount; i++) {
@@ -59,7 +87,22 @@ export abstract class KustoIngestClientBase extends AbstractKustoClient {
                 this.resourceManager.reportResourceUsageResult(queueClient.accountName, false);
             }
         }
+
         throw new Error("Failed to send message to queue.");
+    }
+
+    private createStatusObject(props: IngestionProperties, status: OperationStatus, ingestionBlobInfo: IngestionBlobInfo): IngestionStatus {
+        const time = Date.now().toString();
+        return {
+            Status: status,
+            Timestamp: time,
+            IngestionSourceId: ingestionBlobInfo.Id,
+            IngestionSourcePath: ingestionBlobInfo.BlobPath.split(/[?;]/)[0],
+            Database: props.database,
+            Table: props.table,
+            UpdatedOn: time,
+            Details: "",
+        } as IngestionStatus;
     }
 
     async uploadToBlobWithRetry(

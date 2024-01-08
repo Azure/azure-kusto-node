@@ -4,6 +4,7 @@
 import { Client, KustoDataErrors, TimeUtils } from "azure-kusto-data";
 import { ExponentialRetry } from "./retry";
 import { ContainerClient } from "@azure/storage-blob";
+import { TableClient } from "@azure/data-tables";
 import { RankedStorageAccountSet } from "./rankedStorageAccountSet";
 import { QueueClient } from "@azure/storage-queue";
 
@@ -12,6 +13,7 @@ const ATTEMPT_COUNT = 4;
 export enum ResourceType {
     Queue,
     Container,
+    Table,
 }
 
 export class ResourceURI {
@@ -23,11 +25,12 @@ export class IngestClientResources {
         readonly securedReadyForAggregationQueues: ResourceURI[] | null = null,
         readonly failedIngestionsQueues: ResourceURI[] | null = null,
         readonly successfulIngestionsQueues: ResourceURI[] | null = null,
-        readonly containers: ResourceURI[] | null = null
+        readonly containers: ResourceURI[] | null = null,
+        readonly statusTables: ResourceURI[] | null = null
     ) {}
 
     valid() {
-        const resources = [this.securedReadyForAggregationQueues, this.failedIngestionsQueues, this.failedIngestionsQueues, this.containers];
+        const resources = [this.securedReadyForAggregationQueues, this.failedIngestionsQueues, this.failedIngestionsQueues, this.containers, this.statusTables];
         return resources.reduce((prev, current) => !!(prev && current), true);
     }
 }
@@ -77,7 +80,8 @@ export class ResourceManager {
                     this.getResourceByName(table, "SecuredReadyForAggregationQueue", ResourceType.Queue),
                     this.getResourceByName(table, "FailedIngestionsQueue", ResourceType.Queue),
                     this.getResourceByName(table, "SuccessfulIngestionsQueue", ResourceType.Queue),
-                    this.getResourceByName(table, "TempStorage", ResourceType.Container)
+                    this.getResourceByName(table, "TempStorage", ResourceType.Container),
+                    this.getResourceByName(table, "IngestionsStatusTable", ResourceType.Table)
                 );
 
                 if (!resoures.valid()) {
@@ -115,7 +119,7 @@ export class ResourceManager {
         return result;
     }
 
-    pupulateStorageAccounts() {
+    pupulateStorageAccounts(): void {
         if (this.ingestClientResources == null) {
             return;
         }
@@ -230,20 +234,20 @@ export class ResourceManager {
         throw new Error(`Failed to get identity token from server - the request was throttled ${ATTEMPT_COUNT} times.`);
     }
 
-    async getIngestionQueues() {
+    async getIngestionQueues(): Promise<ResourceURI[] | null> {
         const queues = (await this.refreshIngestClientResources()).securedReadyForAggregationQueues;
         return queues ? this.getRoundRobinRankedAndShuffledResources(queues) : null;
     }
 
-    async getFailedIngestionsQueues() {
+    async getFailedIngestionsQueues(): Promise<ResourceURI[] | null> {
         return (await this.refreshIngestClientResources()).failedIngestionsQueues;
     }
 
-    async getSuccessfulIngestionsQueues() {
+    async getSuccessfulIngestionsQueues(): Promise<ResourceURI[] | null> {
         return (await this.refreshIngestClientResources()).successfulIngestionsQueues;
     }
 
-    async getContainers() {
+    async getContainers(): Promise<ResourceURI[] | null> {
         const containers = (await this.refreshIngestClientResources()).containers;
         return containers ? this.getRoundRobinRankedAndShuffledResources(containers) : null;
     }
@@ -252,13 +256,34 @@ export class ResourceManager {
         return this.refreshAuthorizationContext();
     }
 
-    close() {
+    async getStatusTables(): Promise<ResourceURI[] | null> {
+        return (await this.refreshIngestClientResources()).statusTables;
+    }
+
+    async createStatusTable() {
+        const statusTables = await this.getStatusTables();
+        if (!statusTables) {
+            throw new Error("Failed to get status table");
+        }
+
+        return createStatusTableClient(statusTables![0].uri);
+    }
+
+    close(): void {
         this.kustoClient.close();
     }
 
-    reportResourceUsageResult(accountName: string, success: boolean) {
+    reportResourceUsageResult(accountName: string, success: boolean): void {
         this.rankedStorageAccountSet.logResultToAccount(accountName, success);
     }
 }
+
+export const createStatusTableClient = (uri: string): TableClient => {
+    const tableUrl = new URL(uri);
+    const origin = tableUrl.origin;
+    const sasToken = tableUrl.search;
+    const tableName = tableUrl.pathname.replace("/", "");
+    return new TableClient(origin + sasToken, tableName);
+};
 
 export default ResourceManager;

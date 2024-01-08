@@ -4,7 +4,6 @@
 import { IngestionPropertiesInput } from "./ingestionProperties";
 
 import { isNode } from "@azure/core-util";
-import { QueueSendMessageResponse } from "@azure/storage-queue";
 import { KustoConnectionStringBuilder, KustoResponseDataSet } from "azure-kusto-data";
 import { Readable } from "stream";
 import { AbstractKustoClient } from "./abstractKustoClient";
@@ -14,6 +13,7 @@ import IngestClient from "./ingestClient";
 import { ExponentialRetry } from "./retry";
 import { readableToStream, tryFileToBuffer, tryStreamToArray } from "./streamUtils";
 import StreamingIngestClient from "./streamingIngestClient";
+import { IngestionResult } from "./ingestionResult";
 
 const maxStreamSize = 1024 * 1024 * 4;
 const attemptCount = 3;
@@ -90,7 +90,7 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
         stream: StreamDescriptor | Readable | ArrayBuffer,
         ingestionProperties?: IngestionPropertiesInput,
         clientRequestId?: string
-    ): Promise<any> {
+    ): Promise<KustoResponseDataSet | IngestionResult> {
         this.ensureOpen();
         const props = this._getMergedProps(ingestionProperties);
         let descriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
@@ -119,14 +119,18 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
     async ingestFromFile(
         file: FileDescriptor | string | Blob,
         ingestionProperties?: IngestionPropertiesInput
-    ): Promise<KustoResponseDataSet | QueueSendMessageResponse> {
+    ): Promise<KustoResponseDataSet | IngestionResult> {
         this.ensureOpen();
 
         const stream = file instanceof FileDescriptor ? await tryFileToBuffer(file) : await tryFileToBuffer(new FileDescriptor(file));
         return await this.ingestFromStream(stream, ingestionProperties);
     }
 
-    async ingestFromBlob(blob: string | BlobDescriptor, ingestionProperties?: IngestionPropertiesInput, clientRequestId?: string): Promise<any> {
+    async ingestFromBlob(
+        blob: string | BlobDescriptor,
+        ingestionProperties?: IngestionPropertiesInput,
+        clientRequestId?: string
+    ): Promise<KustoResponseDataSet | IngestionResult> {
         const props = this._getMergedProps(ingestionProperties);
         const descriptor = blob instanceof BlobDescriptor ? blob : new BlobDescriptor(blob);
         // No need to check blob size if it was given to us that it's not empty

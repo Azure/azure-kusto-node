@@ -10,7 +10,7 @@
         "clean": "rimraf dist/* dist-esm/* types/*"
     },
     "engines": {
-        "node": ">= 16.0.0"
+        "node": ">= 18.0.0"
     },
     "publishConfig": {
         "access": "public"
@@ -54,6 +54,7 @@
         "./dist-esm/src/ingestClient.js": "./dist-esm/src/ingestClient.browser.js"
     },
     "dependencies": {
+        "@azure/data-tables": "^13.2.2",
         "@azure/storage-blob": "^12.11.0",
         "@azure/storage-queue": "^12.10.0",
         "@types/pako": "^2.0.0",

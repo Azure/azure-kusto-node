@@ -7,7 +7,7 @@ import assert from "assert";
 import IngestClient from "../src/ingestClient.browser";
 import { KustoConnectionStringBuilder as ConnectionStringBuilder } from "azure-kusto-data/src/connectionBuilder.browser";
 import sinon from "sinon";
-import { QueueSendMessageResponse } from "@azure/storage-queue";
+import { IngestionResult } from "../src/ingestionResult";
 
 describe(`Browser Unit tests`, () => {
     const cluster = "https://somecluster.kusto.windows.net";
@@ -55,7 +55,7 @@ describe(`Browser Unit tests`, () => {
             });
 
             const queuedStub = sinon.stub(mockedIngestClient, "ingestFromBlob");
-            queuedStub.resolves({} as QueueSendMessageResponse);
+            queuedStub.resolves({} as IngestionResult);
             const blobUploadStub = sinon.stub(mockedIngestClient, "uploadToBlobWithRetry");
             blobUploadStub.resolves("https://storage.blob.windows.net/container/file.json.gz");
 

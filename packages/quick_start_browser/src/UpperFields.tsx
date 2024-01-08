@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 import { Link } from "@fluentui/react-components";
 import React from "react";
 import { InputText } from "./InputText";
@@ -116,7 +118,7 @@ export const UpperFields: React.FunctionComponent<UpperFieldsProps> = ({ config,
             </p>
             {/* Usage for this flow is:
           const tokenProvider = () => Promise.resolve("some_token");
-          const kcsbs = [KustoConnectionStringBuilder.withTokenProvider("localhost", tokenProvider)]; 
+          const kcsbs = [KustoConnectionStringBuilder.withTokenProvider("clusteruri", tokenProvider)];
       */}
         </>
     );
