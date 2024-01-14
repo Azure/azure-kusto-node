@@ -8,6 +8,7 @@ export class FileDescriptor extends AbstractDescriptor implements FileDescriptor
     size: number | null;
     zipped: boolean;
     compressionType: CompressionType;
+    shouldNotCompress: boolean;
     cleanupTmp?: () => Promise<void>;
 
     constructor(
@@ -22,10 +23,16 @@ export class FileDescriptor extends AbstractDescriptor implements FileDescriptor
         this.compressionType = compressionType;
         this.size = size || file.size;
         this.zipped = compressionType !== CompressionType.None || this.extension === ".gz" || this.extension === ".zip";
+        this.shouldNotCompress =
+            this.extension === ".avro" ||
+            this.extension === ".apacheavro" ||
+            this.extension === ".parquet" ||
+            this.extension === ".sstream" ||
+            this.extension === ".orc";
     }
 
     async prepare(): Promise<Blob> {
-        if (!this.zipped) {
+        if (!this.zipped && !this.shouldNotCompress) {
             try {
                 const gzipped = pako.gzip(await this.file.arrayBuffer());
                 return new Blob([gzipped]);

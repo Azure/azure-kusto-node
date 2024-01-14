@@ -14,6 +14,7 @@ import { AbstractDescriptor, CompressionType, FileDescriptorBase } from "./descr
 export class FileDescriptor extends AbstractDescriptor implements FileDescriptorBase {
     zipped: boolean;
     compressionType: CompressionType;
+    shouldNotCompress: boolean;
     cleanupTmp?: () => Promise<void>;
 
     constructor(
@@ -33,6 +34,12 @@ export class FileDescriptor extends AbstractDescriptor implements FileDescriptor
         this.extension = extension ? extension : pathlib.extname(this.file as string).toLowerCase();
 
         this.zipped = compressionType !== CompressionType.None || this.extension === ".gz" || this.extension === ".zip";
+        this.shouldNotCompress =
+            this.extension === ".avro" ||
+            this.extension === ".apacheavro" ||
+            this.extension === ".parquet" ||
+            this.extension === ".sstream" ||
+            this.extension === ".orc";
     }
 
     async _gzip(): Promise<string> {
@@ -59,7 +66,7 @@ export class FileDescriptor extends AbstractDescriptor implements FileDescriptor
     }
 
     async prepare(): Promise<string> {
-        if (this.zipped) {
+        if (this.zipped || this.shouldNotCompress) {
             const estimatedCompressionModifier = 11;
             await this._calculateSize(estimatedCompressionModifier);
             return this.file as string;
