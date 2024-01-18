@@ -7,6 +7,7 @@ import fs from "fs";
 import { file as tmpFile } from "tmp-promise";
 import { promisify } from "util";
 import { AbstractDescriptor, CompressionType, FileDescriptorBase } from "./descriptors";
+import { IngestionPropertiesInput } from "./ingestionProperties";
 
 /**
  * Describes a file to be ingested. Use string to describe a local path in Node.JS and Blob object in browsers
@@ -65,8 +66,17 @@ export class FileDescriptor extends AbstractDescriptor implements FileDescriptor
         return path;
     }
 
-    async prepare(): Promise<string> {
-        if (this.zipped || this.shouldNotCompress) {
+    async prepare(ingestionProperties?: IngestionPropertiesInput): Promise<string> {
+        if (ingestionProperties == null) {
+            ingestionProperties = {};
+        }
+        const shouldNotCompressByFormat =
+            ingestionProperties.format === "avro" ||
+            ingestionProperties.format === "parquet" ||
+            ingestionProperties.format === "orc" ||
+            ingestionProperties.format === "apacheavro" ||
+            ingestionProperties.format === "sstream";
+        if (this.zipped || this.shouldNotCompress || shouldNotCompressByFormat) {
             const estimatedCompressionModifier = 11;
             await this._calculateSize(estimatedCompressionModifier);
             return this.file as string;

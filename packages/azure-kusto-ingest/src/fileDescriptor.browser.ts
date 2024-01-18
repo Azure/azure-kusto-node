@@ -3,6 +3,7 @@
 
 import pako from "pako";
 import { AbstractDescriptor, CompressionType, FileDescriptorBase } from "./descriptors";
+import { IngestionPropertiesInput } from "./ingestionProperties";
 
 export class FileDescriptor extends AbstractDescriptor implements FileDescriptorBase {
     size: number | null;
@@ -31,8 +32,17 @@ export class FileDescriptor extends AbstractDescriptor implements FileDescriptor
             this.extension === ".orc";
     }
 
-    async prepare(): Promise<Blob> {
-        if (!this.zipped && !this.shouldNotCompress) {
+    async prepare(ingestionProperties?: IngestionPropertiesInput): Promise<Blob> {
+        if (ingestionProperties == null) {
+            ingestionProperties = {};
+        }
+        const shouldNotCompressByFormat =
+            ingestionProperties.format === "avro" ||
+            ingestionProperties.format === "parquet" ||
+            ingestionProperties.format === "orc" ||
+            ingestionProperties.format === "apacheavro" ||
+            ingestionProperties.format === "sstream";
+        if (!this.zipped && !this.shouldNotCompress && !shouldNotCompressByFormat) {
             try {
                 const gzipped = pako.gzip(await this.file.arrayBuffer());
                 return new Blob([gzipped]);
