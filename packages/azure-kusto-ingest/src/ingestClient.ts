@@ -42,7 +42,7 @@ export class KustoIngestClient extends KustoIngestClientBase {
         this.ensureOpen();
         const props = this._getMergedProps(ingestionProperties);
         const descriptor: StreamDescriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
-
+        // TODO we don't gzip on stream here, just ont streamingIngestClient
         const blobName = generateBlobName(descriptor, props);
 
         const blobUri = await this.uploadToBlobWithRetry(descriptor, blobName);
