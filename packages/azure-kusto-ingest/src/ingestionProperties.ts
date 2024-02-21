@@ -3,6 +3,7 @@
 
 import { IngestionPropertiesValidationError } from "./errors";
 import { ColumnMapping } from "./columnMappings";
+import { shouldCompressFileByExtension } from "./descriptors";
 
 /**
  * Data formats supported for Kusto ingestion.
@@ -293,5 +294,18 @@ export class IngestionProperties {
 }
 
 export type IngestionPropertiesInput = IngestionProperties | IngestionPropertiesFields | null | undefined;
+
+export function shouldCompressFileByFormat(ingestionProperties?: IngestionPropertiesInput): boolean {
+    if (ingestionProperties == null) {
+        ingestionProperties = {};
+    }
+    return !(
+        ingestionProperties.format === "avro" ||
+        ingestionProperties.format === "parquet" ||
+        ingestionProperties.format === "orc" ||
+        ingestionProperties.format === "apacheavro" ||
+        ingestionProperties.format === "sstream"
+    );
+}
 
 export default IngestionProperties;

@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 import pako from "pako";
-import { AbstractDescriptor, CompressionType, FileDescriptorBase } from "./descriptors";
-import { IngestionPropertiesInput } from "./ingestionProperties";
+import { AbstractDescriptor, CompressionType, FileDescriptorBase, shouldCompressFileByExtension } from "./descriptors";
+import { IngestionPropertiesInput, shouldCompressFileByFormat } from "./ingestionProperties";
 
 export class FileDescriptor extends AbstractDescriptor implements FileDescriptorBase {
     size: number | null;
@@ -24,24 +24,14 @@ export class FileDescriptor extends AbstractDescriptor implements FileDescriptor
         this.compressionType = compressionType;
         this.size = size || file.size;
         this.zipped = compressionType !== CompressionType.None || this.extension === ".gz" || this.extension === ".zip";
-        this.shouldNotCompress =
-            this.extension === ".avro" ||
-            this.extension === ".apacheavro" ||
-            this.extension === ".parquet" ||
-            this.extension === ".sstream" ||
-            this.extension === ".orc";
+        this.shouldNotCompress = !shouldCompressFileByExtension(this.extension);
     }
 
     async prepare(ingestionProperties?: IngestionPropertiesInput): Promise<Blob> {
         if (ingestionProperties == null) {
             ingestionProperties = {};
         }
-        const shouldNotCompressByFormat =
-            ingestionProperties.format === "avro" ||
-            ingestionProperties.format === "parquet" ||
-            ingestionProperties.format === "orc" ||
-            ingestionProperties.format === "apacheavro" ||
-            ingestionProperties.format === "sstream";
+        const shouldNotCompressByFormat = !shouldCompressFileByFormat(ingestionProperties);
         if (!this.zipped && !this.shouldNotCompress && !shouldNotCompressByFormat) {
             try {
                 const gzipped = pako.gzip(await this.file.arrayBuffer());

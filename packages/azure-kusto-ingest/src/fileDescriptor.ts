@@ -6,8 +6,8 @@ import pathlib from "path";
 import fs from "fs";
 import { file as tmpFile } from "tmp-promise";
 import { promisify } from "util";
-import { AbstractDescriptor, CompressionType, FileDescriptorBase } from "./descriptors";
-import { IngestionPropertiesInput } from "./ingestionProperties";
+import { AbstractDescriptor, CompressionType, FileDescriptorBase, shouldCompressFileByExtension } from "./descriptors";
+import { IngestionPropertiesInput, shouldCompressFileByFormat } from "./ingestionProperties";
 
 /**
  * Describes a file to be ingested. Use string to describe a local path in Node.JS and Blob object in browsers
@@ -35,12 +35,7 @@ export class FileDescriptor extends AbstractDescriptor implements FileDescriptor
         this.extension = extension ? extension : pathlib.extname(this.file as string).toLowerCase();
 
         this.zipped = compressionType !== CompressionType.None || this.extension === ".gz" || this.extension === ".zip";
-        this.shouldNotCompress =
-            this.extension === ".avro" ||
-            this.extension === ".apacheavro" ||
-            this.extension === ".parquet" ||
-            this.extension === ".sstream" ||
-            this.extension === ".orc";
+        this.shouldNotCompress = !shouldCompressFileByExtension(this.extension);
     }
 
     async _gzip(): Promise<string> {
@@ -70,12 +65,7 @@ export class FileDescriptor extends AbstractDescriptor implements FileDescriptor
         if (ingestionProperties == null) {
             ingestionProperties = {};
         }
-        const shouldNotCompressByFormat =
-            ingestionProperties.format === "avro" ||
-            ingestionProperties.format === "parquet" ||
-            ingestionProperties.format === "orc" ||
-            ingestionProperties.format === "apacheavro" ||
-            ingestionProperties.format === "sstream";
+        const shouldNotCompressByFormat = !shouldCompressFileByFormat(ingestionProperties);
         if (this.zipped || this.shouldNotCompress || shouldNotCompressByFormat) {
             const estimatedCompressionModifier = 11;
             await this._calculateSize(estimatedCompressionModifier);
