@@ -3,7 +3,6 @@
 
 import { IngestionPropertiesValidationError } from "./errors";
 import { ColumnMapping } from "./columnMappings";
-import { shouldCompressFileByExtension } from "./descriptors";
 
 /**
  * Data formats supported for Kusto ingestion.
