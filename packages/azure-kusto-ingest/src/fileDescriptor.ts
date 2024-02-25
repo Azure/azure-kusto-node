@@ -62,9 +62,6 @@ export class FileDescriptor extends AbstractDescriptor implements FileDescriptor
     }
 
     async prepare(ingestionProperties?: IngestionPropertiesInput): Promise<string> {
-        if (ingestionProperties == null) {
-            ingestionProperties = {};
-        }
         const shouldNotCompressByFormat = !shouldCompressFileByFormat(ingestionProperties);
         if (this.zipped || this.shouldNotCompress || shouldNotCompressByFormat) {
             const estimatedCompressionModifier = 11;

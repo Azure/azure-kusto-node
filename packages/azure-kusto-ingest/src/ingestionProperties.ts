@@ -295,7 +295,7 @@ export class IngestionProperties {
 export type IngestionPropertiesInput = IngestionProperties | IngestionPropertiesFields | null | undefined;
 
 export function shouldCompressFileByFormat(ingestionProperties?: IngestionPropertiesInput): boolean {
-    if (ingestionProperties == null) {
+    if (!ingestionProperties) {
         ingestionProperties = {};
     }
     return !(
