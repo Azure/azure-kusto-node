@@ -294,4 +294,17 @@ export class IngestionProperties {
 
 export type IngestionPropertiesInput = IngestionProperties | IngestionPropertiesFields | null | undefined;
 
+export function shouldCompressFileByFormat(ingestionProperties?: IngestionPropertiesInput): boolean {
+    if (!ingestionProperties) {
+        ingestionProperties = {};
+    }
+    return !(
+        ingestionProperties.format === "avro" ||
+        ingestionProperties.format === "parquet" ||
+        ingestionProperties.format === "orc" ||
+        ingestionProperties.format === "apacheavro" ||
+        ingestionProperties.format === "sstream"
+    );
+}
+
 export default IngestionProperties;
