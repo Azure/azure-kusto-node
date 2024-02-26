@@ -2,12 +2,29 @@
     "name": "azure-kusto-data",
     "version": "5.2.3",
     "description": "Azure Data Explorer Query SDK",
-    "module": "dist-esm/src/index.js",
-    "types": "./types/src/index.d.ts",
-    "main": "dist-esm/src/index",
+    "source": "src/index.ts",
     "scripts": {
         "clean": "rimraf dist/* dist-esm/* types/*",
         "build": "tsc -b"
+    },
+    "targets": {
+        "browser": {
+            "engines": {
+                "browsers": "> 0.5%, not dead"
+            },
+            "context": "browser",
+            "isLibrary": true,
+            "outputFormat": "esmodule",
+            "includeNodeModules": true
+        },
+        "node": {
+            "engines": {
+                "node": ">= 18.0.0"
+            },
+            "context": "node",
+            "isLibrary": true,
+            "outputFormat": "esmodule"
+        }
     },
     "browser": {
         "fs": false,
@@ -56,6 +73,8 @@
         "rimraf": "^3.0.2"
     },
     "dependencies": {
+        "@azure/core-auth": "^1.6.0",
+        "@azure/core-util": "^1.7.0",
         "@azure/identity": "^3.3.2",
         "@types/uuid": "^8.3.4",
         "axios": "^1.6.0",
