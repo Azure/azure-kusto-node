@@ -3,8 +3,7 @@
 
 import { IngestionProperties, IngestionPropertiesInput } from "./ingestionProperties";
 import { StreamDescriptor, FileDescriptorBase, BlobDescriptor } from "./descriptors";
-import url from "node:url";
-import net from "net";
+import net from "node:net";
 
 const INGEST_PREFIX = "ingest-";
 const PROTOCOL_SUFFIX = "://";
@@ -66,11 +65,11 @@ export abstract class AbstractKustoClient {
     }
 
     isReservedHostname(clusterUrl: string): boolean {
-        const parsedUrl = url.parse(clusterUrl);
-        if (!parsedUrl.hostname) {
+        const parsedUrl = new URL(clusterUrl);
+        const authority = parsedUrl.hostname
+        if (!authority) {
             return true;
         }
-        const authority = parsedUrl.hostname.split(":")[0]; // removes port if exists
         const is_ip = net.isIP(authority) === 4 || net.isIP(authority) === 6;
         const is_localhost = authority.includes("localhost");
         return is_localhost || is_ip || authority.toLowerCase() === "onebox.dev.kusto.windows.net";
