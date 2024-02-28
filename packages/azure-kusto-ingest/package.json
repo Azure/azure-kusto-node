@@ -48,6 +48,7 @@
         "crypto": false,
         "stream": false,
         "zlib": false,
+        "net": "net-browserify",
         "./dist-esm/src/streamUtils.js": "./dist-esm/src/streamUtils.browser.js",
         "./dist-esm/src/streamingIngestClient.js": "./dist-esm/src/streamingIngestClient.browser.js",
         "./dist-esm/src/fileDescriptor.js": "./dist-esm/src/fileDescriptor.browser.js",
