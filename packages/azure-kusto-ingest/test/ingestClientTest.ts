@@ -17,7 +17,7 @@ describe("KustoIngestClient", () => {
                 database: "db",
                 table: "table",
                 format: "json",
-            } as IngestionProperties);
+            } as IngestionProperties, false);
 
             assert.notStrictEqual(ingestClient.defaultProps, null);
             assert.strictEqual(ingestClient.resourceManager.kustoClient.cluster, "https://cluster.kusto.windows.net");
