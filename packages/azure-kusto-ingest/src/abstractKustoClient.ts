@@ -3,7 +3,7 @@
 
 import { IngestionProperties, IngestionPropertiesInput } from "./ingestionProperties";
 import { StreamDescriptor, FileDescriptorBase, BlobDescriptor } from "./descriptors";
-import net from "node:net";
+import { Address4, Address6 } from "ip-address";
 
 const INGEST_PREFIX = "ingest-";
 const PROTOCOL_SUFFIX = "://";
@@ -70,7 +70,19 @@ export abstract class AbstractKustoClient {
         if (!authority) {
             return true;
         }
-        const is_ip = net.isIP(authority) === 4 || net.isIP(authority) === 6;
+        let is_ip;
+        try {
+            is_ip = new Address4(authority);
+        } catch {
+            try {
+                is_ip = new Address6(authority);
+            } catch {
+                is_ip = false;
+            }
+        }
+        if (is_ip instanceof Address4 || is_ip instanceof Address6) {
+            is_ip = true;
+        }
         const is_localhost = authority.includes("localhost");
         return is_localhost || is_ip || authority.toLowerCase() === "onebox.dev.kusto.windows.net";
     }
