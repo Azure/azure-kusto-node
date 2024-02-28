@@ -235,6 +235,25 @@ describe("KustoIngestClient", () => {
         });
     });
 
+    describe("test auto correct uri", () => {
+        it.concurrent("auto correct from query endpoint", () => {
+            const client = new KustoIngestClient("https://somecluster.kusto.windows.net");
+            assert.strictEqual(
+                client.resourceManager.kustoClient.cluster,
+                "https://ingest-somecluster.kusto.windows.net",
+                "Kusto cluster URL does not match expected value"
+            );
+        });
+        it.concurrent("auto correct from ingestion endpoint", () => {
+            const client = new KustoIngestClient("https://ingest-somecluster.kusto.windows.net");
+            assert.strictEqual(
+                client.resourceManager.kustoClient.cluster,
+                "https://ingest-somecluster.kusto.windows.net",
+                "Kusto cluster URL does not match expected value"
+            );
+        });
+    });
+
     describe("#ingestFromFile()", () => {
         it.concurrent("valid input", () => {
             // TODO: not sure a unit test will be useful here

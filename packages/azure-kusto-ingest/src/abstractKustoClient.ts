@@ -3,6 +3,11 @@
 
 import { IngestionProperties, IngestionPropertiesInput } from "./ingestionProperties";
 import { StreamDescriptor, FileDescriptorBase, BlobDescriptor } from "./descriptors";
+import url from "node:url";
+import net from "net";
+
+const INGEST_PREFIX = "ingest-";
+const PROTOCOL_SUFFIX = "://";
 
 export abstract class AbstractKustoClient {
     public defaultProps: IngestionProperties;
@@ -44,5 +49,30 @@ export abstract class AbstractKustoClient {
         if (this._isClosed) {
             throw new Error("Client is closed");
         }
+    }
+
+    getIngestionEndpoint(clusterUrl?: string): string | undefined {
+        if (!clusterUrl || clusterUrl.includes(INGEST_PREFIX) || this.isReservedHostname(clusterUrl)) {
+            return clusterUrl;
+        }
+        return clusterUrl.replace(PROTOCOL_SUFFIX, PROTOCOL_SUFFIX + INGEST_PREFIX);
+    }
+
+    getQueryEndpoint(clusterUrl?: string): string | undefined {
+        if (clusterUrl && clusterUrl.includes(INGEST_PREFIX)) {
+            return clusterUrl.replace(INGEST_PREFIX, "");
+        }
+        return clusterUrl;
+    }
+
+    isReservedHostname(clusterUrl: string): boolean {
+        const parsedUrl = url.parse(clusterUrl);
+        if (!parsedUrl.hostname) {
+            return true;
+        }
+        const authority = parsedUrl.hostname.split(":")[0]; // removes port if exists
+        const is_ip = net.isIP(authority) === 4 || net.isIP(authority) === 6;
+        const is_localhost = authority.includes("localhost");
+        return is_localhost || is_ip || authority.toLowerCase() === "onebox.dev.kusto.windows.net";
     }
 }

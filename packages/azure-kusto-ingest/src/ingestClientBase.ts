@@ -30,8 +30,19 @@ export abstract class KustoIngestClientBase extends AbstractKustoClient {
 
     static readonly MaxNumberOfRetryAttempts = 3;
 
-    constructor(kcsb: string | KustoConnectionStringBuilder, defaultProps?: IngestionPropertiesInput, isBrowser?: boolean) {
+    constructor(
+        kcsb: string | KustoConnectionStringBuilder,
+        defaultProps?: IngestionPropertiesInput,
+        autoCorrectEndpoint: boolean = true,
+        isBrowser?: boolean
+    ) {
         super(defaultProps);
+        if (typeof kcsb === "string") {
+            kcsb = new KustoConnectionStringBuilder(kcsb);
+        }
+        if (autoCorrectEndpoint) {
+            kcsb.dataSource = this.getIngestionEndpoint(kcsb.dataSource);
+        }
         const kustoClient = new KustoClient(kcsb);
         this.resourceManager = new ResourceManager(kustoClient, isBrowser);
         this.defaultDatabase = kustoClient.defaultDatabase;

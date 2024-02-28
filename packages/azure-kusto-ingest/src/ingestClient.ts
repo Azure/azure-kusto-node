@@ -12,8 +12,8 @@ import { Readable } from "stream";
 import { IngestionResult } from "./ingestionResult";
 
 export class KustoIngestClient extends KustoIngestClientBase {
-    constructor(kcsb: string | KustoConnectionStringBuilder, defaultProps?: IngestionPropertiesInput) {
-        super(kcsb, defaultProps);
+    constructor(kcsb: string | KustoConnectionStringBuilder, defaultProps?: IngestionPropertiesInput, autoCorrectEndpoint?: boolean) {
+        super(kcsb, defaultProps, autoCorrectEndpoint);
     }
 
     /**
