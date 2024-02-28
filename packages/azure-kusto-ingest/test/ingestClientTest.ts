@@ -13,11 +13,15 @@ import { Readable } from "stream";
 describe("KustoIngestClient", () => {
     describe("#constructor()", () => {
         it.concurrent("valid input", () => {
-            const ingestClient = new KustoIngestClient("https://cluster.kusto.windows.net", {
-                database: "db",
-                table: "table",
-                format: "json",
-            } as IngestionProperties, false);
+            const ingestClient = new KustoIngestClient(
+                "https://cluster.kusto.windows.net",
+                {
+                    database: "db",
+                    table: "table",
+                    format: "json",
+                } as IngestionProperties,
+                false
+            );
 
             assert.notStrictEqual(ingestClient.defaultProps, null);
             assert.strictEqual(ingestClient.resourceManager.kustoClient.cluster, "https://cluster.kusto.windows.net");
