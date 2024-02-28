@@ -3,7 +3,7 @@
 
 import { IngestionProperties, IngestionPropertiesInput } from "./ingestionProperties";
 import { StreamDescriptor, FileDescriptorBase, BlobDescriptor } from "./descriptors";
-import net from "net";
+import net from "node:net";
 
 const INGEST_PREFIX = "ingest-";
 const PROTOCOL_SUFFIX = "://";
@@ -66,7 +66,7 @@ export abstract class AbstractKustoClient {
 
     isReservedHostname(clusterUrl: string): boolean {
         const parsedUrl = new URL(clusterUrl);
-        const authority = parsedUrl.hostname
+        const authority = parsedUrl.hostname;
         if (!authority) {
             return true;
         }
