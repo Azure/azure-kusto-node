@@ -1,16 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { Client as KustoClient, KustoConnectionStringBuilder } from "azure-kusto-data";
+import { KustoClient, KustoConnectionStringBuilder } from "~/../azure-kusto-data";
 
-import ResourceManager, { createStatusTableClient } from "./resourceManager";
+import { ResourceManager } from "./resourceManager";
 
-import IngestionBlobInfo from "./ingestionBlobInfo";
+import { IngestionBlobInfo } from "./ingestionBlobInfo";
 import { ContainerClient } from "@azure/storage-blob";
 
 import { QueueClient } from "@azure/storage-queue";
 
-import IngestionProperties, { IngestionPropertiesInput, ReportLevel, ReportMethod } from "./ingestionProperties";
+import { IngestionProperties, IngestionPropertiesInput, ReportLevel, ReportMethod } from "./ingestionProperties";
 import { AbstractKustoClient } from "./abstractKustoClient";
 import {
     IngestionStatus,
@@ -151,5 +151,3 @@ export abstract class KustoIngestClientBase extends AbstractKustoClient {
         super.close();
     }
 }
-
-export default KustoIngestClientBase;

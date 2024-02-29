@@ -4,22 +4,22 @@
 import { IngestionPropertiesInput } from "./ingestionProperties";
 
 import { isNode } from "@azure/core-util";
-import { KustoConnectionStringBuilder, KustoResponseDataSet } from "azure-kusto-data";
+import { KustoConnectionStringBuilder, KustoResponseDataSet } from "~/../azure-kusto-data";
 import { Readable } from "stream";
 import { AbstractKustoClient } from "./abstractKustoClient";
 import { AbstractDescriptor, BlobDescriptor, StreamDescriptor } from "./descriptors";
 import { FileDescriptor } from "./fileDescriptor";
-import IngestClient from "./ingestClient";
+import { IngestClient } from "./ingestClient";
 import { ExponentialRetry } from "./retry";
 import { readableToStream, tryFileToBuffer, tryStreamToArray } from "./streamUtils";
-import StreamingIngestClient from "./streamingIngestClient";
+import { StreamingIngestClient } from "./streamingIngestClient";
 import { IngestionResult } from "./ingestionResult";
 
 const maxStreamSize = 1024 * 1024 * 4;
 const attemptCount = 3;
 const ingestPrefix = "https://ingest-";
 
-class KustoManagedStreamingIngestClient extends AbstractKustoClient {
+export class ManagedStreamingIngestClient extends AbstractKustoClient {
     private streamingIngestClient: StreamingIngestClient;
     private queuedIngestClient: IngestClient;
     private baseSleepTimeSecs = 1;
@@ -192,5 +192,3 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
         super.close();
     }
 }
-
-export default KustoManagedStreamingIngestClient;

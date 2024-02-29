@@ -7,13 +7,13 @@ import http from "http";
 import https from "https";
 import { v4 as uuidv4 } from "uuid";
 import { KustoHeaders } from "./clientDetails";
-import ClientRequestProperties from "./clientRequestProperties";
-import CloudSettings from "./cloudSettings";
-import ConnectionStringBuilder from "./connectionBuilder";
+import { ClientRequestProperties } from "./clientRequestProperties";
+import { CloudSettings } from "./cloudSettings";
+import { KustoConnectionStringBuilder as ConnectionStringBuilder } from "./connectionBuilder";
 import { ThrottlingError } from "./errors";
 import { kustoTrustedEndpoints } from "./kustoTrustedEndpoints";
 import { KustoResponseDataSet, KustoResponseDataSetV1, KustoResponseDataSetV2, V1, V2Frames } from "./response";
-import AadHelper from "./security";
+import { AadHelper } from "./security";
 import { toMilliseconds } from "./timeUtils";
 
 const COMMAND_TIMEOUT_IN_MILLISECS = toMilliseconds(0, 10, 30);
@@ -21,12 +21,14 @@ const QUERY_TIMEOUT_IN_MILLISECS = toMilliseconds(0, 4, 30);
 const CLIENT_SERVER_DELTA_IN_MILLISECS = toMilliseconds(0, 0, 30);
 const MGMT_PREFIX = ".";
 
-enum ExecutionType {
-    Mgmt = "mgmt",
-    Query = "query",
-    Ingest = "ingest",
-    QueryV1 = "queryv1",
-}
+const ExecutionType = {
+    Mgmt: "mgmt",
+    Query: "query",
+    Ingest: "ingest",
+    QueryV1: "queryv1",
+} as const;
+
+export type ExecutionType = (typeof ExecutionType)[keyof typeof ExecutionType];
 
 export type RequestEntity = { query: string } | { stream: any } | { blob: string };
 
@@ -314,5 +316,3 @@ export class KustoClient {
         }
     }
 }
-
-export default KustoClient;

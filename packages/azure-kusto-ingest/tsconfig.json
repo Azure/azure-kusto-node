@@ -5,16 +5,12 @@
         "exampleBrowser.ts"
     ],
     "compilerOptions": {
+
         "rootDir": ".",
         "declarationDir": "./types",
         "esModuleInterop": true,
         "outDir": "./dist-esm",
         "resolveJsonModule": true,
-        "paths": {
-            "azure-kusto-ingest": [
-                "./src/index"
-            ]
-        },
         "lib": [
             "ES6",
             "dom"

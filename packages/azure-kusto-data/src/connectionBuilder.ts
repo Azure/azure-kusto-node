@@ -186,5 +186,3 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
         return kcsb;
     }
 }
-
-export default KustoConnectionStringBuilder;

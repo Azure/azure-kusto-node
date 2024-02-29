@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { DeviceCodeInfo, InteractiveBrowserCredentialInBrowserOptions, InteractiveBrowserCredentialNodeOptions, TokenCredential } from "@azure/identity";
-import KustoConnectionStringBuilderBase from "./connectionBuilderBase";
+import { KustoConnectionStringBuilderBase } from "./connectionBuilderBase";
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
@@ -120,5 +120,3 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
         return kcsb;
     }
 }
-
-export default KustoConnectionStringBuilder;

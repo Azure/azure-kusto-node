@@ -324,5 +324,3 @@ const a: [
         Cancelled: false,
     },
 ];
-
-export default a;

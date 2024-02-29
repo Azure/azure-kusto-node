@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import KustoIngestClient from "./ingestClient";
+import { IngestClient } from "./ingestClient";
 
-import streamingIngestClient from "./streamingIngestClient";
+import { StreamingIngestClient } from "./streamingIngestClient";
 
-import managedStreamingIngestClient from "./managedStreamingIngestClient";
+import { ManagedStreamingIngestClient } from "./managedStreamingIngestClient";
 
-import KustoIngestStatusQueues from "./status";
+import { KustoIngestStatusQueues } from "./status";
 
 import { IngestionResult, OperationStatus, IngestionStatus, IngestionStatusInTableDescription } from "./ingestionResult";
 import {
@@ -39,12 +39,7 @@ import { FileDescriptor } from "./fileDescriptor";
 
 export { Transformation as ColumnMappingTransformation } from "./columnMappings";
 export { IngestionProperties } from "./ingestionProperties";
-export {
-    KustoIngestClient as IngestClient,
-    KustoIngestStatusQueues as IngestStatusQueues,
-    managedStreamingIngestClient as ManagedStreamingIngestClient,
-    streamingIngestClient as StreamingIngestClient,
-};
+export { IngestClient, KustoIngestStatusQueues as IngestStatusQueues, ManagedStreamingIngestClient, StreamingIngestClient };
 
 /**
  * @deprecated - import directly instead. Export const is not exporting type.

@@ -5,9 +5,9 @@ import assert from "assert";
 import { KustoIngestClient } from "../src/ingestClient";
 import { DataFormat, IngestionProperties, IngestionPropertiesInput, ReportLevel, ReportMethod } from "../src/ingestionProperties";
 import { IngestionPropertiesValidationError } from "../src/errors";
-import KustoStreamingIngestClient from "../src/streamingIngestClient";
-import KustoManagedStreamingIngestClient from "../src/managedStreamingIngestClient";
-import { KustoConnectionStringBuilder } from "azure-kusto-data";
+import { KustoStreamingIngestClient } from "../src/streamingIngestClient";
+import { KustoManagedStreamingIngestClient } from "../src/managedStreamingIngestClient";
+import { KustoConnectionStringBuilder } from "~/../azure-kusto-data";
 import { Readable } from "stream";
 
 describe("KustoIngestClient", () => {

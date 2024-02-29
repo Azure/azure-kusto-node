@@ -3,7 +3,7 @@
 
 import { v4 as uuidv4 } from "uuid";
 import { BlobDescriptor } from "./descriptors";
-import IngestionProperties, { ReportLevel, ReportMethod } from "./ingestionProperties";
+import { IngestionProperties, ReportLevel, ReportMethod } from "./ingestionProperties";
 import { IngestionStatusInTableDescription } from "./ingestionResult";
 
 export class IngestionBlobInfo {
@@ -83,5 +83,3 @@ export class IngestionBlobInfo {
         this.AdditionalProperties = additionalProperties;
     }
 }
-
-export default IngestionBlobInfo;

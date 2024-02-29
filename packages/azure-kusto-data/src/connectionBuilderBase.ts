@@ -189,5 +189,3 @@ export abstract class KustoConnectionStringBuilderBase {
         return Object.assign({}, other);
     }
 }
-
-export default KustoConnectionStringBuilderBase;

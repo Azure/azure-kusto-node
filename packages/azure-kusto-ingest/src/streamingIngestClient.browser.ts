@@ -3,7 +3,7 @@
 
 import { IngestionPropertiesInput } from "./ingestionProperties";
 
-import { KustoConnectionStringBuilder, KustoResponseDataSet } from "azure-kusto-data";
+import { KustoConnectionStringBuilder, KustoResponseDataSet } from "~/../azure-kusto-data";
 import { StreamDescriptor } from "./descriptors";
 import { FileDescriptor } from "./fileDescriptor.browser";
 import { tryFileToBuffer } from "./streamUtils.browser";
@@ -42,5 +42,3 @@ class KustoStreamingIngestClient extends KustoStreamingIngestClientBase {
         return this.ingestFromStream(await tryFileToBuffer(descriptor), ingestionProperties);
     }
 }
-
-export default KustoStreamingIngestClient;

@@ -124,5 +124,3 @@ export class ClientRequestProperties {
         return headers;
     }
 }
-
-export default ClientRequestProperties;

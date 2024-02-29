@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { ClientRequestProperties, Client as KustoClient, KustoConnectionStringBuilder } from "azure-kusto-data";
+import { ClientRequestProperties, Client as KustoClient, KustoConnectionStringBuilder } from "~/../azure-kusto-data";
 import { BlobDescriptor, DataFormat, FileDescriptor, IngestClient } from "azure-kusto-ingest";
 import IngestionProperties, { dataFormatMappingKind } from "azure-kusto-ingest/src/ingestionProperties";
 import Console from "console";
@@ -13,7 +13,7 @@ import { AuthenticationModeOptions } from "./SampleApp";
 /**
  * Util static class - Handles the communication with the API, and provides generic and simple "plug-n-play" functions to use in different programs.
  */
-export default abstract class Utils {
+
     /**
      * Error handling function. Will mention the appropriate error message (and the exception itself if exists), and will quit the program.
      *

@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import KustoClient from "./client";
-import ClientRequestProperties from "./clientRequestProperties";
-import CloudSettings from "./cloudSettings";
-import KustoConnectionStringBuilder from "./connectionBuilder";
+import { KustoClient } from "./client";
+import { ClientRequestProperties } from "./clientRequestProperties";
+import { CloudSettings } from "./cloudSettings";
+import { KustoConnectionStringBuilder } from "./connectionBuilder";
 import * as KustoDataErrors from "./errors";
 import { kustoTrustedEndpoints, MatchRule } from "./kustoTrustedEndpoints";
 import { KustoResultColumn, KustoResultRow, KustoResultTable } from "./models";
@@ -14,7 +14,7 @@ import { toMilliseconds } from "./timeUtils";
 const TimeUtils = { toMilliseconds };
 
 export {
-    KustoClient as Client,
+    KustoClient,
     ClientRequestProperties,
     CloudSettings,
     KustoConnectionStringBuilder,

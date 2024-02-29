@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { StatusQueue } from "./statusQ";
-import KustoIngestClient from "./ingestClient";
+import { KustoIngestClient } from "./ingestClient";
 import { ResourceURI } from "./resourceManager";
 
 export class StatusMessage {
@@ -57,5 +57,3 @@ export class KustoIngestStatusQueues {
         this.failure = new StatusQueue(() => kustoIngestClient.resourceManager.getFailedIngestionsQueues().then((r) => r as ResourceURI[]), FailureMessage);
     }
 }
-
-export default KustoIngestStatusQueues;

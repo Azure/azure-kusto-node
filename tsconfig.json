@@ -20,5 +20,9 @@
     "exclude": [
         "node_modules",
         "jest.config.ts"
-    ]
+    ],
+    "baseUrl": ".",
+    "paths": {
+        "~*": ["./*"],
+    }
 }

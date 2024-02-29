@@ -306,5 +306,3 @@ export function shouldCompressFileByFormat(ingestionProperties?: IngestionProper
         ingestionProperties.format === "sstream"
     );
 }
-
-export default IngestionProperties;

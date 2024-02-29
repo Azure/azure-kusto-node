@@ -1,14 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { Client as KustoClient } from "azure-kusto-data";
+import { Client as KustoClient } from "~/../azure-kusto-data";
 import { DataFormat, IngestClient } from "azure-kusto-ingest";
 import { dataFormatMappingKind } from "azure-kusto-ingest/src/ingestionProperties";
 import Console from "console";
 import fs from "fs";
 import readline from "readline";
 import { v4 as uuidv4 } from "uuid";
-import Utils, { Authentication, Ingestion, Queries } from "./Utils";
+import { Authentication, Ingestion, Queries } from "./Utils";
 
 enum SourceType {
     LocalFileSource = "localfilesource",

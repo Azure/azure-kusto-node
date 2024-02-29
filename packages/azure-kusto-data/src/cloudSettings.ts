@@ -91,4 +91,3 @@ class CloudSettings {
 
 const cloudSettings = new CloudSettings();
 export { cloudSettings as CloudSettings };
-export default cloudSettings;

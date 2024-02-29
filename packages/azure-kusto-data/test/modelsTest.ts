@@ -3,7 +3,7 @@
 
 import assert from "assert";
 import { KustoResultColumn, KustoResultRow, KustoResultTable } from "../src/models";
-import v2 from "./data/response/v2";
+import { v2 } from "./data/response/v2";
 import { parseKustoTimestampToMillis } from "../src/timeUtils";
 
 const v2Response = v2;

@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { KustoConnectionStringBuilder } from "../src/index";
-import AadHelper from "../src/security";
+import { AadHelper } from "../src/security";
 import { CloudSettings } from "../src/cloudSettings";
 import assert from "assert";
 import { KustoAuthenticationError } from "../src/errors";

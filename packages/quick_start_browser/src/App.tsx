@@ -130,5 +130,3 @@ function App() {
         </FluentProvider>
     );
 }
-
-export default App;

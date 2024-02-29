@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { Client, KustoDataErrors, TimeUtils } from "azure-kusto-data";
+import { Client, KustoDataErrors, TimeUtils } from "~/../azure-kusto-data";
 import { ExponentialRetry } from "./retry";
 import { ContainerClient } from "@azure/storage-blob";
 import { TableClient } from "@azure/data-tables";
@@ -285,5 +285,3 @@ export const createStatusTableClient = (uri: string): TableClient => {
     const tableName = tableUrl.pathname.replace("/", "");
     return new TableClient(origin + sasToken, tableName);
 };
-
-export default ResourceManager;

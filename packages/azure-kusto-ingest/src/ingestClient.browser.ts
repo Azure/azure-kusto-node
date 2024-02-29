@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { KustoConnectionStringBuilder } from "azure-kusto-data";
+import { KustoConnectionStringBuilder } from "~/../azure-kusto-data";
 
 import { BlobDescriptor, generateBlobName, StreamDescriptor } from "./descriptors";
 import { FileDescriptor } from "./fileDescriptor.browser";
@@ -45,5 +45,3 @@ export class KustoIngestClient extends KustoIngestClientBase {
         return this.ingestFromBlob(new BlobDescriptor(blobUri, descriptor.size, descriptor.sourceId), props);
     }
 }
-
-export default KustoIngestClient;

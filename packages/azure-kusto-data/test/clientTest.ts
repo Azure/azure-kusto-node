@@ -10,12 +10,12 @@ import { KustoClient } from "../src/client";
 import { ClientRequestProperties } from "../src/clientRequestProperties";
 import { KustoResponseDataSetV1, KustoResponseDataSetV2 } from "../src/response";
 
-import v2Response from "./data/response/v2.json";
-import v2ResponseError from "./data/response/v2error.json";
-import v1Response from "./data/response/v1.json";
-import v1_2Response from "./data/response/v1_2.json";
+import { v2Response } from "./data/response/v2.json";
+import { v2ResponseError } from "./data/response/v2error.json";
+import { v1Response } from "./data/response/v1.json";
+import { v1_2Response } from "./data/response/v1_2.json";
 import { Readable } from "stream";
-import ConnectionBuilder from "../src/connectionBuilder";
+import { ConnectionBuilder } from "../src/connectionBuilder";
 import { CloudSettings } from "../src/cloudSettings";
 import { toMilliseconds } from "../src/timeUtils";
 

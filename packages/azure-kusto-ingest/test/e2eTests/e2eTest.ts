@@ -3,7 +3,7 @@
 
 /* eslint-disable no-console */
 
-import KustoIngestStatusQueues from "../../src/status";
+import { KustoIngestStatusQueues } from "../../src/status";
 import {
     Client,
     ClientRequestProperties,
@@ -12,7 +12,7 @@ import {
     KustoConnectionStringBuilder,
     kustoTrustedEndpoints,
     MatchRule,
-} from "azure-kusto-data";
+} from "~/../azure-kusto-data";
 import {
     IngestClient,
     CompressionType,
