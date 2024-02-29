@@ -10,6 +10,10 @@ const baseConfig: Config = {
     prettierPath: "prettier",
     maxWorkers: 200,
     testMatch: ["**/test/**/*Test.ts"],
+    extensionsToTreatAsEsm: [".ts", ".tsx"],
+    transform: {
+        "^.+\\.(t|j)sx?$": "@swc/jest",
+    },
 };
 
 const config: JestConfigWithTsJest = {
@@ -29,4 +33,4 @@ const config: JestConfigWithTsJest = {
     ],
 };
 
-export default config;
+export { config };

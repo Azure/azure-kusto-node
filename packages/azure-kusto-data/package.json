@@ -2,13 +2,37 @@
     "name": "azure-kusto-data",
     "version": "5.2.3",
     "description": "Azure Data Explorer Query SDK",
-    "source": "src/index.ts",
+    "type": "module",
     "scripts": {
         "clean": "rimraf dist/* dist-esm/* types/*",
         "build": "tsc -b"
     },
+    "source": "src/index.ts",
+    "module": "dist/node/index.js",
+    "types": "dist/node/index.d.ts",
+    "node_types": "dist/node/index.d.ts",
+    "web_types": "dist/web/index.d.ts",
     "targets": {
-        "browser": {
+        "web": {
+            "engines": {
+                "browsers": "> 0.5%, not dead"
+            },
+            "context": "browser",
+            "isLibrary": true,
+            "outputFormat": "esmodule",
+            "includeNodeModules": true,
+            "distDir": "dist/web"
+        },
+        "module": {
+            "engines": {
+                "node": ">= 18.0.0"
+            },
+            "context": "node",
+            "isLibrary": true,
+            "outputFormat": "esmodule",
+            "distDir": "dist/node"
+        },
+        "web_types": {
             "engines": {
                 "browsers": "> 0.5%, not dead"
             },
@@ -17,25 +41,14 @@
             "outputFormat": "esmodule",
             "includeNodeModules": true
         },
-        "node": {
+        "types": {
             "engines": {
                 "node": ">= 18.0.0"
-            },
-            "context": "node",
-            "isLibrary": true,
-            "outputFormat": "esmodule"
+            }
         }
     },
     "browser": {
-        "fs": false,
-        "os": false,
-        "process": false,
-        "stream-http": false,
-        "https": false,
-        "http": false,
-        "crypto": false,
-        "stream": false,
-        "./dist-esm/src/connectionBuilder.js": "./dist-esm/src/connectionBuilder.browser.js"
+        "./src/connectionBuilder": "./src/connectionBuilder.browser"
     },
     "engines": {
         "node": ">= 18.0.0"

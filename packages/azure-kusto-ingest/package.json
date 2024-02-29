@@ -2,9 +2,46 @@
     "name": "azure-kusto-ingest",
     "version": "5.2.3",
     "description": "Azure Data Explorer Ingestion SDK",
-    "module": "dist-esm/src/index.js",
-    "types": "./types/src/index.d.ts",
-    "main": "dist-esm/src/index",
+    "type": "module",
+    "source": "src/index.ts",
+    "module": "dist/node/index.mjs",
+    "types": "dist/node/index.d.ts",
+    "web_types": "dist/web/index.d.ts",
+    "targets": {
+        "web": {
+            "engines": {
+                "browsers": "> 0.5%, not dead"
+            },
+            "context": "browser",
+            "isLibrary": true,
+            "outputFormat": "esmodule",
+            "includeNodeModules": true,
+            "distDir": "dist/web"
+        },
+        "module": {
+            "engines": {
+                "node": ">= 18.0.0"
+            },
+            "context": "node",
+            "isLibrary": true,
+            "outputFormat": "esmodule",
+            "distDir": "dist/node"
+        },
+        "web_types": {
+            "engines": {
+                "browsers": "> 0.5%, not dead"
+            },
+            "context": "browser",
+            "isLibrary": true,
+            "outputFormat": "esmodule",
+            "includeNodeModules": true
+        },
+        "types": {
+            "engines": {
+                "node": ">= 18.0.0"
+            }
+        }
+    },
     "scripts": {
         "build": "tsc -b",
         "clean": "rimraf dist/* dist-esm/* types/*"
@@ -39,21 +76,13 @@
     "author": "Microsoft Corporation",
     "license": "ISC",
     "browser": {
-        "fs": false,
-        "os": false,
-        "process": false,
-        "stream-http": false,
-        "https": false,
-        "http": false,
-        "crypto": false,
-        "stream": false,
-        "zlib": false,
-        "./dist-esm/src/streamUtils.js": "./dist-esm/src/streamUtils.browser.js",
-        "./dist-esm/src/streamingIngestClient.js": "./dist-esm/src/streamingIngestClient.browser.js",
-        "./dist-esm/src/fileDescriptor.js": "./dist-esm/src/fileDescriptor.browser.js",
-        "./dist-esm/src/ingestClient.js": "./dist-esm/src/ingestClient.browser.js"
+        "./src/streamUtils.js": "./src/streamUtils.browser.js",
+        "./src/streamingIngestClient.js": "./src/streamingIngestClient.browser.js",
+        "./src/fileDescriptor.js": "./src/fileDescriptor.browser.js",
+        "./src/ingestClient.js": "./src/ingestClient.browser.js"
     },
     "dependencies": {
+        "@azure/core-util": "^1.7.0",
         "@azure/data-tables": "^13.2.2",
         "@azure/storage-blob": "^12.11.0",
         "@azure/storage-queue": "^12.10.0",
