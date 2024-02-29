@@ -5,7 +5,7 @@ import { IngestionPropertiesInput } from "./ingestionProperties";
 
 import { BlobDescriptor } from "./descriptors";
 import { AbstractKustoClient } from "./abstractKustoClient";
-import { Client as KustoClient, KustoConnectionStringBuilder } from "azure-kusto-data";
+import { Client as KustoClient, KustoConnectionStringBuilder } from "~/../azure-kusto-data";
 
 export abstract class KustoStreamingIngestClientBase extends AbstractKustoClient {
     protected kustoClient: KustoClient;
