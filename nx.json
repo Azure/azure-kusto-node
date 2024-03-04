@@ -1,35 +1,69 @@
 {
-    "$schema": "./node_modules/nx/schemas/nx-schema.json",
-    "affected": {
-        "defaultBase": "master"
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "affected": {
+    "defaultBase": "master"
+  },
+  "plugins": [
+    {
+      "plugin": "@nx/jest/plugin",
+      "options": {
+        "targetName": "test"
+      }
     },
-    "plugins": [
-    ],
-    "nxCloudAccessToken": "ZWM3OWE3MTAtY2JjYi00Mzk2LWIyMDYtMDlmOTBmZGFkYTg4fHJlYWQtd3JpdGU=",
-    "targetDefaults": {
-        "bundle-node": {
-            "cache": true
-        },
-        "bundle-browser": {
-            "cache": true
-        },
-        "types-node": {
-            "cache": true
-        },
-        "types-browser": {
-            "cache": true
-        },
-        "check": {
-            "cache": true
-        },
-        "format": {
-            "cache": true
-        },
-        "lint": {
-            "cache": true
-        },
-        "build": {
-            "cache": true
-        }
+    {
+      "plugin": "@nx/eslint/plugin",
+      "options": {
+        "targetName": "lint"
+      }
     }
+  ],
+  "nxCloudAccessToken": "ZWM3OWE3MTAtY2JjYi00Mzk2LWIyMDYtMDlmOTBmZGFkYTg4fHJlYWQtd3JpdGU=",
+  "targetDefaults": {
+    "bundle-node": {
+      "inputs": [
+        "{projectRoot}/**/*"
+      ],
+      "outputs": [
+        "{projectRoot}/dist/node/index.mjs"
+      ],
+      "cache": true
+    },
+    "bundle-browser": {
+      "inputs": [
+        "{projectRoot}/**/*"
+      ],
+      "outputs": [
+        "{projectRoot}/dist/browser/index.mjs"
+      ],
+      "cache": true
+    },
+    "types-node": {
+      "inputs": [
+        "{projectRoot}/**/*"
+      ],
+      "outputs": [
+        "{projectRoot}/dist/node/types/**/*"
+      ],
+      "cache": true
+    },
+    "types-browser": {
+      "inputs": [
+        "{projectRoot}/**/*"
+      ],
+      "outputs": [
+        "{projectRoot}/dist/browser/types/**/*"
+      ],
+      "cache": true
+    }
+  },
+  "namedInputs": {
+    "default": [
+      "{projectRoot}/**/*",
+      "sharedGlobals"
+    ],
+    "sharedGlobals": [],
+    "production": [
+      "default"
+    ]
+  }
 }

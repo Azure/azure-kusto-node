@@ -6,10 +6,10 @@
   "module": "dist/node/index.mjs",
   "type": "module",
   "scripts": {
-    "bundle-node": "node ../../esbuild.mjs --node",
-    "bundle-browser": "node ../../esbuild.mjs",
-    "types-node": "tsc -b tsconfig.json",
-    "types-browser": "tsc -b tsconfig.browser.json"
+    "bundle-node": "nx exec -- node ../../esbuild.mjs --node",
+    "bundle-browser": "nx exec -- node ../../esbuild.mjs",
+    "types-node": "nx exec -- tsc --project tsconfig.json",
+    "types-browser": "nx exec -- tsc --project tsconfig.browser.json"
   },
   "engines": {
     "node": ">= 18.0.0"
@@ -72,6 +72,36 @@
   },
   "gitHead": "f8a5dae26d6d2ca2ab8b95953bb9b88a02e8e35d",
   "nx": {
-    "includedScripts": []
+    "targets": {
+      "bundle-node": {
+        "outputs": [
+          "{projectRoot}/dist/index.mjs"
+        ]
+      },
+      "bundle-browser": {
+        "outputs": [
+          "{projectRoot}/dist/browser/index.mjs"
+        ]
+      },
+      "types-node": {
+        "outputs": [
+          "{projectRoot}/dist/node/types"
+        ]
+      },
+      "types-browser": {
+        "outputs": [
+          "{projectRoot}/dist/browser/types"
+        ]
+      },
+      "build": {
+        "executor": "nx:noop",
+        "dependsOn": [
+          "bundle-node",
+          "bundle-browser",
+          "types-node",
+          "types-browser"
+        ]
+      }
+    }
   }
 }

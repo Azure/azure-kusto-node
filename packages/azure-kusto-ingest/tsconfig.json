@@ -1,22 +1,17 @@
 {
-  "extends": "../../tsconfig.json",
-  "compilerOptions": {
-    "outDir": "./dist/node/types",
-    "rootDir": "./src",
-    "paths": {
-        "azure-kusto-data": ["../azure-kusto-data/src"]
-    }
-  },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.json",
-  ],
-  "exclude": [
-    "src/**/*.browser.ts"
-  ],
-  "references": [
-    {
-      "path": "../azure-kusto-data/tsconfig.json"
-    }
-  ]
+    "extends": "../../tsconfig.json",
+    "compilerOptions": {
+        "outDir": "./dist/node/types",
+        "rootDir": "./src",
+        "paths": {
+            "azure-kusto-data": ["../azure-kusto-data/src"]
+        }
+    },
+    "include": ["src/**/*.ts", "src/**/*.json"],
+    "exclude": ["src/**/*.browser.ts"],
+    "references": [
+        {
+            "path": "../azure-kusto-data/tsconfig.json"
+        }
+    ]
 }
