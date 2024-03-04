@@ -1,0 +1,21 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist/browser/types"
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.json"
+  ],
+  "exclude": [
+    "src/fileDescriptor.ts",
+    "src/ingestClient.ts",
+    "src/streamingIngestClient.ts",
+    "src/streamUtils.ts"
+  ],
+  "references": [
+    {
+      "path": "../azure-kusto-data/tsconfig.browser.json"
+    }
+  ]
+}

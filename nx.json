@@ -1,16 +1,6 @@
 {
-    "tasksRunnerOptions": {
-        "default": {
-            "runner": "nx/tasks-runners/default",
-            "options": {
-                "cacheableOperations": ["build"]
-            }
-        }
-    },
-    "targetDefaults": {
-        "build": {
-            "outputs": ["{projectRoot}/dist-esm", "{projectRoot}/types"],
-            "dependsOn": ["^build"]
-        }
-    }
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "affected": {
+    "defaultBase": "master"
+  }
 }

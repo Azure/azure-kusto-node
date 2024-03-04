@@ -161,15 +161,14 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
         timeoutMs?: number
     ): KustoConnectionStringBuilder {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
-        const { tenantId, clientId } = (options as InteractiveBrowserCredentialNodeOptions) || {};
-        if (clientId) {
+        if (options?.clientId) {
             throw new Error("clientId should be empty as it is retrived from the service management endpoint");
         }
 
         kcsb.aadFederatedSecurity = true;
         kcsb.useUserPromptAuth = true;
-        if (tenantId) {
-            kcsb.authorityId = tenantId;
+        if (options?.tenantId) {
+            kcsb.authorityId = options.tenantId;
         } else if (options) {
             options.tenantId = kcsb.authorityId;
         }

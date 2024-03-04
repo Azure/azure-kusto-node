@@ -37,7 +37,7 @@ import {
 import { BlobDescriptor, CompressionType, StreamDescriptor } from "./descriptors";
 import { FileDescriptor } from "./fileDescriptor";
 
-export { Transformation as ColumnMappingTransformation } from "./columnMappings";
+export type { Transformation as ColumnMappingTransformation } from "./columnMappings";
 export { IngestionProperties } from "./ingestionProperties";
 export {
     KustoIngestClient as IngestClient,
@@ -79,11 +79,10 @@ export {
     ValidationPolicy,
     W3CLogFileMapping,
     dataFormatMappingKind,
-    IngestionResult,
     OperationStatus,
-    IngestionStatus,
     IngestionStatusInTableDescription,
 };
+export type { IngestionResult, IngestionStatus };
 
 /**
  * @deprecated - import directly instead

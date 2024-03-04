@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 import { isNode } from "@azure/core-util";
-import { userInfo } from "os";
 import { SDK_VERSION } from "./version";
+import { userInfo } from "os";
 
 // eslint-disable-next-line @typescript-eslint/no-namespace,@typescript-eslint/no-unused-vars -- This is the correct way to augment the global namespace
 declare namespace NodeJS {

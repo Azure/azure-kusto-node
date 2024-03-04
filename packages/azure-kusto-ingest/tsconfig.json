@@ -1,29 +1,22 @@
 {
-    "extends": "../../tsconfig.json",
-    "include": [
-        "src/**/*.ts",
-        "test/**/*.ts",
-        "exampleBrowser.ts"
-    ],
-    "compilerOptions": {
-        "rootDir": ".",
-        "declarationDir": "./types",
-        "esModuleInterop": true,
-        "outDir": "./dist-esm",
-        "resolveJsonModule": true,
-        "paths": {
-            "azure-kusto-ingest": [
-                "./src/index"
-            ]
-        },
-        "lib": [
-            "ES6",
-            "dom"
-        ]
-    },
-    "references": [
-        {
-            "path": "../azure-kusto-data"
-        }
-    ]
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist/node/types",
+    "rootDir": "./src",
+    "paths": {
+        "azure-kusto-data": ["../azure-kusto-data/src"]
+    }
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.json",
+  ],
+  "exclude": [
+    "src/**/*.browser.ts"
+  ],
+  "references": [
+    {
+      "path": "../azure-kusto-data/tsconfig.json"
+    }
+  ]
 }

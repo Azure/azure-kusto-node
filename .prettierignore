@@ -8,7 +8,6 @@ coverage
 **/test/**/e2eData/*
 **/coverage
 **/.nyc_output
-lerna.json
 .github
 .eslintignore
 .eslintrc.js

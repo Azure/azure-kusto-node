@@ -2,22 +2,19 @@
     "name": "azure-kusto-data",
     "version": "5.2.3",
     "description": "Azure Data Explorer Query SDK",
-    "module": "dist-esm/src/index.js",
-    "types": "./types/src/index.d.ts",
-    "main": "dist-esm/src/index",
+    "types": "dist/node/azure-kuato-data.d.ts",
+    "module": "dist/node/index.mjs",
+    "type": "module",
     "scripts": {
-        "clean": "rimraf dist/* dist-esm/* types/*",
-        "build": "tsc -b"
+        "bundle-node": "node ../../esbuild.mjs --node",
+        "bundle-browser": "node ../../esbuild.mjs",
+        "types-node": "tsc --project tsconfig.json && api-extractor run -c api-extractor.json -l",
+        "types-browser": "tsc --project tsconfig.browser.json && api-extractor run -c api-extractor.browser.json -l",
+        "check": "tsc --noEmit",
+        "format": "prettier --write",
+        "lint": "eslint --fix"
     },
     "browser": {
-        "fs": false,
-        "os": false,
-        "process": false,
-        "stream-http": false,
-        "https": false,
-        "http": false,
-        "crypto": false,
-        "stream": false,
         "./dist-esm/src/connectionBuilder.js": "./dist-esm/src/connectionBuilder.browser.js"
     },
     "engines": {

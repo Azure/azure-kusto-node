@@ -1,14 +1,14 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "./tsconfig.json",
   "compilerOptions": {
     "rootDir": "./src",
-    "outDir": "./dist/node/types",
+    "outDir": "./dist/browser/types"
   },
   "include": [
     "src/**/*.ts",
     "src/**/*.json"
   ],
   "exclude": [
-    "src/**/*.browser.ts"
+    "src/connectionBuilder.ts"
   ]
 }

@@ -1,7 +1,8 @@
 {
     "compilerOptions": {
         "target": "ES2017",
-        "module": "CommonJS",
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
         "esModuleInterop": true,
         "strict": true,
         "incremental": true,
@@ -11,14 +12,9 @@
         "declaration": true,
         "declarationMap": true,
         "noUnusedParameters": true,
-        "moduleResolution": "node",
-        "inlineSources": true
+        "inlineSources": false,
+        "isolatedModules": true,
+        "composite": true,
+        "emitDeclarationOnly": true
     },
-    "include": [
-        "webpack.config.ts"
-    ],
-    "exclude": [
-        "node_modules",
-        "jest.config.ts"
-    ]
 }

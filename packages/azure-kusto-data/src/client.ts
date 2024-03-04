@@ -6,7 +6,7 @@ import axios, { AxiosInstance, AxiosRequestConfig, RawAxiosRequestHeaders } from
 import http from "http";
 import https from "https";
 import { v4 as uuidv4 } from "uuid";
-import { KustoHeaders } from "./clientDetails";
+import { KustoHeaders } from "./clientDetails.js";
 import ClientRequestProperties from "./clientRequestProperties";
 import CloudSettings from "./cloudSettings";
 import ConnectionStringBuilder from "./connectionBuilder";
@@ -264,8 +264,7 @@ export class KustoClient {
     }
 
     _parseResponse(response: any, executionType: ExecutionType, properties?: ClientRequestProperties | null, status?: number): KustoResponseDataSet {
-        const { raw } = properties || {};
-        if (raw === true || executionType === ExecutionType.Ingest) {
+        if (properties?.raw || executionType === ExecutionType.Ingest) {
             return response;
         }
 
