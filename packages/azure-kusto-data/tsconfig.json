@@ -1,14 +1,9 @@
 {
-  "extends": "../../tsconfig.json",
-  "compilerOptions": {
-    "rootDir": "./src",
-    "outDir": "./dist/node/types",
-  },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.json"
-  ],
-  "exclude": [
-    "src/**/*.browser.ts"
-  ]
+    "extends": "../../tsconfig.json",
+    "compilerOptions": {
+        "rootDir": "./src",
+        "outDir": "./dist/node/types"
+    },
+    "include": ["src/**/*.ts", "src/**/*.json"],
+    "exclude": ["src/**/*.browser.ts"]
 }

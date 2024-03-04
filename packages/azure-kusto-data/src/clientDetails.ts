@@ -3,20 +3,12 @@
 
 import { isNode } from "@azure/core-util";
 import { SDK_VERSION } from "./version";
-import { userInfo } from "os";
-
-// eslint-disable-next-line @typescript-eslint/no-namespace,@typescript-eslint/no-unused-vars -- This is the correct way to augment the global namespace
-declare namespace NodeJS {
-    interface ProcessEnv {
-        npm_package_name?: string;
-        USERNAME?: string;
-        USERDOMAIN?: string;
-    }
-}
 
 // REPLACE_REGEX = re.compile(r"[\r\n\s{}|]+")
 const ReplaceRegex = /[\r\n\s{}|]+/g;
 const None = "[none]";
+
+let userInfo: { username: string } | null = null;
 
 export class ClientDetails {
     readonly versionForTracing: string;
@@ -41,9 +33,13 @@ export class ClientDetails {
 
     static defaultUser(): string {
         if (isNode) {
+            let info = userInfo || require("os").userInfo();
+            if (!userInfo) {
+                return None;
+            }
             let username: string | undefined;
             try {
-                username = userInfo().username;
+                username = info.username;
             } catch (err: any) {
                 /* Ignore possible errors like "uv_os_get_passwd returned ENOMEM" that may occur in some environments. */
 

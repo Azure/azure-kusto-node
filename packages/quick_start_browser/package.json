@@ -4,9 +4,6 @@
   "description": "Quick start browser react-vite sample app",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview"
   },
   "dependencies": {
     "@fluentui/react": "^8.110.10",
@@ -40,5 +37,8 @@
   "bugs": {
     "url": "https://github.com/Azure/azure-kusto-node/issues"
   },
-  "homepage": "https://github.com/Azure/azure-kusto-node#readme"
+  "homepage": "https://github.com/Azure/azure-kusto-node#readme",
+  "nx": {
+    "includedScripts": []
+  }
 }

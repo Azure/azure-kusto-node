@@ -1,6 +1,35 @@
 {
-  "$schema": "./node_modules/nx/schemas/nx-schema.json",
-  "affected": {
-    "defaultBase": "master"
-  }
+    "$schema": "./node_modules/nx/schemas/nx-schema.json",
+    "affected": {
+        "defaultBase": "master"
+    },
+    "plugins": [
+    ],
+    "nxCloudAccessToken": "ZWM3OWE3MTAtY2JjYi00Mzk2LWIyMDYtMDlmOTBmZGFkYTg4fHJlYWQtd3JpdGU=",
+    "targetDefaults": {
+        "bundle-node": {
+            "cache": true
+        },
+        "bundle-browser": {
+            "cache": true
+        },
+        "types-node": {
+            "cache": true
+        },
+        "types-browser": {
+            "cache": true
+        },
+        "check": {
+            "cache": true
+        },
+        "format": {
+            "cache": true
+        },
+        "lint": {
+            "cache": true
+        },
+        "build": {
+            "cache": true
+        }
+    }
 }

@@ -1,14 +1,8 @@
 {
-  "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "rootDir": "./src",
-    "outDir": "./dist/browser/types"
-  },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.json"
-  ],
-  "exclude": [
-    "src/connectionBuilder.ts"
-  ]
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "rootDir": "./src",
+        "outDir": "./dist/browser/types"
+    },
+    "include": ["src/**/*.ts", "src/**/*.json"]
 }

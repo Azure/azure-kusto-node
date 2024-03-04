@@ -1,77 +1,77 @@
 {
-    "name": "azure-kusto-ingest",
-    "version": "5.2.3",
-    "description": "Azure Data Explorer Ingestion SDK",
-    "types": "dist/node/types/index.d.ts",
-    "module": "dist/node/index.mjs",
-    "type": "module",
-    "scripts": {
-        "bundle-node": "node ../../esbuild.mjs --node",
-        "bundle-browser": "node ../../esbuild.mjs",
-        "types-node": "tsc -b tsconfig.json",
-        "types-browser": "tsc -b tsconfig.browser.json",
-        "check": "tsc -b --noEmit",
-        "format": "prettier --write",
-        "lint": "eslint --fix"
-    },
-    "engines": {
-        "node": ">= 18.0.0"
-    },
-    "publishConfig": {
-        "access": "public"
-    },
-    "tags": [
-        "azure",
-        "kusto",
-        "sdk"
-    ],
-    "keywords": [
-        "node",
-        "azure",
-        "kusto"
-    ],
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/Azure/azure-kusto-node.git",
-        "directory": "azure-kusto-ingest"
-    },
-    "files": [
-        "dist-esm/src/*.js.map",
-        "dist-esm/src/*.js",
-        "types/src/*.d.ts",
-        "tsconfig.tsbuildinfo"
-    ],
-    "author": "Microsoft Corporation",
-    "license": "ISC",
-    "browser": {
-        "./dist-esm/src/streamUtils.js": "./dist-esm/src/streamUtils.browser.js",
-        "./dist-esm/src/streamingIngestClient.js": "./dist-esm/src/streamingIngestClient.browser.js",
-        "./dist-esm/src/fileDescriptor.js": "./dist-esm/src/fileDescriptor.browser.js",
-        "./dist-esm/src/ingestClient.js": "./dist-esm/src/ingestClient.browser.js"
-    },
-    "dependencies": {
-        "azure-kusto-data": "*",
-        "@azure/data-tables": "^13.2.2",
-        "@azure/storage-blob": "^12.11.0",
-        "@azure/storage-queue": "^12.10.0",
-        "@types/pako": "^2.0.0",
-        "@types/stream-array": "^1.1.0",
-        "@types/stream-to-array": "^2.3.0",
-        "@types/tmp": "^0.2.3",
-        "@types/uuid": "^8.3.4",
-        "@types/uuid-validate": "0.0.1",
-        "browserify-zlib": "0.2.0",
-        "buffer": "^6.0.3",
-        "stream-array": "^1.1.2",
-        "stream-browserify": "3.0.0",
-        "stream-to-array": "^2.3.0",
-        "tmp-promise": "^3.0.3",
-        "uuid": "^8.3.2",
-        "uuid-validate": "0.0.3"
-    },
-    "devDependencies": {
-        "@types/sinon": "^10.0.13",
-        "assert": "^2.0.0"
-    },
-    "gitHead": "f8a5dae26d6d2ca2ab8b95953bb9b88a02e8e35d"
+  "name": "azure-kusto-ingest",
+  "version": "5.2.3",
+  "description": "Azure Data Explorer Ingestion SDK",
+  "types": "dist/node/types/index.d.ts",
+  "module": "dist/node/index.mjs",
+  "type": "module",
+  "scripts": {
+    "bundle-node": "node ../../esbuild.mjs --node",
+    "bundle-browser": "node ../../esbuild.mjs",
+    "types-node": "tsc -b tsconfig.json",
+    "types-browser": "tsc -b tsconfig.browser.json"
+  },
+  "engines": {
+    "node": ">= 18.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "tags": [
+    "azure",
+    "kusto",
+    "sdk"
+  ],
+  "keywords": [
+    "node",
+    "azure",
+    "kusto"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Azure/azure-kusto-node.git",
+    "directory": "azure-kusto-ingest"
+  },
+  "files": [
+    "dist-esm/src/*.js.map",
+    "dist-esm/src/*.js",
+    "types/src/*.d.ts",
+    "tsconfig.tsbuildinfo"
+  ],
+  "author": "Microsoft Corporation",
+  "license": "ISC",
+  "browser": {
+    "./dist-esm/src/streamUtils.js": "./dist-esm/src/streamUtils.browser.js",
+    "./dist-esm/src/streamingIngestClient.js": "./dist-esm/src/streamingIngestClient.browser.js",
+    "./dist-esm/src/fileDescriptor.js": "./dist-esm/src/fileDescriptor.browser.js",
+    "./dist-esm/src/ingestClient.js": "./dist-esm/src/ingestClient.browser.js"
+  },
+  "dependencies": {
+    "azure-kusto-data": "*",
+    "@azure/data-tables": "^13.2.2",
+    "@azure/storage-blob": "^12.11.0",
+    "@azure/storage-queue": "^12.10.0",
+    "@types/pako": "^2.0.0",
+    "@types/stream-array": "^1.1.0",
+    "@types/stream-to-array": "^2.3.0",
+    "@types/tmp": "^0.2.3",
+    "@types/uuid": "^8.3.4",
+    "@types/uuid-validate": "0.0.1",
+    "browserify-zlib": "0.2.0",
+    "buffer": "^6.0.3",
+    "stream-array": "^1.1.2",
+    "stream-browserify": "3.0.0",
+    "stream-to-array": "^2.3.0",
+    "tmp-promise": "^3.0.3",
+    "uuid": "^8.3.2",
+    "uuid-validate": "0.0.3"
+  },
+  "devDependencies": {
+    "@types/sinon": "^10.0.13",
+    "assert": "^2.0.0"
+  },
+  "gitHead": "f8a5dae26d6d2ca2ab8b95953bb9b88a02e8e35d",
+  "nx": {
+    "includedScripts": []
+  }
 }
