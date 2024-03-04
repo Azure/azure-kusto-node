@@ -22,3 +22,5 @@ tsconfig.json
 .idea
 .mocharc.json
 **/test/data/**/*
+
+/.nx/cache

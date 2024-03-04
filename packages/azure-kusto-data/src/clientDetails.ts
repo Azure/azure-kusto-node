@@ -33,13 +33,14 @@ export class ClientDetails {
 
     static defaultUser(): string {
         if (isNode) {
-            let info = userInfo || require("os").userInfo();
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-var-requires
+            userInfo = userInfo || require("os").userInfo();
             if (!userInfo) {
                 return None;
             }
             let username: string | undefined;
             try {
-                username = info.username;
+                username = userInfo.username;
             } catch (err: any) {
                 /* Ignore possible errors like "uv_os_get_passwd returned ENOMEM" that may occur in some environments. */
 
