@@ -3,7 +3,7 @@
 
 import { IngestionProperties, IngestionPropertiesInput } from "./ingestionProperties";
 import { StreamDescriptor, FileDescriptorBase, BlobDescriptor } from "./descriptors";
-import { Address4, Address6 } from "ip-address";
+import { isIP } from "is-ip";
 
 const INGEST_PREFIX = "ingest-";
 const PROTOCOL_SUFFIX = "://";
@@ -65,25 +65,17 @@ export abstract class AbstractKustoClient {
     }
 
     isReservedHostname(clusterUrl: string): boolean {
-        const parsedUrl = new URL(clusterUrl);
-        const authority = parsedUrl.hostname;
-        if (!authority) {
-            return true;
-        }
-        let is_ip;
         try {
-            is_ip = new Address4(authority);
-        } catch {
-            try {
-                is_ip = new Address6(authority);
-            } catch {
-                is_ip = false;
+            const parsedUrl = new URL(clusterUrl);
+            const authority = parsedUrl.hostname;
+            if (!authority) {
+                return true;
             }
+            const is_ip = isIP(authority);
+            const is_localhost = authority.includes("localhost");
+            return is_localhost || is_ip || authority.toLowerCase() === "onebox.dev.kusto.windows.net";
+        } catch {
+            return false;
         }
-        if (is_ip instanceof Address4 || is_ip instanceof Address6) {
-            is_ip = true;
-        }
-        const is_localhost = authority.includes("localhost");
-        return is_localhost || is_ip || authority.toLowerCase() === "onebox.dev.kusto.windows.net";
     }
 }
