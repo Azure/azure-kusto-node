@@ -73,8 +73,7 @@
         "tmp-promise": "^3.0.3",
         "uuid": "^8.3.2",
         "uuid-validate": "0.0.3",
-        "@types/is-ip": "^3.0.0",
-        "is-ip": "^5.0.1"
+        "is-ip": "^3.1.0"
     },
     "devDependencies": {
         "@types/sinon": "^10.0.13",
