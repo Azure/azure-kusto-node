@@ -12,8 +12,8 @@ import { fileToStream } from "./streamUtils";
 import { KustoStreamingIngestClientBase } from "./streamingIngestClientBase";
 
 class KustoStreamingIngestClient extends KustoStreamingIngestClientBase {
-    constructor(kcsb: string | KustoConnectionStringBuilder, defaultProps?: IngestionPropertiesInput) {
-        super(kcsb, defaultProps);
+    constructor(kcsb: string | KustoConnectionStringBuilder, defaultProps?: IngestionPropertiesInput, autoCorrectEndpoint?: boolean) {
+        super(kcsb, defaultProps, autoCorrectEndpoint);
     }
 
     /**

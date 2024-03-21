@@ -9,8 +9,14 @@ import { Client as KustoClient, KustoConnectionStringBuilder } from "azure-kusto
 
 export abstract class KustoStreamingIngestClientBase extends AbstractKustoClient {
     protected kustoClient: KustoClient;
-    constructor(kcsb: string | KustoConnectionStringBuilder, defaultProps?: IngestionPropertiesInput) {
+    constructor(kcsb: string | KustoConnectionStringBuilder, defaultProps?: IngestionPropertiesInput, autoCorrectEndpoint: boolean = true) {
         super(defaultProps);
+        if (typeof kcsb === "string") {
+            kcsb = new KustoConnectionStringBuilder(kcsb);
+        }
+        if (autoCorrectEndpoint) {
+            kcsb.dataSource = this.getQueryEndpoint(kcsb.dataSource);
+        }
         this.kustoClient = new KustoClient(kcsb);
         this.defaultDatabase = this.kustoClient.defaultDatabase;
     }
