@@ -27,7 +27,8 @@ import { BlobDescriptor, StreamDescriptor } from "./descriptors";
 
 export abstract class KustoIngestClientBase extends AbstractKustoClient {
     resourceManager: ResourceManager;
-
+    applicationForTracing: string | null;
+    clientVersionForTracing: string | null;
     static readonly MaxNumberOfRetryAttempts = 3;
 
     constructor(
@@ -46,6 +47,8 @@ export abstract class KustoIngestClientBase extends AbstractKustoClient {
         const kustoClient = new KustoClient(kcsb);
         this.resourceManager = new ResourceManager(kustoClient, isBrowser);
         this.defaultDatabase = kustoClient.defaultDatabase;
+        this.applicationForTracing = kcsb.applicationNameForTracing;
+        this.clientVersionForTracing = kcsb.clientVersionForTracing;
     }
 
     async ingestFromBlob(
@@ -54,7 +57,10 @@ export abstract class KustoIngestClientBase extends AbstractKustoClient {
         maxRetries: number = KustoIngestClientBase.MaxNumberOfRetryAttempts
     ): Promise<IngestionResult> {
         this.ensureOpen();
-
+        if (ingestionProperties) {
+            ingestionProperties.applicationForTracing = this.applicationForTracing;
+            ingestionProperties.clientVersionForTracing = this.clientVersionForTracing;
+        }
         const props = this._getMergedProps(ingestionProperties);
 
         const descriptor = blob instanceof BlobDescriptor ? blob : new BlobDescriptor(blob);
