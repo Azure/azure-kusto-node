@@ -110,6 +110,7 @@ export abstract class KustoConnectionStringBuilderBase {
     applicationCertificatePath?: string;
     public applicationNameForTracing: string | null = null;
     public userNameForTracing: string | null = null;
+    public clientVersionForTracing: string | null = null;
 
     constructor(connectionString: string) {
         if (connectionString.trim().length === 0) throw new Error("Missing connection string");
@@ -166,6 +167,7 @@ export abstract class KustoConnectionStringBuilderBase {
 
         this.applicationNameForTracing = clientDetails.applicationNameForTracing;
         this.userNameForTracing = clientDetails.userNameForTracing;
+        this.clientVersionForTracing = clientDetails.versionForTracing;
     }
 
     toString(removeSecrets: boolean = true): string {
