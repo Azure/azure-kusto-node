@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   [BREAKING] - Minimal node version is now 18
 -   [BREAKING] - The default converters for DateTime and TimeSpan will now return null if the value is null or an empty string. This is to align with the behavior of the service.
 -   [BREAKING] - IngestClient returns Promise<IngestionResult> instead of Promise<QueueSendMessageResponse>
+-   Added condition on file extension for binary file compression
 
 ### Added
 
