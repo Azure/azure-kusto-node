@@ -64,7 +64,8 @@ class CloudSettings {
         } catch (ex) {
             if (axios.isAxiosError(ex)) {
                 // Axios library has a bug in browser, not propagating the status code, see: https://github.com/axios/axios/issues/5330
-                if ((ex.response?.status === 404 && isNode) || (ex.code === axios.AxiosError.ERR_NETWORK && !isNode)) {                    // For now as long not all proxies implement the metadata endpoint, if no endpoint exists return public cloud data
+                if ((ex.response?.status === 404 && isNode) || (ex.code === axios.AxiosError.ERR_NETWORK && !isNode)) {
+                    // For now as long not all proxies implement the metadata endpoint, if no endpoint exists return public cloud data
                     this.cloudCache[kustoUri] = this.defaultCloudInfo;
                 } else {
                     throw new Error(`Failed to get cloud info for cluster ${kustoUri} - ${ex}`);

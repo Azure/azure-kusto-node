@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- process.env can be undefined
+-   process.env can be undefined
 
 ## [5.2.3] - 2023-11-07
 
