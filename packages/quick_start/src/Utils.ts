@@ -66,7 +66,7 @@ export class Authentication extends Utils {
                 // Connect using the system - or user-assigned managed identity (Azure service only)
                 // TODO (config - optional): Managed identity client ID if you are using a user-assigned managed identity
                 return process.env.MANAGED_IDENTITY_CLIENT_ID
-                    ? KustoConnectionStringBuilder.withUserManagedIdentity(clusterUri, process.env?.MANAGED_IDENTITY_CLIENT_ID)
+                    ? KustoConnectionStringBuilder.withUserManagedIdentity(clusterUri, process?.env?.MANAGED_IDENTITY_CLIENT_ID)
                     : KustoConnectionStringBuilder.withSystemManagedIdentity(clusterUri);
             }
             case AuthenticationModeOptions.AppKey: {
@@ -92,9 +92,9 @@ export class Authentication extends Utils {
      * @returns AppKey Kusto Connection String
      */
     public static createAppKeyConnectionString(clusterUri: string): KustoConnectionStringBuilder {
-        const aadAppId: string | undefined = process.env?.APP_ID;
-        const appKey: string | undefined = process.env?.APP_KEY;
-        const authorityId: string | undefined = process.env?.APP_TENANT;
+        const aadAppId: string | undefined = process?.env?.APP_ID;
+        const appKey: string | undefined = process?.env?.APP_KEY;
+        const authorityId: string | undefined = process?.env?.APP_TENANT;
         if (!aadAppId || !appKey || !authorityId) {
             this.errorHandler(`"Missing some required field's in configuration file in order to authenticate using an app key."`);
         } else {
@@ -120,10 +120,10 @@ export class Authentication extends Utils {
         tenantId: string | undefined,
         sendX5c?: boolean
     ): Promise<KustoConnectionStringBuilder> {
-        const appId: string | undefined = process.env?.APP_ID;
-        const appTenant: string | undefined = process.env?.APP_TENANT;
-        const privateKeyPemFilePath: string | undefined = process.env?.PRIVATE_KEY_PEM_FILE_PATH;
-        const publicCertFilePath: string | undefined = process.env?.PUBLIC_CERT_FILE_PATH;
+        const appId: string | undefined = process?.env?.APP_ID;
+        const appTenant: string | undefined = process?.env?.APP_TENANT;
+        const privateKeyPemFilePath: string | undefined = process?.env?.PRIVATE_KEY_PEM_FILE_PATH;
+        const publicCertFilePath: string | undefined = process?.env?.PUBLIC_CERT_FILE_PATH;
 
         if (!certificatePath || !certificatePassword || !applicationId || !tenantId || !appId) {
             this.errorHandler(`"Missing some required field/s in environment in order to authenticate using a certificate."`);

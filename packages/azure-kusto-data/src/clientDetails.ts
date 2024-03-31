@@ -33,7 +33,7 @@ export class ClientDetails {
 
     static defaultApplication(): string {
         if (isNode) {
-            return process.env?.npm_package_name || process.title || None;
+            return process?.env?.npm_package_name || process.title || None;
         } else {
             return window?.location?.href || None;
         }
@@ -53,7 +53,7 @@ export class ClientDetails {
                 }
             }
 
-            return username || (process.env?.USERDOMAIN ? `${process.env?.USERDOMAIN}\\${process.env?.USERNAME}` : process.env?.USERNAME) || None;
+            return username || (process.env?.USERDOMAIN ? `${process.env?.USERDOMAIN}\\${process.env?.USERNAME}` : process?.env?.USERNAME) || None;
         } else {
             return None;
         }
