@@ -34,7 +34,7 @@ Option 1: Authenticating using AAD application id and corresponding key.
 const kcsb = KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(`https://${clusterName}.kusto.windows.net`, "appid", "appkey", "authorityId");
 ```
 
-Option 2: Authenticating using AAD application id and corresponding certificate.
+Option 2.1: Authenticating using AAD application id and corresponding certificate.
 
 ```javascript
 const kcsb = KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(
@@ -42,6 +42,22 @@ const kcsb = KustoConnectionStringBuilder.withAadApplicationCertificateAuthentic
     "appid",
     "certificate",
     "authorityId"
+);
+
+Option 2.2: Authenticating using AAD application id and corresponding certificate with SNI public key.
+Concat the private and publiccertificates
+```javascript
+const kcsb = KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(
+    `https://${clusterName}.kusto.windows.net`,
+    "appid",
+    "-----BEGIN CERTIFICATE-----
+... <cert1> ...
+-----END CERTIFICATE-----
+-----BEGIN PRIVATE KEY-----
+... <cert2> ...
+-----END PRIVATE KEY-----",
+    "authorityId",
+    true
 );
 ```
 
