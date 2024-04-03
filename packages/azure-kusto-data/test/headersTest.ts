@@ -59,5 +59,4 @@ describe("Test Headers", () => {
         assert.strictEqual(headers["x-ms-app"], "Kusto.Caf_:{1_._0}|App.{my_test_app}:{1.0}");
         assert.notStrictEqual(headers["x-ms-user"], "[none]");
     });
-
 });
