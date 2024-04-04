@@ -14,8 +14,8 @@ declare namespace NodeJS {
     }
 }
 
-// REPLACE_REGEX = re.compile(r"[\r\n\s{}|]+")
-const ReplaceRegex = /[\r\n\s{}|]+/g;
+// This regex allows all printable ascii, except spaces and chars we use in the format
+const ReplaceRegex = /[^\x21-\x7A]+/g;
 const None = "[none]";
 
 export class ClientDetails {
@@ -66,8 +66,9 @@ export class ClientDetails {
         ]);
     }
 
-    static escapeHeader(header: string): string {
-        return `{${header.replace(ReplaceRegex, "_")}}`;
+    static escapeHeader(header: string, wrapInBrackets: boolean = true): string {
+        const clean = header.replace(ReplaceRegex, "_");
+        return wrapInBrackets ? `{${clean}}` : clean;
     }
 
     static formatHeader(args: [string, string][]): string {
@@ -86,7 +87,7 @@ export class ClientDetails {
         override_user: string | null = null,
         additional_fields: [string, string][] | null = null
     ): ClientDetails {
-        const params: [string, string][] = [["Kusto." + name, version]];
+        const params: [string, string][] = [["Kusto." + this.escapeHeader(name, false), version]];
 
         app_name = app_name || this.defaultApplication();
         app_version = app_version || None;
