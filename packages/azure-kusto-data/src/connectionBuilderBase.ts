@@ -184,10 +184,6 @@ export abstract class KustoConnectionStringBuilderBase {
             .filter((x) => x !== "")
             .join(";");
     }
-
-    static fromExisting(other: KustoConnectionStringBuilderBase): KustoConnectionStringBuilderBase {
-        return Object.assign({}, other);
-    }
 }
 
 export default KustoConnectionStringBuilderBase;
