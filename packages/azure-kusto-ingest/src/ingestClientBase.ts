@@ -29,6 +29,7 @@ export abstract class KustoIngestClientBase extends AbstractKustoClient {
     resourceManager: ResourceManager;
     applicationForTracing: string | null;
     clientVersionForTracing: string | null;
+    connectionString: KustoConnectionStringBuilder;
     static readonly MaxNumberOfRetryAttempts = 3;
 
     constructor(
@@ -38,17 +39,15 @@ export abstract class KustoIngestClientBase extends AbstractKustoClient {
         isBrowser?: boolean
     ) {
         super(defaultProps);
-        if (typeof kcsb === "string") {
-            kcsb = new KustoConnectionStringBuilder(kcsb);
-        }
+        this.connectionString = typeof kcsb === "string" ? new KustoConnectionStringBuilder(kcsb) : kcsb;
         if (autoCorrectEndpoint) {
-            kcsb.dataSource = this.getIngestionEndpoint(kcsb.dataSource);
+            this.connectionString.dataSource = this.getIngestionEndpoint(this.connectionString.dataSource);
         }
-        const kustoClient = new KustoClient(kcsb);
+        const kustoClient = new KustoClient(this.connectionString);
         this.resourceManager = new ResourceManager(kustoClient, isBrowser);
         this.defaultDatabase = kustoClient.defaultDatabase;
-        this.applicationForTracing = kcsb.clientDetails().applicationNameForTracing;
-        this.clientVersionForTracing = kcsb.clientDetails().versionForTracing;
+        this.applicationForTracing = this.connectionString.clientDetails().applicationNameForTracing;
+        this.clientVersionForTracing = this.connectionString.clientDetails().versionForTracing;
     }
 
     async ingestFromBlob(
@@ -57,16 +56,12 @@ export abstract class KustoIngestClientBase extends AbstractKustoClient {
         maxRetries: number = KustoIngestClientBase.MaxNumberOfRetryAttempts
     ): Promise<IngestionResult> {
         this.ensureOpen();
-        if (ingestionProperties) {
-            ingestionProperties.applicationForTracing = this.applicationForTracing;
-            ingestionProperties.clientVersionForTracing = this.clientVersionForTracing;
-        }
         const props = this._getMergedProps(ingestionProperties);
 
         const descriptor = blob instanceof BlobDescriptor ? blob : new BlobDescriptor(blob);
 
         const authorizationContext = await this.resourceManager.getAuthorizationContext();
-        const ingestionBlobInfo = new IngestionBlobInfo(descriptor, props, authorizationContext);
+        const ingestionBlobInfo = new IngestionBlobInfo(descriptor, props, authorizationContext, this.applicationForTracing, this.clientVersionForTracing);
 
         const reportToTable = props.reportLevel !== ReportLevel.DoNotReport && props.reportMethod !== ReportMethod.Queue;
 

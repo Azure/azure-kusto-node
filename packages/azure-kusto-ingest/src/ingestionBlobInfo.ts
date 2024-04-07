@@ -23,7 +23,13 @@ export class IngestionBlobInfo {
     ApplicationForTracing?: string | null = null;
     ClientVersionForTracing?: string | null = null;
 
-    constructor(blobDescriptor: BlobDescriptor, ingestionProperties: IngestionProperties, authContext: string | null = null) {
+    constructor(
+        blobDescriptor: BlobDescriptor,
+        ingestionProperties: IngestionProperties,
+        authContext: string | null = null,
+        applicationForTracing: string | null = null,
+        clientVersionForTracing: string | null = null
+    ) {
         this.BlobPath = blobDescriptor.path;
         this.RawDataSize = blobDescriptor.size;
         this.DatabaseName = ingestionProperties.database ?? null;
@@ -35,8 +41,8 @@ export class IngestionBlobInfo {
         this.ReportMethod = ingestionProperties.reportMethod ?? null;
         this.SourceMessageCreationTime = new Date();
         this.Id = blobDescriptor.sourceId || uuidv4();
-        this.ApplicationForTracing = ingestionProperties.applicationForTracing;
-        this.ClientVersionForTracing = ingestionProperties.clientVersionForTracing;
+        this.ApplicationForTracing = applicationForTracing;
+        this.ClientVersionForTracing = clientVersionForTracing;
 
         const additionalProperties = ingestionProperties.additionalProperties || {};
         additionalProperties.authorizationContext = authContext;

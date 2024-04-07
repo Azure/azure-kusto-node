@@ -192,8 +192,6 @@ export interface IngestionPropertiesFields {
     reportMethod?: ReportMethod;
     validationPolicy?: ValidationPolicy;
     additionalProperties?: { [additional: string]: any } | null;
-    applicationForTracing?: string | null;
-    clientVersionForTracing?: string | null;
 }
 
 // This trick lets us avoid duplicating all the properties from the interface. See https://github.com/microsoft/TypeScript/issues/3407
