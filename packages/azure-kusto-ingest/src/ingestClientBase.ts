@@ -47,8 +47,8 @@ export abstract class KustoIngestClientBase extends AbstractKustoClient {
         const kustoClient = new KustoClient(kcsb);
         this.resourceManager = new ResourceManager(kustoClient, isBrowser);
         this.defaultDatabase = kustoClient.defaultDatabase;
-        this.applicationForTracing = kcsb.applicationNameForTracing;
-        this.clientVersionForTracing = kcsb.clientVersionForTracing;
+        this.applicationForTracing = kcsb.clientDetails().applicationNameForTracing;
+        this.clientVersionForTracing = kcsb.clientDetails().versionForTracing;
     }
 
     async ingestFromBlob(
