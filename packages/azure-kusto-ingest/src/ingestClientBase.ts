@@ -3,7 +3,7 @@
 
 import { Client as KustoClient, KustoConnectionStringBuilder } from "azure-kusto-data";
 
-import ResourceManager, { createStatusTableClient } from "./resourceManager";
+import ResourceManager from "./resourceManager";
 
 import IngestionBlobInfo from "./ingestionBlobInfo";
 import { ContainerClient } from "@azure/storage-blob";
@@ -29,7 +29,6 @@ export abstract class KustoIngestClientBase extends AbstractKustoClient {
     resourceManager: ResourceManager;
     applicationForTracing: string | null;
     clientVersionForTracing: string | null;
-    connectionString: KustoConnectionStringBuilder;
     static readonly MaxNumberOfRetryAttempts = 3;
 
     constructor(
@@ -39,15 +38,18 @@ export abstract class KustoIngestClientBase extends AbstractKustoClient {
         isBrowser?: boolean
     ) {
         super(defaultProps);
-        this.connectionString = typeof kcsb === "string" ? new KustoConnectionStringBuilder(kcsb) : kcsb;
-        if (autoCorrectEndpoint) {
-            this.connectionString.dataSource = this.getIngestionEndpoint(this.connectionString.dataSource);
+        if (typeof kcsb === "string") {
+            kcsb = new KustoConnectionStringBuilder(kcsb);
         }
-        const kustoClient = new KustoClient(this.connectionString);
+        if (autoCorrectEndpoint) {
+            kcsb.dataSource = this.getIngestionEndpoint(kcsb.dataSource);
+        }
+        const kustoClient = new KustoClient(kcsb);
         this.resourceManager = new ResourceManager(kustoClient, isBrowser);
         this.defaultDatabase = kustoClient.defaultDatabase;
-        this.applicationForTracing = this.connectionString.clientDetails().applicationNameForTracing;
-        this.clientVersionForTracing = this.connectionString.clientDetails().versionForTracing;
+        const clientDetails = kcsb.clientDetails();
+        this.applicationForTracing = clientDetails.applicationNameForTracing;
+        this.clientVersionForTracing = clientDetails.versionForTracing;
     }
 
     async ingestFromBlob(
