@@ -3,7 +3,7 @@
 
 import { Client as KustoClient, KustoConnectionStringBuilder } from "azure-kusto-data";
 
-import ResourceManager, { createStatusTableClient } from "./resourceManager";
+import ResourceManager from "./resourceManager";
 
 import IngestionBlobInfo from "./ingestionBlobInfo";
 import { ContainerClient } from "@azure/storage-blob";
@@ -27,7 +27,8 @@ import { BlobDescriptor, StreamDescriptor } from "./descriptors";
 
 export abstract class KustoIngestClientBase extends AbstractKustoClient {
     resourceManager: ResourceManager;
-
+    applicationForTracing: string | null;
+    clientVersionForTracing: string | null;
     static readonly MaxNumberOfRetryAttempts = 3;
 
     constructor(
@@ -46,6 +47,9 @@ export abstract class KustoIngestClientBase extends AbstractKustoClient {
         const kustoClient = new KustoClient(kcsb);
         this.resourceManager = new ResourceManager(kustoClient, isBrowser);
         this.defaultDatabase = kustoClient.defaultDatabase;
+        const clientDetails = kcsb.clientDetails();
+        this.applicationForTracing = clientDetails.applicationNameForTracing;
+        this.clientVersionForTracing = clientDetails.versionForTracing;
     }
 
     async ingestFromBlob(
@@ -54,13 +58,12 @@ export abstract class KustoIngestClientBase extends AbstractKustoClient {
         maxRetries: number = KustoIngestClientBase.MaxNumberOfRetryAttempts
     ): Promise<IngestionResult> {
         this.ensureOpen();
-
         const props = this._getMergedProps(ingestionProperties);
 
         const descriptor = blob instanceof BlobDescriptor ? blob : new BlobDescriptor(blob);
 
         const authorizationContext = await this.resourceManager.getAuthorizationContext();
-        const ingestionBlobInfo = new IngestionBlobInfo(descriptor, props, authorizationContext);
+        const ingestionBlobInfo = new IngestionBlobInfo(descriptor, props, authorizationContext, this.applicationForTracing, this.clientVersionForTracing);
 
         const reportToTable = props.reportLevel !== ReportLevel.DoNotReport && props.reportMethod !== ReportMethod.Queue;
 
