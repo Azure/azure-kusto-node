@@ -108,9 +108,9 @@ export abstract class KustoConnectionStringBuilderBase {
 
     // discarded from to mapped names for security
     applicationCertificatePath?: string;
-    public applicationNameForTracing: string | null = null;
-    public userNameForTracing: string | null = null;
-    public clientVersionForTracing: string | null = null;
+    applicationNameForTracing: string | null = null;
+    userNameForTracing: string | null = null;
+    clientVersionForTracing: string | null = null;
 
     constructor(connectionString: string) {
         if (connectionString.trim().length === 0) throw new Error("Missing connection string");
