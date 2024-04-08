@@ -56,9 +56,7 @@ const main = (): void => {
 
     const ecs = process.env.ENGINE_CONNECTION_STRING;
     const dcs = process.env.DM_CONNECTION_STRING ?? ecs;
-    const cred = new AzureCliCredential({
-
-    });
+    const cred = new AzureCliCredential({});
 
     const engineKcsb =
         appId && appKey && tenantId
