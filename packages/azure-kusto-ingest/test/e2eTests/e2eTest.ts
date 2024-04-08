@@ -28,7 +28,7 @@ import {
 } from "../../src";
 import { sleep } from "../../src/retry";
 
-import { DefaultAzureCredential } from "@azure/identity";
+import { AzureCliCredential } from "@azure/identity";
 import assert from "assert";
 import fs, { ReadStream } from "fs";
 import util from "util";
@@ -56,8 +56,8 @@ const main = (): void => {
 
     const ecs = process.env.ENGINE_CONNECTION_STRING;
     const dcs = process.env.DM_CONNECTION_STRING ?? ecs;
-    const cred = new DefaultAzureCredential({
-        tenantId,
+    const cred = new AzureCliCredential({
+
     });
 
     const engineKcsb =
