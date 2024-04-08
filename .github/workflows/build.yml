@@ -26,6 +26,8 @@ jobs:
         uses: azure/CLI@v1
         with:
           azcliversion: latest
+          inlineScript: |
+            az account set --subscription ${{ secrets.SuBSCRIPTION_ID }}
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v3
         with:
