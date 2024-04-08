@@ -28,7 +28,6 @@ import {
 } from "../../src";
 import { sleep } from "../../src/retry";
 
-import { AzureCliCredential } from "@azure/identity";
 import assert from "assert";
 import fs, { ReadStream } from "fs";
 import util from "util";
@@ -56,16 +55,15 @@ const main = (): void => {
 
     const ecs = process.env.ENGINE_CONNECTION_STRING;
     const dcs = process.env.DM_CONNECTION_STRING ?? ecs;
-    const cred = new AzureCliCredential({});
 
     const engineKcsb =
         appId && appKey && tenantId
             ? ConnectionStringBuilder.withAadApplicationKeyAuthentication(ecs, appId, appKey, tenantId)
-            : ConnectionStringBuilder.withTokenCredential(ecs, cred);
+            : ConnectionStringBuilder.withAzLoginIdentity(ecs);
     const dmKcsb =
         appId && appKey && tenantId
             ? ConnectionStringBuilder.withAadApplicationKeyAuthentication(dcs, appId, appKey, tenantId)
-            : ConnectionStringBuilder.withTokenCredential(dcs, cred);
+            : ConnectionStringBuilder.withAzLoginIdentity(dcs);
 
     engineKcsb.applicationNameForTracing = "NodeE2ETest_ø";
 
