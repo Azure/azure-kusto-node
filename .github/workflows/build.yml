@@ -22,6 +22,10 @@ jobs:
           client-id: ${{ secrets.APP_ID }}
           tenant-id: ${{ secrets.TENANT_ID }}
           subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
+      - name: Azure CLI script
+        uses: azure/CLI@v1
+        with:
+          azcliversion: latest
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v3
         with:

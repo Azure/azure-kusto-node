@@ -28,7 +28,6 @@ import {
 } from "../../src";
 import { sleep } from "../../src/retry";
 
-import {DefaultAzureCredential } from "@azure/identity";
 import assert from "assert";
 import fs, { ReadStream } from "fs";
 import util from "util";
@@ -36,6 +35,7 @@ import { v4 as uuidv4 } from "uuid";
 import pathlib from "path";
 import sinon from "sinon";
 import { TableReportIngestionResult } from "../../src/ingestionResult";
+
 interface ParsedJsonMapping {
     Properties: { Path: string };
     column: string;
@@ -59,11 +59,11 @@ const main = (): void => {
     const engineKcsb =
         appId && appKey && tenantId
             ? ConnectionStringBuilder.withAadApplicationKeyAuthentication(ecs, appId, appKey, tenantId)
-            : ConnectionStringBuilder.withTokenCredential(ecs, new DefaultAzureCredential());
+            : ConnectionStringBuilder.withAzLoginIdentity(ecs);
     const dmKcsb =
         appId && appKey && tenantId
             ? ConnectionStringBuilder.withAadApplicationKeyAuthentication(dcs, appId, appKey, tenantId)
-            : ConnectionStringBuilder.withTokenCredential(ecs, new DefaultAzureCredential());
+            : ConnectionStringBuilder.withAzLoginIdentity(dcs);
 
     engineKcsb.applicationNameForTracing = "NodeE2ETest_ø";
 
