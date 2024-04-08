@@ -28,7 +28,6 @@ import {
 } from "../../src";
 import { sleep } from "../../src/retry";
 
-import { DefaultAzureCredential } from "@azure/identity";
 import assert from "assert";
 import fs, { ReadStream } from "fs";
 import util from "util";
@@ -54,18 +53,22 @@ const main = (): void => {
         return;
     }
 
-    process.env.AZURE_CLIENT_ID = process.env.AZURE_CLIENT_ID || appId;
-    process.env.AZURE_CLIENT_SECRET = process.env.AZURE_CLIENT_SECRET || appKey;
-    process.env.AZURE_TENANT_ID = process.env.AZURE_TENANT_ID || tenantId;
+    const ecs = process.env.ENGINE_CONNECTION_STRING;
+    const dcs = process.env.DM_CONNECTION_STRING ?? ecs;
 
-    const cred = new DefaultAzureCredential();
-    const engineKcsb = ConnectionStringBuilder.withTokenCredential(process.env.ENGINE_CONNECTION_STRING, cred);
+    const engineKcsb =
+        appId && appKey && tenantId
+            ? ConnectionStringBuilder.withAadApplicationKeyAuthentication(ecs, appId, appKey, tenantId)
+            : ConnectionStringBuilder.withAzLoginIdentity(ecs);
+    const dmKcsb =
+        appId && appKey && tenantId
+            ? ConnectionStringBuilder.withAadApplicationKeyAuthentication(dcs, appId, appKey, tenantId)
+            : ConnectionStringBuilder.withAzLoginIdentity(dcs);
 
     engineKcsb.applicationNameForTracing = "NodeE2ETest_ø";
 
     const queryClient = new Client(engineKcsb);
     const streamingIngestClient = new StreamingIngestClient(engineKcsb);
-    const dmKcsb = ConnectionStringBuilder.withTokenCredential(process.env.DM_CONNECTION_STRING ?? process.env.ENGINE_CONNECTION_STRING, cred);
     const ingestClient = new IngestClient(dmKcsb);
     const dmKustoClient = new Client(dmKcsb);
 
