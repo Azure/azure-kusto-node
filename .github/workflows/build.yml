@@ -28,6 +28,7 @@ jobs:
           azcliversion: latest
           inlineScript: |
             az account set --subscription ${{ secrets.SuBSCRIPTION_ID }}
+            az login
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v3
         with:
