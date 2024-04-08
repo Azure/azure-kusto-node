@@ -15,9 +15,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     environment: build
-    permissions:
-      checks: write
-      pull-requests: write
     steps:
       - name: Azure login
         uses: azure/login@v2
