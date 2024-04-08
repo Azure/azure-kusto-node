@@ -48,26 +48,24 @@ const appId = process.env.APP_ID;
 const appKey = process.env.APP_KEY;
 const tenantId = process.env.TENANT_ID;
 
-process.env.AZURE_CLIENT_ID = process.env.AZURE_CLIENT_ID || appId;
-process.env.AZURE_CLIENT_SECRET = process.env.AZURE_CLIENT_SECRET || appKey;
-process.env.AZURE_TENANT_ID = process.env.AZURE_TENANT_ID || tenantId;
-
 const main = (): void => {
-    if (!databaseName || !appId || !tenantId) {
+    if (!databaseName || !process.env.ENGINE_CONNECTION_STRING) {
         process.stdout.write("Skip E2E test - Missing env variables");
         return;
     }
 
-    const engineKcsb = ConnectionStringBuilder.withTokenCredential(process.env.ENGINE_CONNECTION_STRING ?? "", new DefaultAzureCredential());
+    process.env.AZURE_CLIENT_ID = process.env.AZURE_CLIENT_ID || appId;
+    process.env.AZURE_CLIENT_SECRET = process.env.AZURE_CLIENT_SECRET || appKey;
+    process.env.AZURE_TENANT_ID = process.env.AZURE_TENANT_ID || tenantId;
+
+    const cred = new DefaultAzureCredential();
+    const engineKcsb = ConnectionStringBuilder.withTokenCredential(process.env.ENGINE_CONNECTION_STRING, cred);
 
     engineKcsb.applicationNameForTracing = "NodeE2ETest_ø";
 
     const queryClient = new Client(engineKcsb);
     const streamingIngestClient = new StreamingIngestClient(engineKcsb);
-    const dmKcsb = ConnectionStringBuilder.withTokenCredential(
-        process.env.DM_CONNECTION_STRING ?? process.env.ENGINE_CONNECTION_STRING ?? "",
-        new DefaultAzureCredential()
-    );
+    const dmKcsb = ConnectionStringBuilder.withTokenCredential(process.env.DM_CONNECTION_STRING ?? process.env.ENGINE_CONNECTION_STRING, cred);
     const ingestClient = new IngestClient(dmKcsb);
     const dmKustoClient = new Client(dmKcsb);
 
