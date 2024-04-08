@@ -28,6 +28,7 @@ import {
 } from "../../src";
 import { sleep } from "../../src/retry";
 
+import { DefaultAzureCredential } from "@azure/identity";
 import assert from "assert";
 import fs, { ReadStream } from "fs";
 import util from "util";
@@ -43,9 +44,9 @@ interface ParsedJsonMapping {
 }
 
 const databaseName = process.env.TEST_DATABASE;
-const appId = process.env.APP_ID;
+const appId = process.env.APP_ID || process.env.AZURE_CLIENT_ID;
 const appKey = process.env.APP_KEY;
-const tenantId = process.env.TENANT_ID;
+const tenantId = process.env.TENANT_ID || process.env.AZURE_TENANT_ID;
 
 const main = (): void => {
     if (!databaseName || !process.env.ENGINE_CONNECTION_STRING) {
@@ -55,15 +56,18 @@ const main = (): void => {
 
     const ecs = process.env.ENGINE_CONNECTION_STRING;
     const dcs = process.env.DM_CONNECTION_STRING ?? ecs;
+    const cred = new DefaultAzureCredential({
+        tenantId,
+    });
 
     const engineKcsb =
         appId && appKey && tenantId
             ? ConnectionStringBuilder.withAadApplicationKeyAuthentication(ecs, appId, appKey, tenantId)
-            : ConnectionStringBuilder.withAzLoginIdentity(ecs);
+            : ConnectionStringBuilder.withTokenCredential(ecs, cred);
     const dmKcsb =
         appId && appKey && tenantId
             ? ConnectionStringBuilder.withAadApplicationKeyAuthentication(dcs, appId, appKey, tenantId)
-            : ConnectionStringBuilder.withAzLoginIdentity(dcs);
+            : ConnectionStringBuilder.withTokenCredential(dcs, cred);
 
     engineKcsb.applicationNameForTracing = "NodeE2ETest_ø";
 

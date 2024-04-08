@@ -16,19 +16,6 @@ jobs:
     runs-on: ubuntu-latest
     environment: build
     steps:
-      - name: Azure login
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.APP_ID }}
-          tenant-id: ${{ secrets.TENANT_ID }}
-          subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
-      - name: Azure CLI script
-        uses: azure/CLI@v1
-        with:
-          azcliversion: latest
-          inlineScript: |
-            az account set --subscription ${{ secrets.SuBSCRIPTION_ID }}
-            az login
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v3
         with:
@@ -40,6 +27,12 @@ jobs:
       - run: npm ci
       - run: npm run checkFormat
       - run: npm run lint
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.APP_ID }}
+          tenant-id: ${{ secrets.TENANT_ID }}
+          subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
       - run: npm run testPipeline
         env:
           AUTO_TEST: true
@@ -47,6 +40,8 @@ jobs:
           TEST_DATABASE: "e2e"
           ENGINE_CONNECTION_STRING: "https://sdkse2etest.eastus.kusto.windows.net"
           DM_CONNECTION_STRING: "https://ingest-sdkse2etest.eastus.kusto.windows.net"
+          AZURE_CLIENT_ID: ${{ secrets.APP_ID }}
+          AZURE_TENANT_ID: ${{ secrets.TENANT_ID }}
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v2
       - name: Publish Unit Test Results
