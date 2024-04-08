@@ -3,7 +3,6 @@
 
 /* eslint-disable no-console */
 
-import KustoIngestStatusQueues from "../../src/status";
 import {
     Client,
     ClientRequestProperties,
@@ -11,7 +10,7 @@ import {
     KustoConnectionStringBuilder as ConnectionStringBuilder,
     KustoConnectionStringBuilder,
     kustoTrustedEndpoints,
-    MatchRule,
+    MatchRule
 } from "azure-kusto-data";
 import {
     IngestClient,
@@ -25,10 +24,11 @@ import {
     ManagedStreamingIngestClient,
     StreamingIngestClient,
     IngestionStatus,
-    IngestionResult,
+    IngestionResult
 } from "../../src";
 import { sleep } from "../../src/retry";
 
+import { DefaultAzureCredential } from "@azure/identity";
 import assert from "assert";
 import fs, { ReadStream } from "fs";
 import util from "util";
@@ -48,18 +48,23 @@ const appId = process.env.APP_ID;
 const appKey = process.env.APP_KEY;
 const tenantId = process.env.TENANT_ID;
 
+process.env.AZURE_CLIENT_ID = process.env.AZURE_CLIENT_ID || appId;
+process.env.AZURE_CLIENT_SECRET = process.env.AZURE_CLIENT_SECRET || appKey;
+process.env.AZURE_TENANT_ID = process.env.AZURE_TENANT_ID || tenantId;
+
 const main = (): void => {
-    if (!databaseName || !appId || !appKey || !tenantId) {
+    if (!databaseName || !appId || !tenantId) {
         process.stdout.write("Skip E2E test - Missing env variables");
         return;
     }
 
-    const engineKcsb = ConnectionStringBuilder.withAadApplicationKeyAuthentication(process.env.ENGINE_CONNECTION_STRING ?? "", appId, appKey, tenantId);
+    const engineKcsb = ConnectionStringBuilder.withTokenCredential(process.env.ENGINE_CONNECTION_STRING ?? "", new DefaultAzureCredential());
+
     engineKcsb.applicationNameForTracing = "NodeE2ETest_ø";
 
     const queryClient = new Client(engineKcsb);
     const streamingIngestClient = new StreamingIngestClient(engineKcsb);
-    const dmKcsb = ConnectionStringBuilder.withAadApplicationKeyAuthentication(process.env.DM_CONNECTION_STRING ?? "", appId, appKey, tenantId);
+    const dmKcsb = ConnectionStringBuilder.withTokenCredential(process.env.DM_CONNECTION_STRING ?? process.env.ENGINE_CONNECTION_STRING ?? "", new DefaultAzureCredential());
     const ingestClient = new IngestClient(dmKcsb);
     const dmKustoClient = new Client(dmKcsb);
 
@@ -73,7 +78,7 @@ const main = (): void => {
             queuedIngestClient: ingestClient,
             baseSleepTimeSecs: 0,
             baseJitterSecs: 0,
-            defaultProps: new IngestionProperties({}),
+            defaultProps: new IngestionProperties({})
         },
         ManagedStreamingIngestClient.prototype
     );
@@ -90,7 +95,7 @@ const main = (): void => {
         "managed_stream",
         "status_success",
         "status_fail",
-        "status_table",
+        "status_table"
     ] as const;
 
     class TestDataItem {
@@ -100,7 +105,8 @@ const main = (): void => {
             public rows: number,
             public ingestionPropertiesCallback: (t: string) => IngestionProperties,
             public testOnStreamingIngestion = true
-        ) {}
+        ) {
+        }
     }
 
     const getTestResourcePath = (name: string) => __dirname + `/e2eData/${name}`;
@@ -118,7 +124,7 @@ const main = (): void => {
             database: databaseName,
             table: t,
             format: DataFormat.CSV,
-            flushImmediately: true,
+            flushImmediately: true
         });
     const ingestionPropertiesWithIgnoreFirstRecord = (t: string) =>
         new IngestionProperties({
@@ -126,7 +132,7 @@ const main = (): void => {
             table: t,
             format: DataFormat.CSV,
             ignoreFirstRecord: true,
-            flushImmediately: true,
+            flushImmediately: true
         });
     const ingestionPropertiesWithMappingReference = (t: string) =>
         new IngestionProperties({
@@ -134,7 +140,7 @@ const main = (): void => {
             table: t,
             format: DataFormat.JSON,
             ingestionMappingReference: mappingName,
-            flushImmediately: true,
+            flushImmediately: true
         });
     const ingestionPropertiesWithColumnMapping = (t: string) =>
         new IngestionProperties({
@@ -142,7 +148,7 @@ const main = (): void => {
             table: t,
             format: DataFormat.JSON,
             ingestionMappingColumns: columnMapping,
-            flushImmediately: true,
+            flushImmediately: true
         });
 
     const testItems = [
@@ -152,7 +158,7 @@ const main = (): void => {
         new TestDataItem("json_with_mapping_ref", getTestResourcePath("dataset.json"), 2, ingestionPropertiesWithMappingReference),
         new TestDataItem("json_gz_with_mapping_ref", getTestResourcePath("dataset_gzip.json.gz"), 2, ingestionPropertiesWithMappingReference),
         new TestDataItem("json_with_mapping", getTestResourcePath("dataset.json"), 2, ingestionPropertiesWithColumnMapping, false),
-        new TestDataItem("json_gz_with_mapping", getTestResourcePath("dataset_gzip.json.gz"), 2, ingestionPropertiesWithColumnMapping, false),
+        new TestDataItem("json_gz_with_mapping", getTestResourcePath("dataset_gzip.json.gz"), 2, ingestionPropertiesWithColumnMapping, false)
     ] as const;
 
     type Table = `${(typeof tables)[number]}_${(typeof testItems)[number]["description"]}`;
