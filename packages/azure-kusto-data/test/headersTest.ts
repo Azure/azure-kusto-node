@@ -53,10 +53,10 @@ describe("Test Headers", () => {
     });
 
     it.concurrent("Should remove unwanted characters", () => {
-        const clientDetails = ClientDetails.setConnectorDetails("Café", "1 . 0", "my|test{}app", "1.0", true, null, null);
+        const clientDetails = ClientDetails.setConnectorDetails("Café", "1 . 0", "my|test\\{}\\app", new Array(1024).join("s"), true, null, null);
         const headers = clientDetails.getHeaders();
         assert.strictEqual(headers["x-ms-client-version"]?.startsWith("Kusto.JavaScript.Client:"), true);
-        assert.strictEqual(headers["x-ms-app"], "Kusto.Caf_:{1_._0}|App.{my_test_app}:{1.0}");
+        assert.strictEqual(headers["x-ms-app"], "Kusto.Caf_:{1_._0}|App.{my_test____app}:{ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss}");
         assert.notStrictEqual(headers["x-ms-user"], "[none]");
     });
 });

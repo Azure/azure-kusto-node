@@ -15,7 +15,7 @@ declare namespace NodeJS {
 }
 
 // This regex allows all printable ascii, except spaces and chars we use in the format
-const ReplaceRegex = /[^\x21-\x7A]+/g;
+const ReplaceRegex = /[^\w.\-()]/g;
 const None = "[none]";
 
 export class ClientDetails {
@@ -33,7 +33,7 @@ export class ClientDetails {
 
     static defaultApplication(): string {
         if (isNode) {
-            return process?.env?.npm_package_name || process.title || None;
+            return process?.env?.npm_package_name || process?.argv[1] || None;
         } else {
             return window?.location?.href || None;
         }
@@ -67,7 +67,7 @@ export class ClientDetails {
     }
 
     static escapeHeader(header: string, wrapInBrackets: boolean = true): string {
-        const clean = header.replace(ReplaceRegex, "_");
+        const clean = header.substring(0, 100).replace(ReplaceRegex, "_");
         return wrapInBrackets ? `{${clean}}` : clean;
     }
 
