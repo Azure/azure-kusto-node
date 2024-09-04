@@ -3,7 +3,7 @@
 
 import KustoClient from "./client";
 import ClientRequestProperties from "./clientRequestProperties";
-import CloudSettings from "./cloudSettings";
+import {CloudSettings, CloudInfo} from "./cloudSettings";
 import KustoConnectionStringBuilder from "./connectionBuilder";
 import * as KustoDataErrors from "./errors";
 import { kustoTrustedEndpoints, MatchRule } from "./kustoTrustedEndpoints";
@@ -26,4 +26,5 @@ export {
     kustoTrustedEndpoints,
     MatchRule,
     TimeUtils,
+    CloudInfo
 };
