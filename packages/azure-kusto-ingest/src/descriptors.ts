@@ -23,6 +23,10 @@ export const getSourceId = (sourceId: string | null): string => {
     return uuidv4();
 };
 
+export function shouldCompressFileByExtension(extension?: string): boolean {
+    return !(extension === ".avro" || extension === ".apacheavro" || extension === ".parquet" || extension === ".sstream" || extension === ".orc");
+}
+
 export abstract class AbstractDescriptor {
     constructor(public sourceId: string | null = null, public size: number | null = null) {
         this.sourceId = getSourceId(sourceId);

@@ -69,10 +69,15 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
         return new KustoManagedStreamingIngestClient(engineConnectionString, dmConnectionString, defaultProps);
     }
 
-    constructor(engineKcsb: string | KustoConnectionStringBuilder, dmKcsb: string | KustoConnectionStringBuilder, defaultProps?: IngestionPropertiesInput) {
+    constructor(
+        engineKcsb: string | KustoConnectionStringBuilder,
+        dmKcsb: string | KustoConnectionStringBuilder,
+        defaultProps?: IngestionPropertiesInput,
+        autoCorrectEndpoint: boolean = true
+    ) {
         super(defaultProps);
-        this.streamingIngestClient = new StreamingIngestClient(engineKcsb, defaultProps);
-        this.queuedIngestClient = new IngestClient(dmKcsb, defaultProps);
+        this.streamingIngestClient = new StreamingIngestClient(engineKcsb, defaultProps, autoCorrectEndpoint);
+        this.queuedIngestClient = new IngestClient(dmKcsb, defaultProps, autoCorrectEndpoint);
 
         if (this.streamingIngestClient.defaultDatabase && this.streamingIngestClient.defaultDatabase !== this.queuedIngestClient.defaultDatabase) {
             throw new Error(

@@ -63,5 +63,21 @@ describe(`Browser Unit tests`, () => {
             sandbox.assert.calledOnce(queuedStub);
             sandbox.assert.calledOnce(blobUploadStub);
         });
+        it.concurrent("auto correct from query endpoint", () => {
+            const client = new IngestClient("https://somecluster.kusto.windows.net");
+            assert.strictEqual(
+                client.resourceManager.kustoClient.cluster,
+                "https://ingest-somecluster.kusto.windows.net",
+                "Kusto cluster URL does not match expected value"
+            );
+        });
+        it.concurrent("auto correct from ingestion endpoint", () => {
+            const client = new IngestClient("https://ingest-somecluster.kusto.windows.net");
+            assert.strictEqual(
+                client.resourceManager.kustoClient.cluster,
+                "https://ingest-somecluster.kusto.windows.net",
+                "Kusto cluster URL does not match expected value"
+            );
+        });
     });
 });

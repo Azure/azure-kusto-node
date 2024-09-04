@@ -5,18 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unversioned
+## [6.0.2] - 2024-04-11
+
+### Changed
+
+-   Take `process.argv[1]` as an app identifier instead of `process.title`
+-   More strict header escaping, limit the length to 100 characters per field
+
+## [6.0.1] - 2024-04-07
+
+### Fixed
+
+-   Version number fix
+
+## [6.0.0] - 2024-04-07
 
 ### Changed
 
 -   [BREAKING] - Minimal node version is now 18
 -   [BREAKING] - The default converters for DateTime and TimeSpan will now return null if the value is null or an empty string. This is to align with the behavior of the service.
--   [BREAKING] - IngestClient returns Promise<IngestionResult> instead of Promise<QueueSendMessageResponse>
+-   [BREAKING] - IngestClient returns `Promise<IngestionResult>` instead of `Promise<QueueSendMessageResponse>`
+-   Added condition on file extension for binary file compression
 
 ### Added
 
 -   Support table status reporting like explained here https://learn.microsoft.com/en-us/azure/data-explorer/kusto/api/netfx/kusto-ingest-client-status
 -   When working with storage resources, use success/failure statistics and retry mechanism to improve ingestion stability
+
+### Fixed
+
+-   process.env can be undefined
+-   Headers are now escaped better
 
 ## [5.2.3] - 2023-11-07
 

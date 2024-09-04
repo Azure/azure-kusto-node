@@ -6,7 +6,8 @@ import pathlib from "path";
 import fs from "fs";
 import { file as tmpFile } from "tmp-promise";
 import { promisify } from "util";
-import { AbstractDescriptor, CompressionType, FileDescriptorBase } from "./descriptors";
+import { AbstractDescriptor, CompressionType, FileDescriptorBase, shouldCompressFileByExtension } from "./descriptors";
+import { IngestionPropertiesInput, shouldCompressFileByFormat } from "./ingestionProperties";
 
 /**
  * Describes a file to be ingested. Use string to describe a local path in Node.JS and Blob object in browsers
@@ -14,6 +15,7 @@ import { AbstractDescriptor, CompressionType, FileDescriptorBase } from "./descr
 export class FileDescriptor extends AbstractDescriptor implements FileDescriptorBase {
     zipped: boolean;
     compressionType: CompressionType;
+    shouldNotCompress: boolean;
     cleanupTmp?: () => Promise<void>;
 
     constructor(
@@ -33,6 +35,7 @@ export class FileDescriptor extends AbstractDescriptor implements FileDescriptor
         this.extension = extension ? extension : pathlib.extname(this.file as string).toLowerCase();
 
         this.zipped = compressionType !== CompressionType.None || this.extension === ".gz" || this.extension === ".zip";
+        this.shouldNotCompress = !shouldCompressFileByExtension(this.extension);
     }
 
     async _gzip(): Promise<string> {
@@ -58,8 +61,9 @@ export class FileDescriptor extends AbstractDescriptor implements FileDescriptor
         return path;
     }
 
-    async prepare(): Promise<string> {
-        if (this.zipped) {
+    async prepare(ingestionProperties?: IngestionPropertiesInput): Promise<string> {
+        const shouldNotCompressByFormat = !shouldCompressFileByFormat(ingestionProperties);
+        if (this.zipped || this.shouldNotCompress || shouldNotCompressByFormat) {
             const estimatedCompressionModifier = 11;
             await this._calculateSize(estimatedCompressionModifier);
             return this.file as string;

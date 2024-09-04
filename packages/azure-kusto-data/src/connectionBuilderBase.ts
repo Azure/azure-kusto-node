@@ -108,6 +108,7 @@ export abstract class KustoConnectionStringBuilderBase {
 
     // discarded from to mapped names for security
     applicationCertificatePath?: string;
+
     public applicationNameForTracing: string | null = null;
     public userNameForTracing: string | null = null;
 
@@ -147,11 +148,11 @@ export abstract class KustoConnectionStringBuilderBase {
      *
      * @param name  The name of the connector
      * @param version  The version of the connector
-     * @param appName? The name of the containing application
-     * @param appVersion?? The version of the containing application
+     * @param appName The name of the containing application
+     * @param appVersion The version of the containing application
      * @param sendUser Whether to send the username
-     * @param overrideUser?? Override the username ( if sendUser is True )
-     * @param additionalFields? Additional fields to add to the header
+     * @param overrideUser Override the username ( if sendUser is True )
+     * @param additionalFields Additional fields to add to the header
      */
     public setConnectorDetails(
         name: string,
@@ -183,10 +184,6 @@ export abstract class KustoConnectionStringBuilderBase {
             })
             .filter((x) => x !== "")
             .join(";");
-    }
-
-    static fromExisting(other: KustoConnectionStringBuilderBase): KustoConnectionStringBuilderBase {
-        return Object.assign({}, other);
     }
 }
 

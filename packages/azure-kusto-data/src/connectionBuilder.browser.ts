@@ -119,6 +119,10 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
 
         return kcsb;
     }
+
+    static fromExisting(other: KustoConnectionStringBuilderBase): KustoConnectionStringBuilderBase {
+        return Object.assign(new KustoConnectionStringBuilder(other.toString(false)), other);
+    }
 }
 
 export default KustoConnectionStringBuilder;

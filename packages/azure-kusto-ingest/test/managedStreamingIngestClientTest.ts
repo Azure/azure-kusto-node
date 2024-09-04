@@ -122,6 +122,25 @@ describe("ManagedStreamingIngestClient", () => {
             });
         }
     });
+    describe("test auto correct uri", () => {
+        /* eslint-disable @typescript-eslint/no-unsafe-member-access -- needed for checking private members */
+        it.concurrent("auto correct on regular ingestClient", () => {
+            const client = new KustoManagedStreamingIngestClient(
+                "https://ingest-somecluster.kusto.windows.net",
+                "https://ingest-somecluster.kusto.windows.net"
+            );
+            assert.strictEqual(
+                (client as any).queuedIngestClient.resourceManager.kustoClient.cluster,
+                "https://ingest-somecluster.kusto.windows.net",
+                "Client URI was not extracted correctly from query endpoint"
+            );
+            assert.strictEqual(
+                (client as any).streamingIngestClient.kustoClient.cluster,
+                "https://somecluster.kusto.windows.net",
+                "Client URI was not extracted correctly from ingestion endpoint"
+            );
+        });
+    });
 
     describe("fallback", () => {
         for (const sourceId of [null, testUuid]) {

@@ -13,11 +13,15 @@ import { Readable } from "stream";
 describe("KustoIngestClient", () => {
     describe("#constructor()", () => {
         it.concurrent("valid input", () => {
-            const ingestClient = new KustoIngestClient("https://cluster.kusto.windows.net", {
-                database: "db",
-                table: "table",
-                format: "json",
-            } as IngestionProperties);
+            const ingestClient = new KustoIngestClient(
+                "https://cluster.kusto.windows.net",
+                {
+                    database: "db",
+                    table: "table",
+                    format: "json",
+                } as IngestionProperties,
+                false
+            );
 
             assert.notStrictEqual(ingestClient.defaultProps, null);
             assert.strictEqual(ingestClient.resourceManager.kustoClient.cluster, "https://cluster.kusto.windows.net");
@@ -232,6 +236,25 @@ describe("KustoIngestClient", () => {
             client.defaultDatabase = undefined;
 
             assert.throws(() => client._getMergedProps(), new IngestionPropertiesValidationError("Must define a target database"));
+        });
+    });
+
+    describe("test auto correct uri", () => {
+        it.concurrent("auto correct from query endpoint", () => {
+            const client = new KustoIngestClient("https://somecluster.kusto.windows.net");
+            assert.strictEqual(
+                client.resourceManager.kustoClient.cluster,
+                "https://ingest-somecluster.kusto.windows.net",
+                "Kusto cluster URL does not match expected value"
+            );
+        });
+        it.concurrent("auto correct from ingestion endpoint", () => {
+            const client = new KustoIngestClient("https://ingest-somecluster.kusto.windows.net");
+            assert.strictEqual(
+                client.resourceManager.kustoClient.cluster,
+                "https://ingest-somecluster.kusto.windows.net",
+                "Kusto cluster URL does not match expected value"
+            );
         });
     });
 
