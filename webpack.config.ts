@@ -16,7 +16,10 @@ let config = {
     },
     resolve: {
         aliasFields: ["browser"],
-        fallback: { stream: require.resolve("stream-browserify") }, // Over fallbacks are in the package.json file
+        fallback: {
+            stream: require.resolve("stream-browserify"),
+            'process/browser': require.resolve('process/browser')
+        }, // Over fallbacks are in the package.json file
         extensions: [".ts", ".js"],
     },
     devtool: "inline-source-map",
