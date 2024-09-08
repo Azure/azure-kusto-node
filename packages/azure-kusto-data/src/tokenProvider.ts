@@ -15,7 +15,7 @@ import {
     InteractiveBrowserCredential,
 } from "@azure/identity";
 import { TokenCredential } from "@azure/core-auth";
-import { CloudInfo, CloudSettings } from "./cloudSettings";
+import { CloudInfo, CloudSettings } from "./cloudSettings.js";
 
 export declare type TokenResponse = {
     tokenType: string;

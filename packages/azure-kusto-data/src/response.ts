@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { KustoResultTable, Table, WellKnownDataSet } from "./models";
+import { KustoResultTable, Table, WellKnownDataSet } from "./models.js";
 
 interface V2DataSetHeaderFrame {
     FrameType: "DataSetHeader";

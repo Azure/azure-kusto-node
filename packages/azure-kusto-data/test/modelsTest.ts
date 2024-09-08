@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 
 import assert from "assert";
-import { KustoResultColumn, KustoResultRow, KustoResultTable } from "../src/models";
-import v2 from "./data/response/v2";
-import { parseKustoTimestampToMillis } from "../src/timeUtils";
+import { KustoResultColumn, KustoResultRow, KustoResultTable } from "../src/models.js";
+import v2 from "./data/response/v2.js";
+import { parseKustoTimestampToMillis } from "../src/timeUtils.js";
 
 const v2Response = v2;
 

@@ -4,16 +4,15 @@
 /* eslint-disable no-console */
 
 import sinon from "sinon";
-import { StreamingIngestClient } from "../src";
-import { StreamDescriptor } from "../src/descriptors";
-import { KustoIngestClient } from "../src/ingestClient";
-import { DataFormat, IngestionProperties, IngestionPropertiesInput } from "../src/ingestionProperties";
-import KustoManagedStreamingIngestClient from "../src/managedStreamingIngestClient";
+import { StreamingIngestClient, IngestionResult } from "azure-kusto-ingest";
+import { StreamDescriptor } from "../src/descriptors.js";
+import { KustoIngestClient } from "../src/ingestClient.js";
+import { DataFormat, IngestionProperties, IngestionPropertiesInput } from "../src/ingestionProperties.js";
+import KustoManagedStreamingIngestClient from "../src/managedStreamingIngestClient.js";
 import { Readable } from "stream";
 import { CloudSettings, KustoConnectionStringBuilder } from "azure-kusto-data";
 import assert from "assert";
 import uuidValidate from "uuid-validate";
-import { IngestionResult } from "../src/ingestionResult";
 
 type IngestFromStreamStub = sinon.SinonStub<[StreamDescriptor | Readable | ArrayBuffer, IngestionPropertiesInput?, string?], Promise<IngestionResult>>;
 beforeAll(() => {
@@ -35,8 +34,8 @@ describe("ManagedStreamingIngestClient", () => {
                 baseJitterSecs: 0,
                 defaultProps: new IngestionProperties({
                     database: "db",
-                    table: "table",
-                }),
+                    table: "table"
+                })
             },
             KustoManagedStreamingIngestClient.prototype
         );
@@ -111,7 +110,7 @@ describe("ManagedStreamingIngestClient", () => {
                     new IngestionProperties({
                         database: "db",
                         table: "t1",
-                        format: DataFormat.CSV,
+                        format: DataFormat.CSV
                     })
                 );
 
@@ -162,7 +161,7 @@ describe("ManagedStreamingIngestClient", () => {
                     new IngestionProperties({
                         database: "db",
                         table: "t1",
-                        format: DataFormat.CSV,
+                        format: DataFormat.CSV
                     })
                 );
 
@@ -189,7 +188,7 @@ describe("ManagedStreamingIngestClient", () => {
                         maxRetries: 1,
                         baseSleepTimeSecs: 0,
                         baseJitterSecs: 0,
-                        defaultProps: new IngestionProperties({}),
+                        defaultProps: new IngestionProperties({})
                     },
                     KustoManagedStreamingIngestClient.prototype
                 );
@@ -200,7 +199,7 @@ describe("ManagedStreamingIngestClient", () => {
                     Buffer.alloc(singleBufferSize, "b"),
                     Buffer.alloc(singleBufferSize, "c"),
                     Buffer.alloc(singleBufferSize, "d"),
-                    Buffer.alloc(singleBufferSize, "e"),
+                    Buffer.alloc(singleBufferSize, "e")
                 ];
 
                 const stream = createStream(buffers);
@@ -210,7 +209,7 @@ describe("ManagedStreamingIngestClient", () => {
                     new IngestionProperties({
                         database: "db",
                         table: "t1",
-                        format: DataFormat.CSV,
+                        format: DataFormat.CSV
                     })
                 );
 

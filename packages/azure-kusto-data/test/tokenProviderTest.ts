@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { CloudSettings } from "../src/cloudSettings";
+import { CloudSettings } from "../src/cloudSettings.js";
 import assert from "assert";
-import { UserPassTokenProvider } from "../src/tokenProvider";
+import { UserPassTokenProvider } from "../src/tokenProvider.js";
 
 describe("CloudInfo", () => {
     describe("#CloudInfo", () => {

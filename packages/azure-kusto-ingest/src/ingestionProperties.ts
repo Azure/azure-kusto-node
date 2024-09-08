@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { IngestionPropertiesValidationError } from "./errors";
-import { ColumnMapping } from "./columnMappings";
+import { IngestionPropertiesValidationError } from "./errors.js";
+import { ColumnMapping } from "./columnMappings.js";
 
 /**
  * Data formats supported for Kusto ingestion.

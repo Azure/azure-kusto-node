@@ -4,7 +4,7 @@
 import assert from "assert";
 
 import v2Response from "./data/response/v2.json";
-import { KustoResponseDataSetV2, V2Frames } from "../src/response";
+import { KustoResponseDataSetV2, V2Frames } from "../src/response.js";
 
 describe("KustoResultDataSet", () => {
     describe("#constructor()", () => {

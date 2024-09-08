@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { IngestionPropertiesInput } from "./ingestionProperties";
+import { IngestionPropertiesInput } from "./ingestionProperties.js";
 
-import { BlobDescriptor } from "./descriptors";
-import { AbstractKustoClient } from "./abstractKustoClient";
+import { BlobDescriptor } from "./descriptors.js";
+import { AbstractKustoClient } from "./abstractKustoClient.js";
 import { Client as KustoClient, KustoConnectionStringBuilder } from "azure-kusto-data";
 
 export abstract class KustoStreamingIngestClientBase extends AbstractKustoClient {

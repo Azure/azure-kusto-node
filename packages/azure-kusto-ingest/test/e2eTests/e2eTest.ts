@@ -25,8 +25,9 @@ import {
     StreamingIngestClient,
     IngestionStatus,
     IngestionResult,
-} from "../../src";
-import { sleep } from "../../src/retry";
+} from "azure-kusto-ingest";
+
+import { sleep } from "../../src/retry.js";
 
 import { AzureCliCredential } from "@azure/identity";
 import assert from "assert";
@@ -35,7 +36,7 @@ import util from "util";
 import { v4 as uuidv4 } from "uuid";
 import pathlib from "path";
 import sinon from "sinon";
-import { TableReportIngestionResult } from "../../src/ingestionResult";
+import { TableReportIngestionResult } from "../../src/ingestionResult.js";
 
 interface ParsedJsonMapping {
     Properties: { Path: string };

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { parseKustoTimestampToMillis } from "./timeUtils";
+import { parseKustoTimestampToMillis } from "./timeUtils.js";
 
 export enum WellKnownDataSet {
     PrimaryResult = "PrimaryResult",

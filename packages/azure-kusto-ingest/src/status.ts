@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { StatusQueue } from "./statusQ";
-import KustoIngestClient from "./ingestClient";
-import { ResourceURI } from "./resourceManager";
+import { StatusQueue } from "./statusQ.js";
+import KustoIngestClient from "./ingestClient.js";
+import { ResourceURI } from "./resourceManager.js";
 
 export class StatusMessage {
     OperationId?: string;

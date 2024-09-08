@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { KustoHeaders } from "./clientDetails";
+import { KustoHeaders } from "./clientDetails.js";
 
 export class ClientRequestProperties {
     private _options: { [option: string]: any };

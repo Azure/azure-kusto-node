@@ -3,7 +3,7 @@
 
 /* eslint-disable @typescript-eslint/ban-types -- We legitimately want to use {} as a "any non-nullable type" */
 
-import { IngestionMappingKind } from "./ingestionProperties";
+import { IngestionMappingKind } from "./ingestionProperties.js";
 
 export enum FieldTransformation {
     PropertyBagArrayToDictionary = "PropertyBagArrayToDictionary",

@@ -4,10 +4,10 @@
 /* eslint-disable no-console */
 
 import assert from "assert";
-import IngestClient from "../src/ingestClient.browser";
-import { KustoConnectionStringBuilder as ConnectionStringBuilder } from "azure-kusto-data/src/connectionBuilder.browser";
+import IngestClient from "../src/ingestClient.browser.js";
+import { KustoConnectionStringBuilder as ConnectionStringBuilder } from "azure-kusto-data";
 import sinon from "sinon";
-import { IngestionResult } from "../src/ingestionResult";
+import { IngestionResult } from "azure-kusto-ingest";
 
 describe(`Browser Unit tests`, () => {
     const cluster = "https://somecluster.kusto.windows.net";

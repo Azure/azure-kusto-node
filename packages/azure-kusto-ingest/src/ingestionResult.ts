@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 import { TableClient, TableEntity } from "@azure/data-tables";
-import { ExponentialRetry } from "./retry";
-import { createStatusTableClient } from "./resourceManager";
+import { ExponentialRetry } from "./retry.js";
+import { createStatusTableClient } from "./resourceManager.js";
 export interface IngestionResult {
     /// <summary>
     /// Retrieves the detailed ingestion status of

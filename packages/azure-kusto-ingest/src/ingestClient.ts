@@ -3,13 +3,13 @@
 
 import { KustoConnectionStringBuilder } from "azure-kusto-data";
 
-import { BlobDescriptor, generateBlobName, StreamDescriptor } from "./descriptors";
-import { FileDescriptor } from "./fileDescriptor";
+import { BlobDescriptor, generateBlobName, StreamDescriptor } from "./descriptors.js";
+import { FileDescriptor } from "./fileDescriptor.js";
 
-import { IngestionPropertiesInput } from "./ingestionProperties";
-import { KustoIngestClientBase } from "./ingestClientBase";
+import { IngestionPropertiesInput } from "./ingestionProperties.js";
+import { KustoIngestClientBase } from "./ingestClientBase.js";
 import { Readable } from "stream";
-import { IngestionResult } from "./ingestionResult";
+import { IngestionResult } from "./ingestionResult.js";
 
 export class KustoIngestClient extends KustoIngestClientBase {
     constructor(kcsb: string | KustoConnectionStringBuilder, defaultProps?: IngestionPropertiesInput, autoCorrectEndpoint?: boolean) {
