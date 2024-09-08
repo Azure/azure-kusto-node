@@ -5,7 +5,7 @@
 
 import assert from "assert";
 import IngestClient from "../src/ingestClient.browser";
-import { KustoConnectionStringBuilder as ConnectionStringBuilder } from "azure-kusto-data/src/connectionBuilder.browser";
+import { KustoConnectionStringBuilder as ConnectionStringBuilder } from "azure-kusto-data";
 import sinon from "sinon";
 import { IngestionResult } from "../src/ingestionResult";
 
