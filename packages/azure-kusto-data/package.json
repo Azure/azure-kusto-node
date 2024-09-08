@@ -2,9 +2,13 @@
     "name": "azure-kusto-data",
     "version": "6.0.2",
     "description": "Azure Data Explorer Query SDK",
-    "module": "dist-esm/src/index.js",
-    "types": "./types/src/index.d.ts",
-    "main": "dist-esm/src/index",
+    "type": "module",
+    "exports": {
+        ".": {
+            "import": "./dist-esm/src/index.js",
+            "types": "./types/src/index.d.ts"
+        }
+    },
     "scripts": {
         "clean": "rimraf dist/* dist-esm/* types/*",
         "build": "tsc -b"
