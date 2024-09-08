@@ -34,8 +34,8 @@ describe("ManagedStreamingIngestClient", () => {
                 baseJitterSecs: 0,
                 defaultProps: new IngestionProperties({
                     database: "db",
-                    table: "table"
-                })
+                    table: "table",
+                }),
             },
             KustoManagedStreamingIngestClient.prototype
         );
@@ -110,7 +110,7 @@ describe("ManagedStreamingIngestClient", () => {
                     new IngestionProperties({
                         database: "db",
                         table: "t1",
-                        format: DataFormat.CSV
+                        format: DataFormat.CSV,
                     })
                 );
 
@@ -161,7 +161,7 @@ describe("ManagedStreamingIngestClient", () => {
                     new IngestionProperties({
                         database: "db",
                         table: "t1",
-                        format: DataFormat.CSV
+                        format: DataFormat.CSV,
                     })
                 );
 
@@ -188,7 +188,7 @@ describe("ManagedStreamingIngestClient", () => {
                         maxRetries: 1,
                         baseSleepTimeSecs: 0,
                         baseJitterSecs: 0,
-                        defaultProps: new IngestionProperties({})
+                        defaultProps: new IngestionProperties({}),
                     },
                     KustoManagedStreamingIngestClient.prototype
                 );
@@ -199,7 +199,7 @@ describe("ManagedStreamingIngestClient", () => {
                     Buffer.alloc(singleBufferSize, "b"),
                     Buffer.alloc(singleBufferSize, "c"),
                     Buffer.alloc(singleBufferSize, "d"),
-                    Buffer.alloc(singleBufferSize, "e")
+                    Buffer.alloc(singleBufferSize, "e"),
                 ];
 
                 const stream = createStream(buffers);
@@ -209,7 +209,7 @@ describe("ManagedStreamingIngestClient", () => {
                     new IngestionProperties({
                         database: "db",
                         table: "t1",
-                        format: DataFormat.CSV
+                        format: DataFormat.CSV,
                     })
                 );
 

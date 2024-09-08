@@ -18,7 +18,7 @@ let config = {
         aliasFields: ["browser"],
         fallback: {
             stream: require.resolve("stream-browserify"),
-            'process/browser': require.resolve('process/browser')
+            "process/browser": require.resolve("process/browser"),
         }, // Over fallbacks are in the package.json file
         extensions: [".ts", ".js"],
     },
