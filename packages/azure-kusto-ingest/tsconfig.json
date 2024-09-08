@@ -14,6 +14,9 @@
         "paths": {
             "azure-kusto-ingest": [
                 "./src/index"
+            ],
+            "azure-kusto-data": [
+                "../azure-kusto-data/src/index"
             ]
         },
         "lib": [
