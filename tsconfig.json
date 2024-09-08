@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "target": "ES2017",
-        "module": "NodeNext",
+        "module": "ES2015",
         "esModuleInterop": true,
         "strict": true,
         "incremental": true,
