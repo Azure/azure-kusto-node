@@ -34,7 +34,7 @@ import assert from "assert";
 import fs, { ReadStream } from "fs";
 import util from "util";
 import { v4 as uuidv4 } from "uuid";
-import pathlib from "path";
+import pathlib, { resolve } from "path";
 import sinon from "sinon";
 import { TableReportIngestionResult } from "../../src/ingestionResult.js";
 
@@ -115,7 +115,7 @@ const main = (): void => {
         ) {}
     }
 
-    const getTestResourcePath = (name: string) => __dirname + `/e2eData/${name}`;
+    const getTestResourcePath = (name: string) => resolve() + `/e2eData/${name}`;
 
     const mappingName = "mappingRef";
     const tableColumns =
