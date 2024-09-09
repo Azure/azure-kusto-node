@@ -3,11 +3,8 @@
 
 /* eslint-disable no-console */
 
-
-
-
 describe(`Browser Unit tests`, () => {
-/*    TODO - restore tests when we find how to correctly import the modules
+    /*    TODO - restore tests when we find how to correctly import the modules
 import assert from "assert";
 import IngestClient from "../src/ingestClient.browser.js";
 import { KustoConnectionStringBuilder as ConnectionStringBuilder } from "azure-kusto-data";
@@ -85,4 +82,3 @@ const cluster = "https://somecluster.kusto.windows.net";
         });
     });*/
 });
-
