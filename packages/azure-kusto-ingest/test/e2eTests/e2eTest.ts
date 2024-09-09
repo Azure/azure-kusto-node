@@ -424,7 +424,7 @@ const main = (): void => {
                 assert.fail(`Didn't throw PartialQueryFailure`);
             });
 
-/*          TODO - figure out why this test fails (might be related to jest esm timers)
+            /*          TODO - figure out why this test fails (might be related to jest esm timers)
             it.concurrent("executionTimeout", async () => {
                 try {
                     const properties: ClientRequestProperties = new ClientRequestProperties();
