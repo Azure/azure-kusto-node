@@ -430,9 +430,8 @@ const main = (): void => {
                     await queryClient.executeQuery(databaseName, tableNames.general_csv, properties);
                 } catch (ex: unknown) {
                     assert.ok(ex instanceof Error);
-                    assert.match(
-                        ex.message,
-                        /.*Request failed with status code 504.*/,
+                    assert.ok(
+                        /.*Request failed with status code 504.*/.test(ex.message),
                         `Fail to get "Query is expired". ex json: ${util.format(ex)}, ex: ${ex}`
                     );
                     return;
