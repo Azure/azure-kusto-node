@@ -3,20 +3,19 @@
 
 import { Config } from "jest";
 import type { JestConfigWithTsJest } from "ts-jest";
-import { createDefaultEsmPreset } from 'ts-jest'
+import { createDefaultEsmPreset } from "ts-jest";
 
-const defaultEsmPreset = createDefaultEsmPreset()
+const defaultEsmPreset = createDefaultEsmPreset();
 
 const baseConfig: Config = {
     ...defaultEsmPreset,
     moduleNameMapper: {
-        '^(\\.{1,2}/.*)\\.js$': '$1',
+        "^(\\.{1,2}/.*)\\.js$": "$1",
     },
     testEnvironment: "node",
     prettierPath: "prettier",
     maxWorkers: 200,
     testMatch: ["**/test/**/*Test.ts"],
-
 };
 
 const config: JestConfigWithTsJest = {
