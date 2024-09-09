@@ -2,16 +2,19 @@
 // Licensed under the MIT License.
 
 /* eslint-disable no-console */
-/* TODO: find a way to properly do this
+
+
+
+
+describe(`Browser Unit tests`, () => {
+/*    TODO - restore tests when we find how to correctly import the modules
 import assert from "assert";
 import IngestClient from "../src/ingestClient.browser.js";
 import { KustoConnectionStringBuilder as ConnectionStringBuilder } from "azure-kusto-data";
 import sinon from "sinon";
 import { IngestionResult } from "azure-kusto-ingest";
 
-
-describe(`Browser Unit tests`, () => {
-    const cluster = "https://somecluster.kusto.windows.net";
+const cluster = "https://somecluster.kusto.windows.net";
 
     describe("Kcsb", () => {
         it.concurrent("Fail to create non-browser compatible authentication", () => {
@@ -80,6 +83,6 @@ describe(`Browser Unit tests`, () => {
                 "Kusto cluster URL does not match expected value"
             );
         });
-    });
+    });*/
 });
-*/
+
