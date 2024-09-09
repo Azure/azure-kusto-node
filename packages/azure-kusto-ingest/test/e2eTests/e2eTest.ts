@@ -115,7 +115,7 @@ const main = (): void => {
         ) {}
     }
 
-    const getTestResourcePath = (name: string) => resolve() + `/e2eData/${name}`;
+    const getTestResourcePath = (name: string) => resolve() + `/packages/azure-kusto-ingest/test/e2eTests/e2eData/${name}`;
 
     const mappingName = "mappingRef";
     const tableColumns =
