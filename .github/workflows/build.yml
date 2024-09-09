@@ -42,6 +42,7 @@ jobs:
           DM_CONNECTION_STRING: "https://ingest-sdkse2etest.eastus.kusto.windows.net"
           AZURE_CLIENT_ID: ${{ secrets.APP_ID }}
           AZURE_TENANT_ID: ${{ secrets.TENANT_ID }}
+          NODE_OPTIONS: "--experimental-vm-modules"
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v2
       - name: Publish Unit Test Results
