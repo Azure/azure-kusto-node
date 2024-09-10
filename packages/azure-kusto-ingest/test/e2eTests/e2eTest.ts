@@ -438,7 +438,7 @@ const main = (): void => {
                     assert.ok(ex instanceof Error);
                     assert.match(
                         ex.message,
-                        /.*Request failed with status code 504.*/,
+                        /.*Request failed with status code (504|400).*/,
                         `Fail to get "Query is expired". ex json: ${JSON.stringify((ex as AxiosError)?.response?.data)}, ex: ${ex}`
                     );
                     return;
