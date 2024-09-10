@@ -432,7 +432,7 @@ const main = (): void => {
                     assert.ok(ex instanceof Error);
                     assert.match(
                         (ex as Error).message,
-                        new RegExp(".*Request failed with status code 400.*"),
+                        new RegExp(".*Request failed with status code 504.*"),
                         `Fail to get "Query is expired". ex json: ${util.format(ex)}, ex: ${ex}`
                     );
                     // expect(ex.message).toMatch(/.*Request failed with status code 400.*/);
