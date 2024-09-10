@@ -34,8 +34,12 @@ import assert from "assert";
 import fs, { ReadStream } from "fs";
 import util from "util";
 import { v4 as uuidv4 } from "uuid";
-import pathlib, { resolve } from "path";
+import { basename, dirname } from "path";
 import sinon from "sinon";
+import { fileURLToPath } from 'node:url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 interface ParsedJsonMapping {
     Properties: { Path: string };
@@ -114,7 +118,7 @@ const main = (): void => {
         ) {}
     }
 
-    const getTestResourcePath = (name: string) => resolve() + `/packages/azure-kusto-ingest/test/e2eTests/e2eData/${name}`;
+    const getTestResourcePath = (name: string) => __dirname + `/e2eData/${name}`;
 
     const mappingName = "mappingRef";
     const tableColumns =
@@ -336,7 +340,7 @@ const main = (): void => {
                         return { item: i };
                     })
             )("ingestFromBlob_$item.description", async ({ item }) => {
-                const blobName = uuidv4() + pathlib.basename(item.path);
+                const blobName = uuidv4() + basename(item.path);
                 const blobUri = await ingestClient.uploadToBlobWithRetry(item.path, blobName);
 
                 const table = tableNames[("streaming_blob" + "_" + item.description) as Table];
@@ -424,11 +428,10 @@ const main = (): void => {
                 assert.fail(`Didn't throw PartialQueryFailure`);
             });
 
-            /*          TODO - figure out why this test fails (might be related to jest esm timers)
             it.concurrent("executionTimeout", async () => {
                 try {
                     const properties: ClientRequestProperties = new ClientRequestProperties();
-                    properties.setTimeout(10);
+                    properties.setTimeout(100);
                     await queryClient.executeQuery(databaseName, tableNames.general_csv, properties);
                 } catch (ex: unknown) {
                     assert.ok(ex instanceof Error);
@@ -439,7 +442,7 @@ const main = (): void => {
                     return;
                 }
                 assert.fail(`Didn't throw executionTimeout`);
-            });*/
+            });
         });
     });
 
