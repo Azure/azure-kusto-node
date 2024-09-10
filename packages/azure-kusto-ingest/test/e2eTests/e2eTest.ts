@@ -27,6 +27,8 @@ import {
     IngestionResult,
 } from "azure-kusto-ingest";
 
+import { type AxiosError } from "axios";
+
 import { sleep } from "../../src/retry.js";
 
 import { AzureCliCredential } from "@azure/identity";
@@ -437,7 +439,7 @@ const main = (): void => {
                     assert.match(
                         ex.message,
                         /.*Request failed with status code 504.*/,
-                        `Fail to get "Query is expired". ex json: ${JSON.stringify(ex)}, ex: ${ex}`
+                        `Fail to get "Query is expired". ex json: ${JSON.stringify((ex as AxiosError)?.response?.data)}, ex: ${ex}`
                     );
                     return;
                 }
