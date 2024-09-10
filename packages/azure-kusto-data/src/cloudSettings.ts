@@ -20,7 +20,7 @@ const AXIOS_ERR_NETWORK = axios.AxiosError.ERR_NETWORK ?? "ERR_NETWORK";
 class CloudSettings {
     METADATA_ENDPOINT = "/v1/rest/auth/metadata";
     defaultCloudInfo: CloudInfo = {
-        LoginEndpoint: process.env?.AadAuthorityUri || "https://login.microsoftonline.com",
+        LoginEndpoint: process?.env?.AadAuthorityUri || "https://login.microsoftonline.com",
         LoginMfaRequired: false,
         KustoClientAppId: "db662dc1-0cfe-4e1c-a843-19a68e65be58",
         KustoClientRedirectUri: "https://microsoft/kustoclient",

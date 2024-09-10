@@ -1,4 +1,10 @@
 name: release
+permissions:
+  checks: write
+  pull-requests: write
+  packages: write
+  deployments: write
+  contents: write
 
 on:
   push:

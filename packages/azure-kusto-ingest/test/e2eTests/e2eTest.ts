@@ -3,7 +3,6 @@
 
 /* eslint-disable no-console */
 
-import KustoIngestStatusQueues from "../../src/status";
 import {
     Client,
     ClientRequestProperties,
@@ -29,6 +28,7 @@ import {
 } from "../../src";
 import { sleep } from "../../src/retry";
 
+import { AzureCliCredential } from "@azure/identity";
 import assert from "assert";
 import fs, { ReadStream } from "fs";
 import util from "util";
@@ -44,22 +44,33 @@ interface ParsedJsonMapping {
 }
 
 const databaseName = process.env.TEST_DATABASE;
-const appId = process.env.APP_ID;
+const appId = process.env.APP_ID || process.env.AZURE_CLIENT_ID;
 const appKey = process.env.APP_KEY;
-const tenantId = process.env.TENANT_ID;
+const tenantId = process.env.TENANT_ID || process.env.AZURE_TENANT_ID;
 
 const main = (): void => {
-    if (!databaseName || !appId || !appKey || !tenantId) {
+    if (!databaseName || !process.env.ENGINE_CONNECTION_STRING) {
         process.stdout.write("Skip E2E test - Missing env variables");
         return;
     }
 
-    const engineKcsb = ConnectionStringBuilder.withAadApplicationKeyAuthentication(process.env.ENGINE_CONNECTION_STRING ?? "", appId, appKey, tenantId);
+    const ecs = process.env.ENGINE_CONNECTION_STRING;
+    const dcs = process.env.DM_CONNECTION_STRING ?? ecs;
+    const cred = new AzureCliCredential({});
+
+    const engineKcsb =
+        appId && appKey && tenantId
+            ? ConnectionStringBuilder.withAadApplicationKeyAuthentication(ecs, appId, appKey, tenantId)
+            : ConnectionStringBuilder.withTokenCredential(ecs, cred);
+    const dmKcsb =
+        appId && appKey && tenantId
+            ? ConnectionStringBuilder.withAadApplicationKeyAuthentication(dcs, appId, appKey, tenantId)
+            : ConnectionStringBuilder.withTokenCredential(dcs, cred);
+
     engineKcsb.applicationNameForTracing = "NodeE2ETest_ø";
 
     const queryClient = new Client(engineKcsb);
     const streamingIngestClient = new StreamingIngestClient(engineKcsb);
-    const dmKcsb = ConnectionStringBuilder.withAadApplicationKeyAuthentication(process.env.DM_CONNECTION_STRING ?? "", appId, appKey, tenantId);
     const ingestClient = new IngestClient(dmKcsb);
     const dmKustoClient = new Client(dmKcsb);
 
