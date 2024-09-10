@@ -259,7 +259,7 @@ const main = (): void => {
                 try {
                     const res: IngestionResult = await ingestClient.ingestFromFile(item.path, props);
                     assert.ok(res, "ingest result returned null or undefined");
-                    assert.equal(typeof res, "TableReportIngestionResult");
+                    assert.equal(res.constructor.name, "TableReportIngestionResult");
                     let status: IngestionStatus;
                     const endTime = Date.now() + 180000; // Timeout is 3 minutes
                     while (Date.now() < endTime) {
