@@ -36,7 +36,7 @@ import util from "util";
 import { v4 as uuidv4 } from "uuid";
 import { basename, dirname } from "path";
 import sinon from "sinon";
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
