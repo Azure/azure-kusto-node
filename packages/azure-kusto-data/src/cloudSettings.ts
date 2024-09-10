@@ -12,6 +12,8 @@ export type CloudInfo = {
     FirstPartyAuthorityUrl: string;
 };
 
+const AXIOS_ERR_NETWORK = axios.AxiosError.ERR_NETWORK ?? "ERR_NETWORK";
+
 /**
  * This class holds data for all cloud instances, and returns the specific data instance by parsing the dns suffix from a URL
  */
@@ -64,7 +66,7 @@ class CloudSettings {
         } catch (ex) {
             if (axios.isAxiosError(ex)) {
                 // Axios library has a bug in browser, not propagating the status code, see: https://github.com/axios/axios/issues/5330
-                if ((ex.response?.status === 404 && isNode) || (!isNode && (!ex.code || ex.code === "ERR_NETWORK"))) {
+                if ((isNode && ex.response?.status === 404) || (!isNode && (!ex.code || ex.code === AXIOS_ERR_NETWORK))) {
                     // For now as long not all proxies implement the metadata endpoint, if no endpoint exists return public cloud data
                     this.cloudCache[kustoUri] = this.defaultCloudInfo;
                 } else {
