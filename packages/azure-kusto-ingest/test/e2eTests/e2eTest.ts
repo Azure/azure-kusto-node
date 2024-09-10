@@ -430,8 +430,7 @@ const main = (): void => {
             it.concurrent("executionTimeout", async () => {
                 try {
                     const properties: ClientRequestProperties = new ClientRequestProperties();
-                    properties.setTimeout(100);
-                    await sleep(1000);
+                    properties.setTimeout(10);
                     await queryClient.executeQuery(databaseName, tableNames.general_csv, properties);
                 } catch (ex: unknown) {
                     assert.ok(ex instanceof Error);
