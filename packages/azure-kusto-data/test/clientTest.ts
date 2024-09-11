@@ -63,7 +63,7 @@ describe("KustoClient", () => {
             const url = "https://cluster.kusto.windows.net";
             const client = new KustoClient(url);
             const clientRequestProps = new ClientRequestProperties();
-            const timeout = toMilliseconds(0, 3, 31.8);
+            const timeout = toMilliseconds(0, 3, 31.813);
             const clientServerDelta = toMilliseconds(0, 0, 30);
             const totalTimeout = timeout + clientServerDelta;
 
@@ -71,13 +71,13 @@ describe("KustoClient", () => {
             assert.strictEqual(client._getClientTimeout(ExecutionType.Query, clientRequestProps), totalTimeout);
 
             const json = clientRequestProps.toJSON();
-            assert.strictEqual(json?.Options?.servertimeout, "00:03:31.8");
+            assert.strictEqual(json?.Options?.servertimeout, "00:03:31.813");
 
             client._getClientTimeout(ExecutionType.Query, clientRequestProps);
             assert.strictEqual(client._getClientTimeout(ExecutionType.Query, clientRequestProps), totalTimeout);
 
             const json2 = clientRequestProps.toJSON();
-            assert.strictEqual(json2?.Options?.servertimeout, "00:03:31.8");
+            assert.strictEqual(json2?.Options?.servertimeout, "00:03:31.813");
         });
     });
 
@@ -160,7 +160,7 @@ describe("KustoClient", () => {
                 const payloadObj = JSON.parse(payload) as {
                     properties: { Options: { servertimeout: number } };
                 };
-                assert.strictEqual(payloadObj.properties.Options.servertimeout, "00:02:30.6");
+                assert.strictEqual(payloadObj.properties.Options.servertimeout, "00:02:30.600");
                 assert.strictEqual(timeout, timeoutMs + toMilliseconds(0, 0, 30));
                 return Promise.resolve(new KustoResponseDataSetV2([]));
             };
