@@ -4,7 +4,5 @@ node_modules
 coverage
 .nyc_output
 jest.config.ts
-# Don't lint test files
-packages/**/test
 # Don't lint example files
 packages/quick_start
