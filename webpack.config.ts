@@ -18,8 +18,6 @@ let config = {
         aliasFields: ["browser"],
         fallback: {
             stream: require.resolve("stream-browserify"),
-            // ESM has issue importing process/browser without this resolve
-            "process/browser": require.resolve("process/browser"),
         }, // Over fallbacks are in the package.json file
         extensions: [".ts", ".js"],
     },
