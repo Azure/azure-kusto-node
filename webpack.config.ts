@@ -18,6 +18,8 @@ let config = {
         aliasFields: ["browser"],
         fallback: {
             stream: require.resolve("stream-browserify"),
+            // ESM has issue importing process/browser without this resolve
+            "process/browser": require.resolve("process/browser"),
         }, // Over fallbacks are in the package.json file
         extensions: [".ts", ".js"],
     },
@@ -29,9 +31,6 @@ let config = {
         port: 3000, // This port should be open in the SPA aad app
     },
     plugins: [
-        new webpack.ProvidePlugin({
-            process: "process/browser",
-        }),
         // Work around for Buffer is undefined:
         // https://github.com/webpack/changelog-v5/issues/10
         new webpack.ProvidePlugin({
