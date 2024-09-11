@@ -106,8 +106,9 @@ export class ClientRequestProperties {
         const hoursStr = hours < 10 ? `0${hours}` : String(hours);
         const minutesStr = minutes < 10 ? `0${minutes}` : String(minutes);
         const secondsStr = seconds < 10 ? `0${seconds}` : String(seconds);
+        const millisecondsStr = String(milliseconds).padStart(3, "0");
 
-        return `${hoursStr}:${minutesStr}:${secondsStr}.${milliseconds}`;
+        return `${hoursStr}:${minutesStr}:${secondsStr}.${millisecondsStr}`;
     }
 
     getHeaders(): Partial<KustoHeaders> {
