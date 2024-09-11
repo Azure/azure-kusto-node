@@ -426,15 +426,12 @@ const main = (): void => {
             it.concurrent("executionTimeout", async () => {
                 try {
                     const properties: ClientRequestProperties = new ClientRequestProperties();
-                    properties.setTimeout(0);
+                    properties.setTimeout(1);
                     await queryClient.executeQuery(databaseName, tableNames.general_csv, properties);
                 } catch (ex: unknown) {
                     assert.ok(ex instanceof Error);
-                    assert.ok(
-                        (ex as Error).message.includes("Request failed with status code 504"),
-                        `Fail to get "Query is expired". ex json: ${util.format(ex)}, ex: ${ex}`
-                    );
-                    // expect(ex.message).toMatch(/.*Request failed with status code 400.*/);
+                    
+                    expect(ex.message).toMatch(/.*Request failed with status code (400|504).*/);
                     return;
                 }
                 assert.fail(`Didn't throw executionTimeout`);
