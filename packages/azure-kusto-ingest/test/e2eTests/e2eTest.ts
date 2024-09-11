@@ -426,7 +426,7 @@ const main = (): void => {
             it.concurrent("executionTimeout", async () => {
                 try {
                     const properties: ClientRequestProperties = new ClientRequestProperties();
-                    properties.setTimeout(10);
+                    properties.setTimeout(0);
                     await queryClient.executeQuery(databaseName, tableNames.general_csv, properties);
                 } catch (ex: unknown) {
                     assert.ok(ex instanceof Error);
