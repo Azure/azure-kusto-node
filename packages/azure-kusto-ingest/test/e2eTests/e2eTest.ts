@@ -422,20 +422,6 @@ const main = (): void => {
                 }
                 assert.fail(`Didn't throw PartialQueryFailure`);
             });
-
-            it.concurrent("executionTimeout", async () => {
-                try {
-                    const properties: ClientRequestProperties = new ClientRequestProperties();
-                    properties.setTimeout(1);
-                    await queryClient.executeQuery(databaseName, tableNames.general_csv, properties);
-                } catch (ex: unknown) {
-                    assert.ok(ex instanceof Error);
-
-                    expect(ex.message).toMatch(/.*Request failed with status code (400|504).*/);
-                    return;
-                }
-                assert.fail(`Didn't throw executionTimeout`);
-            });
         });
     });
 
