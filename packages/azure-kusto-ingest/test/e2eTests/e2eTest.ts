@@ -430,7 +430,7 @@ const main = (): void => {
                     await queryClient.executeQuery(databaseName, tableNames.general_csv, properties);
                 } catch (ex: unknown) {
                     assert.ok(ex instanceof Error);
-                    
+
                     expect(ex.message).toMatch(/.*Request failed with status code (400|504).*/);
                     return;
                 }
