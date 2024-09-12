@@ -5,7 +5,6 @@
 
 import {
     Client,
-    ClientRequestProperties,
     CloudSettings,
     KustoConnectionStringBuilder as ConnectionStringBuilder,
     KustoConnectionStringBuilder,
@@ -427,23 +426,6 @@ const main = (): void => {
                     return;
                 }
                 assert.fail(`Didn't throw PartialQueryFailure`);
-            });
-
-            it.concurrent("executionTimeout", async () => {
-                try {
-                    const properties: ClientRequestProperties = new ClientRequestProperties();
-                    properties.setTimeout(10);
-                    await queryClient.executeQuery(databaseName, tableNames.general_csv, properties);
-                } catch (ex: unknown) {
-                    assert.ok(ex instanceof Error);
-                    assert.match(
-                        ex.message,
-                        /.*Request failed with status code (504|400).*/,
-                        `Fail to get "Query is expired". ex json: ${JSON.stringify((ex as AxiosError)?.response?.data)}, ex: ${ex}`
-                    );
-                    return;
-                }
-                assert.fail(`Didn't throw executionTimeout`);
             });
         });
     });

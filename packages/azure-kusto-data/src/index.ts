@@ -3,7 +3,7 @@
 
 import KustoClient from "./client.js";
 import ClientRequestProperties from "./clientRequestProperties.js";
-import CloudSettings from "./cloudSettings.js";
+import { CloudSettings, CloudInfo } from "./cloudSettings.js";
 import KustoConnectionStringBuilder from "./connectionBuilder.js";
 import * as KustoDataErrors from "./errors.js";
 import { kustoTrustedEndpoints, MatchRule } from "./kustoTrustedEndpoints.js";
@@ -26,4 +26,5 @@ export {
     kustoTrustedEndpoints,
     MatchRule,
     TimeUtils,
+    CloudInfo,
 };
