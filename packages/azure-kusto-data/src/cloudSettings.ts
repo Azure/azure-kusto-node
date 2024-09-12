@@ -12,7 +12,7 @@ export type CloudInfo = {
     FirstPartyAuthorityUrl: string;
 };
 
-const AXIOS_ERR_NETWORK = axios.AxiosError.ERR_NETWORK ?? "ERR_NETWORK";
+const AXIOS_ERR_NETWORK = axios?.AxiosError?.ERR_NETWORK ?? "ERR_NETWORK";
 
 /**
  * This class holds data for all cloud instances, and returns the specific data instance by parsing the dns suffix from a URL

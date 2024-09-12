@@ -151,7 +151,7 @@ describe("KustoClient", () => {
             const client = new KustoClient(url);
 
             const clientRequestProps = new ClientRequestProperties();
-            const timeoutMs = toMilliseconds(0, 2, 30.6);
+            const timeoutMs = toMilliseconds(0, 2, 30.006);
             clientRequestProps.setTimeout(timeoutMs);
             client.aadHelper.getAuthHeader = () => {
                 return Promise.resolve("MockToken");
@@ -160,7 +160,7 @@ describe("KustoClient", () => {
                 const payloadObj = JSON.parse(payload) as {
                     properties: { Options: { servertimeout: number } };
                 };
-                assert.strictEqual(payloadObj.properties.Options.servertimeout, "00:02:30.600");
+                assert.strictEqual(payloadObj.properties.Options.servertimeout, "00:02:30.006");
                 assert.strictEqual(timeout, timeoutMs + toMilliseconds(0, 0, 30));
                 return Promise.resolve(new KustoResponseDataSetV2([]));
             };

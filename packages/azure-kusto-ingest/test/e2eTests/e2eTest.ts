@@ -5,7 +5,6 @@
 
 import {
     Client,
-    ClientRequestProperties,
     CloudSettings,
     KustoConnectionStringBuilder as ConnectionStringBuilder,
     KustoConnectionStringBuilder,
