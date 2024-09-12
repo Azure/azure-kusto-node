@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 import { Button, Spinner, Text } from "@fluentui/react-components";
 import { tokens } from "@fluentui/react-theme";
 import { Client, KustoResponseDataSet } from "azure-kusto-data";

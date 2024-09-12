@@ -98,16 +98,17 @@ export class ClientRequestProperties {
     }
 
     _msToTimespan(duration: number): string {
-        const milliseconds = Math.floor((duration % 1000) / 100);
+        const milliseconds = duration % 1000;
         const seconds = Math.floor((duration / 1000) % 60);
         const minutes = Math.floor((duration / (1000 * 60)) % 60);
         const hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
 
-        const hoursStr = hours < 10 ? `0${hours}` : String(hours);
-        const minutesStr = minutes < 10 ? `0${minutes}` : String(minutes);
-        const secondsStr = seconds < 10 ? `0${seconds}` : String(seconds);
+        const hoursStr = String(hours).padStart(2, "0");
+        const minutesStr = String(minutes).padStart(2, "0");
+        const secondsStr = String(seconds).padStart(2, "0");
+        const millisecondsStr = String(milliseconds).padStart(3, "0");
 
-        return `${hoursStr}:${minutesStr}:${secondsStr}.${milliseconds}`;
+        return `${hoursStr}:${minutesStr}:${secondsStr}.${millisecondsStr}`;
     }
 
     getHeaders(): Partial<KustoHeaders> {
