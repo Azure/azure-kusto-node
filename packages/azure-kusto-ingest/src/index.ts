@@ -9,7 +9,7 @@ import managedStreamingIngestClient from "./managedStreamingIngestClient.js";
 
 import KustoIngestStatusQueues from "./status.js";
 
-import { IngestionResult, OperationStatus, IngestionStatus, IngestionStatusInTableDescription } from "./ingestionResult.js";
+import { type IngestionResult, OperationStatus, type IngestionStatus, IngestionStatusInTableDescription } from "./ingestionResult.js";
 import {
     DataFormat,
     IngestionMappingKind,
@@ -37,7 +37,7 @@ import {
 import { BlobDescriptor, CompressionType, StreamDescriptor } from "./descriptors.js";
 import { FileDescriptor } from "./fileDescriptor.js";
 
-export { Transformation as ColumnMappingTransformation } from "./columnMappings.js";
+export type { Transformation as ColumnMappingTransformation } from "./columnMappings.js";
 export { IngestionProperties } from "./ingestionProperties.js";
 export {
     KustoIngestClient as IngestClient,
@@ -79,9 +79,9 @@ export {
     ValidationPolicy,
     W3CLogFileMapping,
     dataFormatMappingKind,
-    IngestionResult,
+    type IngestionResult,
     OperationStatus,
-    IngestionStatus,
+    type IngestionStatus,
     IngestionStatusInTableDescription,
 };
 
