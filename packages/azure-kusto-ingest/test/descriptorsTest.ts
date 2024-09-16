@@ -3,8 +3,8 @@
 
 import assert from "assert";
 import { Readable } from "stream";
-import { DataFormat, IngestionDescriptors, IngestionProperties } from "../src";
-import { generateBlobName } from "../src/descriptors";
+import { DataFormat, IngestionDescriptors, IngestionProperties } from "azure-kusto-ingest";
+import { generateBlobName } from "../src/descriptors.js";
 
 describe("FileDescriptor", () => {
     describe("#constructor()", () => {

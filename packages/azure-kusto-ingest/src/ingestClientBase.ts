@@ -3,15 +3,15 @@
 
 import { Client as KustoClient, KustoConnectionStringBuilder } from "azure-kusto-data";
 
-import ResourceManager from "./resourceManager";
+import ResourceManager from "./resourceManager.js";
 
-import IngestionBlobInfo from "./ingestionBlobInfo";
+import IngestionBlobInfo from "./ingestionBlobInfo.js";
 import { ContainerClient } from "@azure/storage-blob";
 
 import { QueueClient } from "@azure/storage-queue";
 
-import IngestionProperties, { IngestionPropertiesInput, ReportLevel, ReportMethod } from "./ingestionProperties";
-import { AbstractKustoClient } from "./abstractKustoClient";
+import IngestionProperties, { IngestionPropertiesInput, ReportLevel, ReportMethod } from "./ingestionProperties.js";
+import { AbstractKustoClient } from "./abstractKustoClient.js";
 import {
     IngestionStatus,
     TableReportIngestionResult,
@@ -20,10 +20,10 @@ import {
     IngestionStatusResult,
     OperationStatus,
     putRecordInTable,
-} from "./ingestionResult";
+} from "./ingestionResult.js";
 import { Readable } from "stream";
 
-import { BlobDescriptor, StreamDescriptor } from "./descriptors";
+import { BlobDescriptor, StreamDescriptor } from "./descriptors.js";
 
 export abstract class KustoIngestClientBase extends AbstractKustoClient {
     resourceManager: ResourceManager;

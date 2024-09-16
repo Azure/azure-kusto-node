@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { RankedStorageAccount } from "./rankedStorageAccount";
+import { RankedStorageAccount } from "./rankedStorageAccount.js";
 
 export class RankedStorageAccountSet {
     public static readonly DefaultNumberOfBuckets: number = 6;

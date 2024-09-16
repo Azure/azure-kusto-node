@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { IngestionPropertiesInput } from "./ingestionProperties";
+import { IngestionPropertiesInput } from "./ingestionProperties.js";
 
 import { KustoConnectionStringBuilder, KustoResponseDataSet } from "azure-kusto-data";
-import { StreamDescriptor } from "./descriptors";
-import { FileDescriptor } from "./fileDescriptor.browser";
-import { tryFileToBuffer } from "./streamUtils.browser";
-import { KustoStreamingIngestClientBase } from "./streamingIngestClientBase";
+import { StreamDescriptor } from "./descriptors.js";
+import { FileDescriptor } from "./fileDescriptor.browser.js";
+import { tryFileToBuffer } from "./streamUtils.browser.js";
+import { KustoStreamingIngestClientBase } from "./streamingIngestClientBase.js";
 
 class KustoStreamingIngestClient extends KustoStreamingIngestClientBase {
     constructor(kcsb: string | KustoConnectionStringBuilder, defaultProps?: IngestionPropertiesInput, autoCorrectEndpoint?: boolean) {

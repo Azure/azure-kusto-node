@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { IngestionProperties, IngestionPropertiesInput } from "./ingestionProperties";
-import { StreamDescriptor, FileDescriptorBase, BlobDescriptor } from "./descriptors";
+import { IngestionProperties, IngestionPropertiesInput } from "./ingestionProperties.js";
+import { StreamDescriptor, FileDescriptorBase, BlobDescriptor } from "./descriptors.js";
 import isIP from "is-ip";
 
 const INGEST_PREFIX = "ingest-";

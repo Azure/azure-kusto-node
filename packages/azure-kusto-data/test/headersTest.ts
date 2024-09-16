@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { ClientDetails } from "../src/clientDetails";
+import { ClientDetails } from "../src/clientDetails.js";
 import assert from "assert";
 
 describe("Test Headers", () => {

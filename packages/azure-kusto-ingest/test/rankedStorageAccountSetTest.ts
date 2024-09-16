@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import assert from "assert";
-import { RankedStorageAccountSet } from "../src/rankedStorageAccountSet";
+import { RankedStorageAccountSet } from "../src/rankedStorageAccountSet.js";
 
 describe("RankedStorageAccountSet", () => {
     describe("Input validation.", () => {

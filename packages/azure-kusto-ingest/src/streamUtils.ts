@@ -4,8 +4,8 @@
 import fs from "fs";
 import { PassThrough, Readable } from "stream";
 import streamify from "stream-array";
-import { CompressionType, StreamDescriptor } from "./descriptors";
-import { FileDescriptor } from "./fileDescriptor";
+import { CompressionType, StreamDescriptor } from "./descriptors.js";
+import { FileDescriptor } from "./fileDescriptor.js";
 
 // Returns fs.ReadStream for node and NodeJS.ReadableStream in browser
 export const fileToStream = (fileDescriptor: FileDescriptor): Promise<StreamDescriptor> => {

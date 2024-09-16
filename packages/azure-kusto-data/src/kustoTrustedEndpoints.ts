@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { getStringTailLowerCase } from "./utils";
+import { getStringTailLowerCase } from "./utils.js";
 import { default as endpointsData } from "./wellKnownKustoEndpoints.json";
 
 export class MatchRule {

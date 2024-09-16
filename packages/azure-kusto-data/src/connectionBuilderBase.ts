@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 import { DeviceCodeInfo, InteractiveBrowserCredentialInBrowserOptions, InteractiveBrowserCredentialNodeOptions, TokenCredential } from "@azure/identity";
-import { KeyOfType } from "./typeUtilts";
-import { ClientDetails } from "./clientDetails";
+import { KeyOfType } from "./typeUtilts.js";
+import { ClientDetails } from "./clientDetails.js";
 
 interface MappingType {
     mappedTo: string;

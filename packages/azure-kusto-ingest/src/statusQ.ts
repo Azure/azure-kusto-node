@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 import { PeekedMessageItem, QueueClient } from "@azure/storage-queue";
-import { ResourceURI } from "./resourceManager";
-import { StatusMessage } from "./status";
+import { ResourceURI } from "./resourceManager.js";
+import { StatusMessage } from "./status.js";
 
 class QueueDetails {
     constructor(readonly name: string, readonly service: QueueClient) {}

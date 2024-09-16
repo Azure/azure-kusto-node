@@ -2,11 +2,11 @@
 // Licensed under the MIT License.
 
 import assert from "assert";
-import { KustoIngestClient } from "../src/ingestClient";
-import { DataFormat, IngestionProperties, IngestionPropertiesInput, ReportLevel, ReportMethod } from "../src/ingestionProperties";
-import { IngestionPropertiesValidationError } from "../src/errors";
-import KustoStreamingIngestClient from "../src/streamingIngestClient";
-import KustoManagedStreamingIngestClient from "../src/managedStreamingIngestClient";
+import { KustoIngestClient } from "../src/ingestClient.js";
+import { DataFormat, IngestionProperties, IngestionPropertiesInput, ReportLevel, ReportMethod } from "../src/ingestionProperties.js";
+import { IngestionPropertiesValidationError } from "../src/errors.js";
+import KustoStreamingIngestClient from "../src/streamingIngestClient.js";
+import KustoManagedStreamingIngestClient from "../src/managedStreamingIngestClient.js";
 import { KustoConnectionStringBuilder } from "azure-kusto-data";
 import { Readable } from "stream";
 

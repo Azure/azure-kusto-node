@@ -24,17 +24,23 @@ import {
     StreamingIngestClient,
     IngestionStatus,
     IngestionResult,
-} from "../../src";
-import { sleep } from "../../src/retry";
+} from "azure-kusto-ingest";
+
+import { type AxiosError } from "axios";
+
+import { sleep } from "../../src/retry.js";
 
 import { AzureCliCredential } from "@azure/identity";
 import assert from "assert";
 import fs, { ReadStream } from "fs";
 import util from "util";
 import { v4 as uuidv4 } from "uuid";
-import pathlib from "path";
+import { basename, dirname } from "path";
 import sinon from "sinon";
-import { TableReportIngestionResult } from "../../src/ingestionResult";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 interface ParsedJsonMapping {
     Properties: { Path: string };
@@ -254,7 +260,7 @@ const main = (): void => {
                 try {
                     const res: IngestionResult = await ingestClient.ingestFromFile(item.path, props);
                     assert.ok(res, "ingest result returned null or undefined");
-                    assert.ok(res instanceof TableReportIngestionResult);
+                    assert.equal(res.constructor.name, "TableReportIngestionResult");
                     let status: IngestionStatus;
                     const endTime = Date.now() + 180000; // Timeout is 3 minutes
                     while (Date.now() < endTime) {
@@ -334,7 +340,7 @@ const main = (): void => {
                         return { item: i };
                     })
             )("ingestFromBlob_$item.description", async ({ item }) => {
-                const blobName = uuidv4() + pathlib.basename(item.path);
+                const blobName = uuidv4() + basename(item.path);
                 const blobUri = await ingestClient.uploadToBlobWithRetry(item.path, blobName);
 
                 const table = tableNames[("streaming_blob" + "_" + item.description) as Table];

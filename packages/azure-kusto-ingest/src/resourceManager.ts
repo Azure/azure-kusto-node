@@ -2,10 +2,10 @@
 // Licensed under the MIT License.
 
 import { Client, KustoDataErrors, TimeUtils } from "azure-kusto-data";
-import { ExponentialRetry } from "./retry";
+import { ExponentialRetry } from "./retry.js";
 import { ContainerClient } from "@azure/storage-blob";
 import { TableClient } from "@azure/data-tables";
-import { RankedStorageAccountSet } from "./rankedStorageAccountSet";
+import { RankedStorageAccountSet } from "./rankedStorageAccountSet.js";
 import { QueueClient } from "@azure/storage-queue";
 
 const ATTEMPT_COUNT = 4;

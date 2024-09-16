@@ -3,9 +3,17 @@
 
 import { Config } from "jest";
 import type { JestConfigWithTsJest } from "ts-jest";
+import { createDefaultEsmPreset } from "ts-jest";
+
+// Note that this preset and the moduleNameMapper are necessary to run test with ecmascript modules.
+// See https://kulshekhar.github.io/ts-jest/docs/guides/esm-support/
+const defaultEsmPreset = createDefaultEsmPreset();
 
 const baseConfig: Config = {
-    preset: "ts-jest",
+    ...defaultEsmPreset,
+    moduleNameMapper: {
+        "^(\\.{1,2}/.*)\\.js$": "$1",
+    },
     testEnvironment: "node",
     prettierPath: "prettier",
     maxWorkers: 200,

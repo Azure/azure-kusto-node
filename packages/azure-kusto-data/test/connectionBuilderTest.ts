@@ -5,7 +5,7 @@
 
 import assert from "assert";
 import { v4 as uuidv4 } from "uuid";
-import { KustoConnectionStringBuilder } from "../src/connectionBuilder";
+import { KustoConnectionStringBuilder } from "../src/connectionBuilder.js";
 import { DeviceCodeInfo } from "@azure/identity";
 
 const doComparsion = (

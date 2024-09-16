@@ -18,8 +18,8 @@ import {
     W3CLogFileMapping,
 } from "azure-kusto-ingest";
 
-import { IngestionBlobInfo } from "../src/ingestionBlobInfo";
-import { BlobDescriptor } from "../src/descriptors";
+import { IngestionBlobInfo } from "../src/ingestionBlobInfo.js";
+import { BlobDescriptor } from "../src/descriptors.js";
 
 describe("IngestionProperties", () => {
     describe("#constructor()", () => {

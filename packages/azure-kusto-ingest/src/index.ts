@@ -1,15 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import KustoIngestClient from "./ingestClient";
+import KustoIngestClient from "./ingestClient.js";
 
-import streamingIngestClient from "./streamingIngestClient";
+import streamingIngestClient from "./streamingIngestClient.js";
 
-import managedStreamingIngestClient from "./managedStreamingIngestClient";
+import managedStreamingIngestClient from "./managedStreamingIngestClient.js";
 
-import KustoIngestStatusQueues from "./status";
+import KustoIngestStatusQueues from "./status.js";
 
-import { IngestionResult, OperationStatus, IngestionStatus, IngestionStatusInTableDescription } from "./ingestionResult";
+import { IngestionResult, OperationStatus, IngestionStatus, IngestionStatusInTableDescription } from "./ingestionResult.js";
 import {
     DataFormat,
     IngestionMappingKind,
@@ -19,7 +19,7 @@ import {
     ValidationOptions,
     ValidationPolicy,
     dataFormatMappingKind,
-} from "./ingestionProperties";
+} from "./ingestionProperties.js";
 
 import {
     ApacheAvroColumnMapping,
@@ -33,12 +33,12 @@ import {
     ParquetColumnMapping,
     SStreamColumnMapping,
     W3CLogFileMapping,
-} from "./columnMappings";
-import { BlobDescriptor, CompressionType, StreamDescriptor } from "./descriptors";
-import { FileDescriptor } from "./fileDescriptor";
+} from "./columnMappings.js";
+import { BlobDescriptor, CompressionType, StreamDescriptor } from "./descriptors.js";
+import { FileDescriptor } from "./fileDescriptor.js";
 
-export { Transformation as ColumnMappingTransformation } from "./columnMappings";
-export { IngestionProperties } from "./ingestionProperties";
+export { Transformation as ColumnMappingTransformation } from "./columnMappings.js";
+export { IngestionProperties } from "./ingestionProperties.js";
 export {
     KustoIngestClient as IngestClient,
     KustoIngestStatusQueues as IngestStatusQueues,
@@ -114,5 +114,5 @@ export const IngestionPropertiesEnums = {
     ColumnMapping,
 };
 
-export { IngestionPropertiesValidationError } from "./errors";
+export { IngestionPropertiesValidationError } from "./errors.js";
 // eslint-disable-next-line no-console

@@ -4,16 +4,15 @@
 /* eslint-disable no-console */
 
 import sinon from "sinon";
-import { StreamingIngestClient } from "../src";
-import { StreamDescriptor } from "../src/descriptors";
-import { KustoIngestClient } from "../src/ingestClient";
-import { DataFormat, IngestionProperties, IngestionPropertiesInput } from "../src/ingestionProperties";
-import KustoManagedStreamingIngestClient from "../src/managedStreamingIngestClient";
+import { StreamingIngestClient, IngestionResult } from "azure-kusto-ingest";
+import { StreamDescriptor } from "../src/descriptors.js";
+import { KustoIngestClient } from "../src/ingestClient.js";
+import { DataFormat, IngestionProperties, IngestionPropertiesInput } from "../src/ingestionProperties.js";
+import KustoManagedStreamingIngestClient from "../src/managedStreamingIngestClient.js";
 import { Readable } from "stream";
 import { CloudSettings, KustoConnectionStringBuilder } from "azure-kusto-data";
 import assert from "assert";
 import uuidValidate from "uuid-validate";
-import { IngestionResult } from "../src/ingestionResult";
 
 type IngestFromStreamStub = sinon.SinonStub<[StreamDescriptor | Readable | ArrayBuffer, IngestionPropertiesInput?, string?], Promise<IngestionResult>>;
 beforeAll(() => {

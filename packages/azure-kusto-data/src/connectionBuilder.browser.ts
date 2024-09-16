@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { DeviceCodeInfo, InteractiveBrowserCredentialInBrowserOptions, InteractiveBrowserCredentialNodeOptions, TokenCredential } from "@azure/identity";
-import KustoConnectionStringBuilderBase from "./connectionBuilderBase";
+import KustoConnectionStringBuilderBase from "./connectionBuilderBase.js";
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 

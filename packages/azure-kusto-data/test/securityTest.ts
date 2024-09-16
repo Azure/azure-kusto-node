@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { KustoConnectionStringBuilder } from "../src/index";
-import AadHelper from "../src/security";
-import { CloudSettings } from "../src/cloudSettings";
+import { KustoConnectionStringBuilder } from "../src/index.js";
+import AadHelper from "../src/security.js";
+import { CloudSettings } from "../src/cloudSettings.js";
 import assert from "assert";
-import { KustoAuthenticationError } from "../src/errors";
+import { KustoAuthenticationError } from "../src/errors.js";
 import { CredentialUnavailableError } from "@azure/identity";
-import { loginTest, manualLoginTest } from "./data/testUtils";
+import { loginTest, manualLoginTest } from "./data/testUtils.js";
 
 beforeAll(() => {
     CloudSettings.writeToCache("https://somecluster.kusto.windows.net");

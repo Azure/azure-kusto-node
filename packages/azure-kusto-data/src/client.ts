@@ -6,15 +6,15 @@ import axios, { AxiosInstance, AxiosRequestConfig, RawAxiosRequestHeaders } from
 import http from "http";
 import https from "https";
 import { v4 as uuidv4 } from "uuid";
-import { KustoHeaders } from "./clientDetails";
-import ClientRequestProperties from "./clientRequestProperties";
-import CloudSettings from "./cloudSettings";
-import ConnectionStringBuilder from "./connectionBuilder";
-import { ThrottlingError } from "./errors";
-import { kustoTrustedEndpoints } from "./kustoTrustedEndpoints";
-import { KustoResponseDataSet, KustoResponseDataSetV1, KustoResponseDataSetV2, V1, V2Frames } from "./response";
-import AadHelper from "./security";
-import { toMilliseconds } from "./timeUtils";
+import { KustoHeaders } from "./clientDetails.js";
+import ClientRequestProperties from "./clientRequestProperties.js";
+import CloudSettings from "./cloudSettings.js";
+import ConnectionStringBuilder from "./connectionBuilder.js";
+import { ThrottlingError } from "./errors.js";
+import { kustoTrustedEndpoints } from "./kustoTrustedEndpoints.js";
+import { KustoResponseDataSet, KustoResponseDataSetV1, KustoResponseDataSetV2, V1, V2Frames } from "./response.js";
+import AadHelper from "./security.js";
+import { toMilliseconds } from "./timeUtils.js";
 
 const COMMAND_TIMEOUT_IN_MILLISECS = toMilliseconds(0, 10, 30);
 const QUERY_TIMEOUT_IN_MILLISECS = toMilliseconds(0, 4, 30);
