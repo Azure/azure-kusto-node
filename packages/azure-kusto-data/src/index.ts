@@ -26,5 +26,5 @@ export {
     kustoTrustedEndpoints,
     MatchRule,
     TimeUtils,
-    CloudInfo,
+    type CloudInfo,
 };
