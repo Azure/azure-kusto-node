@@ -5,11 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] - 2024-09-12
+## [7.0.0-alpha.0] - 2024-09-16
+
+### Changed
+
+- Changed type of projects to be "module" to support EcmaScript modules. It shouldn't affect the usage of the SDK, if it does please open an issue.
+- Types are now properly exported using "export type"
+- CloudInfo is now exported
 
 ### Fixed
 
 -   Server timeout was with accuracy of tenth of a second.
+-   Updated default endpoint urls
+
+### Security
+-  Updated dependencies to fix security vulnerabilities
 
 ## [6.0.2] - 2024-04-11
 
