@@ -1,6 +1,6 @@
 {
     "name": "azure-kusto-data",
-    "version": "6.0.2",
+    "version": "7.0.0-alpha.0",
     "description": "Azure Data Explorer Query SDK",
     "type": "module",
     "exports": {
