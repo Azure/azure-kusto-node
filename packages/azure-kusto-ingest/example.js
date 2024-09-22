@@ -32,7 +32,7 @@ const props = new IngestionProps({
 // After using the client, you should use `close()` to free up resources
 const ingestClient = new IngestClient(
     KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(`https://ingest-${clusterName}.kusto.windows.net`, appId, appKey, authorityId),
-    props
+    props,
 );
 
 const statusQueues = new IngestStatusQueues(ingestClient);
@@ -50,7 +50,7 @@ const props2 = new IngestionProps({
 // Init with engine endpoint
 const streamingIngestClient = new StreamingIngestClient(
     KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(`https://${clusterName}.kusto.windows.net`, appId, appKey, authorityId),
-    props2
+    props2,
 );
 
 startStreamingIngestion();

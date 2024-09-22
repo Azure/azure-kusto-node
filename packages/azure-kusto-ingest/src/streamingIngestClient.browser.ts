@@ -28,7 +28,7 @@ class KustoStreamingIngestClient extends KustoStreamingIngestClientBase {
             descriptor.stream,
             props.format,
             props.ingestionMappingReference ?? null,
-            clientRequestId
+            clientRequestId,
         );
     }
 

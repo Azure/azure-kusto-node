@@ -53,7 +53,7 @@ describe("KustoResultRow", () => {
             const reverseOrderColumns = rawColumns.slice().reverse();
             const actual = new KustoResultRow(
                 reverseOrderColumns.map((c, i) => new KustoResultColumn(c, rawColumns.length - i - 1)),
-                inputValues
+                inputValues,
             );
 
             const asJson = actual.toJSON();
@@ -84,7 +84,7 @@ describe("KustoResultRow", () => {
                 reverseOrderColumns.map((c, i) => new KustoResultColumn(c, rawColumns.length - i - 1)),
                 inputValues,
                 (t) => (t || "") + "-date",
-                (t) => (t || "") + "-time"
+                (t) => (t || "") + "-time",
             );
 
             const asJson = actual.toJSON();

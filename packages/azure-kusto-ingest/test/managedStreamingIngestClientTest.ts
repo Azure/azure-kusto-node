@@ -37,7 +37,7 @@ describe("ManagedStreamingIngestClient", () => {
                     table: "table",
                 }),
             },
-            KustoManagedStreamingIngestClient.prototype
+            KustoManagedStreamingIngestClient.prototype,
         );
 
         return { sandbox, streamStub, queuedStub, managedClient };
@@ -111,7 +111,7 @@ describe("ManagedStreamingIngestClient", () => {
                         database: "db",
                         table: "t1",
                         format: DataFormat.CSV,
-                    })
+                    }),
                 );
 
                 sandbox.assert.calledOnce(streamStub);
@@ -126,17 +126,17 @@ describe("ManagedStreamingIngestClient", () => {
         it.concurrent("auto correct on regular ingestClient", () => {
             const client = new KustoManagedStreamingIngestClient(
                 "https://ingest-somecluster.kusto.windows.net",
-                "https://ingest-somecluster.kusto.windows.net"
+                "https://ingest-somecluster.kusto.windows.net",
             );
             assert.strictEqual(
                 (client as any).queuedIngestClient.resourceManager.kustoClient.cluster,
                 "https://ingest-somecluster.kusto.windows.net",
-                "Client URI was not extracted correctly from query endpoint"
+                "Client URI was not extracted correctly from query endpoint",
             );
             assert.strictEqual(
                 (client as any).streamingIngestClient.kustoClient.cluster,
                 "https://somecluster.kusto.windows.net",
-                "Client URI was not extracted correctly from ingestion endpoint"
+                "Client URI was not extracted correctly from ingestion endpoint",
             );
         });
     });
@@ -162,7 +162,7 @@ describe("ManagedStreamingIngestClient", () => {
                         database: "db",
                         table: "t1",
                         format: DataFormat.CSV,
-                    })
+                    }),
                 );
 
                 sandbox.assert.calledThrice(streamStub);
@@ -190,7 +190,7 @@ describe("ManagedStreamingIngestClient", () => {
                         baseJitterSecs: 0,
                         defaultProps: new IngestionProperties({}),
                     },
-                    KustoManagedStreamingIngestClient.prototype
+                    KustoManagedStreamingIngestClient.prototype,
                 );
 
                 const singleBufferSize = 1023 * 1024;
@@ -210,7 +210,7 @@ describe("ManagedStreamingIngestClient", () => {
                         database: "db",
                         table: "t1",
                         format: DataFormat.CSV,
-                    })
+                    }),
                 );
 
                 validateStream(queuedStub, buffers, sourceId);
@@ -228,7 +228,7 @@ describe("ManagedStreamingIngestClient", () => {
 
             assert.strictEqual(
                 (client as any).queuedIngestClient.resourceManager.kustoClient.connectionString.dataSource,
-                "https://ingest-dummy.kusto.windows.net"
+                "https://ingest-dummy.kusto.windows.net",
             );
             assert.strictEqual((client as any).streamingIngestClient.kustoClient.connectionString.dataSource, "https://dummy.kusto.windows.net");
         });
@@ -240,13 +240,13 @@ describe("ManagedStreamingIngestClient", () => {
 
             assert.strictEqual(
                 (client as any).queuedIngestClient.resourceManager.kustoClient.connectionString.dataSource,
-                "https://ingest-dummy.kusto.windows.net"
+                "https://ingest-dummy.kusto.windows.net",
             );
             assert.strictEqual((client as any).streamingIngestClient.kustoClient.connectionString.dataSource, "https://dummy.kusto.windows.net");
         });
         it.concurrent("should fail when trying to create a ManagedStreamingIngestClient from an invalid Engine URI", () => {
             assert.throws(() =>
-                KustoManagedStreamingIngestClient.fromEngineConnectionString(new KustoConnectionStringBuilder("https://ingest-dummy.kusto.windows.net"))
+                KustoManagedStreamingIngestClient.fromEngineConnectionString(new KustoConnectionStringBuilder("https://ingest-dummy.kusto.windows.net")),
             );
         });
 

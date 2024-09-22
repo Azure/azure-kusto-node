@@ -40,7 +40,7 @@ export const main = async (): Promise<void> => {
         // https://learn.microsoft.com/azure/data-explorer/kusto/management/batchingpolicy
         await queryClient.execute(
             database,
-            `.alter table ${table} policy ingestionbatching @'{"MaximumBatchingTimeSpan":"00:00:10", "MaximumNumberOfItems": 500, "MaximumRawDataSizeMB": 1024}'`
+            `.alter table ${table} policy ingestionbatching @'{"MaximumBatchingTimeSpan":"00:00:10", "MaximumNumberOfItems": 500, "MaximumRawDataSizeMB": 1024}'`,
         );
         // Push aggregation policy change to ingest service to take immidiate effect
         await dmCommandClient.execute(database, `.refresh database '${database}' table '${table}' cache ingestionbatchingpolicy`);

@@ -22,7 +22,7 @@ class KustoStreamingIngestClient extends KustoStreamingIngestClientBase {
     async ingestFromStream(
         stream: StreamDescriptor | Readable | ArrayBuffer,
         ingestionProperties?: IngestionPropertiesInput,
-        clientRequestId?: string
+        clientRequestId?: string,
     ): Promise<any> {
         this.ensureOpen();
 
@@ -41,7 +41,7 @@ class KustoStreamingIngestClient extends KustoStreamingIngestClientBase {
             compressedStream,
             props.format,
             props.ingestionMappingReference ?? null,
-            clientRequestId
+            clientRequestId,
         );
     }
 

@@ -10,7 +10,11 @@ export const sleep = (ms: number): Promise<void> => {
 export class ExponentialRetry {
     public currentAttempt: number;
 
-    constructor(public attemptCount: number, public sleepBaseSecs: number, public maxJitterSecs: number) {
+    constructor(
+        public attemptCount: number,
+        public sleepBaseSecs: number,
+        public maxJitterSecs: number,
+    ) {
         this.currentAttempt = 0;
     }
 

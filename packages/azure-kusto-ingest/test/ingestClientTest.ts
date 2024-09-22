@@ -20,7 +20,7 @@ describe("KustoIngestClient", () => {
                     table: "table",
                     format: "json",
                 } as IngestionProperties,
-                false
+                false,
             );
 
             assert.notStrictEqual(ingestClient.defaultProps, null);
@@ -245,7 +245,7 @@ describe("KustoIngestClient", () => {
             assert.strictEqual(
                 client.resourceManager.kustoClient.cluster,
                 "https://ingest-somecluster.kusto.windows.net",
-                "Kusto cluster URL does not match expected value"
+                "Kusto cluster URL does not match expected value",
             );
         });
         it.concurrent("auto correct from ingestion endpoint", () => {
@@ -253,7 +253,7 @@ describe("KustoIngestClient", () => {
             assert.strictEqual(
                 client.resourceManager.kustoClient.cluster,
                 "https://ingest-somecluster.kusto.windows.net",
-                "Kusto cluster URL does not match expected value"
+                "Kusto cluster URL does not match expected value",
             );
         });
     });

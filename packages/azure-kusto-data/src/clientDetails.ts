@@ -21,7 +21,10 @@ const None = "[none]";
 export class ClientDetails {
     readonly versionForTracing: string;
 
-    constructor(public applicationNameForTracing: string | null, public userNameForTracing: string | null) {
+    constructor(
+        public applicationNameForTracing: string | null,
+        public userNameForTracing: string | null,
+    ) {
         if (this.applicationNameForTracing === null) {
             this.applicationNameForTracing = ClientDetails.defaultApplication();
         }
@@ -85,7 +88,7 @@ export class ClientDetails {
         app_version: string | null = null,
         send_user: boolean = false,
         override_user: string | null = null,
-        additional_fields: [string, string][] | null = null
+        additional_fields: [string, string][] | null = null,
     ): ClientDetails {
         const params: [string, string][] = [["Kusto." + this.escapeHeader(name, false), version]];
 

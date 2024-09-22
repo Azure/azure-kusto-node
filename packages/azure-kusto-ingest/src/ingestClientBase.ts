@@ -35,7 +35,7 @@ export abstract class KustoIngestClientBase extends AbstractKustoClient {
         kcsb: string | KustoConnectionStringBuilder,
         defaultProps?: IngestionPropertiesInput,
         autoCorrectEndpoint: boolean = true,
-        isBrowser?: boolean
+        isBrowser?: boolean,
     ) {
         super(defaultProps);
         if (typeof kcsb === "string") {
@@ -55,7 +55,7 @@ export abstract class KustoIngestClientBase extends AbstractKustoClient {
     async ingestFromBlob(
         blob: string | BlobDescriptor,
         ingestionProperties?: IngestionPropertiesInput,
-        maxRetries: number = KustoIngestClientBase.MaxNumberOfRetryAttempts
+        maxRetries: number = KustoIngestClientBase.MaxNumberOfRetryAttempts,
     ): Promise<IngestionResult> {
         this.ensureOpen();
         const props = this._getMergedProps(ingestionProperties);
@@ -122,7 +122,7 @@ export abstract class KustoIngestClientBase extends AbstractKustoClient {
     async uploadToBlobWithRetry(
         descriptor: string | Blob | ArrayBuffer | StreamDescriptor,
         blobName: string,
-        maxRetries: number = KustoIngestClientBase.MaxNumberOfRetryAttempts
+        maxRetries: number = KustoIngestClientBase.MaxNumberOfRetryAttempts,
     ): Promise<string> {
         const containers = await this.resourceManager.getContainers();
 

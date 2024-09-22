@@ -145,14 +145,14 @@ describe("Test providers", () => {
     loginTest(
         "APP_ID",
         "TENANT_ID",
-        "APP_KEY"
+        "APP_KEY",
     )("test app key token provider", async () => {
         const cluster = "https://somecluster.kusto.windows.net";
         const kcsb = KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(
             cluster,
             process.env.APP_ID!,
             process.env.APP_KEY!,
-            process.env.TENANT_ID!
+            process.env.TENANT_ID!,
         );
 
         const helper = new AadHelper(kcsb);
@@ -164,14 +164,14 @@ describe("Test providers", () => {
         "APP_ID",
         "TENANT_ID",
         "CERT_PUBLIC",
-        "CERT_PEM"
+        "CERT_PEM",
     )("test app certificate token provider", async () => {
         const cluster = "https://somecluster.kusto.windows.net";
         const kcsb = KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(
             cluster,
             process.env.APP_KEY!,
             process.env.CERT_PEM!,
-            process.env.CERT_PUBLIC!
+            process.env.CERT_PUBLIC!,
         );
 
         const helper = new AadHelper(kcsb);
@@ -182,14 +182,14 @@ describe("Test providers", () => {
     manualLoginTest(
         "APP_ID",
         "USER_NAME",
-        "USER_PASS"
+        "USER_PASS",
     )("test user pass provider", async () => {
         const cluster = "https://somecluster.kusto.windows.net";
         const kcsb = KustoConnectionStringBuilder.withAadUserPasswordAuthentication(
             cluster,
             process.env.USER_NAME!,
             process.env.USER_PASS!,
-            process.env.TENANT_ID!
+            process.env.TENANT_ID!,
         );
 
         const helper = new AadHelper(kcsb);

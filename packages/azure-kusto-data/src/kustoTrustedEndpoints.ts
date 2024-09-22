@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { getStringTailLowerCase } from "./utils.js";
-import { default as endpointsData } from "./wellKnownKustoEndpoints.json" with {type: "json"};
+import { default as endpointsData } from "./wellKnownKustoEndpoints.json" with { type: "json" };
 
 export class MatchRule {
     constructor(
@@ -14,7 +14,7 @@ export class MatchRule {
          * Indicates whether the match must be exact (the candidate must
          * not have any prefix) or not.
          */
-        public exact: boolean
+        public exact: boolean,
     ) {}
 }
 

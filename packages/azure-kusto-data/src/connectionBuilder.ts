@@ -48,7 +48,7 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
         applicationCertificatePrivateKey?: string,
         authorityId?: string,
         applicationCertificateSendX5c?: boolean,
-        applicationCertificatePrivatePath?: string
+        applicationCertificatePrivatePath?: string,
     ): KustoConnectionStringBuilder {
         if (aadAppId.trim().length === 0) throw new Error("Invalid app id");
         const kcsb = new KustoConnectionStringBuilder(connectionString);
@@ -80,7 +80,7 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
     static withAadDeviceAuthentication(
         connectionString: string,
         authorityId?: string,
-        deviceCodeCallback?: (response: DeviceCodeInfo) => void
+        deviceCodeCallback?: (response: DeviceCodeInfo) => void,
     ): KustoConnectionStringBuilder {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         kcsb.aadFederatedSecurity = true;
@@ -97,7 +97,7 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
         connectionString: string,
         msiClientId?: string,
         authorityId?: string,
-        timeoutMs?: number
+        timeoutMs?: number,
     ): KustoConnectionStringBuilder {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         kcsb.aadFederatedSecurity = true;
@@ -158,7 +158,7 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
     static withUserPrompt(
         connectionString: string,
         options?: InteractiveBrowserCredentialNodeOptions | InteractiveBrowserCredentialInBrowserOptions,
-        timeoutMs?: number
+        timeoutMs?: number,
     ): KustoConnectionStringBuilder {
         const kcsb = new KustoConnectionStringBuilder(connectionString);
         const { tenantId, clientId } = (options as InteractiveBrowserCredentialNodeOptions) || {};

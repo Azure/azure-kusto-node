@@ -10,10 +10,10 @@ import { KustoClient } from "../src/client.js";
 import { ClientRequestProperties } from "../src/clientRequestProperties.js";
 import { KustoResponseDataSetV1, KustoResponseDataSetV2 } from "../src/response.js";
 
-import v2Response from "./data/response/v2.json" with {type: "json"};
-import v2ResponseError from "./data/response/v2error.json" with {type: "json"};
-import v1Response from "./data/response/v1.json" with {type: "json"};
-import v1_2Response from "./data/response/v1_2.json" with {type: "json"};
+import v2Response from "./data/response/v2.json" with { type: "json" };
+import v2ResponseError from "./data/response/v2error.json" with { type: "json" };
+import v1Response from "./data/response/v1.json" with { type: "json" };
+import v1_2Response from "./data/response/v1_2.json" with { type: "json" };
 import { Readable } from "stream";
 import ConnectionBuilder from "../src/connectionBuilder.js";
 import { CloudSettings } from "../src/cloudSettings.js";
@@ -125,8 +125,8 @@ describe("KustoClient", () => {
                 assert(
                     ex instanceof Error &&
                         ex.message.startsWith(
-                            "Failed to parse response ({undefined}) with the following error [TypeError:" + " data.forEach is" + " not a function]."
-                        )
+                            "Failed to parse response ({undefined}) with the following error [TypeError:" + " data.forEach is" + " not a function].",
+                        ),
                 );
                 return;
             }
@@ -280,7 +280,7 @@ describe("KustoClient", () => {
                         };
                         await method("db2", "Table | count");
                     });
-                }
+                },
             );
 
             [

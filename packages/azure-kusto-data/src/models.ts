@@ -45,7 +45,7 @@ export class KustoResultRow {
         columns: KustoResultColumn[],
         row: { [ord: number]: any },
         dateTimeParser: DateTimeParser = defaultDatetimeParser,
-        timeSpanParser: TimeSpanParser = defaultTimespanParser
+        timeSpanParser: TimeSpanParser = defaultTimespanParser,
     ) {
         this.columns = columns.sort((a, b) => a.ordinal - b.ordinal);
         this.raw = row;

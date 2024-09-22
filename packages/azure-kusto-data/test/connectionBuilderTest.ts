@@ -12,7 +12,7 @@ const doComparsion = (
     kcsbs: KustoConnectionStringBuilder[],
     expectedProperties: Partial<Record<keyof KustoConnectionStringBuilder, unknown>>,
     expectedToString: string,
-    expectedToStringWithSecrets: string
+    expectedToStringWithSecrets: string,
 ) => {
     for (const [i, kcsb] of kcsbs.entries()) {
         console.log(`Checking connection string #${i} - ${kcsb.toString(false)}`);
@@ -79,12 +79,12 @@ describe("KustoConnectionStringBuilder", () => {
             assert.throws(
                 () => KustoConnectionStringBuilder.withAadUserPasswordAuthentication("https://test.kusto.windows.net/", " ", "password"),
                 Error,
-                "Invalid user"
+                "Invalid user",
             );
             assert.throws(
                 () => KustoConnectionStringBuilder.withAadUserPasswordAuthentication("https://test.kusto.windows.net/", "user", " "),
                 Error,
-                "Invalid password"
+                "Invalid password",
             );
         });
 
@@ -92,17 +92,17 @@ describe("KustoConnectionStringBuilder", () => {
             assert.throws(
                 () => KustoConnectionStringBuilder.withAadApplicationKeyAuthentication("https://test.kusto.windows.net/", " ", "password"),
                 Error,
-                "Invalid app id"
+                "Invalid app id",
             );
             assert.throws(
                 () =>
                     KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(
                         "https://test.kusto.windows.net/",
                         "53e12945-98b5-4d5c-9465-fd6b6edf848e",
-                        " "
+                        " ",
                     ),
                 Error,
-                "Invalid app key"
+                "Invalid app key",
             );
         });
 
@@ -110,7 +110,7 @@ describe("KustoConnectionStringBuilder", () => {
             assert.throws(
                 () => KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication("https://test.kusto.windows.net/", " ", "private", "thumb"),
                 Error,
-                "Invalid app id"
+                "Invalid app id",
             );
             assert.throws(
                 () =>
@@ -118,10 +118,10 @@ describe("KustoConnectionStringBuilder", () => {
                         "https://test.kusto.windows.net/",
                         "53e12945-98b5-4d5c-9465-fd6b6edf848e",
                         " ",
-                        "thumb"
+                        "thumb",
                     ),
                 Error,
-                "Invalid app certificate"
+                "Invalid app certificate",
             );
         });
     });
@@ -142,7 +142,7 @@ describe("KustoConnectionStringBuilder", () => {
                     authorityId: DEFAULT_AUTHORITY,
                 },
                 "Data Source=localhost;Initial Catalog=NetDefaultDB;Authority Id=organizations",
-                "Data Source=localhost;Initial Catalog=NetDefaultDB;Authority Id=organizations"
+                "Data Source=localhost;Initial Catalog=NetDefaultDB;Authority Id=organizations",
             );
         });
 
@@ -154,13 +154,13 @@ describe("KustoConnectionStringBuilder", () => {
                 const kcsbs = [
                     new KustoConnectionStringBuilder(`localhost;AAD User ID=${expectedUser};password=${expectedPassword};AAD Federated Security=True`),
                     new KustoConnectionStringBuilder(
-                        `Data Source=localhost ; AaD User ID=${expectedUser}; Password =${expectedPassword};AAD Federated Security=True`
+                        `Data Source=localhost ; AaD User ID=${expectedUser}; Password =${expectedPassword};AAD Federated Security=True`,
                     ),
                     new KustoConnectionStringBuilder(
-                        ` Addr = localhost ; AAD User ID = ${expectedUser} ; Pwd =${expectedPassword};AAD Federated Security=True`
+                        ` Addr = localhost ; AAD User ID = ${expectedUser} ; Pwd =${expectedPassword};AAD Federated Security=True`,
                     ),
                     new KustoConnectionStringBuilder(
-                        `Network Address = localhost; AAD User iD = ${expectedUser} ; Pwd = ${expectedPassword};AAD Federated Security=True `
+                        `Network Address = localhost; AAD User iD = ${expectedUser} ; Pwd = ${expectedPassword};AAD Federated Security=True `,
                     ),
                     KustoConnectionStringBuilder.withAadUserPasswordAuthentication("localhost", expectedUser, expectedPassword),
                 ];
@@ -180,7 +180,7 @@ describe("KustoConnectionStringBuilder", () => {
                         aadFederatedSecurity: true,
                     },
                     `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;AAD User ID=${expectedUser};Password=****;Authority Id=organizations`,
-                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;AAD User ID=${expectedUser};Password=${expectedPassword};Authority Id=organizations`
+                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;AAD User ID=${expectedUser};Password=${expectedPassword};Authority Id=organizations`,
                 );
             });
 
@@ -189,16 +189,16 @@ describe("KustoConnectionStringBuilder", () => {
 
                 const kcsbs = [
                     new KustoConnectionStringBuilder(
-                        `localhost;AAD User ID=${expectedUser};password=${expectedPassword};Authority Id=${expectedAuthorityId};AAD Federated Security=True`
+                        `localhost;AAD User ID=${expectedUser};password=${expectedPassword};Authority Id=${expectedAuthorityId};AAD Federated Security=True`,
                     ),
                     new KustoConnectionStringBuilder(
-                        `Data Source=localhost ; AaD User ID=${expectedUser}; Password =${expectedPassword};authority=${expectedAuthorityId};AAD Federated Security=True`
+                        `Data Source=localhost ; AaD User ID=${expectedUser}; Password =${expectedPassword};authority=${expectedAuthorityId};AAD Federated Security=True`,
                     ),
                     new KustoConnectionStringBuilder(
-                        ` Addr = localhost ; AAD User ID = ${expectedUser} ; Pwd =${expectedPassword};tenantid=${expectedAuthorityId};AAD Federated Security=True`
+                        ` Addr = localhost ; AAD User ID = ${expectedUser} ; Pwd =${expectedPassword};tenantid=${expectedAuthorityId};AAD Federated Security=True`,
                     ),
                     new KustoConnectionStringBuilder(
-                        `Network Address = localhost; AAD User iD = ${expectedUser} ; Pwd = ${expectedPassword};tid=${expectedAuthorityId};AAD Federated Security=True `
+                        `Network Address = localhost; AAD User iD = ${expectedUser} ; Pwd = ${expectedPassword};tid=${expectedAuthorityId};AAD Federated Security=True `,
                     ),
                     KustoConnectionStringBuilder.withAadUserPasswordAuthentication("localhost", expectedUser, expectedPassword, expectedAuthorityId),
                 ];
@@ -220,7 +220,7 @@ describe("KustoConnectionStringBuilder", () => {
                         aadFederatedSecurity: true,
                     },
                     `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;AAD User ID=${expectedUser};Password=****;Authority Id=${expectedAuthorityId}`,
-                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;AAD User ID=${expectedUser};Password=${expectedPassword};Authority Id=${expectedAuthorityId}`
+                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;AAD User ID=${expectedUser};Password=${expectedPassword};Authority Id=${expectedAuthorityId}`,
                 );
             });
         });
@@ -232,14 +232,14 @@ describe("KustoConnectionStringBuilder", () => {
             it.concurrent("without authority id", () => {
                 const kcsbs = [
                     new KustoConnectionStringBuilder(
-                        `localhost;Application client Id=${expectedUuid};application Key=${expectedKey};AAD Federated Security=True`
+                        `localhost;Application client Id=${expectedUuid};application Key=${expectedKey};AAD Federated Security=True`,
                     ),
                     new KustoConnectionStringBuilder(
-                        `Data Source=localhost ; Application Client Id=${expectedUuid}; Appkey =${expectedKey};AAD Federated Security=True`
+                        `Data Source=localhost ; Application Client Id=${expectedUuid}; Appkey =${expectedKey};AAD Federated Security=True`,
                     ),
                     new KustoConnectionStringBuilder(` Addr = localhost ; AppClientId = ${expectedUuid} ; AppKey =${expectedKey};AAD Federated Security=True`),
                     new KustoConnectionStringBuilder(
-                        `Network Address = localhost; AppClientId = ${expectedUuid} ; AppKey =${expectedKey};AAD Federated Security=True`
+                        `Network Address = localhost; AppClientId = ${expectedUuid} ; AppKey =${expectedKey};AAD Federated Security=True`,
                     ),
                     KustoConnectionStringBuilder.withAadApplicationKeyAuthentication("localhost", expectedUuid, expectedKey),
                 ];
@@ -259,7 +259,7 @@ describe("KustoConnectionStringBuilder", () => {
                         aadFederatedSecurity: true,
                     },
                     `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${expectedUuid};Application Key=****;Authority Id=organizations`,
-                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${expectedUuid};Application Key=${expectedKey};Authority Id=organizations`
+                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${expectedUuid};Application Key=${expectedKey};Authority Id=organizations`,
                 );
             });
 
@@ -268,16 +268,16 @@ describe("KustoConnectionStringBuilder", () => {
 
                 const kcsbs = [
                     new KustoConnectionStringBuilder(
-                        `localhost;Application client Id=${expectedUuid};application Key=${expectedKey};Authority Id=${expectedAuthorityId};AAD Federated Security=True`
+                        `localhost;Application client Id=${expectedUuid};application Key=${expectedKey};Authority Id=${expectedAuthorityId};AAD Federated Security=True`,
                     ),
                     new KustoConnectionStringBuilder(
-                        `Data Source=localhost ; Application Client Id=${expectedUuid}; Appkey =${expectedKey};authority=${expectedAuthorityId};AAD Federated Security=True`
+                        `Data Source=localhost ; Application Client Id=${expectedUuid}; Appkey =${expectedKey};authority=${expectedAuthorityId};AAD Federated Security=True`,
                     ),
                     new KustoConnectionStringBuilder(
-                        ` Addr = localhost ; AppClientId = ${expectedUuid} ; AppKey =${expectedKey};tenantid=${expectedAuthorityId};AAD Federated Security=True`
+                        ` Addr = localhost ; AppClientId = ${expectedUuid} ; AppKey =${expectedKey};tenantid=${expectedAuthorityId};AAD Federated Security=True`,
                     ),
                     new KustoConnectionStringBuilder(
-                        `Network Address = localhost; AppClientId = ${expectedUuid} ; AppKey =${expectedKey};tid=${expectedAuthorityId};AAD Federated Security=True `
+                        `Network Address = localhost; AppClientId = ${expectedUuid} ; AppKey =${expectedKey};tid=${expectedAuthorityId};AAD Federated Security=True `,
                     ),
                     KustoConnectionStringBuilder.withAadApplicationKeyAuthentication("localhost", expectedUuid, expectedKey, expectedAuthorityId),
                 ];
@@ -298,7 +298,7 @@ describe("KustoConnectionStringBuilder", () => {
                         aadFederatedSecurity: true,
                     },
                     `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${expectedUuid};Application Key=****;Authority Id=${expectedAuthorityId}`,
-                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${expectedUuid};Application Key=${expectedKey};Authority Id=${expectedAuthorityId}`
+                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${expectedUuid};Application Key=${expectedKey};Authority Id=${expectedAuthorityId}`,
                 );
             });
         });
@@ -312,10 +312,10 @@ describe("KustoConnectionStringBuilder", () => {
             it.concurrent("with authority id", () => {
                 const kcsbs = [
                     new KustoConnectionStringBuilder(
-                        `localhost;Application client Id=${appId};application Certificate PrivateKey=${privateKey};Authority Id=${expectedAuthorityId};application certificate x5c=${cert5xc};AAD Federated Security=True`
+                        `localhost;Application client Id=${appId};application Certificate PrivateKey=${privateKey};Authority Id=${expectedAuthorityId};application certificate x5c=${cert5xc};AAD Federated Security=True`,
                     ),
                     new KustoConnectionStringBuilder(
-                        `localhost;AppClientId=${appId};Application Certificate PrivateKey=${privateKey};Authority Id=${expectedAuthorityId};SendX5c=${cert5xc};AAD Federated Security=True`
+                        `localhost;AppClientId=${appId};Application Certificate PrivateKey=${privateKey};Authority Id=${expectedAuthorityId};SendX5c=${cert5xc};AAD Federated Security=True`,
                     ),
                     KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication("localhost", appId, privateKey, expectedAuthorityId, cert5xc),
                 ];
@@ -339,17 +339,17 @@ describe("KustoConnectionStringBuilder", () => {
                         aadFederatedSecurity: true,
                     },
                     `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${appId};Application Certificate PrivateKey=****;Application Certificate x5c=${cert5xc};Authority Id=${expectedAuthorityId}`,
-                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${appId};Application Certificate PrivateKey=${privateKey};Application Certificate x5c=${cert5xc};Authority Id=${expectedAuthorityId}`
+                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${appId};Application Certificate PrivateKey=${privateKey};Application Certificate x5c=${cert5xc};Authority Id=${expectedAuthorityId}`,
                 );
             });
 
             it.concurrent("without authority id", () => {
                 const kcsbs = [
                     new KustoConnectionStringBuilder(
-                        `localhost;Application client Id=${appId};application Certificate PrivateKey=${privateKey};application certificate x5c=${cert5xc};AAD Federated Security=True`
+                        `localhost;Application client Id=${appId};application Certificate PrivateKey=${privateKey};application certificate x5c=${cert5xc};AAD Federated Security=True`,
                     ),
                     new KustoConnectionStringBuilder(
-                        `localhost;AppClientId=${appId};Application Certificate PrivateKey=${privateKey};SendX5c=${cert5xc};AAD Federated Security=True`
+                        `localhost;AppClientId=${appId};Application Certificate PrivateKey=${privateKey};SendX5c=${cert5xc};AAD Federated Security=True`,
                     ),
                     KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication("localhost", appId, privateKey, DEFAULT_AUTHORITY, cert5xc),
                 ];
@@ -372,17 +372,17 @@ describe("KustoConnectionStringBuilder", () => {
                         aadFederatedSecurity: true,
                     },
                     `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${appId};Application Certificate PrivateKey=****;Application Certificate x5c=${cert5xc};Authority Id=organizations`,
-                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${appId};Application Certificate PrivateKey=${privateKey};Application Certificate x5c=${cert5xc};Authority Id=organizations`
+                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${appId};Application Certificate PrivateKey=${privateKey};Application Certificate x5c=${cert5xc};Authority Id=organizations`,
                 );
             });
 
             it.concurrent("without 3xc", () => {
                 const kcsbs = [
                     new KustoConnectionStringBuilder(
-                        `localhost;Application client Id=${appId};application Certificate PrivateKey=${privateKey};AAD Federated Security=True`
+                        `localhost;Application client Id=${appId};application Certificate PrivateKey=${privateKey};AAD Federated Security=True`,
                     ),
                     new KustoConnectionStringBuilder(
-                        `localhost;AppClientId=${appId};Application Certificate PrivateKey=${privateKey};AAD Federated Security=True`
+                        `localhost;AppClientId=${appId};Application Certificate PrivateKey=${privateKey};AAD Federated Security=True`,
                     ),
                     KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication("localhost", appId, privateKey, DEFAULT_AUTHORITY),
                 ];
@@ -403,7 +403,7 @@ describe("KustoConnectionStringBuilder", () => {
                         aadFederatedSecurity: true,
                     },
                     `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${appId};Application Certificate PrivateKey=****;Authority Id=organizations`,
-                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${appId};Application Certificate PrivateKey=${privateKey};Authority Id=organizations`
+                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Application Client Id=${appId};Application Certificate PrivateKey=${privateKey};Authority Id=organizations`,
                 );
             });
         });
@@ -426,7 +426,7 @@ describe("KustoConnectionStringBuilder", () => {
                     deviceCodeCallback: (res: DeviceCodeInfo) => res,
                 },
                 "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations",
-                "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations"
+                "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations",
             );
         });
 
@@ -447,7 +447,7 @@ describe("KustoConnectionStringBuilder", () => {
                         aadFederatedSecurity: true,
                     },
                     "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations",
-                    "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations"
+                    "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations",
                 );
             });
 
@@ -473,7 +473,7 @@ describe("KustoConnectionStringBuilder", () => {
                         timeoutMs,
                     },
                     "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations",
-                    "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations"
+                    "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations",
                 );
             });
         });
@@ -502,7 +502,7 @@ describe("KustoConnectionStringBuilder", () => {
                     useAzLoginAuth: true,
                 },
                 "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations",
-                "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations"
+                "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations",
             );
         });
 
@@ -522,7 +522,7 @@ describe("KustoConnectionStringBuilder", () => {
                     accessToken: token,
                 },
                 "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations",
-                "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations"
+                "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations",
             );
         });
 
@@ -542,7 +542,7 @@ describe("KustoConnectionStringBuilder", () => {
                     tokenProvider,
                 },
                 "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations",
-                "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations"
+                "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations",
             );
         });
 
@@ -563,7 +563,7 @@ describe("KustoConnectionStringBuilder", () => {
                         aadFederatedSecurity: true,
                     },
                     "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations",
-                    "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations"
+                    "Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations",
                 );
             });
 
@@ -587,7 +587,7 @@ describe("KustoConnectionStringBuilder", () => {
                         timeoutMs,
                     },
                     `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations`,
-                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations`
+                    `Data Source=localhost;AAD Federated Security=true;Initial Catalog=NetDefaultDB;Authority Id=organizations`,
                 );
             });
         });

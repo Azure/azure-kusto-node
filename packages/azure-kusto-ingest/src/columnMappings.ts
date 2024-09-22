@@ -39,7 +39,11 @@ interface ApiColumnMapping {
 }
 
 export abstract class ColumnMapping {
-    protected constructor(readonly columnName: string, readonly cslDataType?: string, readonly Properties?: MappingProperties) {}
+    protected constructor(
+        readonly columnName: string,
+        readonly cslDataType?: string,
+        readonly Properties?: MappingProperties,
+    ) {}
 
     public abstract mappingKind: IngestionMappingKind;
 
@@ -73,7 +77,12 @@ export class CsvColumnMapping extends ColumnMapping {
     /**
      * @deprecated Use the factory methods instead.
      */
-    protected constructor(readonly columnName: string, readonly cslDataType?: string, readonly ordinal?: string, constantValue?: {}) {
+    protected constructor(
+        readonly columnName: string,
+        readonly cslDataType?: string,
+        readonly ordinal?: string,
+        constantValue?: {},
+    ) {
         super(columnName, cslDataType, {
             Ordinal: ordinal === undefined ? undefined : parseInt(ordinal, 10),
             ConstValue: constantValue,
@@ -95,7 +104,13 @@ export class JsonColumnMapping extends ColumnMapping {
     /**
      * @deprecated Use the factory methods instead.
      */
-    constructor(readonly columnName: string, readonly jsonPath?: string, cslDataType: string | null = null, constantValue?: {}, transform?: Transformation) {
+    constructor(
+        readonly columnName: string,
+        readonly jsonPath?: string,
+        cslDataType: string | null = null,
+        constantValue?: {},
+        transform?: Transformation,
+    ) {
         super(columnName, cslDataType ?? undefined, {
             Path: jsonPath,
             ConstValue: constantValue,
@@ -119,7 +134,14 @@ export class JsonColumnMapping extends ColumnMapping {
 }
 
 export class AvroColumnMapping extends ColumnMapping {
-    private constructor(readonly columnName: string, cslDataType?: string, path?: string, field?: string, constantValue?: {}, transform?: Transformation) {
+    private constructor(
+        readonly columnName: string,
+        cslDataType?: string,
+        path?: string,
+        field?: string,
+        constantValue?: {},
+        transform?: Transformation,
+    ) {
         super(columnName, cslDataType ?? undefined, {
             Path: path,
             Field: field,
@@ -148,7 +170,14 @@ export class AvroColumnMapping extends ColumnMapping {
 }
 
 export class ApacheAvroColumnMapping extends ColumnMapping {
-    private constructor(readonly columnName: string, cslDataType?: string, path?: string, field?: string, constantValue?: {}, transform?: Transformation) {
+    private constructor(
+        readonly columnName: string,
+        cslDataType?: string,
+        path?: string,
+        field?: string,
+        constantValue?: {},
+        transform?: Transformation,
+    ) {
         super(columnName, cslDataType ?? undefined, {
             Path: path,
             Field: field,
@@ -177,7 +206,14 @@ export class ApacheAvroColumnMapping extends ColumnMapping {
 }
 
 export class SStreamColumnMapping extends ColumnMapping {
-    private constructor(readonly columnName: string, cslDataType?: string, path?: string, field?: string, constantValue?: {}, transform?: Transformation) {
+    private constructor(
+        readonly columnName: string,
+        cslDataType?: string,
+        path?: string,
+        field?: string,
+        constantValue?: {},
+        transform?: Transformation,
+    ) {
         super(columnName, cslDataType ?? undefined, {
             Path: path,
             Field: field,
@@ -206,7 +242,14 @@ export class SStreamColumnMapping extends ColumnMapping {
 }
 
 export class ParquetColumnMapping extends ColumnMapping {
-    private constructor(readonly columnName: string, cslDataType?: string, path?: string, field?: string, constantValue?: {}, transform?: Transformation) {
+    private constructor(
+        readonly columnName: string,
+        cslDataType?: string,
+        path?: string,
+        field?: string,
+        constantValue?: {},
+        transform?: Transformation,
+    ) {
         super(columnName, cslDataType ?? undefined, {
             Path: path,
             Field: field,
@@ -235,7 +278,14 @@ export class ParquetColumnMapping extends ColumnMapping {
 }
 
 export class OrcColumnMapping extends ColumnMapping {
-    private constructor(readonly columnName: string, cslDataType?: string, path?: string, field?: string, constantValue?: {}, transform?: Transformation) {
+    private constructor(
+        readonly columnName: string,
+        cslDataType?: string,
+        path?: string,
+        field?: string,
+        constantValue?: {},
+        transform?: Transformation,
+    ) {
         super(columnName, cslDataType ?? undefined, {
             Path: path,
             Field: field,
@@ -264,7 +314,13 @@ export class OrcColumnMapping extends ColumnMapping {
 }
 
 export class W3CLogFileMapping extends ColumnMapping {
-    private constructor(readonly columnName: string, cslDataType?: string, field?: string, constantValue?: {}, transform?: Transformation) {
+    private constructor(
+        readonly columnName: string,
+        cslDataType?: string,
+        field?: string,
+        constantValue?: {},
+        transform?: Transformation,
+    ) {
         super(columnName, cslDataType ?? undefined, { Field: field, ConstValue: constantValue, Transform: transform });
     }
 
