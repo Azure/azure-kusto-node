@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { getStringTailLowerCase } from "./utils.js";
-import { default as endpointsData } from "./wellKnownKustoEndpoints.json" with { type: "json" };
+import { default as endpointsData } from "./wellKnownKustoEndpoints.json";
 
 export class MatchRule {
     constructor(

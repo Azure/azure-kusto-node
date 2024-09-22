@@ -10,7 +10,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 -   Added azure/core-utils as an official dependency
--   Added "with {type: json}" to all json imports
 -   Added "main" field back to package.json
 
 ## [7.0.0-alpha.0] - 2024-09-16

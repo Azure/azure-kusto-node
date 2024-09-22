@@ -12,7 +12,7 @@ import { IngestFlow } from "./IngestFlow";
 import { QueryFlow } from "./QueryFlow";
 import { ConfigJson, UpperFields } from "./UpperFields";
 import logo from "./assets/download.png";
-import myJson from "./kusto_sample_config.json" with { type: "json" };
+import myJson from "./kusto_sample_config.json";
 if (!window.Buffer) {
     window.Buffer = Buffer;
 }
