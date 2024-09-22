@@ -28,7 +28,7 @@ export class IngestionBlobInfo {
         ingestionProperties: IngestionProperties,
         authContext: string | null = null,
         applicationForTracing: string | null = null,
-        clientVersionForTracing: string | null = null
+        clientVersionForTracing: string | null = null,
     ) {
         this.BlobPath = blobDescriptor.path;
         this.RawDataSize = blobDescriptor.size;

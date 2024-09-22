@@ -21,7 +21,7 @@ export class AadHelper {
                 kcsb.applicationClientId,
                 kcsb.applicationKey,
                 kcsb.authorityId,
-                kcsb.timeoutMs
+                kcsb.timeoutMs,
             );
         } else if (!!kcsb.applicationClientId && (!!kcsb.applicationCertificatePrivateKey || !!kcsb.applicationCertificatePath)) {
             this.tokenProvider = new TokenProvider.ApplicationCertificateTokenProvider(
@@ -31,7 +31,7 @@ export class AadHelper {
                 kcsb.applicationCertificatePath,
                 kcsb.applicationCertificateSendX5c,
                 kcsb.authorityId,
-                kcsb.timeoutMs
+                kcsb.timeoutMs,
             );
         } else if (kcsb.useManagedIdentityAuth) {
             this.tokenProvider = new TokenProvider.MsiTokenProvider(kcsb.dataSource, kcsb.msiClientId, kcsb.authorityId, kcsb.timeoutMs);
@@ -62,7 +62,7 @@ export class AadHelper {
                 e instanceof Error ? e.message : `${e}`,
                 e instanceof Error ? e : undefined,
                 this.tokenProvider.constructor.name,
-                this.tokenProvider.context()
+                this.tokenProvider.context(),
             );
         }
     }

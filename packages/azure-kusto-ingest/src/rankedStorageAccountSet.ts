@@ -17,7 +17,7 @@ export class RankedStorageAccountSet {
         private numberOfBuckets: number = RankedStorageAccountSet.DefaultNumberOfBuckets,
         private bucketDuration: number = RankedStorageAccountSet.DefaultBucketDurationInSeconds,
         private tiers: number[] = RankedStorageAccountSet.DefaultTiers,
-        private timeProvider: () => number = RankedStorageAccountSet.DefaultTimeProviderInSeconds
+        private timeProvider: () => number = RankedStorageAccountSet.DefaultTimeProviderInSeconds,
     ) {
         this.accounts = new Map<string, RankedStorageAccount>();
     }

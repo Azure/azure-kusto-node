@@ -70,7 +70,7 @@ class SampleApp {
         this.waitForUser = config.waitForUser;
         if (config.authenticationMode === AuthenticationModeOptions.UserPrompt) {
             await this.waitForUserToProceed(
-                "You will be prompted *twice* for credentials during this script. Please return to the console after" + " authenticating."
+                "You will be prompted *twice* for credentials during this script. Please return to the console after" + " authenticating.",
             );
         }
         const kustoConnectionString = await Authentication.generateConnectionString(
@@ -79,7 +79,7 @@ class SampleApp {
             config.certificatePath,
             config.certificatePassword,
             config.applicationId,
-            config.tenantId
+            config.tenantId,
         );
         const ingestConnectionString = await Authentication.generateConnectionString(
             config.ingestUri,
@@ -87,7 +87,7 @@ class SampleApp {
             config.certificatePath,
             config.certificatePassword,
             config.applicationId,
-            config.tenantId
+            config.tenantId,
         );
 
         // Tip: Avoid creating a new Kusto/ingest client for each use.Instead, create the clients once and reuse them.
@@ -239,7 +239,7 @@ class SampleApp {
         databaseName: string,
         tableName: string,
         batchingPolicy: string,
-        ingestServiceCmdClient: KustoClient
+        ingestServiceCmdClient: KustoClient,
     ) {
         // Tip 1: Though most users should be fine with the defaults, to speed up ingestion, such as during development and in this sample app, we opt to
         // modify the default ingestion policy to ingest data after at most 10 seconds.
@@ -280,7 +280,7 @@ class SampleApp {
                 config.tableName,
                 mappingName,
                 dataFile.mappingValue,
-                dataFormat
+                dataFormat,
             );
             // Learn More: For more information about ingesting data to Kusto in C#,
             // see: https://docs.microsoft.com/en-us/azure/data-explorer/net-sdk-ingest-data
@@ -308,7 +308,7 @@ class SampleApp {
         tableName: string,
         mappingName: string,
         mappingValue: string,
-        dataFormat: DataFormat
+        dataFormat: DataFormat,
     ): Promise<void> {
         if (useExistingMapping || !mappingValue) {
             return;
@@ -339,7 +339,7 @@ class SampleApp {
         databaseName: string,
         tableName: string,
         mappingName: string,
-        ignoreFirstRecord: boolean
+        ignoreFirstRecord: boolean,
     ) {
         const sourceType = dataFile.sourceType.toLowerCase();
         const sourceUri = dataFile.dataSourceUri;
@@ -403,7 +403,7 @@ class SampleApp {
                 rl.question("Press ENTER to proceed with this operation...", (ans) => {
                     rl.close();
                     resolve(ans);
-                })
+                }),
             );
         }
     }

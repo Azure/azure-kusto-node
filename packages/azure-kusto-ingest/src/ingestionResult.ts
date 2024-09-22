@@ -33,7 +33,10 @@ export enum OperationStatus {
 }
 
 export class TableReportIngestionResult implements IngestionResult {
-    public constructor(private ingestionStatusInTableDescription: IngestionStatusInTableDescription, public tableClient: TableClient | null = null) {}
+    public constructor(
+        private ingestionStatusInTableDescription: IngestionStatusInTableDescription,
+        public tableClient: TableClient | null = null,
+    ) {}
 
     public async getIngestionStatusCollection(): Promise<IngestionStatus> {
         if (!this.tableClient) {
@@ -42,7 +45,7 @@ export class TableReportIngestionResult implements IngestionResult {
 
         return await this.tableClient.getEntity<IngestionStatus>(
             this.ingestionStatusInTableDescription.partitionKey,
-            this.ingestionStatusInTableDescription.rowKey
+            this.ingestionStatusInTableDescription.rowKey,
         );
     }
 }
@@ -58,7 +61,11 @@ export class IngestionStatusResult implements IngestionResult {
 }
 
 export class IngestionStatusInTableDescription {
-    constructor(public tableConnectionString: string, public partitionKey: string, public rowKey: string) {}
+    constructor(
+        public tableConnectionString: string,
+        public partitionKey: string,
+        public rowKey: string,
+    ) {}
 }
 
 export interface IngestionStatus {

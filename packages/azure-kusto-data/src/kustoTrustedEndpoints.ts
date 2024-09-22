@@ -14,7 +14,7 @@ export class MatchRule {
          * Indicates whether the match must be exact (the candidate must
          * not have any prefix) or not.
          */
-        public exact: boolean
+        public exact: boolean,
     ) {}
 }
 

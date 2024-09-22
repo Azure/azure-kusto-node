@@ -51,7 +51,7 @@ export class Authentication extends Utils {
         certificatePath: string | undefined,
         certificatePassword: string | undefined,
         applicationId: string | undefined,
-        tenantId: string | undefined
+        tenantId: string | undefined,
     ): Promise<KustoConnectionStringBuilder> {
         // Learn More: For additional information on how to authorize users and apps in Kusto see:
         // https://docs.microsoft.com/azure/data-explorer/manage-database-permissions
@@ -118,7 +118,7 @@ export class Authentication extends Utils {
         certificatePassword: string | undefined,
         applicationId: string | undefined,
         tenantId: string | undefined,
-        sendX5c?: boolean
+        sendX5c?: boolean,
     ): Promise<KustoConnectionStringBuilder> {
         const appId: string | undefined = process?.env?.APP_ID;
         const appTenant: string | undefined = process?.env?.APP_TENANT;
@@ -211,7 +211,7 @@ export class Ingestion extends Utils {
         tableName: string,
         dataFormat: DataFormat,
         mappingName: string,
-        ignoreFirstRecordFlag: boolean
+        ignoreFirstRecordFlag: boolean,
     ): IngestionProperties {
         return new IngestionProperties({
             database: databaseName,
@@ -246,7 +246,7 @@ export class Ingestion extends Utils {
         filePath: string,
         dataFormat: DataFormat,
         mappingName: string,
-        ignoreFirstRecord: boolean
+        ignoreFirstRecord: boolean,
     ) {
         const ingestionProp = this.createIngestionProperties(databaseName, tableName, dataFormat, mappingName, ignoreFirstRecord);
         // Tip 1: For optimal ingestion batching and performance, specify the uncompressed data size in the file descriptor instead of the default below of
@@ -274,7 +274,7 @@ export class Ingestion extends Utils {
         blobUri: string,
         dataFormat: DataFormat,
         mappingName: string,
-        ignoreFirstRecord: boolean
+        ignoreFirstRecord: boolean,
     ) {
         const ingestionProp = this.createIngestionProperties(databaseName, tableName, dataFormat, mappingName, ignoreFirstRecord);
         // Tip 1: For optimal ingestion batching and performance, specify the uncompressed data size in the file descriptor instead of the default below of
@@ -290,7 +290,7 @@ export class Ingestion extends Utils {
     public static async waitForIngestionToComplete(waitForIngestSeconds: number) {
         Console.log(
             `Sleeping ${waitForIngestSeconds} seconds for queued ingestion to complete. Note: This may take longer depending on the file size and ingestion 
-            batching policy.`
+            batching policy.`,
         );
         Console.log();
         Console.log();

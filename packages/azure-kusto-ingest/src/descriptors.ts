@@ -28,7 +28,10 @@ export function shouldCompressFileByExtension(extension?: string): boolean {
 }
 
 export abstract class AbstractDescriptor {
-    constructor(public sourceId: string | null = null, public size: number | null = null) {
+    constructor(
+        public sourceId: string | null = null,
+        public size: number | null = null,
+    ) {
         this.sourceId = getSourceId(sourceId);
     }
 }
@@ -41,7 +44,7 @@ export class StreamDescriptor extends AbstractDescriptor {
         readonly stream: Readable | ArrayBuffer,
         sourceId: string | null = null,
         public compressionType: CompressionType = CompressionType.None,
-        size: number | null = null
+        size: number | null = null,
     ) {
         super(sourceId, size);
     }
@@ -60,7 +63,11 @@ export class StreamDescriptor extends AbstractDescriptor {
 }
 
 export class BlobDescriptor extends AbstractDescriptor {
-    constructor(readonly path: string, size: number | null = null, sourceId: string | null = null) {
+    constructor(
+        readonly path: string,
+        size: number | null = null,
+        sourceId: string | null = null,
+    ) {
         super(sourceId, size);
     }
 

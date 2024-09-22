@@ -14,7 +14,7 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
         _connectionString: string,
         _userId: string,
         _password: string,
-        _authorityId?: string
+        _authorityId?: string,
     ): KustoConnectionStringBuilder {
         throw new Error("Not supported in browser - use withUserPrompt instead");
     }
@@ -23,7 +23,7 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
         _connectionString: string,
         _aadAppId: string,
         _appKey: string,
-        _authorityId?: string
+        _authorityId?: string,
     ): KustoConnectionStringBuilder {
         throw new Error("Not supported in browser - use withUserPrompt instead");
     }
@@ -34,7 +34,7 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
         _applicationCertificatePrivateKey?: string,
         _authorityId?: string,
         _applicationCertificateSendX5c?: boolean,
-        _applicationCertificatePath?: string
+        _applicationCertificatePath?: string,
     ): KustoConnectionStringBuilder {
         throw new Error("Not supported in browser - use withUserPrompt instead");
     }
@@ -42,7 +42,7 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
     static withAadDeviceAuthentication(
         _connectionString: string,
         _authorityId?: string,
-        _deviceCodeCallback?: (response: DeviceCodeInfo) => void
+        _deviceCodeCallback?: (response: DeviceCodeInfo) => void,
     ): KustoConnectionStringBuilder {
         throw new Error("Not supported in browser - use withUserPrompt instead");
     }
@@ -80,11 +80,11 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
     static withUserPrompt(
         connectionString: string,
         interactiveCredentialOptions: InteractiveBrowserCredentialNodeOptions | InteractiveBrowserCredentialInBrowserOptions,
-        timeoutMs?: number
+        timeoutMs?: number,
     ): KustoConnectionStringBuilder {
         if (!interactiveCredentialOptions) {
             throw new Error(
-                "Invalid parameters - You must provide interactiveCredentialOptions={clientId: string, redirectUri:string} to authenticate with user prompt in browser."
+                "Invalid parameters - You must provide interactiveCredentialOptions={clientId: string, redirectUri:string} to authenticate with user prompt in browser.",
             );
         }
         const kcsb = new KustoConnectionStringBuilder(connectionString);

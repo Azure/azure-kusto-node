@@ -161,7 +161,7 @@ export abstract class KustoConnectionStringBuilderBase {
         appVersion?: string,
         sendUser: boolean = false,
         overrideUser?: string,
-        additionalFields?: [string, string][]
+        additionalFields?: [string, string][],
     ): void {
         const clientDetails = ClientDetails.setConnectorDetails(name, version, appName, appVersion, sendUser, overrideUser, additionalFields);
 

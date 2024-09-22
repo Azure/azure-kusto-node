@@ -6,7 +6,10 @@ import { ResourceURI } from "./resourceManager.js";
 import { StatusMessage } from "./status.js";
 
 class QueueDetails {
-    constructor(readonly name: string, readonly service: QueueClient) {}
+    constructor(
+        readonly name: string,
+        readonly service: QueueClient,
+    ) {}
 }
 
 const shuffle = <T>(a: T[]): T[] => {
@@ -32,7 +35,10 @@ interface PopParams {
 type Message = PeekedMessageItem | StatusMessage;
 
 export class StatusQueue {
-    constructor(readonly getQueuesFunc: () => Promise<ResourceURI[]>, readonly messageCls: typeof StatusMessage) {}
+    constructor(
+        readonly getQueuesFunc: () => Promise<ResourceURI[]>,
+        readonly messageCls: typeof StatusMessage,
+    ) {}
 
     _getQServices(queuesDetails: ResourceURI[]) {
         return queuesDetails.map((q) => {
@@ -105,7 +111,7 @@ export class StatusQueue {
     async _pop(
         qs: QueueDetails[],
         n: number,
-        options: PopParams | null
+        options: PopParams | null,
     ): Promise<{ result: Message[] & { nonEmptyQs?: QueueDetails[] }; nonEmptyQs: any[]; done: boolean }> {
         const nonEmptyQs: any[] = [];
         const result = [];

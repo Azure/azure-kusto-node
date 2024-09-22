@@ -117,7 +117,7 @@ describe("IngestionProperties", () => {
                 assert.strictEqual(
                     ex.message,
                     "Invalid columns:\nMapping kind mismatch for column 'b' - expected data format kind -  'Csv', but was" +
-                        " 'Json'\nMapping kind mismatch for column 'c' - expected data format kind -  'Csv', but was 'Avro'"
+                        " 'Json'\nMapping kind mismatch for column 'c' - expected data format kind -  'Csv', but was 'Avro'",
                 );
                 return;
             }
@@ -174,7 +174,7 @@ describe("IngestionProperties", () => {
                     ];
                     assert.deepStrictEqual(
                         [type.withOrdinal("a", 0), type.withConstantValue("b", "const_value2")].map((m) => m.toApiMapping()),
-                        result
+                        result,
                     );
                 });
             });
@@ -202,7 +202,7 @@ describe("IngestionProperties", () => {
                     ];
                     assert.deepStrictEqual(
                         [type.withConstantValue("a", "const_value"), type.withConstantValue("b", "const_value2")].map((m) => m.toApiMapping()),
-                        result
+                        result,
                     );
                 });
             });
@@ -236,7 +236,7 @@ describe("IngestionProperties", () => {
                     ];
                     assert.deepStrictEqual(
                         [type.withConstantValue("a", obj), type.withConstantValue("b", 5)].map((m) => m.toApiMapping()),
-                        result
+                        result,
                     );
                 });
             });
@@ -264,9 +264,9 @@ describe("IngestionProperties", () => {
                     ];
                     assert.deepStrictEqual(
                         [type.withConstantValue("a", "const_value"), type.withTransform("b", ConstantTransformation.SourceLineNumber, "int")].map((m) =>
-                            m.toApiMapping()
+                            m.toApiMapping(),
                         ),
-                        result
+                        result,
                     );
                 });
             });
@@ -285,7 +285,7 @@ describe("IngestionProperties", () => {
                     ];
                     assert.deepStrictEqual(
                         [type.withPath("a", "$.a"), type.withConstantValue("b", "const_value2")].map((m) => m.toApiMapping()),
-                        result
+                        result,
                     );
                 });
             });
@@ -312,7 +312,7 @@ describe("IngestionProperties", () => {
                             type.withPath("a", "$.a", "datetime", FieldTransformation.DateTimeFromUnixSeconds),
                             type.withConstantValue("b", "const_value2", "int"),
                         ].map((m) => m.toApiMapping()),
-                        result
+                        result,
                     );
                 });
             });
@@ -339,7 +339,7 @@ describe("IngestionProperties", () => {
                             type.withField("a", "a", "datetime", FieldTransformation.DateTimeFromUnixSeconds),
                             type.withConstantValue("b", "const_value2", "int"),
                         ].map((m) => m.toApiMapping()),
-                        result
+                        result,
                     );
                 });
             });

@@ -27,7 +27,12 @@ export class RankedStorageAccount {
     private lastUpdateTime: number;
     private currentBucketIndex: number;
 
-    constructor(private accountName: string, private numberOfBuckets: number, private bucketDuration: number, private timeProvider: () => number) {
+    constructor(
+        private accountName: string,
+        private numberOfBuckets: number,
+        private bucketDuration: number,
+        private timeProvider: () => number,
+    ) {
         this.buckets = new Array<StorageAccountStats>(numberOfBuckets).fill(new StorageAccountStats()).map(() => new StorageAccountStats());
         this.lastUpdateTime = this.timeProvider();
         this.currentBucketIndex = 0;

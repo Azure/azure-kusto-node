@@ -144,7 +144,7 @@ export enum ValidationImplications {
 export class ValidationPolicy {
     constructor(
         readonly validationOptions: ValidationOptions = ValidationOptions.DoNotValidate,
-        readonly validationImplications: ValidationImplications = ValidationImplications.BestEffort
+        readonly validationImplications: ValidationImplications = ValidationImplications.BestEffort,
     ) {}
 
     toJSON(): Record<string, number> {
@@ -220,14 +220,14 @@ export class IngestionProperties {
         if (!this.ingestionMappingColumns && !this.ingestionMappingReference) {
             if (this.ingestionMappingKind) {
                 throw new IngestionPropertiesValidationError(
-                    "Cannot define ingestionMappingKind without either ingestionMappingColumns or" + " ingestionMappingReference"
+                    "Cannot define ingestionMappingKind without either ingestionMappingColumns or" + " ingestionMappingReference",
                 );
             }
         } else {
             const mappingKind = dataFormatMappingKind(this.format);
             if (this.ingestionMappingKind && this.ingestionMappingKind !== mappingKind) {
                 throw new IngestionPropertiesValidationError(
-                    `Mapping kind '${this.ingestionMappingKind}' does not match format '${this.format}' (should be '${mappingKind}')`
+                    `Mapping kind '${this.ingestionMappingKind}' does not match format '${this.format}' (should be '${mappingKind}')`,
                 );
             }
             if (this.ingestionMappingColumns) {
@@ -242,7 +242,7 @@ export class IngestionProperties {
                 const wrongMappings = this.ingestionMappingColumns
                     .filter((m) => m.mappingKind !== mappingKind)
                     .map(
-                        (m) => `Mapping kind mismatch for column '${m.columnName}' - expected data format kind -  '${mappingKind}', but was '${m.mappingKind}'`
+                        (m) => `Mapping kind mismatch for column '${m.columnName}' - expected data format kind -  '${mappingKind}', but was '${m.mappingKind}'`,
                     );
                 if (wrongMappings.length > 0) {
                     throw new IngestionPropertiesValidationError(`Invalid columns:\n${wrongMappings.join("\n")}`);
@@ -265,7 +265,7 @@ export class IngestionProperties {
         const assign = <K extends keyof IngestionPropertiesFields, V extends IngestionPropertiesFields[K]>(
             obj: IngestionPropertiesFields,
             prop: K,
-            value: V
+            value: V,
         ) => {
             obj[prop] = value;
         };

@@ -139,7 +139,11 @@ export abstract class CloudSettingsTokenProvider extends TokenProviderBase {
 export abstract class AzureIdentityProvider extends CloudSettingsTokenProvider {
     private credential!: TokenCredential;
 
-    constructor(kustoUri: string, protected authorityId?: string, private timeoutMs?: number) {
+    constructor(
+        kustoUri: string,
+        protected authorityId?: string,
+        private timeoutMs?: number,
+    ) {
         super(kustoUri);
     }
 
@@ -180,7 +184,11 @@ export abstract class AzureIdentityProvider extends CloudSettingsTokenProvider {
  * TokenCredentialProvider receives any TokenCredential to create a token with.
  */
 export class TokenCredentialProvider extends AzureIdentityProvider {
-    constructor(kustoUri: string, private tokenCredential: TokenCredential, timeoutMs?: number) {
+    constructor(
+        kustoUri: string,
+        private tokenCredential: TokenCredential,
+        timeoutMs?: number,
+    ) {
         super(kustoUri, undefined, timeoutMs);
     }
 
@@ -200,7 +208,7 @@ export class UserPromptProvider extends AzureIdentityProvider {
     constructor(
         kustoUri: string,
         private interactiveCredentialOptions?: InteractiveBrowserCredentialInBrowserOptions | InteractiveBrowserCredentialNodeOptions,
-        timeoutMs?: number
+        timeoutMs?: number,
     ) {
         super(kustoUri, interactiveCredentialOptions?.tenantId, timeoutMs);
     }
@@ -232,7 +240,12 @@ export class UserPromptProvider extends AzureIdentityProvider {
  * The args parameter is a dictionary conforming with the ManagedIdentityCredential initializer API arguments
  */
 export class MsiTokenProvider extends AzureIdentityProvider {
-    constructor(kustoUri: string, protected clientId?: string, authorityId?: string, timeoutMs?: number) {
+    constructor(
+        kustoUri: string,
+        protected clientId?: string,
+        authorityId?: string,
+        timeoutMs?: number,
+    ) {
         super(kustoUri, authorityId, timeoutMs);
     }
 
@@ -287,7 +300,12 @@ export class UserPassTokenProvider extends AzureIdentityProvider {
  * Acquire a token from  Device Login flow
  */
 export class DeviceLoginTokenProvider extends AzureIdentityProvider {
-    constructor(kustoUri: string, private deviceCodeCallback?: (response: DeviceCodeInfo) => void, authorityId?: string, timeoutMs?: number) {
+    constructor(
+        kustoUri: string,
+        private deviceCodeCallback?: (response: DeviceCodeInfo) => void,
+        authorityId?: string,
+        timeoutMs?: number,
+    ) {
         super(kustoUri, authorityId, timeoutMs);
     }
 
@@ -312,7 +330,7 @@ export class ApplicationCertificateTokenProvider extends AzureIdentityProvider {
         private certPath?: string,
         private sendX5c?: boolean,
         authorityId?: string,
-        timeoutMs?: number
+        timeoutMs?: number,
     ) {
         super(kustoUri, authorityId!, timeoutMs);
     }
@@ -327,7 +345,7 @@ export class ApplicationCertificateTokenProvider extends AzureIdentityProvider {
                 } as ClientCertificatePEMCertificate,
                 {
                     sendCertificateChain: this.sendX5c,
-                } as ClientCertificateCredentialOptions
+                } as ClientCertificateCredentialOptions,
             );
         }
 
@@ -349,7 +367,13 @@ export class ApplicationCertificateTokenProvider extends AzureIdentityProvider {
  * Acquire a token from MSAL with application id and Key
  */
 export class ApplicationKeyTokenProvider extends AzureIdentityProvider {
-    constructor(kustoUri: string, private appClientId: string, private appKey: string, authorityId: string, timeoutMs?: number) {
+    constructor(
+        kustoUri: string,
+        private appClientId: string,
+        private appKey: string,
+        authorityId: string,
+        timeoutMs?: number,
+    ) {
         super(kustoUri, authorityId, timeoutMs);
     }
 
@@ -357,7 +381,7 @@ export class ApplicationKeyTokenProvider extends AzureIdentityProvider {
         return new ClientSecretCredential(
             this.authorityId!, // The tenant ID in Azure Active Directory
             this.appClientId, // The app registration client Id in the AAD tenant
-            this.appKey // The app registration secret for the registered application
+            this.appKey, // The app registration secret for the registered application
         );
     }
 

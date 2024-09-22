@@ -27,7 +27,7 @@ export class FileDescriptor extends AbstractDescriptor implements FileDescriptor
         size: number | null = null,
         compressionType: CompressionType = CompressionType.None,
         readonly extension?: string, // Extracted from file name by default
-        readonly name?: string // Extracted from file name by default
+        readonly name?: string, // Extracted from file name by default
     ) {
         super(sourceId, size);
         this.compressionType = compressionType;

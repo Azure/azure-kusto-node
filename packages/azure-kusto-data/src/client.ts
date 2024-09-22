@@ -116,7 +116,7 @@ export class KustoClient {
         streamFormat: any,
         mappingName: string | null,
         blob?: string,
-        clientRequestId?: string
+        clientRequestId?: string,
     ): Promise<KustoResponseDataSet> {
         let endpoint = `${this.endpoints[ExecutionType.Ingest]}/${this.getDb(db)}/${table}?streamFormat=${streamFormat}`;
         if (mappingName != null) {
@@ -141,7 +141,7 @@ export class KustoClient {
         executionType: ExecutionType,
         db: string | null,
         entity: RequestEntity,
-        properties?: ClientRequestProperties | null
+        properties?: ClientRequestProperties | null,
     ): Promise<KustoResponseDataSet> {
         this.ensureOpen();
         kustoTrustedEndpoints.validateTrustedEndpoint(endpoint, (await CloudSettings.getCloudInfoForCluster(this.cluster)).LoginEndpoint);
@@ -226,7 +226,7 @@ export class KustoClient {
         headers: { [header: string]: string },
         payload: any,
         timeout: number,
-        properties?: ClientRequestProperties | null
+        properties?: ClientRequestProperties | null,
     ): Promise<KustoResponseDataSet> {
         // replace non-ascii characters with ? in headers
         for (const key of Object.keys(headers)) {

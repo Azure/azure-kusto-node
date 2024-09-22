@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 import { Dropdown, FluentProvider, Option, Switch, Theme, webDarkTheme, webLightTheme } from "@fluentui/react-components";
 import { Client, KustoConnectionStringBuilder } from "azure-kusto-data";
 import { IngestClient } from "azure-kusto-ingest";
@@ -35,7 +36,7 @@ function App() {
                       KustoConnectionStringBuilder.withUserPrompt(config.kustoUri, {
                           redirectUri: window.location.href,
                           clientId: config.applicationId,
-                      })
+                      }),
                   )
                 : null;
         } catch (error) {
@@ -52,7 +53,9 @@ function App() {
                 });
                 return { ingestClient: new IngestClient(kcsb), ingestAdminClient: new Client(kcsb) };
             }
-        } catch (error) {}
+        } catch (error) {
+            // ignored
+        }
         return { ingestClient: null, ingestAdminClient: null };
     }, [config.ingestUri, config.applicationId]);
 

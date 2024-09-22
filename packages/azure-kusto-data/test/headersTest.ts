@@ -58,7 +58,7 @@ describe("Test Headers", () => {
         assert.strictEqual(headers["x-ms-client-version"]?.startsWith("Kusto.JavaScript.Client:"), true);
         assert.strictEqual(
             headers["x-ms-app"],
-            "Kusto.Caf_:{1_._0}|App.{my_test____app}:{ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss}"
+            "Kusto.Caf_:{1_._0}|App.{my_test____app}:{ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss}",
         );
         assert.notStrictEqual(headers["x-ms-user"], "[none]");
     });

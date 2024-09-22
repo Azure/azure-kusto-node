@@ -35,7 +35,7 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
      */
     static fromDmConnectionString(
         dmConnectionString: KustoConnectionStringBuilder,
-        defaultProps?: IngestionPropertiesInput
+        defaultProps?: IngestionPropertiesInput,
     ): KustoManagedStreamingIngestClient {
         if (dmConnectionString.dataSource == null || !dmConnectionString.dataSource.startsWith(ingestPrefix)) {
             throw new Error(`DM connection string must include the prefix '${ingestPrefix}'`);
@@ -57,7 +57,7 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
      */
     static fromEngineConnectionString(
         engineConnectionString: KustoConnectionStringBuilder,
-        defaultProps?: IngestionPropertiesInput
+        defaultProps?: IngestionPropertiesInput,
     ): KustoManagedStreamingIngestClient {
         if (engineConnectionString.dataSource == null || engineConnectionString.dataSource.startsWith(ingestPrefix)) {
             throw new Error(`Engine connection string must not include the prefix '${ingestPrefix}'`);
@@ -73,7 +73,7 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
         engineKcsb: string | KustoConnectionStringBuilder,
         dmKcsb: string | KustoConnectionStringBuilder,
         defaultProps?: IngestionPropertiesInput,
-        autoCorrectEndpoint: boolean = true
+        autoCorrectEndpoint: boolean = true,
     ) {
         super(defaultProps);
         this.streamingIngestClient = new StreamingIngestClient(engineKcsb, defaultProps, autoCorrectEndpoint);
@@ -81,7 +81,7 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
 
         if (this.streamingIngestClient.defaultDatabase && this.streamingIngestClient.defaultDatabase !== this.queuedIngestClient.defaultDatabase) {
             throw new Error(
-                `Default database for streaming ingest client (${this.streamingIngestClient.defaultDatabase}) must match default database for queued ingest client (${this.queuedIngestClient.defaultDatabase})`
+                `Default database for streaming ingest client (${this.streamingIngestClient.defaultDatabase}) must match default database for queued ingest client (${this.queuedIngestClient.defaultDatabase})`,
             );
         }
 
@@ -94,7 +94,7 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
     async ingestFromStream(
         stream: StreamDescriptor | Readable | ArrayBuffer,
         ingestionProperties?: IngestionPropertiesInput,
-        clientRequestId?: string
+        clientRequestId?: string,
     ): Promise<KustoResponseDataSet | IngestionResult> {
         this.ensureOpen();
         const props = this._getMergedProps(ingestionProperties);
@@ -105,11 +105,11 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
         // tryStreamToArray returns a Buffer in NodeJS impl if stream size is small enouph
         if ((isNode && result instanceof Buffer) || !isNode) {
             streamingResult = await this.streamWithRetries(
-                isNode ? descriptor.size ?? 0 : (descriptor.stream as ArrayBuffer).byteLength,
+                isNode ? (descriptor.size ?? 0) : (descriptor.stream as ArrayBuffer).byteLength,
                 descriptor,
                 props,
                 clientRequestId,
-                result
+                result,
             );
 
             result = isNode ? readableToStream(result) : descriptor.stream;
@@ -123,7 +123,7 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
      */
     async ingestFromFile(
         file: FileDescriptor | string | Blob,
-        ingestionProperties?: IngestionPropertiesInput
+        ingestionProperties?: IngestionPropertiesInput,
     ): Promise<KustoResponseDataSet | IngestionResult> {
         this.ensureOpen();
 
@@ -134,7 +134,7 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
     async ingestFromBlob(
         blob: string | BlobDescriptor,
         ingestionProperties?: IngestionPropertiesInput,
-        clientRequestId?: string
+        clientRequestId?: string,
     ): Promise<KustoResponseDataSet | IngestionResult> {
         const props = this._getMergedProps(ingestionProperties);
         const descriptor = blob instanceof BlobDescriptor ? blob : new BlobDescriptor(blob);
@@ -150,7 +150,7 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
         descriptor: AbstractDescriptor,
         props?: IngestionPropertiesInput,
         clientRequestId?: string,
-        stream?: Readable | ArrayBuffer
+        stream?: Readable | ArrayBuffer,
     ): Promise<any> {
         const isBlob = descriptor instanceof BlobDescriptor;
         if (length <= maxStreamSize) {
@@ -169,7 +169,7 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
                         return await this.streamingIngestClient.ingestFromStream(
                             new StreamDescriptor(readableToStream(stream!)).merge(descriptor as StreamDescriptor),
                             props,
-                            sourceId
+                            sourceId,
                         );
                     }
 

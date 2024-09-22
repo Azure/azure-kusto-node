@@ -34,7 +34,7 @@ export abstract class KustoStreamingIngestClientBase extends AbstractKustoClient
             props.format,
             props.ingestionMappingReference ?? null,
             descriptor.path,
-            clientRequestId
+            clientRequestId,
         );
     }
 

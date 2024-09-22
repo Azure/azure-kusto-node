@@ -17,7 +17,11 @@ export enum ResourceType {
 }
 
 export class ResourceURI {
-    constructor(readonly uri: string, readonly accountName: string, readonly resourceType: ResourceType) {}
+    constructor(
+        readonly uri: string,
+        readonly accountName: string,
+        readonly resourceType: ResourceType,
+    ) {}
 }
 
 export class IngestClientResources {
@@ -26,7 +30,7 @@ export class IngestClientResources {
         readonly failedIngestionsQueues: ResourceURI[] | null = null,
         readonly successfulIngestionsQueues: ResourceURI[] | null = null,
         readonly containers: ResourceURI[] | null = null,
-        readonly statusTables: ResourceURI[] | null = null
+        readonly statusTables: ResourceURI[] | null = null,
     ) {}
 
     valid() {
@@ -47,7 +51,10 @@ export class ResourceManager {
     private baseJitterSecs = 1;
     private rankedStorageAccountSet: RankedStorageAccountSet;
 
-    constructor(readonly kustoClient: Client, readonly isBrowser: boolean = false) {
+    constructor(
+        readonly kustoClient: Client,
+        readonly isBrowser: boolean = false,
+    ) {
         this.refreshPeriod = TimeUtils.toMilliseconds(1, 0, 0);
         this.refreshPeriodOnError = TimeUtils.toMilliseconds(0, 10, 0);
 
@@ -81,7 +88,7 @@ export class ResourceManager {
                     this.getResourceByName(table, "FailedIngestionsQueue", ResourceType.Queue),
                     this.getResourceByName(table, "SuccessfulIngestionsQueue", ResourceType.Queue),
                     this.getResourceByName(table, "TempStorage", ResourceType.Container),
-                    this.getResourceByName(table, "IngestionsStatusTable", ResourceType.Table)
+                    this.getResourceByName(table, "IngestionsStatusTable", ResourceType.Table),
                 );
 
                 if (!resoures.valid()) {

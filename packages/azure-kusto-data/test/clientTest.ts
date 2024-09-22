@@ -125,8 +125,8 @@ describe("KustoClient", () => {
                 assert(
                     ex instanceof Error &&
                         ex.message.startsWith(
-                            "Failed to parse response ({undefined}) with the following error [TypeError:" + " data.forEach is" + " not a function]."
-                        )
+                            "Failed to parse response ({undefined}) with the following error [TypeError:" + " data.forEach is" + " not a function].",
+                        ),
                 );
                 return;
             }
@@ -280,7 +280,7 @@ describe("KustoClient", () => {
                         };
                         await method("db2", "Table | count");
                     });
-                }
+                },
             );
 
             [
