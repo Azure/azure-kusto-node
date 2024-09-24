@@ -7,7 +7,8 @@
     "exports": {
         ".": {
             "import": "./dist-esm/src/index.js",
-            "types": "./types/src/index.d.ts"
+            "types": "./types/src/index.d.ts",
+            "default": "./dist-esm/src/index.js"
         }
     },
     "scripts": {
