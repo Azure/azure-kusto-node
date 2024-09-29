@@ -16,6 +16,9 @@ const baseConfig: Config = {
     },
     testEnvironment: "node",
     prettierPath: "prettier",
+    transform: {
+        "^.+\\.(ts|tsx|js|jsx)$": "ts-jest"
+    },
     maxWorkers: 200,
     testMatch: ["**/test/**/*Test.ts"],
 };
