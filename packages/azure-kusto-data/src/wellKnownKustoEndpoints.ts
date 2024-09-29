@@ -1,4 +1,6 @@
-{
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+export default {
     "_Comments": [
         "KWE .linkedin.com suffix is excluded from list pending a more specific suffix",
         "LogAnalytics, AppInsigts & AzureMonitor are taken from https://msazure.visualstudio.com/One/_wiki/wikis/One.wiki/138095/Calling-the-ADX-Proxy following talk with Raz Ronen",
