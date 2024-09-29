@@ -16,11 +16,6 @@ const baseConfig: Config = {
     },
     testEnvironment: "node",
     prettierPath: "prettier",
-    transform: {
-        "^.+\\.(ts|tsx|js|jsx)$": ["ts-jest", { tsconfig: "tsconfig.json", useESM: true, babelConfig: {
-            plugins: ["@babel/plugin-syntax-import-attributes"],
-            } }],
-    },
     maxWorkers: 200,
     testMatch: ["**/test/**/*Test.ts"],
 };
