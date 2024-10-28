@@ -44,7 +44,6 @@ jobs:
           AZURE_CLIENT_ID: ${{ secrets.APP_ID }}
           AZURE_TENANT_ID: ${{ secrets.TENANT_ID }}
           # Required for running tests when using ESM, see https://kulshekhar.github.io/ts-jest/docs/guides/esm-support
-          NODE_OPTIONS: "--experimental-vm-modules"
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v2
       - name: Publish Unit Test Results
