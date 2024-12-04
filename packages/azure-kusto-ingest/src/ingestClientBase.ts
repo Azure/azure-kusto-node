@@ -6,7 +6,7 @@ import { Client as KustoClient, KustoConnectionStringBuilder } from "azure-kusto
 import ResourceManager from "./resourceManager";
 
 import IngestionBlobInfo from "./ingestionBlobInfo";
-import { ContainerClient } from "@azure/storage-blob";
+import { BlobUploadCommonResponse, ContainerClient } from "@azure/storage-blob";
 
 import { QueueClient } from "@azure/storage-queue";
 
@@ -136,22 +136,32 @@ export abstract class KustoIngestClientBase extends AbstractKustoClient {
         for (let i = 0; i < retryCount; i++) {
             const containerClient = new ContainerClient(containers[i].uri);
             const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+            let uploadResponse: BlobUploadCommonResponse;
             try {
                 if (typeof descriptor == "string") {
-                    await blockBlobClient.uploadFile(descriptor);
+                    uploadResponse = await blockBlobClient.uploadFile(descriptor);
                 } else if (descriptor instanceof StreamDescriptor) {
                     if (descriptor.stream instanceof Buffer) {
-                        await blockBlobClient.uploadData(descriptor.stream as Buffer);
+                        uploadResponse = await blockBlobClient.uploadData(descriptor.stream as Buffer);
                     } else {
-                        await blockBlobClient.uploadStream(descriptor.stream as Readable);
+                        uploadResponse = await blockBlobClient.uploadStream(descriptor.stream as Readable);
                     }
                 } else {
-                    await blockBlobClient.uploadData(descriptor);
+                    uploadResponse = await blockBlobClient.uploadData(descriptor);
                 }
+
+                if (uploadResponse?.errorCode != null) {
+                    throw new Error(`Failed to upload to blob: ${uploadResponse.errorCode}`);
+                }
+
                 this.resourceManager.reportResourceUsageResult(containerClient.accountName, true);
                 return blockBlobClient.url;
             } catch (ex) {
                 this.resourceManager.reportResourceUsageResult(containerClient.accountName, false);
+
+                if (i === retryCount - 1) {
+                    throw ex;
+                }
             }
         }
 
