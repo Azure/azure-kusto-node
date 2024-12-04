@@ -77,7 +77,11 @@ export class FileDescriptor extends AbstractDescriptor implements FileDescriptor
     private async _calculateSize(modifier: number = 1): Promise<void> {
         if (this.size == null || this.size <= 0) {
             const asyncStat = promisify(fs.stat);
-            this.size = (await asyncStat(this.file as string)).size * modifier;
+            const fileSize = await asyncStat(this.file as string);
+            if (fileSize.size <= 0) {
+                throw Error("Empty file.");
+            }
+            this.size = fileSize.size * modifier;
         }
     }
 
