@@ -23,6 +23,10 @@ export class FileDescriptor extends AbstractDescriptor implements FileDescriptor
         super(sourceId);
         this.compressionType = compressionType;
         this.size = size || file.size;
+        if (this.size === 0) {
+            throw new Error("Empty file.");
+        }
+
         this.zipped = compressionType !== CompressionType.None || this.extension === ".gz" || this.extension === ".zip";
         this.shouldNotCompress = !shouldCompressFileByExtension(this.extension);
     }
