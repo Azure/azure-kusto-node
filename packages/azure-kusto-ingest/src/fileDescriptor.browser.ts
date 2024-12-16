@@ -22,7 +22,7 @@ export class FileDescriptor extends AbstractDescriptor implements FileDescriptor
     ) {
         super(sourceId);
         this.compressionType = compressionType;
-        this.size = size || file.size;
+        this.size = size;
 
         this.zipped = compressionType !== CompressionType.None || this.extension === ".gz" || this.extension === ".zip";
         this.shouldNotCompress = !shouldCompressFileByExtension(this.extension);
