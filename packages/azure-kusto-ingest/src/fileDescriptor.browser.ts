@@ -23,9 +23,6 @@ export class FileDescriptor extends AbstractDescriptor implements FileDescriptor
         super(sourceId);
         this.compressionType = compressionType;
         this.size = size || file.size;
-        if (this.size === 0) {
-            throw new Error("Empty file.");
-        }
 
         this.zipped = compressionType !== CompressionType.None || this.extension === ".gz" || this.extension === ".zip";
         this.shouldNotCompress = !shouldCompressFileByExtension(this.extension);
@@ -33,13 +30,18 @@ export class FileDescriptor extends AbstractDescriptor implements FileDescriptor
 
     async prepare(ingestionProperties?: IngestionPropertiesInput): Promise<Blob> {
         const shouldNotCompressByFormat = !shouldCompressFileByFormat(ingestionProperties);
-        if (!this.zipped && !this.shouldNotCompress && !shouldNotCompressByFormat) {
-            try {
-                const gzipped = pako.gzip(await this.file.arrayBuffer());
-                return new Blob([gzipped]);
-            } catch (e) {
-                // Ignore - return the file itself
-            }
+        if (this.zipped || this.shouldNotCompress || shouldNotCompressByFormat) {
+            const estimatedCompressionModifier = 11;
+            this._calculateSize(estimatedCompressionModifier);
+            return this.file;
+        }
+
+        const gzipped = pako.gzip(await this.file.arrayBuffer());
+        try {
+            this._calculateSize();
+            return new Blob([gzipped]);
+        } catch (e) {
+            // Ignore - return the file itself
         }
 
         return this.file;
@@ -54,4 +56,15 @@ export class FileDescriptor extends AbstractDescriptor implements FileDescriptor
     getCompressionSuffix() {
         return this.compressionType ? `.${this.compressionType}` : ".gz";
     }
+
+    private _calculateSize(modifier: number = 1): void {
+        if (this.size == null || this.size <= 0) {
+            const fileSize = this.file.size;
+            if (fileSize <= 0) {
+                throw Error("Empty file.");
+            }
+            this.size = fileSize * modifier;
+        }
+    }
+
 }
