@@ -32,18 +32,17 @@ export class FileDescriptor extends AbstractDescriptor implements FileDescriptor
         const shouldNotCompressByFormat = !shouldCompressFileByFormat(ingestionProperties);
         if (this.zipped || this.shouldNotCompress || shouldNotCompressByFormat) {
             const estimatedCompressionModifier = 11;
-            this._calculateSize(estimatedCompressionModifier);
+            this._calculateSize(this.file.size, estimatedCompressionModifier);
             return this.file;
         }
 
         const gzipped = pako.gzip(await this.file.arrayBuffer());
         try {
-            this._calculateSize();
             return new Blob([gzipped]);
         } catch (e) {
             // Ignore - return the file itself
         }
-
+        this._calculateSize(this.file.size);
         return this.file;
     }
 
@@ -55,15 +54,5 @@ export class FileDescriptor extends AbstractDescriptor implements FileDescriptor
 
     getCompressionSuffix() {
         return this.compressionType ? `.${this.compressionType}` : ".gz";
-    }
-
-    private _calculateSize(modifier: number = 1): void {
-        if (this.size == null || this.size <= 0) {
-            const fileSize = this.file.size;
-            if (fileSize <= 0) {
-                throw Error("Empty file.");
-            }
-            this.size = fileSize * modifier;
-        }
     }
 }

@@ -31,6 +31,15 @@ export abstract class AbstractDescriptor {
     constructor(public sourceId: string | null = null, public size: number | null = null) {
         this.sourceId = getSourceId(sourceId);
     }
+
+    _calculateSize(fileSize: number, modifier: number = 1): void {
+        if (this.size == null || this.size <= 0) {
+            if (fileSize <= 0) {
+                throw Error("Empty file.");
+            }
+            this.size = fileSize * modifier;
+        }
+    }
 }
 
 export class StreamDescriptor extends AbstractDescriptor {
