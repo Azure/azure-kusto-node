@@ -18,7 +18,7 @@ const AXIOS_ERR_NETWORK = axios?.AxiosError?.ERR_NETWORK ?? "ERR_NETWORK";
  * This class holds data for all cloud instances, and returns the specific data instance by parsing the dns suffix from a URL
  */
 class CloudSettings {
-    METADATA_ENDPOINT = "/v1/rest/auth/metadata";
+    static METADATA_ENDPOINT = "/v1/rest/auth/metadata";
     defaultCloudInfo: CloudInfo = {
         LoginEndpoint: process?.env?.AadAuthorityUri || "https://login.microsoftonline.com",
         LoginMfaRequired: false,
@@ -44,7 +44,7 @@ class CloudSettings {
         }
 
         try {
-            const response = await axios.get<{ AzureAD: CloudInfo | undefined }>(kustoUri + this.METADATA_ENDPOINT, {
+            const response = await axios.get<{ AzureAD: CloudInfo | undefined }>(CloudSettings.getAuthMetadataEndpointFromClusterUri(kustoUri), {
                 headers: {
                     "Cache-Control": "no-cache",
                     // Disable caching - it's being cached in memory (Service returns max-age).
@@ -84,6 +84,12 @@ class CloudSettings {
             return urlString.slice(0, urlString.length - 1);
         }
         return urlString;
+    }
+
+    static getAuthMetadataEndpointFromClusterUri(kustoUri: string): string {
+        const url = new URL(kustoUri);
+        // Returns endpoint URL in the form of https://<cluster>:port/v1/rest/auth/metadata
+        return `${url.protocol}//${url.host}${CloudSettings.METADATA_ENDPOINT}`;
     }
 
     static getAuthorityUri(cloudInfo: CloudInfo, authorityId?: string): string {
