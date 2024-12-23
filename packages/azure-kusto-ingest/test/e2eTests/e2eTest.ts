@@ -449,6 +449,8 @@ const main = (): void => {
             }
         });
 
+        /*
+        // This test relies on the URI path part which we now ignore when retrieving the auth metadata
         it.concurrent.each(redirectCodes.map((r) => ({ code: r })))("noRedirectsCloudFail_%s", async ({ code }) => {
             const kcsb = ConnectionStringBuilder.withAadApplicationKeyAuthentication(
                 `https://statusreturner.azurewebsites.net/nocloud/${code}`,
@@ -467,6 +469,7 @@ const main = (): void => {
                 client.close();
             }
         });
+        */
     });
 
     describe("Mgmt Parsing", () => {

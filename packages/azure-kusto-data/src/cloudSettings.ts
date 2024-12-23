@@ -44,7 +44,7 @@ class CloudSettings {
         }
 
         try {
-            const response = await axios.get<{ AzureAD: CloudInfo | undefined }>(kustoUri + this.METADATA_ENDPOINT, {
+            const response = await axios.get<{ AzureAD: CloudInfo | undefined }>(this.getAuthMetadataEndpointFromClusterUri(kustoUri), {
                 headers: {
                     "Cache-Control": "no-cache",
                     // Disable caching - it's being cached in memory (Service returns max-age).
@@ -84,6 +84,12 @@ class CloudSettings {
             return urlString.slice(0, urlString.length - 1);
         }
         return urlString;
+    }
+
+    getAuthMetadataEndpointFromClusterUri(kustoUri: string): string {
+        const url = new URL(kustoUri);
+        // Returns endpoint URL in the form of https://<cluster>:port/v1/rest/auth/metadata
+        return `${url.protocol}//${url.host}${this.METADATA_ENDPOINT}`;
     }
 
     static getAuthorityUri(cloudInfo: CloudInfo, authorityId?: string): string {
