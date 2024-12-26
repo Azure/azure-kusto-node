@@ -118,4 +118,5 @@ export interface KustoHeaders {
     "x-ms-app": string | null;
     "x-ms-user": string | null;
     "x-ms-client-request-id": string | null;
+    "x-ms-version": string | null;
 }
