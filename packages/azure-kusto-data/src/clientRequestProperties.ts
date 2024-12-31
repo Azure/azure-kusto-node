@@ -3,6 +3,8 @@
 
 import { KustoHeaders } from "./clientDetails.js";
 
+const SDK_API_VERSION = "2019-02-13"; // TODO: Update when new API version is released
+
 export class ClientRequestProperties {
     private _options: { [option: string]: any };
     private _parameters: { [option: string]: any };
@@ -122,6 +124,7 @@ export class ClientRequestProperties {
         if (this.application) {
             headers["x-ms-app"] = this.application;
         }
+        headers["x-ms-version"] = SDK_API_VERSION;
         return headers;
     }
 }
