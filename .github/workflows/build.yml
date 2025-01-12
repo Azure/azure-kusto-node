@@ -38,9 +38,9 @@ jobs:
         env:
           AUTO_TEST: true
           LOGIN_TEST: true
-          TEST_DATABASE: "e2e"
-          ENGINE_CONNECTION_STRING: "https://sdkse2etest.eastus.kusto.windows.net"
-          DM_CONNECTION_STRING: "https://ingest-sdkse2etest.eastus.kusto.windows.net"
+          TEST_DATABASE: ${{ secrets.TEST_DATABASE }}
+          ENGINE_CONNECTION_STRING: ${{ secrets.ENGINE_CONNECTION_STRING }}
+          DM_CONNECTION_STRING: ${{ secrets.ENGINE_CONNECTION_STRING }}
           AZURE_CLIENT_ID: ${{ secrets.APP_ID }}
           AZURE_TENANT_ID: ${{ secrets.TENANT_ID }}
           # Required for running tests when using ESM, see https://kulshekhar.github.io/ts-jest/docs/guides/esm-support
