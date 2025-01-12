@@ -211,7 +211,7 @@ const main = (): void => {
                             await sleep(i * 100);
                             await tableCommands(databaseName, tableName);
                         }
-                        assert.fail(`Failed to create table $,{tableName} ${err} ${databaseName}, error: ${util.format(err)}`);
+                        assert.fail(`Failed to create table ${tableName} ${err} ${databaseName}, error: ${util.format(err)}`);
                     }
                 })
             );
