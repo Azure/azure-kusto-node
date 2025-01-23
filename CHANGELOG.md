@@ -10,6 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 -   Fixed error when doing streaming ingestion with a blob url
+-   Updated azure storage deps
+-   Server timeout was with accuracy of tenth of a second.
+-   Updated default endpoint urls
+
+### Security
+
+-   Updated dependencies to fix security vulnerabilities
 
 ## [6.0.2] - 2024-04-11
 
