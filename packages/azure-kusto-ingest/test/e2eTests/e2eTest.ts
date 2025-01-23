@@ -36,6 +36,7 @@ import { v4 as uuidv4 } from "uuid";
 import pathlib from "path";
 import sinon from "sinon";
 import { TableReportIngestionResult } from "../../src/ingestionResult";
+import { ContainerClient } from "@azure/storage-blob";
 
 interface ParsedJsonMapping {
     Properties: { Path: string };
