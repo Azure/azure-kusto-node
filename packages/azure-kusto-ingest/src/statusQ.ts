@@ -117,7 +117,7 @@ export class StatusQueue {
         const result = [];
 
         for (const q of qs) {
-            const response = await q.service.receiveMessages({ numOfMessages: n });
+            const response = await q.service.receiveMessages({ numberOfMessages: n });
             const messages = response.receivedMessageItems;
             for (const m of messages) {
                 if (m && Object.keys(m).length > 0) {
