@@ -41,6 +41,7 @@ class KustoStreamingIngestClient extends KustoStreamingIngestClientBase {
             compressedStream,
             props.format,
             props.ingestionMappingReference ?? null,
+            undefined,
             clientRequestId
         );
     }
