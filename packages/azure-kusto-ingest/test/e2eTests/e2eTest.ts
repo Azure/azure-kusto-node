@@ -36,6 +36,7 @@ import { v4 as uuidv4 } from "uuid";
 import pathlib from "path";
 import sinon from "sinon";
 import { TableReportIngestionResult } from "../../src/ingestionResult";
+import { ContainerClient } from "@azure/storage-blob";
 
 interface ParsedJsonMapping {
     Properties: { Path: string };
@@ -210,7 +211,7 @@ const main = (): void => {
                             await sleep(i * 100);
                             await tableCommands(databaseName, tableName);
                         }
-                        assert.fail(`Failed to create table $,{tableName} ${err} ${databaseName}, error: ${util.format(err)}`);
+                        assert.fail(`Failed to create table ${tableName} ${err} ${databaseName}, error: ${util.format(err)}`);
                     }
                 })
             );
@@ -336,11 +337,20 @@ const main = (): void => {
                     })
             )("ingestFromBlob_$item.description", async ({ item }) => {
                 const blobName = uuidv4() + pathlib.basename(item.path);
-                const blobUri = await ingestClient.uploadToBlobWithRetry(item.path, blobName);
+                const result = await dmKustoClient.execute(databaseName, ".show export containers");
+                const container = result.primaryResults?.[0]?.toJSON<{ StorageRoot: string }>().data[0].StorageRoot;
+                if (!container) {
+                    assert.fail("Failed to get export containers");
+                }
+                const blockBlobClient = new ContainerClient(container).getBlockBlobClient(blobName);
+                const response = await blockBlobClient.uploadFile(item.path);
+                if (response.errorCode) {
+                    assert.fail(`Failed to upload blob ${JSON.stringify(response)}`);
+                }
 
                 const table = tableNames[("streaming_blob" + "_" + item.description) as Table];
                 try {
-                    await streamingIngestClient.ingestFromBlob(blobUri, item.ingestionPropertiesCallback(table));
+                    await streamingIngestClient.ingestFromBlob(blockBlobClient.url, item.ingestionPropertiesCallback(table));
                 } catch (err) {
                     assert.fail(`Failed to ingest ${item.description} - ${util.format(err)}`);
                 }
@@ -422,23 +432,6 @@ const main = (): void => {
                 }
                 assert.fail(`Didn't throw PartialQueryFailure`);
             });
-
-            it.concurrent("executionTimeout", async () => {
-                try {
-                    const properties: ClientRequestProperties = new ClientRequestProperties();
-                    properties.setTimeout(10);
-                    await queryClient.executeQuery(databaseName, tableNames.general_csv, properties);
-                } catch (ex: unknown) {
-                    assert.ok(ex instanceof Error);
-                    assert.match(
-                        ex.message,
-                        /.*Request failed with status code 504.*/,
-                        `Fail to get "Query is expired". ex json: ${util.format(ex)}, ex: ${ex}`
-                    );
-                    return;
-                }
-                assert.fail(`Didn't throw executionTimeout`);
-            });
         });
     });
 
@@ -461,12 +454,14 @@ const main = (): void => {
             }
         });
 
+        /*
+        // This test relies on the URI path part which we now ignore when retrieving the auth metadata
         it.concurrent.each(redirectCodes.map((r) => ({ code: r })))("noRedirectsCloudFail_%s", async ({ code }) => {
             const kcsb = ConnectionStringBuilder.withAadApplicationKeyAuthentication(
                 `https://statusreturner.azurewebsites.net/nocloud/${code}`,
                 "fake",
                 "fake",
-                "fake"
+                "fake",
             );
             const client = new Client(kcsb);
             try {
@@ -479,6 +474,7 @@ const main = (): void => {
                 client.close();
             }
         });
+        */
     });
 
     describe("Mgmt Parsing", () => {

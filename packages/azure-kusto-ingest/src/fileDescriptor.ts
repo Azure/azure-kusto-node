@@ -17,6 +17,7 @@ export class FileDescriptor extends AbstractDescriptor implements FileDescriptor
     compressionType: CompressionType;
     shouldNotCompress: boolean;
     cleanupTmp?: () => Promise<void>;
+    private getSize: (file: string | Buffer | URL) => Promise<fs.Stats>;
 
     constructor(
         /**
@@ -36,6 +37,8 @@ export class FileDescriptor extends AbstractDescriptor implements FileDescriptor
 
         this.zipped = compressionType !== CompressionType.None || this.extension === ".gz" || this.extension === ".zip";
         this.shouldNotCompress = !shouldCompressFileByExtension(this.extension);
+
+        this.getSize = promisify(fs.stat);
     }
 
     async _gzip(): Promise<string> {
@@ -65,20 +68,13 @@ export class FileDescriptor extends AbstractDescriptor implements FileDescriptor
         const shouldNotCompressByFormat = !shouldCompressFileByFormat(ingestionProperties);
         if (this.zipped || this.shouldNotCompress || shouldNotCompressByFormat) {
             const estimatedCompressionModifier = 11;
-            await this._calculateSize(estimatedCompressionModifier);
+            this._calculateSize((await this.getSize(this.file as string)).size, estimatedCompressionModifier);
             return this.file as string;
         }
 
         const path = await this._gzip();
-        await this._calculateSize();
+        this._calculateSize((await this.getSize(this.file as string)).size);
         return path;
-    }
-
-    private async _calculateSize(modifier: number = 1): Promise<void> {
-        if (this.size == null || this.size <= 0) {
-            const asyncStat = promisify(fs.stat);
-            this.size = (await asyncStat(this.file as string)).size * modifier;
-        }
     }
 
     async cleanup(): Promise<void> {

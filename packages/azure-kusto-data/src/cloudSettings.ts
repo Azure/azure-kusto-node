@@ -12,6 +12,8 @@ export type CloudInfo = {
     FirstPartyAuthorityUrl: string;
 };
 
+const AXIOS_ERR_NETWORK = axios?.AxiosError?.ERR_NETWORK ?? "ERR_NETWORK";
+
 /**
  * This class holds data for all cloud instances, and returns the specific data instance by parsing the dns suffix from a URL
  */
@@ -42,7 +44,7 @@ class CloudSettings {
         }
 
         try {
-            const response = await axios.get<{ AzureAD: CloudInfo | undefined }>(kustoUri + this.METADATA_ENDPOINT, {
+            const response = await axios.get<{ AzureAD: CloudInfo | undefined }>(this.getAuthMetadataEndpointFromClusterUri(kustoUri), {
                 headers: {
                     "Cache-Control": "no-cache",
                     // Disable caching - it's being cached in memory (Service returns max-age).
@@ -64,7 +66,7 @@ class CloudSettings {
         } catch (ex) {
             if (axios.isAxiosError(ex)) {
                 // Axios library has a bug in browser, not propagating the status code, see: https://github.com/axios/axios/issues/5330
-                if ((ex.response?.status === 404 && isNode) || (ex.code === axios.AxiosError.ERR_NETWORK && !isNode)) {
+                if ((isNode && ex.response?.status === 404) || (!isNode && (!ex.code || ex.code === AXIOS_ERR_NETWORK))) {
                     // For now as long not all proxies implement the metadata endpoint, if no endpoint exists return public cloud data
                     this.cloudCache[kustoUri] = this.defaultCloudInfo;
                 } else {
@@ -82,6 +84,12 @@ class CloudSettings {
             return urlString.slice(0, urlString.length - 1);
         }
         return urlString;
+    }
+
+    getAuthMetadataEndpointFromClusterUri(kustoUri: string): string {
+        const url = new URL(kustoUri);
+        // Returns endpoint URL in the form of https://<cluster>:port/v1/rest/auth/metadata
+        return `${url.protocol}//${url.host}${this.METADATA_ENDPOINT}`;
     }
 
     static getAuthorityUri(cloudInfo: CloudInfo, authorityId?: string): string {
