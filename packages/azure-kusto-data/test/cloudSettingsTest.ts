@@ -3,7 +3,7 @@
 
 import assert from "assert";
 
-import { CloudSettings } from "../src/cloudSettings.js";
+import { CloudSettings } from "../src/cloudSettings";
 
 describe("CloudSettings.getAuthMetadataEndpointFromClusterUri", () => {
     it("valid input", () => {
