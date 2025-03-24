@@ -17,5 +17,5 @@
 
 ### Troubleshooting
 
--   If you are having trouble running the script from your IDE, first check if the script runs from command line, then consult the troubleshooting references of
-    your IDE.
+- If you are having trouble running the script from your IDE, first check if the script runs from command line, then consult the troubleshooting references of
+  your IDE.
