@@ -343,3 +343,6 @@ dist/
 !jest.config.ts
 
 **/quick_start_browser/package-lock.json
+
+## nx
+.nx/
