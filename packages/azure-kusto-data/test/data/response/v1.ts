@@ -1,4 +1,7 @@
-{
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+const a = {
     "Tables": [
         {
             "TableName": "Table_0",
@@ -42,3 +45,5 @@
         }
     ]
 }
+
+export default a;
