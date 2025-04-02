@@ -28,7 +28,10 @@ module.exports = {
         "**/*.d.ts",
         "**/*.js",
         "webpack.config.ts",
-        "vite.config.ts"
+        "vite.config.ts",
+        ".nyc_output",
+        "jest.config.ts",
+        "packages/quick_start"
     ],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
