@@ -31,7 +31,8 @@ module.exports = {
         "vite.config.ts",
         ".nyc_output",
         "jest.config.ts",
-        "packages/quick_start"
+        "packages/quick_start",
+        "**/*example*"
     ],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
