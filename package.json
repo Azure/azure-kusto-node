@@ -3,7 +3,6 @@
     "private": true,
     "scripts": {
         "build": "lerna run build",
-        "prepublish": "npm run build && npm run webpackBuild",
         "exampleData": "npm run build && node packages/azure-kusto-data/example.js",
         "exampleIngest": "npm run build && node packages/azure-kusto-ingest/example.js",
         "lint": "eslint -c .eslintrc.js --ext .ts .",
