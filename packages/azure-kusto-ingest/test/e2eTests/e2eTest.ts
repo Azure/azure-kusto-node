@@ -229,7 +229,7 @@ const main = (): void => {
     describe(`E2E Tests`, () => {
         describe("cloud info", () => {
             it.concurrent("cloud info 404", async () => {
-                const cloudInfo = await CloudSettings.getCloudInfoForCluster("https://www.microsoft.com");
+                const cloudInfo = await CloudSettings.getCloudInfoForCluster("https://www.bing.com");
                 assert.strictEqual(cloudInfo, CloudSettings.defaultCloudInfo);
             });
         });
