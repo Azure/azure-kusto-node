@@ -1,4 +1,7 @@
-[
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+const a = [
     {
         "FrameType": "DataSetHeader",
         "IsProgressive": false,
@@ -159,4 +162,6 @@
         "HasErrors": false,
         "Cancelled": false
     }
-]
+];
+
+export default a;

@@ -27,7 +27,7 @@
         "./dist-esm/src/connectionBuilder.js": "./dist-esm/src/connectionBuilder.browser.js"
     },
     "engines": {
-        "node": ">= 18.0.0"
+        "node": ">= 20.0.0"
     },
     "publishConfig": {
         "access": "public"
