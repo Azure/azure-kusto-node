@@ -6,11 +6,11 @@ const KustoConnectionStringBuilder = require("azure-kusto-data").KustoConnection
 const ClientRequestProperties = require("azure-kusto-data").ClientRequestProperties;
 const { v4: uuidv4 } = require("uuid");
 
-const clusterConectionString = "https://<cluster>.<region>.kusto.windows.net";
+const clusterConnectionString = "https://<cluster>.<region>.kusto.windows.net";
 const database = "<databaseName>";
 const table = "<tableName>";
 
-const kcs = KustoConnectionStringBuilder.withAadDeviceAuthentication(clusterConectionString);
+const kcs = KustoConnectionStringBuilder.withAadDeviceAuthentication(clusterConnectionString);
 const kustoClient = new KustoClient(kcs); // After using the client, you should use `close()` to free up resources
 start();
 
