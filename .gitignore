@@ -11,6 +11,7 @@
 */__*.js
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
+.nx
 
 # Build results
 [Dd]ebug/
