@@ -49,17 +49,17 @@ export class IngestionBlobInfo {
 
         const tags: string[] = [];
         if (ingestionProperties.additionalTags) {
-            tags.concat(ingestionProperties.additionalTags);
+            tags.push(...ingestionProperties.additionalTags);
         }
         if (ingestionProperties.dropByTags) {
-            tags.concat(ingestionProperties.dropByTags.map((t) => "drop-by:" + t));
+            tags.push(...ingestionProperties.dropByTags.map((t) => "drop-by:" + t));
         }
         if (ingestionProperties.ingestByTags) {
-            tags.concat(ingestionProperties.ingestByTags.map((t) => "ingest-by:" + t));
+            tags.push(...ingestionProperties.ingestByTags.map((t) => "ingest-by:" + t));
         }
 
-        if (tags && tags.length > 0) {
-            additionalProperties.tags = tags;
+        if (tags.length > 0) {
+            additionalProperties.tags = JSON.stringify(tags);
         }
 
         if (ingestionProperties.ingestIfNotExists) {
