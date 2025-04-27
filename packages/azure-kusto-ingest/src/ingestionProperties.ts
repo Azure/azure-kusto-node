@@ -182,7 +182,7 @@ export interface IngestionPropertiesFields {
      */
     ingestionMappingType?: IngestionMappingKind;
     ingestionMappingKind?: IngestionMappingKind;
-    additionalTags?: string;
+    additionalTags?: string[];
     ingestIfNotExists?: string;
     ingestByTags?: string[];
     dropByTags?: string[];
