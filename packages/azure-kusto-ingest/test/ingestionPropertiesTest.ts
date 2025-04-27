@@ -360,5 +360,16 @@ describe("IngestionProperties", () => {
             ];
             assert.deepStrictEqual(JSON.parse(ingestionBlobInfo.AdditionalProperties.ingestionMapping), reParsed);
         });
+
+        it.concurrent("should handle tags correctly", () => {
+            const props = new IngestionProperties({
+                ingestByTags: ["tag1"],
+                dropByTags: ["tag2"],
+                additionalTags: ["tag3"],
+            });
+
+            const ingestionBlobInfo = new IngestionBlobInfo(new BlobDescriptor("https://account.blob.core.windows.net/blobcontainer/blobfile.json"), props);
+            assert.deepStrictEqual(JSON.parse(ingestionBlobInfo.AdditionalProperties.tags), ["tag3", "drop-by:tag2", "ingest-by:tag1"]);
+        });
     });
 });
