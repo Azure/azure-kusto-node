@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
--   Fixed handling of tags
+-   Fixed handling of tags by @noamcohen97
 -   Updated dependencies
 
 ## [6.0.3] - 2025-01-23

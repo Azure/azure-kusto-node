@@ -3,8 +3,6 @@
 
 import { KustoHeaders } from "./clientDetails";
 
-const SDK_API_VERSION = "2019-02-13"; // TODO: Update when new API version is released
-
 const SDK_API_VERSION = "2024-12-12"; // TODO: Update when new API version is released
 
 export class ClientRequestProperties {
