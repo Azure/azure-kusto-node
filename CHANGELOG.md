@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.0.0] - 2025-05-07
+
+### Changed
+-   Minimum supported version of NodeJS is now **20**
+-   Changed type of projects to be "module" to support EcmaScript modules. It shouldn't affect the usage of the SDK, if it does please open an issue.
+### Fixed
+-   Fixed issue that caused cloudSettings to fail in browsers
+
 ## [7.0.0-alpha.5] - 2025-28-04
 ### Fixed
 
