@@ -3,7 +3,7 @@
 
 import { IngestionPropertiesInput } from "./ingestionProperties.js";
 
-import { isNode } from "@azure/core-util";
+import { isNodeLike } from "@azure/core-util";
 import { KustoConnectionStringBuilder, KustoResponseDataSet } from "azure-kusto-data";
 import { Readable } from "stream";
 import { AbstractKustoClient } from "./abstractKustoClient.js";
@@ -99,20 +99,20 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
         this.ensureOpen();
         const props = this._getMergedProps(ingestionProperties);
         let descriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
-        let result = isNode ? await tryStreamToArray(descriptor.stream as Readable, maxStreamSize) : descriptor.stream;
+        let result = isNodeLike ? await tryStreamToArray(descriptor.stream as Readable, maxStreamSize) : descriptor.stream;
         descriptor = new StreamDescriptor(result).merge(descriptor);
         let streamingResult: Promise<any> | null = null;
         // tryStreamToArray returns a Buffer in NodeJS impl if stream size is small enouph
-        if ((isNode && result instanceof Buffer) || !isNode) {
+        if ((isNodeLike && result instanceof Buffer) || !isNodeLike) {
             streamingResult = await this.streamWithRetries(
-                isNode ? (descriptor.size ?? 0) : (descriptor.stream as ArrayBuffer).byteLength,
+                isNodeLike ? (descriptor.size ?? 0) : (descriptor.stream as ArrayBuffer).byteLength,
                 descriptor,
                 props,
                 clientRequestId,
                 result,
             );
 
-            result = isNode ? readableToStream(result) : descriptor.stream;
+            result = isNodeLike ? readableToStream(result) : descriptor.stream;
         }
 
         return streamingResult ?? this.queuedIngestClient.ingestFromStream(new StreamDescriptor(result).merge(descriptor), props);
@@ -165,7 +165,7 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
                         return await this.streamingIngestClient.ingestFromBlob(descriptor as BlobDescriptor, props, sourceId);
                     }
 
-                    if (isNode) {
+                    if (isNodeLike) {
                         return await this.streamingIngestClient.ingestFromStream(
                             new StreamDescriptor(readableToStream(stream!)).merge(descriptor as StreamDescriptor),
                             props,
@@ -183,7 +183,7 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
                 }
             }
 
-            stream = isBlob ? undefined : isNode && stream ? readableToStream(stream) : (descriptor as StreamDescriptor).stream;
+            stream = isBlob ? undefined : isNodeLike && stream ? readableToStream(stream) : (descriptor as StreamDescriptor).stream;
         }
 
         return null;
