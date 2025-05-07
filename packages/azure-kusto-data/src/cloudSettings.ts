@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import axios from "axios";
-import { isNode } from "@azure/core-util";
+import { isNodeLike } from "@azure/core-util";
 
 export type CloudInfo = {
     LoginEndpoint: string;
@@ -20,7 +20,7 @@ const AXIOS_ERR_NETWORK = axios?.AxiosError?.ERR_NETWORK ?? "ERR_NETWORK";
 class CloudSettings {
     METADATA_ENDPOINT = "/v1/rest/auth/metadata";
     defaultCloudInfo: CloudInfo = {
-        LoginEndpoint: process?.env?.AadAuthorityUri || "https://login.microsoftonline.com",
+        LoginEndpoint: (isNodeLike ? process?.env?.AadAuthorityUri : undefined) || "https://login.microsoftonline.com",
         LoginMfaRequired: false,
         KustoClientAppId: "db662dc1-0cfe-4e1c-a843-19a68e65be58",
         KustoClientRedirectUri: "https://microsoft/kustoclient",
@@ -66,7 +66,7 @@ class CloudSettings {
         } catch (ex) {
             if (axios.isAxiosError(ex)) {
                 // Axios library has a bug in browser, not propagating the status code, see: https://github.com/axios/axios/issues/5330
-                if ((isNode && ex.response?.status === 404) || (!isNode && (!ex.code || ex.code === AXIOS_ERR_NETWORK))) {
+                if ((isNodeLike && ex.response?.status === 404) || (!isNodeLike && (!ex.code || ex.code === AXIOS_ERR_NETWORK))) {
                     // For now as long not all proxies implement the metadata endpoint, if no endpoint exists return public cloud data
                     this.cloudCache[kustoUri] = this.defaultCloudInfo;
                 } else {

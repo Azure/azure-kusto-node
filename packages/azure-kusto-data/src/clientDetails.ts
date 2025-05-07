@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { isNode } from "@azure/core-util";
+import { isNodeLike } from "@azure/core-util";
 import { userInfo } from "os";
 import { SDK_VERSION } from "./version.js";
 
@@ -35,7 +35,7 @@ export class ClientDetails {
     }
 
     static defaultApplication(): string {
-        if (isNode) {
+        if (isNodeLike) {
             return process?.env?.npm_package_name || process?.argv[1] || None;
         } else {
             return window?.location?.href || None;
@@ -43,7 +43,7 @@ export class ClientDetails {
     }
 
     static defaultUser(): string {
-        if (isNode) {
+        if (isNodeLike) {
             let username: string | undefined;
             try {
                 username = userInfo().username;
@@ -65,7 +65,7 @@ export class ClientDetails {
     static defaultVersion(): string {
         return this.formatHeader([
             ["Kusto.JavaScript.Client", SDK_VERSION],
-            ["Runtime." + (isNode ? "Node" : "Browser"), (isNode ? process.version : window?.navigator?.userAgent) || None],
+            ["Runtime." + (isNodeLike ? "Node" : "Browser"), (isNodeLike ? process.version : window?.navigator?.userAgent) || None],
         ]);
     }
 

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { isNode } from "@azure/core-util";
+import { isNodeLike } from "@azure/core-util";
 import axios, { AxiosInstance, AxiosRequestConfig, RawAxiosRequestHeaders } from "axios";
 import http from "http";
 import https from "https";
@@ -63,7 +63,7 @@ export class KustoClient {
             Accept: "application/json",
         };
 
-        if (isNode) {
+        if (isNodeLike) {
             headers = {
                 ...headers,
                 "Accept-Encoding": "gzip,deflate",
@@ -78,7 +78,7 @@ export class KustoClient {
             maxRedirects: 0,
         };
         // http and https are Node modules and are not found in browsers
-        if (isNode) {
+        if (isNodeLike) {
             // keepAlive pools and reuses TCP connections, so it's faster
             axiosProps.httpAgent = new http.Agent({ keepAlive: true });
             axiosProps.httpsAgent = new https.Agent({ keepAlive: true });
@@ -170,7 +170,7 @@ export class KustoClient {
         } else if ("stream" in entity) {
             payloadContent = entity.stream;
             clientRequestPrefix = "KNC.executeStreamingIngest;";
-            if (isNode) {
+            if (isNodeLike) {
                 headers["Content-Encoding"] = "gzip";
                 headers["Content-Type"] = "application/octet-stream";
             } else {
