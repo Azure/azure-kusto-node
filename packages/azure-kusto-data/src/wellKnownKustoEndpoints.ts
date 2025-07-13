@@ -24,7 +24,10 @@ export default {
                 ".kusto.data.microsoft.com",
                 ".kusto.fabric.microsoft.com",
                 ".api.securityplatform.microsoft.com",
-                ".securitycenter.windows.com"
+                ".securitycenter.windows.com",
+                ".arg-int.core.windows.net",
+                ".arg-df.core.windows.net",
+                ".arg.core.windows.net"
             ],
             "AllowedKustoHostnames": [
                 "ade.applicationinsights.io",
@@ -41,24 +44,28 @@ export default {
             ]
         },
         "https://login.microsoftonline.us": {
-            "AllowedKustoSuffixes": [".kusto.usgovcloudapi.net", ".kustomfa.usgovcloudapi.net"],
+            "AllowedKustoSuffixes": [".kusto.usgovcloudapi.net", ".kustomfa.usgovcloudapi.net", ".arg.core.usgovcloudapi.net"],
             "AllowedKustoHostnames": ["adx.applicationinsights.azure.us", "adx.loganalytics.azure.us", "adx.monitor.azure.us"]
         },
         "https://login.partner.microsoftonline.cn": {
-            "AllowedKustoSuffixes": [".kusto.azuresynapse.azure.cn", ".kusto.chinacloudapi.cn", ".kustomfa.chinacloudapi.cn", ".playfab.cn"],
+            "AllowedKustoSuffixes": [".kusto.azuresynapse.azure.cn", ".kusto.chinacloudapi.cn", ".kustomfa.chinacloudapi.cn", ".playfab.cn", ".arg.core.chinacloudapi.cn"],
             "AllowedKustoHostnames": ["adx.applicationinsights.azure.cn", "adx.loganalytics.azure.cn", "adx.monitor.azure.cn"]
         },
         "https://login.microsoftonline.eaglex.ic.gov": {
-            "AllowedKustoSuffixes": [".kusto.core.eaglex.ic.gov", ".kustomfa.core.eaglex.ic.gov"],
+            "AllowedKustoSuffixes": [".kusto.core.eaglex.ic.gov", ".kustomfa.core.eaglex.ic.gov", ".arg.core.eaglex.ic.gov"],
             "AllowedKustoHostnames": ["adx.applicationinsights.azure.eaglex.ic.gov", "adx.loganalytics.azure.eaglex.ic.gov", "adx.monitor.azure.eaglex.ic.gov"]
         },
         "https://login.microsoftonline.microsoft.scloud": {
-            "AllowedKustoSuffixes": [".kusto.core.microsoft.scloud", ".kustomfa.core.microsoft.scloud"],
+            "AllowedKustoSuffixes": [".kusto.core.microsoft.scloud", ".kustomfa.core.microsoft.scloud", ".arg.core.microsoft.scloud"],
             "AllowedKustoHostnames": [
                 "adx.applicationinsights.azure.microsoft.scloud",
                 "adx.loganalytics.azure.microsoft.scloud",
                 "adx.monitor.azure.microsoft.scloud"
             ]
+        },
+        "https://login.sovcloud-identity.fr": {
+            "AllowedKustoSuffixes": [".kusto.sovcloud-api.fr", ".kustomfa.sovcloud-api.fr"],
+            "AllowedKustoHostnames": ["adx.applicationinsights.azure.fr", "adx.loganalytics.azure.fr", "adx.monitor.azure.fr"]
         }
     }
 }
