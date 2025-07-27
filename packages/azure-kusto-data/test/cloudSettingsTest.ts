@@ -4,6 +4,7 @@
 import assert from "assert";
 
 import { CloudSettings } from "../src/cloudSettings.js";
+import { sanitizeUrlForLogging } from "../src/utils.js";
 
 describe("CloudSettings.getAuthMetadataEndpointFromClusterUri", () => {
     it("valid input", () => {
@@ -32,50 +33,41 @@ describe("CloudSettings.getAuthMetadataEndpointFromClusterUri", () => {
     });
 });
 
-describe("CloudSettings URL sanitization for logging", () => {
+describe("sanitizeUrlForLogging", () => {
     it("should remove query parameters from URLs", () => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const cloudSettings = CloudSettings as any;
-
         // Test basic URL without query parameters
         assert.strictEqual(
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-            cloudSettings.sanitizeUrlForLogging("https://example.kusto.windows.net"),
+            sanitizeUrlForLogging("https://example.kusto.windows.net"),
             "https://example.kusto.windows.net/"
         );
 
         // Test URL with sensitive query parameters
         assert.strictEqual(
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-            cloudSettings.sanitizeUrlForLogging("https://example.kusto.windows.net?sig=secret123&param=value"),
+            sanitizeUrlForLogging("https://example.kusto.windows.net?sig=secret123&param=value"),
             "https://example.kusto.windows.net/"
         );
 
         // Test URL with path and query parameters
         assert.strictEqual(
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-            cloudSettings.sanitizeUrlForLogging("https://example.kusto.windows.net/path/to/resource?sig=secret&token=abc"),
+            sanitizeUrlForLogging("https://example.kusto.windows.net/path/to/resource?sig=secret&token=abc"),
             "https://example.kusto.windows.net/path/to/resource"
         );
 
         // Test URL with port and query parameters
         assert.strictEqual(
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-            cloudSettings.sanitizeUrlForLogging("https://example.kusto.windows.net:8080/api?sig=secret"),
+            sanitizeUrlForLogging("https://example.kusto.windows.net:8080/api?sig=secret"),
             "https://example.kusto.windows.net:8080/api"
         );
 
         // Test malformed URL
         assert.strictEqual(
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-            cloudSettings.sanitizeUrlForLogging("not-a-url"),
+            sanitizeUrlForLogging("not-a-url"),
             "[invalid-url]"
         );
 
         // Test empty string
         assert.strictEqual(
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-            cloudSettings.sanitizeUrlForLogging(""),
+            sanitizeUrlForLogging(""),
             "[invalid-url]"
         );
     });

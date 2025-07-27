@@ -12,3 +12,14 @@ export function getStringTailLowerCase(val: string, tailLength: number): string 
 
     return val.substring(val.length - tailLength).toLowerCase();
 }
+
+export function sanitizeUrlForLogging(kustoUri: string): string {
+    try {
+        const url = new URL(kustoUri);
+        // Remove query parameters to avoid logging sensitive information like sig=
+        return `${url.protocol}//${url.host}${url.pathname}`;
+    } catch {
+        // If URL parsing fails, return a safe fallback
+        return "[invalid-url]";
+    }
+}
