@@ -104,4 +104,4 @@ describe("CloudSettings URL sanitization for logging", () => {
                 `Error message should not contain sensitive query parameter. Got: ${errorMessage}`);
         }
     });
-});
+});
