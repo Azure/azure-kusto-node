@@ -70,7 +70,7 @@ class CloudSettings {
                     // For now as long not all proxies implement the metadata endpoint, if no endpoint exists return public cloud data
                     this.cloudCache[kustoUri] = this.defaultCloudInfo;
                 } else {
-                    throw new Error(`Failed to get cloud info for cluster ${kustoUri} - ${ex}`);
+                    throw new Error(`Failed to get cloud info for cluster ${this.sanitizeUrlForLogging(kustoUri)} - ${ex}`);
                 }
             }
         }
@@ -84,6 +84,17 @@ class CloudSettings {
             return urlString.slice(0, urlString.length - 1);
         }
         return urlString;
+    }
+
+    private sanitizeUrlForLogging(kustoUri: string): string {
+        try {
+            const url = new URL(kustoUri);
+            // Remove query parameters to avoid logging sensitive information like sig=
+            return `${url.protocol}//${url.host}${url.pathname}`;
+        } catch {
+            // If URL parsing fails, return a safe fallback
+            return "[invalid-url]";
+        }
     }
 
     getAuthMetadataEndpointFromClusterUri(kustoUri: string): string {
