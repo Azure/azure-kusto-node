@@ -339,15 +339,15 @@ const main = (): void => {
                     .filter((i) => i.testOnStreamingIngestion)
                     .map((i) => {
                         return { item: i };
-                    })
+                    }),
             )("ingestFromBlob_$item.description", async ({ item }) => {
                 const blobName = uuidv4() + basename(item.path);
                 const result = await dmKustoClient.execute(databaseName, ".show export containers");
-                const container = result.primaryResults?.[0]?.toJSON<{"StorageRoot": string}>().data[0].StorageRoot;
+                const container = result.primaryResults?.[0]?.toJSON<{ StorageRoot: string }>().data[0].StorageRoot;
                 if (!container) {
                     assert.fail("Failed to get export containers");
                 }
-                const blockBlobClient = (new ContainerClient(container)).getBlockBlobClient(blobName);
+                const blockBlobClient = new ContainerClient(container).getBlockBlobClient(blobName);
                 const response = await blockBlobClient.uploadFile(item.path);
                 if (response.errorCode) {
                     assert.fail(`Failed to upload blob ${JSON.stringify(response)}`);
