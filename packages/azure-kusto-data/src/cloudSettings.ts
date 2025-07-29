@@ -77,15 +77,6 @@ class CloudSettings {
         return this.cloudCache[cacheKey];
     }
 
-    private normalizeUrl(kustoUri: string) {
-        const url = new URL(kustoUri);
-        const urlString = url.toString();
-        if (urlString.endsWith("/")) {
-            return urlString.slice(0, urlString.length - 1);
-        }
-        return urlString;
-    }
-
     private getCacheKey(kustoUri: string): string {
         const url = new URL(kustoUri);
         // Return only the protocol and host (includes port if non-standard)
