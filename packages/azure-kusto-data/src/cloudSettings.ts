@@ -30,17 +30,17 @@ class CloudSettings {
     cloudCache: { [kustoUri: string]: CloudInfo } = {};
 
     writeToCache(url: string, info?: CloudInfo) {
-        this.cloudCache[this.normalizeUrl(url)] = info ?? this.defaultCloudInfo;
+        this.cloudCache[this.getCacheKey(url)] = info ?? this.defaultCloudInfo;
     }
 
-    getFromCache = (kustoUri: string) => this.cloudCache[this.normalizeUrl(kustoUri)];
+    getFromCache = (kustoUri: string) => this.cloudCache[this.getCacheKey(kustoUri)];
 
-    deleteFromCache = (kustoUri: string) => delete this.cloudCache[this.normalizeUrl(kustoUri)];
+    deleteFromCache = (kustoUri: string) => delete this.cloudCache[this.getCacheKey(kustoUri)];
 
     async getCloudInfoForCluster(kustoUri: string): Promise<CloudInfo> {
-        kustoUri = this.normalizeUrl(kustoUri);
-        if (kustoUri in this.cloudCache) {
-            return this.cloudCache[kustoUri];
+        const cacheKey = this.getCacheKey(kustoUri);
+        if (cacheKey in this.cloudCache) {
+            return this.cloudCache[cacheKey];
         }
 
         try {
@@ -59,7 +59,7 @@ class CloudSettings {
                 maxRedirects: 0,
             });
             if (response.status === 200) {
-                this.cloudCache[kustoUri] = response.data.AzureAD || this.defaultCloudInfo;
+                this.cloudCache[cacheKey] = response.data.AzureAD || this.defaultCloudInfo;
             } else {
                 throw new Error(`Kusto returned an invalid cloud metadata response - ${response}`);
             }
@@ -68,13 +68,13 @@ class CloudSettings {
                 // Axios library has a bug in browser, not propagating the status code, see: https://github.com/axios/axios/issues/5330
                 if ((isNodeLike && ex.response?.status === 404) || (!isNodeLike && (!ex.code || ex.code === AXIOS_ERR_NETWORK))) {
                     // For now as long not all proxies implement the metadata endpoint, if no endpoint exists return public cloud data
-                    this.cloudCache[kustoUri] = this.defaultCloudInfo;
+                    this.cloudCache[cacheKey] = this.defaultCloudInfo;
                 } else {
                     throw new Error(`Failed to get cloud info for cluster ${kustoUri} - ${ex}`);
                 }
             }
         }
-        return this.cloudCache[kustoUri];
+        return this.cloudCache[cacheKey];
     }
 
     private normalizeUrl(kustoUri: string) {
@@ -84,6 +84,12 @@ class CloudSettings {
             return urlString.slice(0, urlString.length - 1);
         }
         return urlString;
+    }
+
+    private getCacheKey(kustoUri: string): string {
+        const url = new URL(kustoUri);
+        // Return only the protocol and host (includes port if non-standard)
+        return `${url.protocol}//${url.host}`;
     }
 
     getAuthMetadataEndpointFromClusterUri(kustoUri: string): string {
