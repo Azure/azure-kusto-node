@@ -8,7 +8,6 @@
         "paths": {
             "azure-kusto-data": ["./src/index"]
         },
-        "lib": ["ES6", "dom"],
         "composite": true
     }
 }

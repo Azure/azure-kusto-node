@@ -1,41 +1,24 @@
 {
-  "compilerOptions": {
-    "target": "ES2023",
-    "module": "NodeNext",
-    "esModuleInterop": true,
-    "strict": true,
-    "incremental": true,
-    "sourceMap": true,
-    "resolveJsonModule": true,
-    "allowJs": false,
-    "declaration": true,
-    "declarationMap": true,
-    "noUnusedParameters": true,
-    "inlineSources": true,
-    "lib": [
-      "ES2023",
-      "dom"
-    ]
-  },
-  "include": [
-    "webpack.config.ts",
-    "${configDir}/src/**/*.ts",
-    "${configDir}/test/**/*.ts",
-    "${configDir}/src/**/*.json",
-    "${configDir}/test/**/*.json"
-  ],
-  "exclude": [
-    "jest.config.ts"
-  ],
-  "compilerOptions": {
-    "declarationDir": "./types",
-    "outDir": "./dist-esm",
-    "resolveJsonModule": true,
-    "paths": {
-      "azure-kusto-data": [
-        "./src/index"
-      ]
+    "compilerOptions": {
+        "target": "ES2023",
+        "module": "NodeNext",
+        "esModuleInterop": true,
+        "strict": true,
+        "incremental": true,
+        "sourceMap": true,
+        "resolveJsonModule": true,
+        "allowJs": false,
+        "declaration": true,
+        "declarationMap": true,
+        "noUnusedParameters": true,
+        "inlineSources": true,
+        "lib": ["ES2023", "DOM"],
     },
-    "composite": true
-  }
+    "include": [
+        "webpack.config.ts"
+    ],
+    "exclude": [
+        "node_modules",
+        "jest.config.ts"
+    ]
 }

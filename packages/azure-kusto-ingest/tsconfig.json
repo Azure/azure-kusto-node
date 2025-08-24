@@ -10,7 +10,6 @@
         "paths": {
             "azure-kusto-ingest": ["./src/index"]
         },
-        "lib": ["ES6", "dom"]
     },
     "references": [
         {
