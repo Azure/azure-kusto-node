@@ -3,8 +3,8 @@
 
 import { isNodeLike } from "@azure/core-util";
 import axios, { type AxiosInstance, type AxiosRequestConfig, type RawAxiosRequestHeaders } from "axios";
-import http from "http";
-import https from "https";
+import http from "node:http";
+import https from "node:https";
 import { v4 as uuidv4 } from "uuid";
 import type { KustoHeaders } from "./clientDetails.js";
 import ClientRequestProperties from "./clientRequestProperties.js";

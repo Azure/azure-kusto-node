@@ -5,7 +5,7 @@ import type { IngestionPropertiesInput } from "./ingestionProperties.js";
 
 import { isNodeLike } from "@azure/core-util";
 import { KustoConnectionStringBuilder, type KustoResponseDataSet } from "azure-kusto-data";
-import type { Readable } from "stream";
+import type { Readable } from "node:stream";
 import { AbstractKustoClient } from "./abstractKustoClient.js";
 import { type AbstractDescriptor, BlobDescriptor, StreamDescriptor } from "./descriptors.js";
 import { FileDescriptor } from "./fileDescriptor.js";

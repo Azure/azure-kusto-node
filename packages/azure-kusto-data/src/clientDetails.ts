@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { isNodeLike } from "@azure/core-util";
-import { userInfo } from "os";
+import { userInfo } from "node:os";
 import { SDK_VERSION } from "./version.js";
 
 // eslint-disable-next-line @typescript-eslint/no-namespace,@typescript-eslint/no-unused-vars -- This is the correct way to augment the global namespace
@@ -65,7 +65,7 @@ export class ClientDetails {
     static defaultVersion(): string {
         return ClientDetails.formatHeader([
             ["Kusto.JavaScript.Client", SDK_VERSION],
-            ["Runtime." + (isNodeLike ? "Node" : "Browser"), (isNodeLike ? process.version : window?.navigator?.userAgent) || None],
+            [`Runtime.${isNodeLike ? "Node" : "Browser"}`, (isNodeLike ? process.version : window?.navigator?.userAgent) || None],
         ]);
     }
 
@@ -90,12 +90,12 @@ export class ClientDetails {
         override_user: string | null = null,
         additional_fields: [string, string][] | null = null,
     ): ClientDetails {
-        const params: [string, string][] = [["Kusto." + ClientDetails.escapeHeader(name, false), version]];
+        const params: [string, string][] = [[`Kusto.${ClientDetails.escapeHeader(name, false)}`, version]];
 
         app_name = app_name || ClientDetails.defaultApplication();
         app_version = app_version || None;
 
-        params.push(["App." + ClientDetails.escapeHeader(app_name), app_version]);
+        params.push([`App.${ClientDetails.escapeHeader(app_name)}`, app_version]);
         params.push(...(additional_fields || []));
 
         let user = None;

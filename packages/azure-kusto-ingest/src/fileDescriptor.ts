@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import zlib from "zlib";
-import pathlib from "path";
-import fs from "fs";
+import zlib from "node:zlib";
+import pathlib from "node:path";
+import fs from "node:fs";
 import { file as tmpFile } from "tmp-promise";
-import { promisify } from "util";
+import { promisify } from "node:util";
 import { AbstractDescriptor, CompressionType, type FileDescriptorBase, shouldCompressFileByExtension } from "./descriptors.js";
 import { type IngestionPropertiesInput, shouldCompressFileByFormat } from "./ingestionProperties.js";
 

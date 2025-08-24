@@ -77,7 +77,7 @@ const getPropName = (key: string): [string, MappingType] => {
             return [keyword, k];
         }
     }
-    throw new Error("Failed to get prop: " + key);
+    throw new Error(`Failed to get prop: ${key}`);
 };
 
 export abstract class KustoConnectionStringBuilderBase {
@@ -120,7 +120,7 @@ export abstract class KustoConnectionStringBuilderBase {
         }
 
         if (!!connectionString && connectionString.split(";")[0].indexOf("=") === -1) {
-            connectionString = "Data Source=" + connectionString;
+            connectionString = `Data Source=${connectionString}`;
         }
 
         const params = connectionString.split(";");

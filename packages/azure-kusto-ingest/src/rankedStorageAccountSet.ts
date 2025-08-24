@@ -8,7 +8,7 @@ export class RankedStorageAccountSet {
     public static readonly DefaultBucketDurationInSeconds: number = 10;
     public static readonly DefaultTiers: number[] = [90, 70, 30, 0];
     public static readonly DefaultTimeProviderInSeconds: () => number = () => {
-        return new Date().getTime() / 1000;
+        return Date.now()/ 1000;
     };
 
     private accounts: Map<string, RankedStorageAccount>;

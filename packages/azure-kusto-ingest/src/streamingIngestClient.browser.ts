@@ -3,16 +3,13 @@
 
 import type { IngestionPropertiesInput } from "./ingestionProperties.js";
 
-import type { KustoConnectionStringBuilder, KustoResponseDataSet } from "azure-kusto-data";
+import type { KustoResponseDataSet } from "azure-kusto-data";
 import { StreamDescriptor } from "./descriptors.js";
 import { FileDescriptor } from "./fileDescriptor.browser.js";
 import { tryFileToBuffer } from "./streamUtils.browser.js";
 import { KustoStreamingIngestClientBase } from "./streamingIngestClientBase.js";
 
 class KustoStreamingIngestClient extends KustoStreamingIngestClientBase {
-    constructor(kcsb: string | KustoConnectionStringBuilder, defaultProps?: IngestionPropertiesInput, autoCorrectEndpoint?: boolean) {
-        super(kcsb, defaultProps, autoCorrectEndpoint);
-    }
 
     /**
      * Use Readable for Node.js and ArrayBuffer in browser

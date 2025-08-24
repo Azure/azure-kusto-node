@@ -46,7 +46,7 @@ export abstract class TokenProviderBase {
     protected constructor(kustoUri: string) {
         this.kustoUri = kustoUri;
         if (kustoUri != null) {
-            const suffix = (!this.kustoUri.endsWith("/") ? "/" : "") + ".default";
+            const suffix = `${!this.kustoUri.endsWith("/") ? "/" : ""}.default`;
             this.scopes = [kustoUri + suffix];
         }
     }
@@ -114,7 +114,7 @@ export abstract class CloudSettingsTokenProvider extends TokenProviderBase {
                 if (this.cloudInfo.LoginMfaRequired) {
                     resourceUri = resourceUri.replace(".kusto.", ".kustomfa.");
                 }
-                this.scopes = [resourceUri + "/.default"];
+                this.scopes = [`${resourceUri}/.default`];
                 this.additionalCloudSettingsInit();
                 this.initClient();
             }

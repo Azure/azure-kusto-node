@@ -1,4 +1,4 @@
-import * as path from "path";
+import * as path from "node:path";
 import * as webpack from "webpack";
 
 // This is a very lean example of a webpack config file to use for using the browser

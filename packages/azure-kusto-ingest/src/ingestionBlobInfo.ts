@@ -53,10 +53,10 @@ export class IngestionBlobInfo {
             tags.push(...ingestionProperties.additionalTags);
         }
         if (ingestionProperties.dropByTags) {
-            tags.push(...ingestionProperties.dropByTags.map((t) => "drop-by:" + t));
+            tags.push(...ingestionProperties.dropByTags.map((t) => `drop-by:${t}`));
         }
         if (ingestionProperties.ingestByTags) {
-            tags.push(...ingestionProperties.ingestByTags.map((t) => "ingest-by:" + t));
+            tags.push(...ingestionProperties.ingestByTags.map((t) => `ingest-by:${t}`));
         }
 
         if (tags.length > 0) {

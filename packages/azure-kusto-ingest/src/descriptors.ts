@@ -3,7 +3,7 @@
 
 import { v4 as uuidv4 } from "uuid";
 import uuidValidate from "uuid-validate";
-import type { Readable } from "stream";
+import type { Readable } from "node:stream";
 import type IngestionProperties from "./ingestionProperties.js";
 import { BlobClient } from "@azure/storage-blob";
 
@@ -98,7 +98,7 @@ export interface FileDescriptorBase {
 }
 
 export const generateBlobName = (desc: StreamDescriptor | FileDescriptorBase, props: IngestionProperties): string => {
-    const extension = desc instanceof StreamDescriptor ? null : `${desc.name ? "__" + desc.name : `${desc.extension ? "." + desc.extension : ""}`}`;
+    const extension = desc instanceof StreamDescriptor ? null : `${desc.name ? `__${desc.name}` : `${desc.extension ? `.${desc.extension}` : ""}`}`;
 
     const formatSuffix = props.format ? `.${props.format}` : ".csv";
     const compressionString = desc.getCompressionSuffix();

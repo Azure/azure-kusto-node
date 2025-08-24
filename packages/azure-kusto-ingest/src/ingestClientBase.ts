@@ -22,7 +22,7 @@ import {
     OperationStatus,
     putRecordInTable,
 } from "./ingestionResult.js";
-import type { Readable } from "stream";
+import type { Readable } from "node:stream";
 
 import { BlobDescriptor, StreamDescriptor } from "./descriptors.js";
 
@@ -138,7 +138,7 @@ export abstract class KustoIngestClientBase extends AbstractKustoClient {
             const containerClient = new ContainerClient(containers[i].uri);
             const blockBlobClient = containerClient.getBlockBlobClient(blobName);
             try {
-                if (typeof descriptor == "string") {
+                if (typeof descriptor === "string") {
                     await blockBlobClient.uploadFile(descriptor);
                 } else if (descriptor instanceof StreamDescriptor) {
                     if (descriptor.stream instanceof Buffer) {
@@ -151,7 +151,7 @@ export abstract class KustoIngestClientBase extends AbstractKustoClient {
                 }
                 this.resourceManager.reportResourceUsageResult(containerClient.accountName, true);
                 return blockBlobClient.url;
-            } catch (ex) {
+            } catch (_ex) {
                 this.resourceManager.reportResourceUsageResult(containerClient.accountName, false);
             }
         }

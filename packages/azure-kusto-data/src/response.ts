@@ -97,7 +97,7 @@ export abstract class KustoResponseDataSet {
                 }
             }
         }
-        if (this.dataSetCompletion && this.dataSetCompletion.HasErrors) {
+        if (this.dataSetCompletion?.HasErrors) {
             errors += 1;
         }
 
@@ -121,7 +121,7 @@ export abstract class KustoResponseDataSet {
 
     getExceptions(): string[] {
         const result = this.getErrorsByLevel(ErrorLevels.Error);
-        if (this.dataSetCompletion && this.dataSetCompletion.HasErrors && this.dataSetCompletion.OneApiErrors) {
+        if (this.dataSetCompletion?.HasErrors && this.dataSetCompletion.OneApiErrors) {
             for (const row of this.dataSetCompletion.OneApiErrors) {
                 result.push((row as { error: { "@message": string } }).error["@message"]);
             }

@@ -273,7 +273,7 @@ export class ResourceManager {
             throw new Error("Failed to get status table");
         }
 
-        return createStatusTableClient(statusTables![0].uri);
+        return createStatusTableClient(statusTables?.[0].uri);
     }
 
     close(): void {

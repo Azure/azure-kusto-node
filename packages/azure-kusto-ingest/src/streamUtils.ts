@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import fs from "fs";
-import { PassThrough, type Readable } from "stream";
+import fs from "node:fs";
+import { PassThrough, type Readable } from "node:stream";
 import streamify from "stream-array";
 import { CompressionType, StreamDescriptor } from "./descriptors.js";
 import type { FileDescriptor } from "./fileDescriptor.js";
@@ -20,7 +20,7 @@ export const tryFileToBuffer = async (fileDescriptor: FileDescriptor): Promise<S
         const buffer = fs.readFileSync(fileDescriptor.file as string);
         const compressionType = fileDescriptor.zipped ? CompressionType.GZIP : CompressionType.None;
         return new StreamDescriptor(buffer, fileDescriptor.sourceId, compressionType);
-    } catch (error) {
+    } catch (_error) {
         return await fileToStream(fileDescriptor);
     }
 };

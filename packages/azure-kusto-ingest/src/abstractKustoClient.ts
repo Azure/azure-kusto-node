@@ -58,7 +58,7 @@ export abstract class AbstractKustoClient {
     }
 
     getQueryEndpoint(clusterUrl?: string): string | undefined {
-        if (clusterUrl && clusterUrl.includes(INGEST_PREFIX)) {
+        if (clusterUrl?.includes(INGEST_PREFIX)) {
             return clusterUrl.replace(INGEST_PREFIX, "");
         }
         return clusterUrl;

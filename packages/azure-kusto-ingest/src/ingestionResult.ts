@@ -17,7 +17,7 @@ export const putRecordInTable = async (tableClient: TableClient, entity: TableEn
     while (retry.shouldTry()) {
         try {
             await tableClient.createEntity(entity);
-        } catch (ex) {
+        } catch (_ex) {
             await retry.backoff();
         }
     }

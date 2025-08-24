@@ -33,7 +33,7 @@ export class FileDescriptor extends AbstractDescriptor implements FileDescriptor
             try {
                 const gzipped = pako.gzip(await this.file.arrayBuffer());
                 return new Blob([gzipped]);
-            } catch (e) {
+            } catch (_e) {
                 // Ignore - return the file itself
             }
         }

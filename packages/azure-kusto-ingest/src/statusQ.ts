@@ -80,7 +80,7 @@ export class StatusQueue {
 
             for (const m of messages) {
                 if (m && Object.keys(m).length > 0) {
-                    result.push(options && options.raw ? m : this.deserializeMessage(m));
+                    result.push(options?.raw ? m : this.deserializeMessage(m));
 
                     if (result.length === n) {
                         return { done: true, nonEmptyQs, result };
@@ -121,7 +121,7 @@ export class StatusQueue {
             const messages = response.receivedMessageItems;
             for (const m of messages) {
                 if (m && Object.keys(m).length > 0) {
-                    result.push(options && options.raw ? m : this.deserializeMessage(m));
+                    result.push(options?.raw ? m : this.deserializeMessage(m));
 
                     if (!(options && !options.remove)) {
                         await q.service.deleteMessage(m.messageId, m.popReceipt);
