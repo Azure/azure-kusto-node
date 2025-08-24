@@ -1,0 +1,66 @@
+{
+	"$schema": "https://biomejs.dev/schemas/2.2.2/schema.json",
+	"vcs": { "enabled": false, "clientKind": "git", "useIgnoreFile": false },
+	"files": { "ignoreUnknown": false },
+	"formatter": {
+		"enabled": true,
+		"formatWithErrors": false,
+		"indentStyle": "space",
+		"indentWidth": 4,
+		"lineEnding": "lf",
+		"lineWidth": 160,
+		"attributePosition": "auto",
+		"bracketSameLine": false,
+		"bracketSpacing": true,
+		"expand": "auto",
+		"useEditorconfig": true,
+		"includes": [
+			"**",
+			"!**/node_modules",
+			"!**/*.d.ts",
+			"!**/*.js",
+			"**/example.js",
+			"!**/coverage",
+			"!**/.nyc_output",
+			"!**/test/data/*",
+			"!**/test/**/e2eData/*",
+			"!**/coverage",
+			"!**/.nyc_output",
+			"!**/lerna.json",
+			"!**/.github",
+			"!**/.eslintignore",
+			"!**/.eslintrc.js",
+			"!**/README.md",
+			"!**/CODE_OF_CONDUCT.md",
+			"!**/CONTRIBUTING.md",
+			"!**/codecov.yml",
+			"!**/.prettierrc.json",
+			"!**/package.json",
+			"!**/package-lock.json",
+			"!**/tsconfig.json",
+			"!**/.idea",
+			"!**/.mocharc.json",
+			"!**/test/data/**/*",
+			"!**/wellKnownKustoEndpoints.ts"
+		]
+	},
+	"linter": { "enabled": true, "rules": { "recommended": true } },
+	"javascript": {
+		"formatter": {
+			"jsxQuoteStyle": "double",
+			"quoteProperties": "asNeeded",
+			"trailingCommas": "all",
+			"semicolons": "asNeeded",
+			"arrowParentheses": "always",
+			"bracketSameLine": false,
+			"quoteStyle": "single",
+			"attributePosition": "auto",
+			"bracketSpacing": true
+		}
+	},
+	"html": { "formatter": { "selfCloseVoidElements": "always" } },
+	"assist": {
+		"enabled": true,
+		"actions": { "source": { "organizeImports": "on" } }
+	}
+}

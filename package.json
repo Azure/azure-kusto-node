@@ -26,6 +26,7 @@
         "watch": "lerna exec --stream --parallel -- tsc -b -w"
     },
     "devDependencies": {
+        "@biomejs/biome": "2.2.2",
         "@types/jest": "^29.5.12",
         "@types/node": "^20.14.8",
         "@types/webpack-dev-server": "^4.7.2",
