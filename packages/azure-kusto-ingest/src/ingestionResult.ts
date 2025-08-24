@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { TableClient, TableEntity } from "@azure/data-tables";
+import type { TableClient, TableEntity } from "@azure/data-tables";
 import { ExponentialRetry } from "./retry.js";
 import { createStatusTableClient } from "./resourceManager.js";
 export interface IngestionResult {

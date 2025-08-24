@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { Config } from "jest";
+import type { Config } from "jest";
 import type { JestConfigWithTsJest } from "ts-jest";
 import { createDefaultEsmPreset } from "ts-jest";
 

@@ -6,8 +6,8 @@ import pathlib from "path";
 import fs from "fs";
 import { file as tmpFile } from "tmp-promise";
 import { promisify } from "util";
-import { AbstractDescriptor, CompressionType, FileDescriptorBase, shouldCompressFileByExtension } from "./descriptors.js";
-import { IngestionPropertiesInput, shouldCompressFileByFormat } from "./ingestionProperties.js";
+import { AbstractDescriptor, CompressionType, type FileDescriptorBase, shouldCompressFileByExtension } from "./descriptors.js";
+import { type IngestionPropertiesInput, shouldCompressFileByFormat } from "./ingestionProperties.js";
 
 /**
  * Describes a file to be ingested. Use string to describe a local path in Node.JS and Blob object in browsers

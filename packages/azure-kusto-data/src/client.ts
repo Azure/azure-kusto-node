@@ -2,17 +2,17 @@
 // Licensed under the MIT License.
 
 import { isNodeLike } from "@azure/core-util";
-import axios, { AxiosInstance, AxiosRequestConfig, RawAxiosRequestHeaders } from "axios";
+import axios, { type AxiosInstance, type AxiosRequestConfig, type RawAxiosRequestHeaders } from "axios";
 import http from "http";
 import https from "https";
 import { v4 as uuidv4 } from "uuid";
-import { KustoHeaders } from "./clientDetails.js";
+import type { KustoHeaders } from "./clientDetails.js";
 import ClientRequestProperties from "./clientRequestProperties.js";
 import CloudSettings from "./cloudSettings.js";
 import ConnectionStringBuilder from "./connectionBuilder.js";
 import { ThrottlingError } from "./errors.js";
 import { kustoTrustedEndpoints } from "./kustoTrustedEndpoints.js";
-import { KustoResponseDataSet, KustoResponseDataSetV1, KustoResponseDataSetV2, V1, V2Frames } from "./response.js";
+import { type KustoResponseDataSet, KustoResponseDataSetV1, KustoResponseDataSetV2, type V1, type V2Frames } from "./response.js";
 import AadHelper from "./security.js";
 import { toMilliseconds } from "./timeUtils.js";
 

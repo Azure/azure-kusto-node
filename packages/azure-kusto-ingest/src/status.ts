@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 import { StatusQueue } from "./statusQ.js";
-import KustoIngestClient from "./ingestClient.js";
-import { ResourceURI } from "./resourceManager.js";
+import type KustoIngestClient from "./ingestClient.js";
+import type { ResourceURI } from "./resourceManager.js";
 
 export class StatusMessage {
     OperationId?: string;

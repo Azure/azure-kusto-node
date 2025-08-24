@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { IngestionPropertiesInput } from "./ingestionProperties.js";
+import type { IngestionPropertiesInput } from "./ingestionProperties.js";
 
 import { BlobDescriptor } from "./descriptors.js";
 import { AbstractKustoClient } from "./abstractKustoClient.js";

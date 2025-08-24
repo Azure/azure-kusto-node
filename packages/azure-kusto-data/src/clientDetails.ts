@@ -63,7 +63,7 @@ export class ClientDetails {
     }
 
     static defaultVersion(): string {
-        return this.formatHeader([
+        return ClientDetails.formatHeader([
             ["Kusto.JavaScript.Client", SDK_VERSION],
             ["Runtime." + (isNodeLike ? "Node" : "Browser"), (isNodeLike ? process.version : window?.navigator?.userAgent) || None],
         ]);
@@ -77,7 +77,7 @@ export class ClientDetails {
     static formatHeader(args: [string, string][]): string {
         return args
             .filter(([key, val]) => key && val)
-            .map(([key, val]) => `${key}:${this.escapeHeader(val)}`)
+            .map(([key, val]) => `${key}:${ClientDetails.escapeHeader(val)}`)
             .join("|");
     }
 
@@ -90,21 +90,21 @@ export class ClientDetails {
         override_user: string | null = null,
         additional_fields: [string, string][] | null = null,
     ): ClientDetails {
-        const params: [string, string][] = [["Kusto." + this.escapeHeader(name, false), version]];
+        const params: [string, string][] = [["Kusto." + ClientDetails.escapeHeader(name, false), version]];
 
-        app_name = app_name || this.defaultApplication();
+        app_name = app_name || ClientDetails.defaultApplication();
         app_version = app_version || None;
 
-        params.push(["App." + this.escapeHeader(app_name), app_version]);
+        params.push(["App." + ClientDetails.escapeHeader(app_name), app_version]);
         params.push(...(additional_fields || []));
 
         let user = None;
 
         if (send_user) {
-            user = override_user || this.defaultUser();
+            user = override_user || ClientDetails.defaultUser();
         }
 
-        return new ClientDetails(this.formatHeader(params), user);
+        return new ClientDetails(ClientDetails.formatHeader(params), user);
     }
 
     getHeaders(): Partial<KustoHeaders> {

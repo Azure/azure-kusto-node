@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { DeviceCodeInfo, InteractiveBrowserCredentialInBrowserOptions, InteractiveBrowserCredentialNodeOptions, TokenCredential } from "@azure/identity";
+import type { DeviceCodeInfo, InteractiveBrowserCredentialInBrowserOptions, InteractiveBrowserCredentialNodeOptions, TokenCredential } from "@azure/identity";
 import { KustoConnectionStringBuilderBase } from "./connectionBuilderBase.js";
 
 /*
@@ -112,11 +112,11 @@ export class KustoConnectionStringBuilder extends KustoConnectionStringBuilderBa
     }
 
     static withSystemManagedIdentity(connectionString: string, authorityId?: string, timeoutMs?: number): KustoConnectionStringBuilder {
-        return this.withAadManagedIdentities(connectionString, undefined, authorityId, timeoutMs);
+        return KustoConnectionStringBuilder.withAadManagedIdentities(connectionString, undefined, authorityId, timeoutMs);
     }
 
     static withUserManagedIdentity(connectionString: string, msiClientId: string, authorityId?: string, timeoutMs?: number): KustoConnectionStringBuilder {
-        return this.withAadManagedIdentities(connectionString, msiClientId, authorityId, timeoutMs);
+        return KustoConnectionStringBuilder.withAadManagedIdentities(connectionString, msiClientId, authorityId, timeoutMs);
     }
 
     static withAzLoginIdentity(connectionString: string, authorityId?: string, timeoutMs?: number): KustoConnectionStringBuilder {

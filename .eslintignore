@@ -1,8 +1,0 @@
-node_modules
-**/*.d.ts
-**/*.js
-coverage
-.nyc_output
-jest.config.ts
-# Don't lint example files
-packages/quick_start

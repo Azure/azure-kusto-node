@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { IngestionPropertiesValidationError } from "./errors.js";
-import { ColumnMapping } from "./columnMappings.js";
+import type { ColumnMapping } from "./columnMappings.js";
 
 /**
  * Data formats supported for Kusto ingestion.

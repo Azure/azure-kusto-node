@@ -1,19 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { IngestionPropertiesInput } from "./ingestionProperties.js";
+import type { IngestionPropertiesInput } from "./ingestionProperties.js";
 
 import { isNodeLike } from "@azure/core-util";
-import { KustoConnectionStringBuilder, KustoResponseDataSet } from "azure-kusto-data";
-import { Readable } from "stream";
+import { KustoConnectionStringBuilder, type KustoResponseDataSet } from "azure-kusto-data";
+import type { Readable } from "stream";
 import { AbstractKustoClient } from "./abstractKustoClient.js";
-import { AbstractDescriptor, BlobDescriptor, StreamDescriptor } from "./descriptors.js";
+import { type AbstractDescriptor, BlobDescriptor, StreamDescriptor } from "./descriptors.js";
 import { FileDescriptor } from "./fileDescriptor.js";
 import IngestClient from "./ingestClient.js";
 import { ExponentialRetry } from "./retry.js";
 import { readableToStream, tryFileToBuffer, tryStreamToArray } from "./streamUtils.js";
 import StreamingIngestClient from "./streamingIngestClient.js";
-import { IngestionResult } from "./ingestionResult.js";
+import type { IngestionResult } from "./ingestionResult.js";
 
 const maxStreamSize = 1024 * 1024 * 4;
 const attemptCount = 3;

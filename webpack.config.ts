@@ -5,7 +5,7 @@ import * as webpack from "webpack";
 // implementation of the package. It is using the compiled files of the ingest library and will load its index.js file.
 // USAGE: npm run webpack
 
-let config = {
+const config = {
     entry: {
         index: "./packages/azure-kusto-ingest/dist-esm/src/index",
     },

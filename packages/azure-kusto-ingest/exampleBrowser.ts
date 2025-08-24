@@ -13,7 +13,7 @@
 
 import { KustoConnectionStringBuilder, Client as KustoClient } from "azure-kusto-data/";
 import { DataFormat, IngestClient, IngestionDescriptors, IngestionProperties } from "azure-kusto-ingest";
-import { InteractiveBrowserCredentialInBrowserOptions } from "@azure/identity";
+import type { InteractiveBrowserCredentialInBrowserOptions } from "@azure/identity";
 const database = "<databaseName>";
 const table = "<tableName>";
 const clusterName = "<clusterName>.<region>";

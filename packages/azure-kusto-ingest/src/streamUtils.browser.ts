@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { CompressionType, StreamDescriptor } from "./descriptors.js";
-import { FileDescriptor } from "./fileDescriptor.browser.js";
+import type { FileDescriptor } from "./fileDescriptor.browser.js";
 
 export const fileToStream = async (file: FileDescriptor): Promise<StreamDescriptor> => {
     const streamFs = await (file.file as Blob).arrayBuffer();

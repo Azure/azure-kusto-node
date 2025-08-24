@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import KustoConnectionStringBuilder from "./connectionBuilder.js";
+import type KustoConnectionStringBuilder from "./connectionBuilder.js";
 import * as TokenProvider from "./tokenProvider.js";
 import { KustoAuthenticationError } from "./errors.js";
-import { BasicTokenProvider, CallbackTokenProvider, TokenProviderBase, UserPromptProvider, TokenCredentialProvider } from "./tokenProvider.js";
+import { BasicTokenProvider, CallbackTokenProvider, type TokenProviderBase, UserPromptProvider, TokenCredentialProvider } from "./tokenProvider.js";
 
 export class AadHelper {
     tokenProvider?: TokenProviderBase;

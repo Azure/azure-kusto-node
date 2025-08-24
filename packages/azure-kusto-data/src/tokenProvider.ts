@@ -5,17 +5,17 @@ import {
     ManagedIdentityCredential,
     ClientSecretCredential,
     ClientCertificateCredential,
-    ClientCertificateCredentialOptions,
-    ClientCertificatePEMCertificate,
+    type ClientCertificateCredentialOptions,
+    type ClientCertificatePEMCertificate,
     DeviceCodeCredential,
-    DeviceCodeInfo,
+    type DeviceCodeInfo,
     UsernamePasswordCredential,
-    InteractiveBrowserCredentialInBrowserOptions,
-    InteractiveBrowserCredentialNodeOptions,
+    type InteractiveBrowserCredentialInBrowserOptions,
+    type InteractiveBrowserCredentialNodeOptions,
     InteractiveBrowserCredential,
 } from "@azure/identity";
-import { TokenCredential } from "@azure/core-auth";
-import { CloudInfo, CloudSettings } from "./cloudSettings.js";
+import type { TokenCredential } from "@azure/core-auth";
+import { type CloudInfo, CloudSettings } from "./cloudSettings.js";
 
 export declare type TokenResponse = {
     tokenType: string;

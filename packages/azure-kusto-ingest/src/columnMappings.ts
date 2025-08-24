@@ -58,7 +58,7 @@ export abstract class ColumnMapping {
         if (this.Properties) {
             result.Properties = {};
             for (const key in this.Properties) {
-                if (Object.prototype.hasOwnProperty.call(this.Properties, key)) {
+                if (Object.hasOwn(this.Properties, key)) {
                     const typedKey = key as keyof MappingProperties;
                     const property = this.Properties[typedKey];
 

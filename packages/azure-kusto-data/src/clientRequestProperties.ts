@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { KustoHeaders } from "./clientDetails.js";
+import type { KustoHeaders } from "./clientDetails.js";
 
 const SDK_API_VERSION = "2024-12-12"; // TODO: Update when new API version is released
 

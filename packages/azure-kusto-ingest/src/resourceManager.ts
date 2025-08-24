@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { Client, KustoDataErrors, TimeUtils } from "azure-kusto-data";
+import { type Client, KustoDataErrors, TimeUtils } from "azure-kusto-data";
 import { ExponentialRetry } from "./retry.js";
 import { ContainerClient } from "@azure/storage-blob";
 import { TableClient } from "@azure/data-tables";
@@ -164,7 +164,7 @@ export class ResourceManager {
     getRankedAndShuffledStorageAccounts(resources: ResourceURI[]): ResourceURI[][] {
         const resourcesByAccount = this.groupResourcesByStorageAccount(resources);
         const rankedStorageAccounts = this.rankedStorageAccountSet.getRankedShuffledAccounts();
-        const result = new Array<ResourceURI[]>();
+        const result: (ResourceURI[])[] = [];
         for (const account of rankedStorageAccounts) {
             const accountName = account.getAccountName();
             if (resourcesByAccount.has(accountName)) {
@@ -176,7 +176,7 @@ export class ResourceManager {
 
     getRoundRobinRankedAndShuffledResources(resources: ResourceURI[]): ResourceURI[] {
         const rankedAccounts = this.getRankedAndShuffledStorageAccounts(resources);
-        const result = new Array<ResourceURI>();
+        const result: ResourceURI[] = [];
         let index = 0;
         while (result.length < resources.length) {
             const account = rankedAccounts[index % rankedAccounts.length];

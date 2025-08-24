@@ -3,8 +3,8 @@
 
 import { v4 as uuidv4 } from "uuid";
 import uuidValidate from "uuid-validate";
-import { Readable } from "stream";
-import IngestionProperties from "./ingestionProperties.js";
+import type { Readable } from "stream";
+import type IngestionProperties from "./ingestionProperties.js";
 import { BlobClient } from "@azure/storage-blob";
 
 export enum CompressionType {

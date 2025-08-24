@@ -10,18 +10,19 @@ import { ContainerClient } from "@azure/storage-blob";
 
 import { QueueClient } from "@azure/storage-queue";
 
-import IngestionProperties, { IngestionPropertiesInput, ReportLevel, ReportMethod } from "./ingestionProperties.js";
+import type IngestionProperties from "./ingestionProperties.js";
+import { type IngestionPropertiesInput, ReportLevel, ReportMethod } from "./ingestionProperties.js"
 import { AbstractKustoClient } from "./abstractKustoClient.js";
 import {
-    IngestionStatus,
+    type IngestionStatus,
     TableReportIngestionResult,
-    IngestionResult,
+    type IngestionResult,
     IngestionStatusInTableDescription,
     IngestionStatusResult,
     OperationStatus,
     putRecordInTable,
 } from "./ingestionResult.js";
-import { Readable } from "stream";
+import type { Readable } from "stream";
 
 import { BlobDescriptor, StreamDescriptor } from "./descriptors.js";
 

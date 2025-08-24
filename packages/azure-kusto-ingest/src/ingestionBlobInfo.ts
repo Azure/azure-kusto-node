@@ -2,9 +2,10 @@
 // Licensed under the MIT License.
 
 import { v4 as uuidv4 } from "uuid";
-import { BlobDescriptor } from "./descriptors.js";
-import IngestionProperties, { ReportLevel, ReportMethod } from "./ingestionProperties.js";
-import { IngestionStatusInTableDescription } from "./ingestionResult.js";
+import type { BlobDescriptor } from "./descriptors.js";
+import type IngestionProperties from "./ingestionProperties.js";
+import type { ReportLevel, ReportMethod } from "./ingestionProperties.js";
+import type { IngestionStatusInTableDescription } from "./ingestionResult.js";
 
 export class IngestionBlobInfo {
     BlobPath: string;

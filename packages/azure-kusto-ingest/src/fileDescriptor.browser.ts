@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 import pako from "pako";
-import { AbstractDescriptor, CompressionType, FileDescriptorBase, shouldCompressFileByExtension } from "./descriptors.js";
-import { IngestionPropertiesInput, shouldCompressFileByFormat } from "./ingestionProperties.js";
+import { AbstractDescriptor, CompressionType, type FileDescriptorBase, shouldCompressFileByExtension } from "./descriptors.js";
+import { type IngestionPropertiesInput, shouldCompressFileByFormat } from "./ingestionProperties.js";
 
 export class FileDescriptor extends AbstractDescriptor implements FileDescriptorBase {
     size: number | null;

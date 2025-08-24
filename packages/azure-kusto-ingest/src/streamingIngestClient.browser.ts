@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { IngestionPropertiesInput } from "./ingestionProperties.js";
+import type { IngestionPropertiesInput } from "./ingestionProperties.js";
 
-import { KustoConnectionStringBuilder, KustoResponseDataSet } from "azure-kusto-data";
+import type { KustoConnectionStringBuilder, KustoResponseDataSet } from "azure-kusto-data";
 import { StreamDescriptor } from "./descriptors.js";
 import { FileDescriptor } from "./fileDescriptor.browser.js";
 import { tryFileToBuffer } from "./streamUtils.browser.js";

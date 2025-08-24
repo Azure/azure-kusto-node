@@ -30,7 +30,7 @@ export class ExponentialRetry {
             return;
         }
 
-        const base = this.sleepBaseSecs * Math.pow(2, this.currentAttempt - 1);
+        const base = this.sleepBaseSecs * 2 ** (this.currentAttempt - 1);
         const jitter = Math.floor(this.maxJitterSecs * Math.random());
         await sleep(1000 * (base + jitter));
     }
