@@ -1,5 +1,5 @@
 import * as path from "node:path";
-// @ts-ignore
+// @ts-expect-error
 import {NodeProtocolUrlPlugin} from "node-stdlib-browser/helpers/webpack/plugin";
 import stdLibBrowser from "node-stdlib-browser";
 import webpack from "webpack";

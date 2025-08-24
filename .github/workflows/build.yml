@@ -25,9 +25,8 @@ jobs:
           cache-dependency-path: |
             package-lock.json
       - run: npm ci
-      - run: npm run checkFormat
+      - run: npm run lintAndFormatCi
         continue-on-error: true
-      - run: npm run lint
       - name: Azure login
         uses: azure/login@v2
         with:

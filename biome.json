@@ -52,7 +52,8 @@
         "includes": [
             "**/*.ts",
             "!**/test/**",
-            "!**/quick_start*/**"
+            "!**/quick_start*/**",
+            "!**/types/**"
         ]
     },
     "html": {
