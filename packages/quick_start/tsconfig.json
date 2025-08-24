@@ -12,7 +12,7 @@
         "declarationMap": true,
         "noUnusedParameters": true,
         "moduleResolution": "node",
-        "lib":["es2016","DOM"]
+        "lib": ["es2016", "DOM"]
     },
     "include": ["**/src/**/*.ts", "**/test/**/*.ts", "**/index.ts"],
     "exclude": ["node_modules"]

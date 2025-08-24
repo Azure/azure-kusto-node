@@ -13,11 +13,6 @@
         "noUnusedParameters": true,
         "inlineSources": true
     },
-    "include": [
-        "webpack.config.ts"
-    ],
-    "exclude": [
-        "node_modules",
-        "jest.config.ts"
-    ]
+    "include": ["webpack.config.ts"],
+    "exclude": ["node_modules", "jest.config.ts"]
 }

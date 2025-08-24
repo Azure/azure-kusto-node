@@ -1,24 +1,14 @@
 {
-  "extends": "../../tsconfig.json",
-  "include": [
-    "src/**/*.ts",
-    "test/**/*.ts",
-    "src/**/*.json",
-    "test/**/*.json",
-  ],
-  "compilerOptions": {
-    "declarationDir": "./types",
-    "outDir": "./dist-esm",
-    "resolveJsonModule": true,
-    "paths": {
-      "azure-kusto-data": [
-        "./src/index"
-      ]
-    },
-    "lib": [
-      "ES6",
-      "dom"
-    ],
-    "composite": true
-  }
+    "extends": "../../tsconfig.json",
+    "include": ["src/**/*.ts", "test/**/*.ts", "src/**/*.json", "test/**/*.json"],
+    "compilerOptions": {
+        "declarationDir": "./types",
+        "outDir": "./dist-esm",
+        "resolveJsonModule": true,
+        "paths": {
+            "azure-kusto-data": ["./src/index"]
+        },
+        "lib": ["ES6", "dom"],
+        "composite": true
+    }
 }
