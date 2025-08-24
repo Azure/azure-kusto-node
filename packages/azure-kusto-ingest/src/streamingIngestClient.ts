@@ -12,7 +12,6 @@ import { fileToStream } from "./streamUtils.js";
 import { KustoStreamingIngestClientBase } from "./streamingIngestClientBase.js";
 
 class KustoStreamingIngestClient extends KustoStreamingIngestClientBase {
-
     /**
      * Use Readable for Node.js and ArrayBuffer in browser
      */

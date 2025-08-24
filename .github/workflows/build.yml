@@ -26,7 +26,6 @@ jobs:
             package-lock.json
       - run: npm ci
       - run: npm run lintAndFormatCi
-        continue-on-error: true
       - name: Azure login
         uses: azure/login@v2
         with:

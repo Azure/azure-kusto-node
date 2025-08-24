@@ -49,12 +49,7 @@
                 "noNonNullAssertion": "off"
             }
         },
-        "includes": [
-            "**/*.ts",
-            "!**/test/**",
-            "!**/quick_start*/**",
-            "!**/types/**"
-        ]
+        "includes": ["**/*.ts", "!**/test/**", "!**/quick_start*/**", "!**/types/**"]
     },
     "html": {
         "formatter": {
@@ -62,7 +57,7 @@
         }
     },
     "assist": {
-        "enabled": true,
+        "enabled": false,
         "actions": {
             "source": {
                 "organizeImports": "on"

@@ -11,7 +11,7 @@ import { ContainerClient } from "@azure/storage-blob";
 import { QueueClient } from "@azure/storage-queue";
 
 import type IngestionProperties from "./ingestionProperties.js";
-import { type IngestionPropertiesInput, ReportLevel, ReportMethod } from "./ingestionProperties.js"
+import { type IngestionPropertiesInput, ReportLevel, ReportMethod } from "./ingestionProperties.js";
 import { AbstractKustoClient } from "./abstractKustoClient.js";
 import {
     type IngestionStatus,

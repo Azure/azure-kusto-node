@@ -12,13 +12,8 @@
         "declarationMap": true,
         "noUnusedParameters": true,
         "inlineSources": true,
-        "lib": ["ES2023", "DOM"],
+        "lib": ["ES2023", "DOM"]
     },
-    "include": [
-        "webpack.config.ts"
-    ],
-    "exclude": [
-        "node_modules",
-        "jest.config.ts"
-    ]
+    "include": ["webpack.config.ts"],
+    "exclude": ["node_modules", "jest.config.ts"]
 }

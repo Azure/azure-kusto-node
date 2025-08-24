@@ -164,7 +164,7 @@ export class ResourceManager {
     getRankedAndShuffledStorageAccounts(resources: ResourceURI[]): ResourceURI[][] {
         const resourcesByAccount = this.groupResourcesByStorageAccount(resources);
         const rankedStorageAccounts = this.rankedStorageAccountSet.getRankedShuffledAccounts();
-        const result: (ResourceURI[])[] = [];
+        const result: ResourceURI[][] = [];
         for (const account of rankedStorageAccounts) {
             const accountName = account.getAccountName();
             if (resourcesByAccount.has(accountName)) {

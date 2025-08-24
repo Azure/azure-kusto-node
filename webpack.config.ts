@@ -1,6 +1,6 @@
 import * as path from "node:path";
 // @ts-expect-error
-import {NodeProtocolUrlPlugin} from "node-stdlib-browser/helpers/webpack/plugin";
+import { NodeProtocolUrlPlugin } from "node-stdlib-browser/helpers/webpack/plugin";
 import stdLibBrowser from "node-stdlib-browser";
 import webpack from "webpack";
 
@@ -22,14 +22,14 @@ const config = {
         extensions: [".ts", ".js"],
         alias: {
             ...stdLibBrowser,
-            "fs": false,
-            "os": false,
-            "process": false,
+            fs: false,
+            os: false,
+            process: false,
             "stream-http": false,
-            "https": false,
-            "http": false,
-            "crypto": false,
-        }
+            https: false,
+            http: false,
+            crypto: false,
+        },
     },
     devtool: "inline-source-map",
     devServer: {
@@ -42,19 +42,19 @@ const config = {
         new NodeProtocolUrlPlugin(),
         new webpack.ProvidePlugin({
             process: stdLibBrowser.process,
-            Buffer: [stdLibBrowser.buffer, 'Buffer']
-        })
+            Buffer: [stdLibBrowser.buffer, "Buffer"],
+        }),
     ],
     module: {
         rules: [
             {
                 test: /\.m?js$/,
                 resolve: {
-                    fullySpecified: false
-                }
-            }
-        ]
-    }
+                    fullySpecified: false,
+                },
+            },
+        ],
+    },
 };
 
 export default config;

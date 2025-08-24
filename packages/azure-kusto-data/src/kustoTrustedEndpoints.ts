@@ -76,7 +76,7 @@ class KustoTrustedEndpointsImpl {
         for (const [k, v] of etr) {
             const rules: MatchRule[] = [];
             // biome-ignore-start lint/suspicious/useIterableCallbackReturn: We use push for the side-effect
-            v.AllowedKustoSuffixes.forEach((suffix: string) => rules.push(new MatchRule(suffix, false)));  
+            v.AllowedKustoSuffixes.forEach((suffix: string) => rules.push(new MatchRule(suffix, false)));
             v.AllowedKustoHostnames.forEach((hostname: string) => rules.push(new MatchRule(hostname, true)));
             // biome-ignore-end lint/suspicious/useIterableCallbackReturn: We use push for the side-effect
             this.matchers[k] = new FastSuffixMatcher(rules);

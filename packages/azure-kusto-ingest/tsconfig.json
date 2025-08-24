@@ -9,7 +9,7 @@
         "resolveJsonModule": true,
         "paths": {
             "azure-kusto-ingest": ["./src/index"]
-        },
+        }
     },
     "references": [
         {

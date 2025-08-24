@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-
 import { BlobDescriptor, generateBlobName, StreamDescriptor } from "./descriptors.js";
 import { FileDescriptor } from "./fileDescriptor.js";
 
@@ -11,7 +10,6 @@ import type { Readable } from "node:stream";
 import type { IngestionResult } from "./ingestionResult.js";
 
 export class KustoIngestClient extends KustoIngestClientBase {
-
     /**
      * Use string in Node.JS and Blob in browser
      */
