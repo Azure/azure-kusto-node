@@ -1,5 +1,8 @@
 import * as path from "node:path";
-import * as webpack from "webpack";
+// @ts-ignore
+import {NodeProtocolUrlPlugin} from "node-stdlib-browser/helpers/webpack/plugin";
+import stdLibBrowser from "node-stdlib-browser";
+import webpack from "webpack";
 
 // This is a very lean example of a webpack config file to use for using the browser
 // implementation of the package. It is using the compiled files of the ingest library and will load its index.js file.
@@ -16,10 +19,17 @@ const config = {
     },
     resolve: {
         aliasFields: ["browser"],
-        fallback: {
-            stream: require.resolve("stream-browserify"),
-        }, // Over fallbacks are in the package.json file
         extensions: [".ts", ".js"],
+        alias: {
+            ...stdLibBrowser,
+            "fs": false,
+            "os": false,
+            "process": false,
+            "stream-http": false,
+            "https": false,
+            "http": false,
+            "crypto": false,
+        }
     },
     devtool: "inline-source-map",
     devServer: {
@@ -29,12 +39,22 @@ const config = {
         port: 3000, // This port should be open in the SPA aad app
     },
     plugins: [
-        // Work around for Buffer is undefined:
-        // https://github.com/webpack/changelog-v5/issues/10
+        new NodeProtocolUrlPlugin(),
         new webpack.ProvidePlugin({
-            Buffer: ["buffer", "Buffer"],
-        }),
+            process: stdLibBrowser.process,
+            Buffer: [stdLibBrowser.buffer, 'Buffer']
+        })
     ],
+    module: {
+        rules: [
+            {
+                test: /\.m?js$/,
+                resolve: {
+                    fullySpecified: false
+                }
+            }
+        ]
+    }
 };
 
 export default config;

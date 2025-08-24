@@ -16,14 +16,6 @@
         "build": "tsc -b"
     },
     "browser": {
-        "fs": false,
-        "os": false,
-        "process": false,
-        "stream-http": false,
-        "https": false,
-        "http": false,
-        "crypto": false,
-        "stream": false,
         "./dist-esm/src/connectionBuilder.js": "./dist-esm/src/connectionBuilder.browser.js"
     },
     "engines": {
