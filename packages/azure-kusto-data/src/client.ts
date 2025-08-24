@@ -230,6 +230,7 @@ export class KustoClient {
     ): Promise<KustoResponseDataSet> {
         // replace non-ascii characters with ? in headers
         for (const key of Object.keys(headers)) {
+            // biome-ignore lint/suspicious/noControlCharactersInRegex: Legitimate use case - we want to remove control characters
             headers[key] = headers[key].replace(/[^\x00-\x7F]+/g, "?");
         }
 
@@ -238,9 +239,9 @@ export class KustoClient {
             timeout,
         };
 
-        let axiosResponse;
         try {
-            axiosResponse = await this.axiosInstance.post(endpoint, payload, axiosConfig);
+            const axiosResponse = await this.axiosInstance.post(endpoint, payload, axiosConfig);
+            return this._parseResponse(axiosResponse.data, executionType, properties, axiosResponse.status);
         } catch (error: unknown) {
             if (axios.isAxiosError(error)) {
                 // Since it's impossible to modify the error request object, the only way to censor the Authorization header is to remove it.
@@ -259,8 +260,6 @@ export class KustoClient {
             }
             throw error;
         }
-
-        return this._parseResponse(axiosResponse.data, executionType, properties, axiosResponse.status);
     }
 
     _parseResponse(response: any, executionType: ExecutionType, properties?: ClientRequestProperties | null, status?: number): KustoResponseDataSet {

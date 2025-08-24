@@ -194,11 +194,9 @@ export interface IngestionPropertiesFields {
     additionalProperties?: { [additional: string]: any } | null;
 }
 
-// This trick lets us avoid duplicating all the properties from the interface. See https://github.com/microsoft/TypeScript/issues/3407
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface IngestionProperties extends IngestionPropertiesFields {}
 
-// eslint-disable-next-line no-redeclare
+// biome-ignore lint/suspicious/noUnsafeDeclarationMerging: This trick lets us avoid duplicating all the properties from the interface. See https://github.com/microsoft/TypeScript/issues/3407
 export class IngestionProperties {
     constructor(data: Partial<IngestionPropertiesFields>) {
         Object.assign(this, data);

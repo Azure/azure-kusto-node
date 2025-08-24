@@ -41,6 +41,12 @@
             "recommended": true,
             "suspicious": {
                 "noExplicitAny": "off"
+            },
+            "complexity": {
+                "noBannedTypes": "off"
+            },
+            "style": {
+                "noNonNullAssertion": "off"
             }
         },
         "includes": [
