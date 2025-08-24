@@ -1,19 +1,57 @@
 {
     "$schema": "https://biomejs.dev/schemas/2.2.2/schema.json",
-    "vcs": { "enabled": false, "clientKind": "git", "useIgnoreFile": false },
-    "files": { "ignoreUnknown": false },
+    "vcs": {
+        "enabled": false,
+        "clientKind": "git",
+        "useIgnoreFile": false
+    },
+    "files": {
+        "ignoreUnknown": false
+    },
     "formatter": {
         "enabled": true,
         "useEditorconfig": true,
         "indentStyle": "space",
         "indentWidth": 4,
         "lineEnding": "lf",
-        "lineWidth": 160
+        "lineWidth": 160,
+        "includes": [
+            "**/*.ts",
+            "**/*.tsx",
+            "**/*.js",
+            "**/*.jsx",
+            "**/*.json",
+            "**/*.css",
+            "**/*.scss",
+            "**/*.html",
+            "**/*.md",
+            "**/*.mdx",
+            "!**/test/data/**",
+            "!**/e2eData/**",
+            "!node_modules/**",
+            "!**/node_modules/**",
+            "!**/dist*/**",
+            "!**/types/**",
+            "!packages/**/wellKnownKustoEndpoints.ts"
+        ]
     },
-    "linter": { "enabled": true, "rules": { "recommended": true } },
-    "html": { "formatter": { "selfCloseVoidElements": "always" } },
+    "linter": {
+        "enabled": true,
+        "rules": {
+            "recommended": true
+        }
+    },
+    "html": {
+        "formatter": {
+            "selfCloseVoidElements": "always"
+        }
+    },
     "assist": {
         "enabled": true,
-        "actions": { "source": { "organizeImports": "on" } }
+        "actions": {
+            "source": {
+                "organizeImports": "on"
+            }
+        }
     }
 }
