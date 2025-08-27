@@ -2,9 +2,6 @@
 // Licensed under the MIT License.
 
 import { isNodeLike } from "@azure/core-util";
-import axios, { AxiosInstance, AxiosRequestConfig, RawAxiosRequestHeaders } from "axios";
-import http from "http";
-import https from "https";
 import { v4 as uuidv4 } from "uuid";
 import { KustoHeaders } from "./clientDetails.js";
 import ClientRequestProperties from "./clientRequestProperties.js";
@@ -36,9 +33,19 @@ export class KustoClient {
     defaultDatabase?: string;
     endpoints: { [key in ExecutionType]: string };
     aadHelper: AadHelper;
-    axiosInstance: AxiosInstance;
-    cancelToken = axios.CancelToken.source();
+    cancelToken = new AbortController();
     private _isClosed: boolean = false;
+    private readonly _baseRequest: RequestInit = {
+        headers: new Headers({
+            Accept: "application/json; charset=utf-8",
+            "Accept-Encoding": "gzip,deflate",
+            Connection: "Keep-Alive"
+        }),
+        keepalive: false,
+        method: "POST",
+        redirect: "error",
+        signal: this.cancelToken.signal
+    } as const;
 
     constructor(kcsb: string | ConnectionStringBuilder) {
         this.connectionString = typeof kcsb === "string" ? new ConnectionStringBuilder(kcsb) : kcsb;
@@ -58,34 +65,6 @@ export class KustoClient {
             [ExecutionType.QueryV1]: `${this.cluster}/v1/rest/query`,
         };
         this.aadHelper = new AadHelper(this.connectionString);
-
-        let headers: RawAxiosRequestHeaders = {
-            Accept: "application/json",
-        };
-
-        if (isNodeLike) {
-            headers = {
-                ...headers,
-                "Accept-Encoding": "gzip,deflate",
-                Connection: "Keep-Alive",
-            };
-        }
-        const axiosProps: AxiosRequestConfig = {
-            headers,
-            validateStatus: (status: number) => status === 200,
-            maxBodyLength: Infinity,
-            maxContentLength: Infinity,
-            maxRedirects: 0,
-        };
-        // http and https are Node modules and are not found in browsers
-        if (isNodeLike) {
-            // keepAlive pools and reuses TCP connections, so it's faster
-            axiosProps.httpAgent = new http.Agent({ keepAlive: true });
-            axiosProps.httpsAgent = new https.Agent({ keepAlive: true });
-        }
-        axiosProps.cancelToken = this.cancelToken.token;
-
-        this.axiosInstance = axios.create(axiosProps);
     }
 
     async execute(db: string | null, query: string, properties?: ClientRequestProperties): Promise<KustoResponseDataSet> {
@@ -232,52 +211,43 @@ export class KustoClient {
         for (const key of Object.keys(headers)) {
             headers[key] = headers[key].replace(/[^\x00-\x7F]+/g, "?");
         }
-
-        const axiosConfig: AxiosRequestConfig = {
-            headers,
-            timeout,
+        
+        const request = {
+            ...this._baseRequest,
+            body: payload,
+            timeout: timeout,
+            headers: { ...this._baseRequest.headers, ...headers  },
         };
 
-        let axiosResponse;
-        try {
-            axiosResponse = await this.axiosInstance.post(endpoint, payload, axiosConfig);
-        } catch (error: unknown) {
-            if (axios.isAxiosError(error)) {
-                // Since it's impossible to modify the error request object, the only way to censor the Authorization header is to remove it.
-                error.request = undefined;
-                if (error?.config?.headers) {
-                    error.config.headers.Authorization = "<REDACTED>";
-                }
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                if (error?.response?.request?._header) {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                    error.response.request._header = "<REDACTED>";
-                }
-                if (error.response && error.response.status === 429) {
-                    throw new ThrottlingError("POST request failed with status 429 (Too Many Requests)", error);
-                }
-            }
-            throw error;
-        }
+        const response = await fetch(new Request(endpoint, request));
 
-        return this._parseResponse(axiosResponse.data, executionType, properties, axiosResponse.status);
+        if (!response.ok) {
+            if (response.status === 429) {
+                throw new ThrottlingError("Request failed with status 429 (Too Many Requests)", undefined);
+            }
+
+            throw new Error(`Request failed with status ${response.status} (${response.statusText})`);
+        }
+        return this._parseResponse(response, executionType, properties);
     }
 
-    _parseResponse(response: any, executionType: ExecutionType, properties?: ClientRequestProperties | null, status?: number): KustoResponseDataSet {
-        const { raw } = properties || {};
+    async _parseResponse(response: Response, executionType: ExecutionType, properties?: ClientRequestProperties | null): Promise<KustoResponseDataSet> {
+        const {raw} = properties || {};
         if (raw === true || executionType === ExecutionType.Ingest) {
-            return response;
+            return response.json();
         }
 
         let kustoResponse = null;
         try {
+            const json = await response.json();
+            
             if (executionType === ExecutionType.Query) {
-                kustoResponse = new KustoResponseDataSetV2(response as V2Frames);
+                kustoResponse = new KustoResponseDataSetV2(json as V2Frames);
             } else {
-                kustoResponse = new KustoResponseDataSetV1(response as V1);
+                kustoResponse = new KustoResponseDataSetV1(json as V1);
             }
         } catch (ex) {
-            throw new Error(`Failed to parse response ({${status}}) with the following error [${ex}].`);
+            throw new Error(`Failed to parse response ({${response.status}} - {${response.statusText}) with the following error [${ex}].`);
         }
         if (kustoResponse.getErrorsCount().errors > 0) {
             throw new Error(`Kusto request had errors. ${kustoResponse.getExceptions()}`);
@@ -303,7 +273,7 @@ export class KustoClient {
 
     public close(): void {
         if (!this._isClosed) {
-            this.cancelToken.cancel("Client Closed");
+            this.cancelToken.abort("Client Closed");
         }
         this._isClosed = true;
     }
