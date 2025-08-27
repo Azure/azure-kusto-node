@@ -26,8 +26,6 @@ import {
     IngestionResult,
 } from "azure-kusto-ingest";
 
-import { type AxiosError } from "axios";
-
 import { sleep } from "../../src/retry.js";
 
 import { AzureCliCredential } from "@azure/identity";
