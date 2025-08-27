@@ -26,12 +26,12 @@ enum ExecutionType {
     QueryV1 = "queryv1",
 }
 
-function wrapResponse(data: any, status: number = 200) : Response  {
+function wrapResponse(data: any, status: number = 200): Response {
     return {
         status,
         json() {
             return Promise.resolve(data);
-        }
+        },
     } as Response;
 }
 

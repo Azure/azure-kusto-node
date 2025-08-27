@@ -36,7 +36,7 @@ import { v4 as uuidv4 } from "uuid";
 import { basename, dirname } from "path";
 import sinon from "sinon";
 import { fileURLToPath } from "url";
-import { BlockBlobClient, ContainerClient } from "@azure/storage-blob";
+import { ContainerClient } from "@azure/storage-blob";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

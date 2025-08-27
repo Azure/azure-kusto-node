@@ -39,12 +39,12 @@ export class KustoClient {
         headers: new Headers({
             Accept: "application/json; charset=utf-8",
             "Accept-Encoding": "gzip,deflate",
-            Connection: "Keep-Alive"
+            Connection: "Keep-Alive",
         }),
         keepalive: false,
         method: "POST",
         redirect: "error",
-        signal: this.cancelToken.signal
+        signal: this.cancelToken.signal,
     } as const;
 
     constructor(kcsb: string | ConnectionStringBuilder) {
@@ -211,12 +211,12 @@ export class KustoClient {
         for (const key of Object.keys(headers)) {
             headers[key] = headers[key].replace(/[^\x00-\x7F]+/g, "?");
         }
-        
+
         const request = {
             ...this._baseRequest,
             body: payload,
             timeout: timeout,
-            headers: { ...this._baseRequest.headers, ...headers  },
+            headers: { ...this._baseRequest.headers, ...headers },
         };
 
         const response = await fetch(new Request(endpoint, request));
@@ -232,7 +232,7 @@ export class KustoClient {
     }
 
     async _parseResponse(response: Response, executionType: ExecutionType, properties?: ClientRequestProperties | null): Promise<KustoResponseDataSet> {
-        const {raw} = properties || {};
+        const { raw } = properties || {};
         if (raw === true || executionType === ExecutionType.Ingest) {
             return response.json();
         }
@@ -240,7 +240,7 @@ export class KustoClient {
         let kustoResponse = null;
         try {
             const json = await response.json();
-            
+
             if (executionType === ExecutionType.Query) {
                 kustoResponse = new KustoResponseDataSetV2(json as V2Frames);
             } else {

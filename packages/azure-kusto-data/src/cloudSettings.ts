@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import {isNodeLike} from "@azure/core-util";
+import { isNodeLike } from "@azure/core-util";
 
 export type CloudInfo = {
     LoginEndpoint: string;
@@ -52,11 +52,10 @@ class CloudSettings {
             // 'https://sandbox-46-10.reactblade.portal.azure.net' that is not equal to the supplied origin.
             cache: "no-cache",
             method: "GET",
-
         });
         try {
             if (response.status === 200) {
-                this.cloudCache[cacheKey] = (await response.json() as { AzureAD: CloudInfo }).AzureAD;
+                this.cloudCache[cacheKey] = ((await response.json()) as { AzureAD: CloudInfo }).AzureAD;
             } else if (response.status === 404) {
                 // For now as long not all proxies implement the metadata endpoint, if no endpoint exists return public cloud data
                 this.cloudCache[cacheKey] = this.defaultCloudInfo;
@@ -87,5 +86,5 @@ class CloudSettings {
 }
 
 const cloudSettings = new CloudSettings();
-export {cloudSettings as CloudSettings};
+export { cloudSettings as CloudSettings };
 export default cloudSettings;
