@@ -214,8 +214,8 @@ export class KustoClient {
 
         const request = {
             ...this._baseRequest,
+            timeout,
             body: payload,
-            timeout: timeout,
             headers: { ...this._baseRequest.headers, ...headers },
         };
 
