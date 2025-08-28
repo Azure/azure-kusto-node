@@ -154,7 +154,7 @@ export class KustoClient {
                 headers["Content-Encoding"] = "gzip";
                 headers["Content-Type"] = "application/octet-stream";
             } else {
-                headers["Content-Type"] = "application/json";
+                headers["Content-Type"] = "application/json; charset=utf-8";
             }
             isPayloadStream = true;
         } else if ("blob" in entity) {
@@ -162,7 +162,7 @@ export class KustoClient {
                 sourceUri: entity.blob,
             };
             clientRequestPrefix = "KNC.executeStreamingIngestFromBlob;";
-            headers["Content-Type"] = "application/json";
+            headers["Content-Type"] = "application/json; charset=utf-8";
         } else {
             throw new Error("Invalid parameters - expected query or streaming ingest");
         }
