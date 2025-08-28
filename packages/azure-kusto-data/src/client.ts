@@ -129,6 +129,7 @@ export class KustoClient {
 
         let payload: { db: string; csl: string; properties?: any };
         let clientRequestPrefix = "";
+        let isPayloadStream = false;
 
         const timeout = this._getClientTimeout(executionType, properties);
         let payloadContent: any = "";
@@ -155,6 +156,7 @@ export class KustoClient {
             } else {
                 headers["Content-Type"] = "application/json";
             }
+            isPayloadStream = true;
         } else if ("blob" in entity) {
             payloadContent = {
                 sourceUri: entity.blob,
@@ -186,7 +188,7 @@ export class KustoClient {
             headers.Authorization = authHeader;
         }
 
-        return this._doRequest(endpoint, executionType, headers, payloadContent, timeout, properties);
+        return this._doRequest(endpoint, executionType, headers, payloadContent, timeout, properties, isPayloadStream);
     }
 
     private getDb(db: string | null) {
@@ -202,10 +204,13 @@ export class KustoClient {
     async _doRequest(
         endpoint: string,
         executionType: ExecutionType,
-        headers: { [header: string]: string },
+        headers: {
+            [header: string]: string;
+        },
         payload: any,
         timeout: number,
         properties?: ClientRequestProperties | null,
+        isPayloadStream: boolean = false,
     ): Promise<KustoResponseDataSet> {
         // replace non-ascii characters with ? in headers
         for (const key of Object.keys(headers)) {
@@ -217,7 +222,7 @@ export class KustoClient {
             timeout,
             body: payload,
             headers: { ...this._baseRequest.headers, ...headers },
-            duplex: executionType === ExecutionType.Ingest ? "half" : undefined,
+            duplex: isPayloadStream ? "half" : undefined,
         };
 
         const response = await fetch(new Request(endpoint, request));
