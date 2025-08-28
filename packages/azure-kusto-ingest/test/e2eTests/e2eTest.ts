@@ -419,6 +419,7 @@ const main = (): void => {
                 try {
                     await queryClient.executeQuery(databaseName, "invalidSyntax ");
                 } catch (ex) {
+                    console.log(ex)
                     const exTyped = ex as { request: unknown; config: { headers: { [k: string]: string } } };
                     assert.strictEqual(exTyped.request, undefined);
                     assert.strictEqual(exTyped.config.headers.Authorization, "<REDACTED>");
@@ -449,6 +450,7 @@ const main = (): void => {
                 await client.execute(databaseName, tableNames.general_csv);
                 assert.fail("Expected exception");
             } catch (ex) {
+                console.log(ex);
                 assert.ok(ex instanceof Error);
                 assert.match(ex.message, new RegExp(`.*${code}.*`), `Fail to get ${code} error code. ex json: ${JSON.stringify(ex)}, ex: ${ex}`);
                 assert.doesNotMatch(ex.message, new RegExp(`.*cloud.*`), "Unexpected cloud in error.");
