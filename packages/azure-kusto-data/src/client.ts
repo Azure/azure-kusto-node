@@ -217,6 +217,7 @@ export class KustoClient {
             timeout,
             body: payload,
             headers: { ...this._baseRequest.headers, ...headers },
+            duplex: executionType == ExecutionType.Ingest ? true : undefined,
         };
 
         const response = await fetch(new Request(endpoint, request));
