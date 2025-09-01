@@ -53,19 +53,22 @@ class CloudSettings {
             cache: "no-cache",
             method: "GET",
         });
-        try {
-            if (response.status === 200) {
-                this.cloudCache[cacheKey] = ((await response.json()) as { AzureAD: CloudInfo }).AzureAD;
-            } else if (response.status === 404) {
-                // For now as long not all proxies implement the metadata endpoint, if no endpoint exists return public cloud data
-                this.cloudCache[cacheKey] = this.defaultCloudInfo;
-            } else {
-                throw new Error(`Kusto returned an invalid cloud metadata response - ${await response.json()}`);
-            }
-        } catch (ex) {
-            throw new Error(`Failed to get cloud info for cluster ${kustoUri} - ${ex}`);
+        let ex;
+        if (response.status === 200) {
+            this.cloudCache[cacheKey] = ((await response.json()) as { AzureAD: CloudInfo }).AzureAD;
+            return this.cloudCache[cacheKey];
+        } else if (response.status === 404) {
+            // For now as long not all proxies implement the metadata endpoint, if no endpoint exists return public cloud data
+            this.cloudCache[cacheKey] = this.defaultCloudInfo;
+            return this.cloudCache[cacheKey];
+        } else if (response.status >= 300 && response.status < 400) {
+            ex = Error(
+                `Request was redirected with status ${response.status} (${response.statusText}) to ${response.headers.get("location") || "<unknown>"}. This client does not follow redirects.`,
+            );
+        } else {
+            ex = Error(`Kusto returned an invalid cloud metadata response - ${await response.json()}`);
         }
-        return this.cloudCache[cacheKey];
+        throw new Error(`Failed to get cloud info for cluster ${kustoUri} - ${ex}`);
     }
 
     private getCacheKey(kustoUri: string): string {

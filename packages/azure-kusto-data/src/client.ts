@@ -43,7 +43,7 @@ export class KustoClient {
         }),
         keepalive: false,
         method: "POST",
-        redirect: "error",
+        redirect: "manual",
         signal: this.cancelToken.signal,
     } as const;
 
@@ -232,7 +232,14 @@ export class KustoClient {
                 throw new ThrottlingError("Request failed with status 429 (Too Many Requests)", undefined);
             }
 
-            throw new Error(`Request failed with status ${response.status} (${response.statusText}) - \`${await response.text()}}\`.`)
+            // handle redirection
+            if (response.status >= 300 && response.status < 400 && response.headers.has("location")) {
+                throw new Error(
+                    `Request was redirected with status ${response.status} (${response.statusText}) to ${response.headers.get("location") || "<unknown>"}. This client does not follow redirects.`,
+                );
+            }
+
+            throw new Error(`Request failed with status ${response.status} (${response.statusText}) - \`${await response.text()}}\`.`);
         }
         return this._parseResponse(response, executionType, properties);
     }

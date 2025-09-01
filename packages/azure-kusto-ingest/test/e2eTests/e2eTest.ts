@@ -448,7 +448,7 @@ const main = (): void => {
                 assert.fail("Expected exception");
             } catch (ex) {
                 const message = JSON.stringify(ex);
-                assert.match(message, new RegExp(`.*${code}.*`), `Fail to get ${code} error code. ex json: ${JSON.stringify(ex)}, ex: ${ex}`);
+                assert.match(message, new RegExp(`.*${code}.*`), `Request was redirected with status ${code}.*`);
                 assert.doesNotMatch(message, new RegExp(`.*cloud.*`), "Unexpected cloud in error.");
             } finally {
                 client.close();
