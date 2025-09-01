@@ -375,7 +375,7 @@ describe("KustoClient", () => {
                 assert.ok(endpoint.indexOf("streamFormat=csvMap") > 0);
                 assert.ok(endpoint.indexOf("sourceKind=uri") > 0);
                 assert.equal(executionType, ExecutionType.Ingest);
-                assert.ok(Object.prototype.hasOwnProperty.call(payload, "sourceUri"));
+                assert.ok(Object.prototype.hasOwnProperty.call(JSON.parse(payload), "sourceUri"));
                 return Promise.resolve(new KustoResponseDataSetV2([]));
             };
             await client.executeStreamingIngest("db2", "Table", undefined, "csvMap", null, "bloby");
