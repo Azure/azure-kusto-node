@@ -43,6 +43,7 @@ jobs:
           DM_CONNECTION_STRING: ${{ secrets.DM_CONNECTION_STRING }}
           AZURE_CLIENT_ID: ${{ secrets.APP_ID }}
           AZURE_TENANT_ID: ${{ secrets.TENANT_ID }}
+          NODE_DEBUG: http,http2
           # Required for running tests when using ESM, see https://kulshekhar.github.io/ts-jest/docs/guides/esm-support
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v2
