@@ -158,9 +158,9 @@ export class KustoClient {
             }
             isPayloadStream = true;
         } else if ("blob" in entity) {
-            payloadContent = {
+            payloadContent = JSON.stringify({
                 sourceUri: entity.blob,
-            };
+            });
             clientRequestPrefix = "KNC.executeStreamingIngestFromBlob;";
             headers["Content-Type"] = "application/json; charset=utf-8";
         } else {
@@ -232,7 +232,7 @@ export class KustoClient {
                 throw new ThrottlingError("Request failed with status 429 (Too Many Requests)", undefined);
             }
 
-            throw new Error(`Request failed with status ${response.status} (${response.statusText}) - \`${await response.text()}}\`. Request details: isPayloadStream - ${isPayloadStream}, body - ${payload}`)
+            throw new Error(`Request failed with status ${response.status} (${response.statusText}) - \`${await response.text()}}\`.`)
         }
         return this._parseResponse(response, executionType, properties);
     }
