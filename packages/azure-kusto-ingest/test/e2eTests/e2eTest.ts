@@ -447,8 +447,8 @@ const main = (): void => {
                 await client.execute(databaseName, tableNames.general_csv);
                 assert.fail("Expected exception");
             } catch (ex) {
-                const message = JSON.stringify(ex);
-                assert.match(message, new RegExp(`.*${code}.*`), `Request was redirected with status ${code}.*`);
+                const message = (ex as Error).message;
+                assert.match(message, new RegExp(`.*${code}.*`), `Request was redirected with status ${code}`);
                 assert.doesNotMatch(message, new RegExp(`.*cloud.*`), "Unexpected cloud in error.");
             } finally {
                 client.close();
