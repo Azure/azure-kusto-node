@@ -232,7 +232,7 @@ export class KustoClient {
                 throw new ThrottlingError("Request failed with status 429 (Too Many Requests)", undefined);
             }
 
-            throw new Error(`Request failed with status ${response.status} (${response.statusText}) - \`${await response.text()}}\``);
+            throw new Error(`Request failed with status ${response.status} (${response.statusText}) - \`${await response.text()}}\`. Request details: isPayloadStream - ${isPayloadStream}, body - ${payload}`)
         }
         return this._parseResponse(response, executionType, properties);
     }
