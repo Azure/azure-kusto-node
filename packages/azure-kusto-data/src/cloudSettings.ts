@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import axios from "axios";
 import { isNodeLike } from "@azure/core-util";
 
 export type CloudInfo = {
@@ -11,8 +10,6 @@ export type CloudInfo = {
     KustoServiceResourceId: string;
     FirstPartyAuthorityUrl: string;
 };
-
-const AXIOS_ERR_NETWORK = axios?.AxiosError?.ERR_NETWORK ?? "ERR_NETWORK";
 
 /**
  * This class holds data for all cloud instances, and returns the specific data instance by parsing the dns suffix from a URL
@@ -43,38 +40,25 @@ class CloudSettings {
             return this.cloudCache[cacheKey];
         }
 
-        try {
-            const response = await axios.get<{ AzureAD: CloudInfo | undefined }>(this.getAuthMetadataEndpointFromClusterUri(kustoUri), {
-                headers: {
-                    "Cache-Control": "no-cache",
-                    // Disable caching - it's being cached in memory (Service returns max-age).
-                    // The original motivation for this is due to a CORS issue in Ibiza due to a dynamic subdomain.
-                    // The first dynamic subdomain is attached to the cache and for some reason isn't invalidated
-                    // when there is a new subdomain. It causes the request failure due to CORS.
-                    // Example:
-                    // Access to XMLHttpRequest at 'https://safrankecc.canadacentral.kusto.windows.net/v1/rest/auth/metadata' from origin
-                    // 'https://sandbox-46-11.reactblade.portal.azure.net' has been blocked by CORS policy: The 'Access-Control-Allow-Origin' header has a value
-                    // 'https://sandbox-46-10.reactblade.portal.azure.net' that is not equal to the supplied origin.
-                },
-                maxRedirects: 0,
-            });
-            if (response.status === 200) {
-                this.cloudCache[cacheKey] = response.data.AzureAD || this.defaultCloudInfo;
-            } else {
-                throw new Error(`Kusto returned an invalid cloud metadata response - ${response}`);
-            }
-        } catch (ex) {
-            if (axios.isAxiosError(ex)) {
-                // Axios library has a bug in browser, not propagating the status code, see: https://github.com/axios/axios/issues/5330
-                if ((isNodeLike && ex.response?.status === 404) || (!isNodeLike && (!ex.code || ex.code === AXIOS_ERR_NETWORK))) {
-                    // For now as long not all proxies implement the metadata endpoint, if no endpoint exists return public cloud data
-                    this.cloudCache[cacheKey] = this.defaultCloudInfo;
-                } else {
-                    throw new Error(`Failed to get cloud info for cluster ${kustoUri} - ${ex}`);
-                }
-            }
+        const response = await fetch(this.getAuthMetadataEndpointFromClusterUri(kustoUri), {
+            method: "GET",
+        });
+        let ex;
+        if (response.status === 200) {
+            this.cloudCache[cacheKey] = ((await response.json()) as { AzureAD: CloudInfo }).AzureAD;
+            return this.cloudCache[cacheKey];
+        } else if (response.status === 404) {
+            // For now as long not all proxies implement the metadata endpoint, if no endpoint exists return public cloud data
+            this.cloudCache[cacheKey] = this.defaultCloudInfo;
+            return this.cloudCache[cacheKey];
+        } else if (response.status >= 300 && response.status < 400) {
+            ex = Error(
+                `Request was redirected with status ${response.status} (${response.statusText}) to ${response.headers.get("location") || "<unknown>"}. This client does not follow redirects.`,
+            );
+        } else {
+            ex = Error(`Kusto returned an invalid cloud metadata response - ${await response.json()}`);
         }
-        return this.cloudCache[cacheKey];
+        throw new Error(`Failed to get cloud info for cluster ${kustoUri} - ${ex}`);
     }
 
     private getCacheKey(kustoUri: string): string {

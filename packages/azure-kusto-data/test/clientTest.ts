@@ -26,6 +26,15 @@ enum ExecutionType {
     QueryV1 = "queryv1",
 }
 
+function wrapResponse(data: any, status: number = 200): Response {
+    return {
+        status,
+        json() {
+            return Promise.resolve(data);
+        },
+    } as Response;
+}
+
 beforeAll(() => {
     CloudSettings.writeToCache("https://cluster.kusto.windows.net");
 });
@@ -82,50 +91,50 @@ describe("KustoClient", () => {
     });
 
     describe("#_parseResponse()", () => {
-        it.concurrent("valid v1", () => {
+        it.concurrent("valid v1", async () => {
             const url = "https://cluster.kusto.windows.net";
             const client = new KustoClient(url);
 
-            const response = client._parseResponse(v1Response, ExecutionType.Mgmt);
+            const response = await client._parseResponse(wrapResponse(v1Response), ExecutionType.Mgmt);
             assert.strictEqual((response as KustoResponseDataSetV1).version, "1.0");
         });
 
-        it.concurrent("valid v1 more data", () => {
+        it.concurrent("valid v1 more data", async () => {
             const url = "https://cluster.kusto.windows.net";
             const client = new KustoClient(url);
 
-            const response = client._parseResponse(v1_2Response, ExecutionType.QueryV1);
+            const response = await client._parseResponse(wrapResponse(v1_2Response), ExecutionType.QueryV1);
             assert.strictEqual((response as KustoResponseDataSetV1).version, "1.0");
         });
 
-        it.concurrent("valid v2", () => {
+        it.concurrent("valid v2", async () => {
             const url = "https://cluster.kusto.windows.net";
             const client = new KustoClient(url);
 
-            const response = client._parseResponse(v2Response, ExecutionType.Query);
+            const response = await client._parseResponse(wrapResponse(v2Response), ExecutionType.Query);
             assert.strictEqual((response as KustoResponseDataSetV2).version, "2.0");
         });
 
-        it.concurrent("valid v2 raw", () => {
+        it.concurrent("valid v2 raw", async () => {
             const url = "https://cluster.kusto.windows.net";
             const client = new KustoClient(url);
 
-            const response = client._parseResponse(v2Response, ExecutionType.Query, {
+            const response = await client._parseResponse(wrapResponse(v2Response), ExecutionType.Query, {
                 raw: true,
             } as ClientRequestProperties);
             assert.strictEqual(response, v2Response);
         });
 
-        it.concurrent("malformed body", () => {
+        it.concurrent("malformed body", async () => {
             const url = "https://cluster.kusto.windows.net";
             const client = new KustoClient(url);
             try {
-                client._parseResponse({}, ExecutionType.Query);
+                await client._parseResponse(wrapResponse({}, 400), ExecutionType.Query);
             } catch (ex) {
                 assert(
                     ex instanceof Error &&
                         ex.message.startsWith(
-                            "Failed to parse response ({undefined}) with the following error [TypeError:" + " data.forEach is" + " not a function].",
+                            "Failed to parse response ({400} - {undefined) with the following error [TypeError: data.forEach is not a function].",
                         ),
                 );
                 return;
@@ -133,12 +142,12 @@ describe("KustoClient", () => {
             assert.fail();
         });
 
-        it.concurrent("erred v2 not partial", () => {
+        it.concurrent("erred v2 not partial", async () => {
             const url = "https://cluster.kusto.windows.net";
             const client = new KustoClient(url);
 
             try {
-                client._parseResponse(v2ResponseError, ExecutionType.Query);
+                await client._parseResponse(wrapResponse(v2ResponseError, 400), ExecutionType.Query);
             } catch (ex) {
                 assert(ex instanceof Error && ex.message.startsWith("Kusto request had errors"));
                 return;
@@ -366,7 +375,7 @@ describe("KustoClient", () => {
                 assert.ok(endpoint.indexOf("streamFormat=csvMap") > 0);
                 assert.ok(endpoint.indexOf("sourceKind=uri") > 0);
                 assert.equal(executionType, ExecutionType.Ingest);
-                assert.ok(Object.prototype.hasOwnProperty.call(payload, "sourceUri"));
+                assert.ok(Object.prototype.hasOwnProperty.call(JSON.parse(payload), "sourceUri"));
                 return Promise.resolve(new KustoResponseDataSetV2([]));
             };
             await client.executeStreamingIngest("db2", "Table", undefined, "csvMap", null, "bloby");
