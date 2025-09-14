@@ -41,10 +41,12 @@ export class KustoClient {
             "Accept-Encoding": "gzip,deflate",
             Connection: "Keep-Alive",
         }),
-        keepalive: true,
         method: "POST",
         redirect: "manual",
         signal: this.cancelToken.signal,
+
+        // the keepalive flag is about the request outliving the page. It's not relevant for node, so we only set it for browsers
+        keepalive: isNodeLike ? undefined : true,
     } as const;
 
     constructor(kcsb: string | ConnectionStringBuilder) {
