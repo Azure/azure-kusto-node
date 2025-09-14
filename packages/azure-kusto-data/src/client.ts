@@ -45,7 +45,7 @@ export class KustoClient {
         redirect: "manual",
         signal: this.cancelToken.signal,
 
-        // the keepalive flag is about the request outliving the page. It's not relevant for node, so we only set it for browsers
+        // The keepalive flag is about the request outliving the page. It's not relevant for node, so we only set it for browsers
         keepalive: isNodeLike ? undefined : true,
     } as const;
 
