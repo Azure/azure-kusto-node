@@ -41,7 +41,7 @@ export class KustoClient {
             "Accept-Encoding": "gzip,deflate",
             Connection: "Keep-Alive",
         }),
-        keepalive: false,
+        keepalive: true,
         method: "POST",
         redirect: "manual",
         signal: this.cancelToken.signal,
@@ -222,7 +222,8 @@ export class KustoClient {
             timeout,
             body: payload,
             headers: { ...this._baseRequest.headers, ...headers },
-            duplex: isPayloadStream ? "half" : undefined,
+            // Nodejs requires duplex to be set to "half" when using a ReadableStream as request body
+            duplex: isNodeLike && isPayloadStream ? "half" : undefined,
         };
 
         const response = await fetch(new Request(endpoint, request));
