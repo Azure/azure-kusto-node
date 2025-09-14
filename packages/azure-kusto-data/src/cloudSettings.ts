@@ -41,16 +41,6 @@ class CloudSettings {
         }
 
         const response = await fetch(this.getAuthMetadataEndpointFromClusterUri(kustoUri), {
-            // TODO - is this still true for fetch?
-            // Disable caching - it's being cached in memory (Service returns max-age).
-            // The original motivation for this is due to a CORS issue in Ibiza due to a dynamic subdomain.
-            // The first dynamic subdomain is attached to the cache and for some reason isn't invalidated
-            // when there is a new subdomain. It causes the request failure due to CORS.
-            // Example:
-            // Access to XMLHttpRequest at 'https://safrankecc.canadacentral.kusto.windows.net/v1/rest/auth/metadata' from origin
-            // 'https://sandbox-46-11.reactblade.portal.azure.net' has been blocked by CORS policy: The 'Access-Control-Allow-Origin' header has a value
-            // 'https://sandbox-46-10.reactblade.portal.azure.net' that is not equal to the supplied origin.
-            cache: "no-cache",
             method: "GET",
         });
         let ex;
