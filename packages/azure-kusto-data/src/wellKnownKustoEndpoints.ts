@@ -66,6 +66,28 @@ export default {
         "https://login.sovcloud-identity.fr": {
             "AllowedKustoSuffixes": [".kusto.sovcloud-api.fr", ".kustomfa.sovcloud-api.fr"],
             "AllowedKustoHostnames": ["adx.applicationinsights.azure.fr", "adx.loganalytics.azure.fr", "adx.monitor.azure.fr"]
+        },
+        "https://login.sovcloud-identity.de": {
+          "AllowedKustoSuffixes": [
+            ".kusto.sovcloud-api.de",
+            ".kustomfa.sovcloud-api.de"
+          ],
+          "AllowedKustoHostnames": [
+            "adx.applicationinsights.azure.de",
+            "adx.loganalytics.azure.de",
+            "adx.monitor.azure.de"
+          ]
+        },
+        "https://login.sovcloud-identity.sg": {
+          "AllowedKustoSuffixes": [
+            ".kusto.sovcloud-api.sg",
+            ".kustomfa.sovcloud-api.sg"
+          ],
+          "AllowedKustoHostnames": [
+            "adx.applicationinsights.azure.sg",
+            "adx.loganalytics.azure.sg",
+            "adx.monitor.azure.sg"
+          ]
         }
     }
 }
