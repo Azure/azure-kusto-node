@@ -4,6 +4,7 @@
     "description": "Azure Data Explorer Ingestion SDK",
     "type": "module",
     "main": "dist-esm/src/index.js",
+    "types": "types/src/index.d.ts",
     "exports": {
         ".": {
             "import": "./dist-esm/src/index.js",
