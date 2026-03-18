@@ -3,6 +3,7 @@
 
 import { isNodeLike } from "@azure/core-util";
 import { userInfo } from "os";
+import { basename } from "path";
 import { SDK_VERSION } from "./version.js";
 
 // eslint-disable-next-line @typescript-eslint/no-namespace,@typescript-eslint/no-unused-vars -- This is the correct way to augment the global namespace
@@ -36,7 +37,9 @@ export class ClientDetails {
 
     static defaultApplication(): string {
         if (isNodeLike) {
-            return process?.env?.npm_package_name || process?.argv[1] || None;
+            // Use only the base filename from argv[1] to avoid leaking the full
+            // filesystem path (which may contain the username).
+            return process?.env?.npm_package_name || (process?.argv?.[1] ? basename(process.argv[1]) : None);
         } else {
             return window?.location?.href || None;
         }
