@@ -10,7 +10,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const pkgRoot = path.resolve(__dirname, "..");
 
 function getPackageDependencies(): Set<string> {
-    const pkgJson = JSON.parse(fs.readFileSync(path.join(pkgRoot, "package.json"), "utf-8"));
+    const pkgJson: { dependencies?: Record<string, string>; peerDependencies?: Record<string, string> } = JSON.parse(
+        fs.readFileSync(path.join(pkgRoot, "package.json"), "utf-8"),
+    );
     const deps = new Set<string>();
     for (const name of Object.keys(pkgJson.dependencies ?? {})) {
         deps.add(name);
