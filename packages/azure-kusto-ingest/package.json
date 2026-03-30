@@ -61,14 +61,14 @@
         "./dist-esm/src/ingestClient.js": "./dist-esm/src/ingestClient.browser.js"
     },
     "dependencies": {
-        "@azure/data-tables": "^13.2.2",
-        "@azure/storage-blob": "^12.26.0",
-        "@azure/storage-queue": "^12.25.0",
+        "@azure/data-tables": "^13.3.2",
+        "@azure/storage-blob": "^12.31.0",
+        "@azure/storage-queue": "^12.29.0",
         "@types/jsbn": "^1.2.33",
-        "@types/pako": "^2.0.0",
-        "@types/stream-array": "^1.1.0",
-        "@types/stream-to-array": "^2.3.0",
-        "@types/tmp": "^0.2.3",
+        "@types/pako": "^2.0.4",
+        "@types/stream-array": "^1.1.4",
+        "@types/stream-to-array": "^2.3.3",
+        "@types/tmp": "^0.2.6",
         "@types/uuid": "^8.3.4",
         "@types/uuid-validate": "0.0.1",
         "azure-kusto-data": "^7.0.4",
@@ -83,8 +83,8 @@
         "uuid-validate": "0.0.3"
     },
     "devDependencies": {
-        "@types/sinon": "^10.0.13",
-        "assert": "^2.0.0"
+        "@types/sinon": "^10.0.20",
+        "assert": "^2.1.0"
     },
     "gitHead": "f8a5dae26d6d2ca2ab8b95953bb9b88a02e8e35d"
 }
