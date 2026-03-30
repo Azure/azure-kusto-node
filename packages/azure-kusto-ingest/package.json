@@ -1,6 +1,6 @@
 {
     "name": "azure-kusto-ingest",
-    "version": "7.0.4",
+    "version": "7.1.0",
     "description": "Azure Data Explorer Ingestion SDK",
     "type": "module",
     "main": "dist-esm/src/index.js",
@@ -61,6 +61,7 @@
         "./dist-esm/src/ingestClient.js": "./dist-esm/src/ingestClient.browser.js"
     },
     "dependencies": {
+        "@azure/core-util": "^1.13.1",
         "@azure/data-tables": "^13.3.2",
         "@azure/storage-blob": "^12.31.0",
         "@azure/storage-queue": "^12.29.0",
@@ -71,10 +72,11 @@
         "@types/tmp": "^0.2.6",
         "@types/uuid": "^8.3.4",
         "@types/uuid-validate": "0.0.1",
-        "azure-kusto-data": "^7.0.4",
+        "azure-kusto-data": "^7.1.0",
         "browserify-zlib": "0.2.0",
         "buffer": "^6.0.3",
         "is-ip": "^3.1.0",
+        "pako": "^2.1.0",
         "stream-array": "^1.1.2",
         "stream-browserify": "3.0.0",
         "stream-to-array": "^2.3.0",
