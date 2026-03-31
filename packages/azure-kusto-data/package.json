@@ -1,6 +1,6 @@
 {
     "name": "azure-kusto-data",
-    "version": "7.0.4",
+    "version": "7.1.0",
     "description": "Azure Data Explorer Query SDK",
     "type": "module",
     "main": "dist-esm/src/index.js",
@@ -63,6 +63,7 @@
         "rimraf": "^3.0.2"
     },
     "dependencies": {
+        "@azure/core-auth": "^1.10.0",
         "@azure/core-util": "^1.13.1",
         "@azure/identity": "^4.13.1",
         "@types/uuid": "^8.3.4",
