@@ -67,7 +67,7 @@
         "@azure/core-util": "^1.13.1",
         "@azure/identity": "^4.13.1",
         "@types/uuid": "^8.3.4",
-        "axios": "^1.14.0",
+        "axios": "1.4.0",
         "follow-redirects": "^1.15.11",
         "https-browserify": "^1.0.0",
         "stream-http": "^3.2.0",
