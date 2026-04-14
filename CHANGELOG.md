@@ -8,9 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [7.1.0] - 2026-03-31
 
 ### Fixed
+
 - Fixed issue #393 and bumped versions
 
 ### Changed
+
 - Pinned Axios version
 - Upgraded libraries fixing dependabot issues: #399, #398, #397, #396, #394, #392, #391, #389, #388, #387, #386
 
@@ -300,3 +302,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Version 3.4.0 introduced a bug that caused the wrong client id to be sent in Managed Identity scenarios. This version fixes it, and the old version is
   deprecated.
+
+[7.1.0]: https://github.com/Azure/azure-kusto-node/compare/v7.0.4...v7.1.0
