@@ -81,7 +81,7 @@
         "stream-browserify": "3.0.0",
         "stream-to-array": "^2.3.0",
         "tmp-promise": "^3.0.3",
-        "uuid": "^8.3.2",
+        "uuid": "^14.0.0",
         "uuid-validate": "0.0.3"
     },
     "devDependencies": {
