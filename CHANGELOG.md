@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.2.0] - 2026-05-12
+
+### Security
+
+- Upgraded axios from 1.4.0 to ^1.16.0, fixing CVE-2024-39338, CVE-2025-27152, CVE-2025-58754, CVE-2026-42033, CVE-2026-42035, CVE-2026-42043, CVE-2026-42264
+- Bumped transitive MSAL dependencies to latest within semver range (msal-node 5.2.1, msal-browser 5.10.1, msal-common 16.6.1)
+
 ## [7.1.0] - 2026-03-31
 
 ### Fixed
