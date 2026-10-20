@@ -44,7 +44,7 @@ export default {
             ]
         },
         "https://login.microsoftonline.us": {
-            "AllowedKustoSuffixes": [".kusto.usgovcloudapi.net", ".kustomfa.usgovcloudapi.net", ".arg.core.usgovcloudapi.net"],
+            "AllowedKustoSuffixes": [".kusto.usgovcloudapi.net", ".kustomfa.usgovcloudapi.net", ".arg.core.usgovcloudapi.net", ".securitycenter.windows.us"],
             "AllowedKustoHostnames": ["adx.applicationinsights.azure.us", "adx.loganalytics.azure.us", "adx.monitor.azure.us"]
         },
         "https://login.partner.microsoftonline.cn": {
