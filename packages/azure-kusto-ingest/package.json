@@ -85,6 +85,7 @@
         "uuid-validate": "0.0.3"
     },
     "devDependencies": {
+        "@azure/core-xml": "1.5.0",
         "@types/sinon": "^10.0.20",
         "assert": "^2.1.0"
     },
