@@ -28,7 +28,6 @@
     "devDependencies": {
         "@types/jest": "^29.5.14",
         "@types/node": "^20.14.8",
-        "@types/webpack-dev-server": "^4.7.2",
         "@typescript-eslint/eslint-plugin": "^5.62.0",
         "@typescript-eslint/parser": "^5.62.0",
         "cross-env": "^7.0.3",
@@ -51,7 +50,8 @@
         "ts-loader": "^9.5.4",
         "ts-node": "^10.9.2",
         "typescript": "^5.5.4",
-        "webpack-cli": "^5.1.4"
+        "webpack-cli": "^5.1.4",
+        "webpack-dev-server": "^5.2.7"
     },
     "workspaces": [
         "packages/azure-kusto-data",
