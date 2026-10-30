@@ -2,8 +2,7 @@
 // Licensed under the MIT License.
 
 import { ClientRequestProperties, Client as KustoClient, KustoConnectionStringBuilder } from "azure-kusto-data";
-import { BlobDescriptor, DataFormat, FileDescriptor, IngestClient } from "azure-kusto-ingest";
-import IngestionProperties, { dataFormatMappingKind } from "azure-kusto-ingest/src/ingestionProperties";
+import { BlobDescriptor, DataFormat, FileDescriptor, IngestClient, IngestionProperties, dataFormatMappingKind } from "azure-kusto-ingest";
 import Console from "console";
 import fs from "fs";
 import util from "util";

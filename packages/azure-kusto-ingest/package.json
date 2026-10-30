@@ -70,7 +70,6 @@
         "@types/stream-array": "^1.1.4",
         "@types/stream-to-array": "^2.3.3",
         "@types/tmp": "^0.2.6",
-        "@types/uuid": "^8.3.4",
         "@types/uuid-validate": "0.0.1",
         "azure-kusto-data": "^7.2.0",
         "browserify-zlib": "0.2.0",
@@ -81,10 +80,11 @@
         "stream-browserify": "3.0.0",
         "stream-to-array": "^2.3.0",
         "tmp-promise": "^3.0.3",
-        "uuid": "^8.3.2",
+        "uuid": "^14.0.0",
         "uuid-validate": "0.0.3"
     },
     "devDependencies": {
+        "@azure/core-xml": "1.5.0",
         "@types/sinon": "^10.0.20",
         "assert": "^2.1.0"
     },
