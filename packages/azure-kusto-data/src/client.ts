@@ -207,7 +207,22 @@ export class KustoClient {
             headers.Authorization = authHeader;
         }
 
-        return this._doRequest(endpoint, executionType, headers, payloadContent, timeout, properties);
+        const signal = properties?.abortSignal;
+        if (!signal || (executionType !== ExecutionType.Query && executionType !== ExecutionType.QueryV1)) {
+            return this._doRequest(endpoint, executionType, headers, payloadContent, timeout, properties);
+        }
+
+        // Aborting the HTTP request does not stop the query on the service, so cancel it there too (best effort).
+        // The id is read when aborting, so it matches the header as sent (_doRequest sanitizes the headers).
+        const cancelOnService = () => {
+            this.executeMgmt(db, `.cancel query ${JSON.stringify(headers["x-ms-client-request-id"])}`).catch(() => undefined);
+        };
+        signal.addEventListener("abort", cancelOnService, { once: true });
+        try {
+            return await this._doRequest(endpoint, executionType, headers, payloadContent, timeout, properties);
+        } finally {
+            signal.removeEventListener("abort", cancelOnService);
+        }
     }
 
     private getDb(db: string | null) {
@@ -236,6 +251,7 @@ export class KustoClient {
         const axiosConfig: AxiosRequestConfig = {
             headers,
             timeout,
+            signal: properties?.abortSignal,
         };
 
         let axiosResponse;
