@@ -70,7 +70,6 @@
         "@types/stream-array": "^1.1.4",
         "@types/stream-to-array": "^2.3.3",
         "@types/tmp": "^0.2.6",
-        "@types/uuid": "^8.3.4",
         "@types/uuid-validate": "0.0.1",
         "azure-kusto-data": "^7.1.0",
         "browserify-zlib": "0.2.0",
