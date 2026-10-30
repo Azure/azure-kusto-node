@@ -15,6 +15,7 @@ import { kustoTrustedEndpoints } from "./kustoTrustedEndpoints.js";
 import { KustoResponseDataSet, KustoResponseDataSetV1, KustoResponseDataSetV2, V1, V2Frames } from "./response.js";
 import AadHelper from "./security.js";
 import { toMilliseconds } from "./timeUtils.js";
+import { parseJsonWithLargeIntegersAsStrings } from "./utils.js";
 
 const COMMAND_TIMEOUT_IN_MILLISECS = toMilliseconds(0, 10, 30);
 const QUERY_TIMEOUT_IN_MILLISECS = toMilliseconds(0, 4, 30);
@@ -237,6 +238,19 @@ export class KustoClient {
             headers,
             timeout,
         };
+        if (properties?.largeIntegersAsStrings) {
+            // Replaces axios' JSON.parse, which rounds integers beyond 2^53. Non-JSON bodies (e.g. gateway errors) are left as-is, like axios does.
+            axiosConfig.transformResponse = (data: unknown) => {
+                if (typeof data !== "string" || data === "") {
+                    return data;
+                }
+                try {
+                    return parseJsonWithLargeIntegersAsStrings(data);
+                } catch {
+                    return data;
+                }
+            };
+        }
 
         let axiosResponse;
         try {

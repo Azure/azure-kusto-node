@@ -3,12 +3,14 @@
 
 import assert from "assert";
 
+import axios, { AxiosError } from "axios";
 import { v4 as uuidv4 } from "uuid";
 
 import { KustoClient } from "../src/client.js";
 
 import { ClientRequestProperties } from "../src/clientRequestProperties.js";
 import { KustoResponseDataSetV1, KustoResponseDataSetV2 } from "../src/response.js";
+import { KustoResultRow } from "../src/models.js";
 
 import v2Response from "./data/response/v2.js";
 import v2ResponseError from "./data/response/v2error.js";
@@ -18,6 +20,7 @@ import { Readable } from "stream";
 import ConnectionBuilder from "../src/connectionBuilder.js";
 import { CloudSettings } from "../src/cloudSettings.js";
 import { toMilliseconds } from "../src/timeUtils.js";
+import { parseJsonWithLargeIntegersAsStrings } from "../src/utils.js";
 
 enum ExecutionType {
     Mgmt = "mgmt",
@@ -370,6 +373,72 @@ describe("KustoClient", () => {
                 return Promise.resolve(new KustoResponseDataSetV2([]));
             };
             await client.executeStreamingIngest("db2", "Table", undefined, "csvMap", null, "bloby");
+        });
+    });
+
+    describe("large integers", () => {
+        const body =
+            '[{"FrameType":"DataSetHeader","IsProgressive":false,"Version":"v2.0"},' +
+            '{"FrameType":"DataTable","TableId":0,"TableKind":"PrimaryResult","TableName":"PrimaryResult",' +
+            '"Columns":[{"ColumnName":"big","ColumnType":"long"},{"ColumnName":"small","ColumnType":"long"},' +
+            '{"ColumnName":"payload","ColumnType":"dynamic"},{"ColumnName":"text","ColumnType":"string"}],' +
+            '"Rows":[[9007199254740993,42,{"min":-9223372036854775808,"ratio":1.5e300,"list":[12345678901234567890]},"9007199254740993 \\"quoted\\""]]},' +
+            '{"FrameType":"DataSetCompletion","HasErrors":false,"Cancelled":false}]';
+
+        const clientReturning = (data: string, status = 200) => {
+            const client = new KustoClient("https://cluster.kusto.windows.net");
+            client.aadHelper.getAuthHeader = () => Promise.resolve(null);
+            client.axiosInstance.defaults.adapter = (config) => {
+                const response = { data, status, statusText: "", headers: {}, config };
+                return status === 200
+                    ? Promise.resolve(response)
+                    : Promise.reject(new AxiosError("Request failed", "ERR_BAD_RESPONSE", config, null, response));
+            };
+            return client;
+        };
+
+        const firstRow = async (client: KustoClient, properties?: ClientRequestProperties) => {
+            const response = await client.execute("db", "Table", properties);
+            return response.primaryResults[0].rows().next().value as KustoResultRow;
+        };
+
+        it("are rounded by default", async () => {
+            const row = await firstRow(clientReturning(body));
+            assert.strictEqual(row.big, 9007199254740992);
+            assert.strictEqual(row.small, 42);
+        });
+
+        it("are returned as exact strings when largeIntegersAsStrings is set", async () => {
+            const properties = new ClientRequestProperties();
+            properties.largeIntegersAsStrings = true;
+            const row = await firstRow(clientReturning(body), properties);
+            assert.strictEqual(row.big, "9007199254740993");
+            assert.strictEqual(row.small, 42);
+            assert.deepStrictEqual(row.payload, { min: "-9223372036854775808", ratio: 1.5e300, list: ["12345678901234567890"] });
+            assert.strictEqual(row.text, '9007199254740993 "quoted"');
+        });
+
+        it("leave non-JSON error bodies untouched", async () => {
+            const properties = new ClientRequestProperties();
+            properties.largeIntegersAsStrings = true;
+            const err: unknown = await clientReturning("<html>Bad Gateway 12345678901234567890</html>", 502)
+                .execute("db", "Table", properties)
+                .catch((e: unknown) => e);
+            assert.ok(axios.isAxiosError(err));
+            assert.strictEqual(err.response?.data, "<html>Bad Gateway 12345678901234567890</html>");
+        });
+
+        it("are detected only outside strings and only for integer literals", () => {
+            const text = String.raw`{"s":"ends with \\","n":9007199254740992,"safe":-9007199254740991,"exp":1.5e30,"dec":12345678901234568.0,"q":"\"12345678901234567890\""}`;
+            assert.deepStrictEqual(parseJsonWithLargeIntegersAsStrings(text), {
+                s: "ends with \\",
+                n: "9007199254740992",
+                safe: -9007199254740991,
+                exp: 1.5e30,
+                dec: 12345678901234568,
+                q: '"12345678901234567890"',
+            });
+            assert.deepStrictEqual(parseJsonWithLargeIntegersAsStrings('{"n":1}'), { n: 1 });
         });
     });
 });
