@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 import assert from "assert";
+import axios, { AxiosError, AxiosHeaders } from "axios";
 
 import { v4 as uuidv4 } from "uuid";
 
@@ -18,6 +19,7 @@ import { Readable } from "stream";
 import ConnectionBuilder from "../src/connectionBuilder.js";
 import { CloudSettings } from "../src/cloudSettings.js";
 import { toMilliseconds } from "../src/timeUtils.js";
+import { KustoApiError } from "../src/errors.js";
 
 enum ExecutionType {
     Mgmt = "mgmt",
@@ -370,6 +372,51 @@ describe("KustoClient", () => {
                 return Promise.resolve(new KustoResponseDataSetV2([]));
             };
             await client.executeStreamingIngest("db2", "Table", undefined, "csvMap", null, "bloby");
+        });
+    });
+    describe("request errors", () => {
+        const rejectWith = (client: KustoClient, status: number, data: unknown) => {
+            const config = { headers: new AxiosHeaders({ Authorization: "Bearer secret" }) };
+            const response = { status, statusText: "", headers: {}, config, data };
+            const error = new AxiosError(`Request failed with status code ${status}`, "ERR_BAD_REQUEST", config, {}, response);
+            client.aadHelper.getAuthHeader = () => Promise.resolve("MockToken");
+            client.axiosInstance.post = (() => Promise.reject(error)) as typeof client.axiosInstance.post;
+        };
+
+        it.concurrent("surfaces the OneApiError from the response body", async () => {
+            const client = new KustoClient("https://cluster.kusto.windows.net");
+            rejectWith(client, 400, {
+                error: {
+                    code: "General_BadRequest",
+                    message: "Request is invalid and cannot be executed.",
+                    "@type": "Kusto.Data.Exceptions.KustoBadRequestException",
+                    "@message": "Request is invalid and cannot be processed: Syntax error: SYN0002: Missing expression [line:position=1:19]",
+                    "@permanent": true,
+                },
+            });
+
+            await assert.rejects(client.execute("db", "StormEvents | take"), (err: unknown) => {
+                assert.ok(err instanceof KustoApiError);
+                assert.ok(axios.isAxiosError(err));
+                assert.strictEqual(err.message, "Request is invalid and cannot be processed: Syntax error: SYN0002: Missing expression [line:position=1:19]");
+                assert.strictEqual(err.error.code, "General_BadRequest");
+                assert.strictEqual(err.isPermanent, true);
+                assert.strictEqual(err.response?.status, 400);
+                assert.strictEqual(err.config?.headers.Authorization, "<REDACTED>");
+                return true;
+            });
+        });
+
+        it.concurrent("rethrows errors without a OneApiError body unchanged", async () => {
+            const client = new KustoClient("https://cluster.kusto.windows.net");
+            rejectWith(client, 502, "<html>Bad Gateway</html>");
+
+            await assert.rejects(client.execute("db", "Table | count"), (err: unknown) => {
+                assert.ok(axios.isAxiosError(err));
+                assert.ok(!(err instanceof KustoApiError));
+                assert.strictEqual(err.message, "Request failed with status code 502");
+                return true;
+            });
         });
     });
 });

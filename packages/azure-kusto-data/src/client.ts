@@ -10,7 +10,7 @@ import { KustoHeaders } from "./clientDetails.js";
 import ClientRequestProperties from "./clientRequestProperties.js";
 import CloudSettings from "./cloudSettings.js";
 import ConnectionStringBuilder from "./connectionBuilder.js";
-import { ThrottlingError } from "./errors.js";
+import { KustoApiError, OneApiError, ThrottlingError } from "./errors.js";
 import { kustoTrustedEndpoints } from "./kustoTrustedEndpoints.js";
 import { KustoResponseDataSet, KustoResponseDataSetV1, KustoResponseDataSetV2, V1, V2Frames } from "./response.js";
 import AadHelper from "./security.js";
@@ -255,6 +255,10 @@ export class KustoClient {
                 }
                 if (error.response && error.response.status === 429) {
                     throw new ThrottlingError("POST request failed with status 429 (Too Many Requests)", error);
+                }
+                const oneApiError = (error.response?.data as { error?: OneApiError } | undefined)?.error;
+                if (typeof oneApiError?.code === "string") {
+                    throw new KustoApiError(oneApiError, error);
                 }
             }
             throw error;
