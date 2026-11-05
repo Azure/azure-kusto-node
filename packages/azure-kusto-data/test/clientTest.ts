@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 
 import assert from "assert";
-import axios, { AxiosError, AxiosHeaders } from "axios";
+import axios, { AxiosError, AxiosHeaders, isAxiosError } from "axios";
+import { once } from "events";
+import { createServer } from "http";
 import { v4 as uuidv4 } from "uuid";
 
 import { KustoClient } from "../src/client.js";
@@ -34,6 +36,52 @@ beforeAll(() => {
 });
 
 describe("KustoClient", () => {
+    describe("NoRedirects", () => {
+        it.each([301, 302, 307, 308])("does not follow %d redirects", async (code) => {
+            let redirectedRequests = 0;
+            const server = createServer((request, response) => {
+                if (request.url === "/redirected") {
+                    redirectedRequests++;
+                    response.writeHead(200).end();
+                } else {
+                    response.writeHead(code, { Location: "/redirected" }).end();
+                }
+            });
+            server.listen(0, "127.0.0.1");
+            await once(server, "listening");
+            try {
+                const address = server.address();
+                assert(address !== null && typeof address !== "string");
+                const cluster = `http://127.0.0.1:${address.port}`;
+                const client = new KustoClient(ConnectionBuilder.withAccessToken(cluster, "test-token"));
+                CloudSettings.writeToCache(cluster);
+                client.axiosInstance.defaults.proxy = false;
+                try {
+                    await assert.rejects(client.execute("db", "table"), (error: unknown) => {
+                        assert(isAxiosError(error));
+                        assert.strictEqual(error.response?.status, code);
+                        return true;
+                    });
+                    assert.strictEqual(redirectedRequests, 0);
+                } finally {
+                    client.close();
+                    CloudSettings.deleteFromCache(cluster);
+                }
+            } finally {
+                await new Promise<void>((resolve, reject) => {
+                    server.close((error) => {
+                        if (error) {
+                            reject(error);
+                        } else {
+                            resolve();
+                        }
+                    });
+                    server.closeAllConnections();
+                });
+            }
+        });
+    });
+
     describe("url test", () => {
         const tests = {
             "https://kusto.test.com": "https://kusto.test.com",
