@@ -2,13 +2,10 @@ name: Node.js Build
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
 
 permissions:
-  checks: write
-  pull-requests: write
-  id-token: write
   contents: read
 
 jobs:
@@ -37,41 +34,26 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
-    environment: build
+    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
-          node-version: 20
-          registry-url: https://registry.npmjs.org/
-          cache: "npm"
-          cache-dependency-path: |
-            package-lock.json
+          persist-credentials: false
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: package-lock.json
+
       - run: npm ci
+
       - run: npm run checkFormat
         continue-on-error: true
+
       - run: npm run lint
-      - name: Azure login
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.APP_ID }}
-          tenant-id: ${{ secrets.TENANT_ID }}
-          subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
-      - run: npm run testPipeline
+
+      - name: Run unit tests without authenticated E2E
+        run: npm run testNoE2E -- --ci --maxWorkers=2
         env:
-          AUTO_TEST: true
-          LOGIN_TEST: true
-          TEST_DATABASE: ${{ secrets.TEST_DATABASE }}
-          ENGINE_CONNECTION_STRING: ${{ secrets.ENGINE_CONNECTION_STRING }}
-          DM_CONNECTION_STRING: ${{ secrets.DM_CONNECTION_STRING }}
-          AZURE_CLIENT_ID: ${{ secrets.APP_ID }}
-          AZURE_TENANT_ID: ${{ secrets.TENANT_ID }}
-          # Required for running tests when using ESM, see https://kulshekhar.github.io/ts-jest/docs/guides/esm-support
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v2
-      - name: Publish Unit Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v1
-        if: always()
-        with:
-          files: |
-            junit.xml
+          AUTO_TEST: "true"

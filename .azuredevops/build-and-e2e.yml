@@ -1,14 +1,161 @@
-# Temporary Azure Pipelines bootstrap for the Node SDK build and E2E migration.
-
 trigger:
-    - master
+    branches:
+        include:
+            - master
+    tags:
+        exclude:
+            - "*"
 
 pr:
-    - master
+    branches:
+        include:
+            - master
 
 pool:
     vmImage: ubuntu-latest
 
-steps:
-    - script: echo "Hello from Azure Pipelines"
-      displayName: Hello world
+jobs:
+    - job: BuildAndE2E
+      displayName: Build, unit tests, and Kusto E2E
+      timeoutInMinutes: 40
+      condition: and(succeeded(), ne(variables['System.PullRequest.IsFork'], 'True'))
+      variables:
+          - group: azure-kusto-node-e2e
+          - group: azure-kusto-node-codecov
+          - name: npm_config_cache
+            value: $(Pipeline.Workspace)/.npm
+      steps:
+          - checkout: self
+            clean: true
+            persistCredentials: false
+
+          - task: NodeTool@0
+            displayName: Use Node.js 20
+            inputs:
+                versionSpec: "20.x"
+
+          - task: Cache@2
+            displayName: Cache npm downloads
+            inputs:
+                key: 'npm | "$(Agent.OS)" | package-lock.json'
+                restoreKeys: |
+                    npm | "$(Agent.OS)"
+                path: $(npm_config_cache)
+
+          - script: npm ci
+            displayName: Install dependencies and build
+
+          - script: npm run checkFormat
+            displayName: Check formatting
+            continueOnError: true
+
+          - script: npm run lint
+            displayName: Lint
+
+          - task: UseDotNet@2
+            displayName: Set up coverage publisher runtime
+            inputs:
+                packageType: sdk
+                version: "8.x"
+
+          - task: AzureCLI@2
+            displayName: Run unit tests and authenticated Kusto E2E
+            inputs:
+                azureSubscription: kusto-connectors-arm-sc
+                scriptType: bash
+                scriptLocation: inlineScript
+                workingDirectory: $(Build.SourcesDirectory)
+                inlineScript: |
+                    set -euo pipefail
+
+                    for name in ENGINE_CONNECTION_STRING DM_CONNECTION_STRING TEST_DATABASE; do
+                        value="${!name:-}"
+                        if [[ -z "$value" || "$value" == '$('* ]]; then
+                            echo "##vso[task.logissue type=error]Required pipeline variable ${name} is missing or unresolved." >&2
+                            exit 1
+                        fi
+                    done
+
+                    npm run testPipeline -- \
+                        --coverageReporters=json \
+                        --coverageReporters=lcov \
+                        --coverageReporters=text \
+                        --coverageReporters=clover \
+                        --coverageReporters=cobertura
+            env:
+                AUTO_TEST: "true"
+                LOGIN_TEST: "true"
+                ENGINE_CONNECTION_STRING: $(ENGINE_CONNECTION_STRING)
+                DM_CONNECTION_STRING: $(DM_CONNECTION_STRING)
+                TEST_DATABASE: $(TEST_DATABASE)
+                JEST_JUNIT_OUTPUT_DIR: $(Agent.TempDirectory)/test-results
+
+          - task: PublishTestResults@2
+            displayName: Publish test results
+            condition: always()
+            inputs:
+                testResultsFormat: JUnit
+                testResultsFiles: junit.xml
+                searchFolder: $(Agent.TempDirectory)/test-results
+                testRunTitle: azure-kusto-node
+                failTaskOnFailedTests: true
+                failTaskOnMissingResultsFile: true
+
+          - task: PublishCodeCoverageResults@2
+            displayName: Publish code coverage
+            condition: succeededOrFailed()
+            inputs:
+                summaryFileLocation: $(Build.SourcesDirectory)/coverage/cobertura-coverage.xml
+                pathToSources: $(Build.SourcesDirectory)
+                failIfCoverageEmpty: true
+
+          - bash: |
+                set -euo pipefail
+
+                if [[ -z "${CODECOV_TOKEN:-}" || "${CODECOV_TOKEN:-}" == '$('* ]]; then
+                    echo "##vso[task.logissue type=error]CODECOV_TOKEN is missing or unresolved." >&2
+                    exit 1
+                fi
+                if [[ ! -s coverage/lcov.info ]]; then
+                    echo "##vso[task.logissue type=error]Codecov coverage report coverage/lcov.info is missing or empty." >&2
+                    exit 1
+                fi
+
+                args=(
+                    upload-process
+                    --fail-on-error
+                    --disable-search
+                    --git-service github
+                    --slug Azure/azure-kusto-node
+                    --file coverage/lcov.info
+                    --build-code "$BUILD_BUILDID"
+                    --build-url "${SYSTEM_COLLECTIONURI}${SYSTEM_TEAMPROJECTID}/_build/results?buildId=${BUILD_BUILDID}"
+                )
+                if [[ "$BUILD_REASON" == PullRequest ]]; then
+                    for name in SYSTEM_PULLREQUEST_SOURCECOMMITID SYSTEM_PULLREQUEST_SOURCEBRANCH SYSTEM_PULLREQUEST_PULLREQUESTNUMBER; do
+                        if [[ -z "${!name:-}" ]]; then
+                            echo "##vso[task.logissue type=error]Required pull request metadata ${name} is missing." >&2
+                            exit 1
+                        fi
+                    done
+                    args+=(
+                        --sha "$SYSTEM_PULLREQUEST_SOURCECOMMITID"
+                        --branch "${SYSTEM_PULLREQUEST_SOURCEBRANCH#refs/heads/}"
+                        --pr "$SYSTEM_PULLREQUEST_PULLREQUESTNUMBER"
+                    )
+                else
+                    args+=(--sha "$BUILD_SOURCEVERSION" --branch "${BUILD_SOURCEBRANCH#refs/heads/}")
+                fi
+
+                uploader="${AGENT_TEMPDIRECTORY}/codecov"
+                curl --fail --silent --show-error --location --retry 3 \
+                    https://github.com/codecov/codecov-cli/releases/download/v11.3.2/codecovcli_linux \
+                    --output "$uploader"
+                printf '%s  %s\n' '8e1bfb71661378530f6ea21e82b414095899e565cbb4cf555c613064be17b973' "$uploader" | sha256sum --check
+                chmod +x "$uploader"
+                "$uploader" "${args[@]}"
+            displayName: Upload coverage to Codecov
+            workingDirectory: $(Build.SourcesDirectory)
+            continueOnError: true
+            env:
+                CODECOV_TOKEN: $(CODECOV_TOKEN)

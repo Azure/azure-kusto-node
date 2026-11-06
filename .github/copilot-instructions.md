@@ -33,7 +33,19 @@ Test files live in `packages/<package>/test/` and must match the pattern `**/tes
 
 Tests gated behind credentials use `loginTest` / `manualLoginTest` helpers from `packages/azure-kusto-data/test/data/testUtils.ts` and only run when `LOGIN_TEST=1` is set.
 
-E2E tests require Azure environment variables (`ENGINE_CONNECTION_STRING`, `DM_CONNECTION_STRING`, `TEST_DATABASE`, `APP_ID`, `APP_KEY`, `TENANT_ID`).
+E2E tests use `ENGINE_CONNECTION_STRING`, `DM_CONNECTION_STRING`, and `TEST_DATABASE`, with `AzureCliCredential` and an existing Azure CLI login by default. Local application-key authentication is optional when `APP_ID`, `APP_KEY`, and `TENANT_ID` are all set; do not provide `APP_KEY` in CI.
+
+### Continuous integration
+
+Credential-free build, lint, and unit tests run in `.github/workflows/build.yml` on `master` pushes and every PR, including forks. Use `npm run testNoE2E -- --ci --maxWorkers=2` with `AUTO_TEST=true` and leave `LOGIN_TEST` unset. Do not add Azure login or Azure/Kusto secrets to this workflow.
+
+The full build, lint, unit, and authenticated E2E suite also runs in `.azuredevops/build-and-e2e.yml` using the WIF-backed `kusto-connectors-arm-sc` service connection. Run tests inside `AzureCLI@2` to preserve its task-local CLI configuration. The `azure-kusto-node-e2e` variable group supplies the endpoint/database settings; `azure-kusto-node-codecov` supplies a secret upload token only to the Codecov step.
+
+Preserve `npm run testPipeline`, `AUTO_TEST=true`, and `LOGIN_TEST=true` in Azure CI. `testE2E` is a name filter and omits the sibling `NoRedirects` and `Mgmt Parsing` integration suites.
+
+Fork PRs receive GitHub build/lint/unit validation but do not run authenticated Azure E2E. Same-repository Azure PR runs require maintainer approval for the current revision; trusted `master` pushes and manual runs are supported. Enforce Azure trust through project/resource policies as well as the YAML condition. Release and CodeQL remain in GitHub Actions.
+
+Kusto-issued SAS URLs authorize the existing Blob/Queue/Table test operations; do not add static storage credentials or separate storage connections for them. See `CONTRIBUTING.md` for platform setup and validation prerequisites.
 
 ## Architecture
 

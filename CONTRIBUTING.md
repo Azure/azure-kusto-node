@@ -15,49 +15,69 @@ These include testing related packages as well as styling ([eslint](https://esli
 
 ## Testing
 
-This project uses [mocha](https://mochajs.org/) for testing.
+This project uses [Jest](https://jestjs.io/) for testing. Run commands from the repository root.
 
-First, enter the directory of the package to run the tests on:
-
-```bash
-cd packages/azure-kusto-data
-# or:
-cd packages/azure-kusto-ingest
-```
-
-In order to run unittests execute:
+To run unit tests without the authenticated E2E suite:
 
 ```bash
-npm test
+npm run testNoE2E
+# Select a package:
+npm run testData
+npm run testIngestNoE2E
 ```
 
 Tests that need credentials to run will not run by default.
-To run them, set the enviornment variable `LOGIN_TEST=1`
-These tests will usually need more credentials, which will be passed via enviornment variables.
+To enable credential-gated tests, set the environment variable `LOGIN_TEST=1`.
+Set `AUTO_TEST=true` to exclude tests requiring interactive or machine-specific authentication.
 See tests that are declared with `loginTest` or `manualLoginTest` for their requirements.
 
-In order to check coding style compliance excute:
+To check coding style compliance:
 
 ```bash
 npm run lint
 npm run checkFormat
 ```
 
-To run end to end tests from the `azure-kusto-ingest` packge, you will need to set up environment variables:
+To run the full pipeline suite, including ingestion E2E tests, sign in with Azure CLI and configure an approved test database:
 
 ```bash
 # The following instructions are for bash. When using a different shell, use the syntax for setting environment variables.
-export ENGINE_CONNECTION_STRING=https://<your-cluster>.kusto.windows.net
-export DM_CONNECTION_STRING=https://ingest-<your-cluster>.kusto.windows.net
-export TEST_DATABASE=<your-database>
-export APP_ID=<your-app-id>
-export APP_KEY=<your-app-key>
-export TENANT_ID=<your-tenant-id>
+az login --tenant "<your-tenant-id>"
+export ENGINE_CONNECTION_STRING="https://<your-cluster>.kusto.windows.net"
+export DM_CONNECTION_STRING="https://ingest-<your-cluster>.kusto.windows.net"
+export TEST_DATABASE="<your-database>"
+export AUTO_TEST=true
+export LOGIN_TEST=true
 
-npm run e2e
+npm run testPipeline
 ```
 
-On creating PR or pushing a commit there is an automated validation which runs lint, unittests and end2end tests.
+The tests use `AzureCliCredential` by default. Local application-key authentication is optional: set `APP_ID`, `APP_KEY`, and `TENANT_ID` together to select it. Do not provide `APP_KEY` in CI. The test principal must be able to query, create/alter/drop test tables, configure ingestion policies/mappings, and access the ingestion resources returned by Kusto. E2E tests modify the configured database; do not use a production database.
+
+Use `npm run testNoE2E -- --ci --maxWorkers=2` for parity with GitHub CI and `npm run testPipeline` for the full Azure suite. `npm run testE2E` filters by the name "E2E Tests" and excludes other integration suites in the same file.
+
+## Continuous integration
+
+Build, lint, and non-E2E unit tests run in [GitHub Actions](.github/workflows/build.yml) on `master` pushes and every PR, including forks. This workflow does not use Azure/Kusto credentials or a protected environment.
+
+The full suite, including authenticated E2E, also runs in [Azure Pipelines](.azuredevops/build-and-e2e.yml) on `master` pushes, maintainer-approved same-repository PRs targeting `master`, and trusted manual runs. Fork PRs retain GitHub build/lint/unit validation but do not run authenticated Azure E2E. Release and CodeQL workflows remain in GitHub Actions.
+
+Before enabling the pipeline, configure these project resources and authorize only the intended pipeline:
+
+| Resource | Required configuration |
+| --- | --- |
+| Azure Pipelines GitHub App | Repository checkout, push/PR triggers, and GitHub check reporting for `Azure/azure-kusto-node`. |
+| `kusto-connectors-arm-sc` | Azure Resource Manager service connection using workload identity federation, with the appropriate ADX database permissions and a maintainer approval check. |
+| `azure-kusto-node-e2e` variable group | `ENGINE_CONNECTION_STRING`, `DM_CONNECTION_STRING`, and `TEST_DATABASE` for the approved test environment. |
+| `azure-kusto-node-codecov` variable group | Secret `CODECOV_TOKEN` for this repository, with restricted pipeline access. The token is mapped only to the upload step. |
+
+Configure Azure project/pipeline policies to block fork PR runs and require maintainer approval for each same-repository PR revision before protected resources are used. Restrict manual Azure runs to trusted branches and maintainers. The YAML fork condition alone is not a security boundary because PRs can modify YAML. These restrictions do not apply to credential-free GitHub build/lint/unit validation.
+
+Kusto returns SAS URLs for the Blob, Queue, and Table operations exercised by ingestion tests. No separate storage service connection or static storage key is required for these existing paths. The tests must run inside `AzureCLI@2` so they inherit its authenticated CLI configuration.
+
+JUnit and coverage reports are published in Azure. Coverage is also uploaded with a checksum-pinned Codecov CLI, preserving `codecov.yml`'s informational coverage policy. Codecov upload failures are reported as non-blocking Azure task issues; lint and test failures remain blocking.
+
+Validate a trusted Azure run, test/coverage publication, Codecov PR association, and the approval/fork policies before merging the cutover. Coordinate required-check changes with a repository administrator without weakening unrelated protections or removing GitHub build/unit validation. A universally required Azure E2E check must be reconciled with the intentional absence of fork E2E runs.
 
 ## PRs
 
