@@ -54,6 +54,10 @@ jobs:
       - run: npm run lint
 
       - name: Run unit tests without authenticated E2E
-        run: npm run testNoE2E -- --ci --maxWorkers=2
+        run: npm run testNoE2E -- --ci --maxWorkers=2 --coverage
         env:
           AUTO_TEST: "true"
+          LOGIN_TEST: ""
+
+      - name: Upload unit coverage to Codecov
+        uses: codecov/codecov-action@v2

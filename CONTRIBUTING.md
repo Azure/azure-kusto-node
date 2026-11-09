@@ -38,7 +38,7 @@ npm run lint
 npm run checkFormat
 ```
 
-To run the full pipeline suite, including ingestion E2E tests, sign in with Azure CLI and configure an approved test database:
+To run the authenticated E2E suite, sign in with Azure CLI and configure an approved test database:
 
 ```bash
 # The following instructions are for bash. When using a different shell, use the syntax for setting environment variables.
@@ -49,18 +49,18 @@ export TEST_DATABASE="<your-database>"
 export AUTO_TEST=true
 export LOGIN_TEST=true
 
-npm run testPipeline
+npm run testPipeline -- --testPathPattern '/.*e2e.*/'
 ```
 
 The tests use `AzureCliCredential` by default. Local application-key authentication is optional: set `APP_ID`, `APP_KEY`, and `TENANT_ID` together to select it. Do not provide `APP_KEY` in CI. The test principal must be able to query, create/alter/drop test tables, configure ingestion policies/mappings, and access the ingestion resources returned by Kusto. E2E tests modify the configured database; do not use a production database.
 
-Use `npm run testNoE2E -- --ci --maxWorkers=2` for parity with GitHub CI and `npm run testPipeline` for the full Azure suite. `npm run testE2E` filters by the name "E2E Tests" and excludes other integration suites in the same file.
+Use `npm run testNoE2E -- --ci --maxWorkers=2 --coverage` for parity with the GitHub unit-coverage job. Azure selects the E2E test paths using the complementary pattern, including the sibling `NoRedirects` and `Mgmt Parsing` suites. `npm run testPipeline` without a path selector still runs all tests locally. `npm run testE2E` filters by the name "E2E Tests" and excludes those sibling integration suites.
 
 ## Continuous integration
 
-Build, lint, and non-E2E unit tests run in [GitHub Actions](.github/workflows/build.yml) on `master` pushes and every PR, including forks. This workflow does not use Azure/Kusto credentials or a protected environment.
+Build, formatting/lint checks, and non-E2E unit tests run in [GitHub Actions](.github/workflows/build.yml) on `master` pushes and every PR, including forks. The existing Node 20/22/24 offline test matrix is retained. The Node 20 build job generates unit coverage and uploads it using the existing Codecov GitHub Action invocation, without adding a token requirement. This workflow does not use Azure/Kusto credentials or a protected environment.
 
-The full suite, including authenticated E2E, also runs in [Azure Pipelines](.azuredevops/build-and-e2e.yml) on `master` pushes, maintainer-approved same-repository PRs targeting `master`, and trusted manual runs. Fork PRs retain GitHub build/lint/unit validation but do not run authenticated Azure E2E. Release and CodeQL workflows remain in GitHub Actions.
+Authenticated E2E tests run in [Azure Pipelines](.azuredevops/build-and-e2e.yml) on `master` pushes, maintainer-approved same-repository PRs targeting `master`, and trusted manual runs. Azure installs/builds the SDK as an E2E prerequisite but does not run the unit-test suite, formatting checks, or lint. Fork PRs retain GitHub build/lint/unit validation but do not run authenticated Azure E2E. Release and CodeQL workflows remain in GitHub Actions.
 
 Before enabling the pipeline, configure these project resources and authorize only the intended pipeline:
 
@@ -69,15 +69,14 @@ Before enabling the pipeline, configure these project resources and authorize on
 | Azure Pipelines GitHub App | Repository checkout, push/PR triggers, and GitHub check reporting for `Azure/azure-kusto-node`. |
 | `kusto-connectors-arm-sc` | Azure Resource Manager service connection using workload identity federation, with the appropriate ADX database permissions and a maintainer approval check. |
 | `azure-kusto-node-e2e` variable group | `ENGINE_CONNECTION_STRING`, `DM_CONNECTION_STRING`, and `TEST_DATABASE` for the approved test environment. |
-| `azure-kusto-node-codecov` variable group | Secret `CODECOV_TOKEN` for this repository, with restricted pipeline access. The token is mapped only to the upload step. |
 
 Configure Azure project/pipeline policies to block fork PR runs and require maintainer approval for each same-repository PR revision before protected resources are used. Restrict manual Azure runs to trusted branches and maintainers. The YAML fork condition alone is not a security boundary because PRs can modify YAML. These restrictions do not apply to credential-free GitHub build/lint/unit validation.
 
 Kusto returns SAS URLs for the Blob, Queue, and Table operations exercised by ingestion tests. No separate storage service connection or static storage key is required for these existing paths. The tests must run inside `AzureCLI@2` so they inherit its authenticated CLI configuration.
 
-JUnit and coverage reports are published in Azure. Coverage is also uploaded with a checksum-pinned Codecov CLI, preserving `codecov.yml`'s informational coverage policy. Codecov upload failures are reported as non-blocking Azure task issues; lint and test failures remain blocking.
+E2E JUnit and Cobertura coverage reports are published in Azure. Unit coverage is uploaded to Codecov only from GitHub Actions, preserving `codecov.yml`'s informational coverage policy. Azure does not upload to Codecov and requires no Codecov variable group or token.
 
-Validate a trusted Azure run, test/coverage publication, Codecov PR association, and the approval/fork policies before merging the cutover. Coordinate required-check changes with a repository administrator without weakening unrelated protections or removing GitHub build/unit validation. A universally required Azure E2E check must be reconciled with the intentional absence of fork E2E runs.
+Validate GitHub CI and Codecov PR association, a trusted Azure E2E run and its test/coverage publication, and the Azure approval/fork policies before merging the cutover. Coordinate required-check changes with a repository administrator without weakening unrelated protections or removing GitHub build/unit validation. A universally required Azure E2E check must be reconciled with the intentional absence of fork E2E runs.
 
 ## PRs
 

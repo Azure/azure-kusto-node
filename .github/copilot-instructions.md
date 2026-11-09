@@ -37,11 +37,11 @@ E2E tests use `ENGINE_CONNECTION_STRING`, `DM_CONNECTION_STRING`, and `TEST_DATA
 
 ### Continuous integration
 
-Credential-free build, lint, and unit tests run in `.github/workflows/build.yml` on `master` pushes and every PR, including forks. Use `npm run testNoE2E -- --ci --maxWorkers=2` with `AUTO_TEST=true` and leave `LOGIN_TEST` unset. Do not add Azure login or Azure/Kusto secrets to this workflow.
+Credential-free build, formatting/lint checks, and unit tests run in `.github/workflows/build.yml` on `master` pushes and every PR, including forks. Preserve the existing Node 20/22/24 offline test matrix. The Node 20 build job uses `npm run testNoE2E -- --ci --maxWorkers=2 --coverage` with `AUTO_TEST=true` and an empty `LOGIN_TEST`, then uploads unit coverage using the existing Codecov GitHub Action invocation. Do not add Azure login or Azure/Kusto secrets to this workflow.
 
-The full build, lint, unit, and authenticated E2E suite also runs in `.azuredevops/build-and-e2e.yml` using the WIF-backed `kusto-connectors-arm-sc` service connection. Run tests inside `AzureCLI@2` to preserve its task-local CLI configuration. The `azure-kusto-node-e2e` variable group supplies the endpoint/database settings; `azure-kusto-node-codecov` supplies a secret upload token only to the Codecov step.
+Authenticated E2E tests run in `.azuredevops/build-and-e2e.yml` using the WIF-backed `kusto-connectors-arm-sc` service connection. Dependency installation/builds are prerequisites; unit tests, formatting checks, and lint stay in GitHub CI. Run E2E inside `AzureCLI@2` to preserve its task-local CLI configuration. The `azure-kusto-node-e2e` variable group supplies the endpoint/database settings. Azure publishes E2E test/coverage reports but must not upload to Codecov or require a Codecov group/token.
 
-Preserve `npm run testPipeline`, `AUTO_TEST=true`, and `LOGIN_TEST=true` in Azure CI. `testE2E` is a name filter and omits the sibling `NoRedirects` and `Mgmt Parsing` integration suites.
+Use `npm run testPipeline -- --testPathPattern '/.*e2e.*/'`, `AUTO_TEST=true`, and `LOGIN_TEST=true` in Azure CI. This complements the GitHub `testNoE2E` exclusion and includes all suites in the selected E2E files. Do not replace it with `testE2E`, whose name filter omits the sibling `NoRedirects` and `Mgmt Parsing` integration suites.
 
 Fork PRs receive GitHub build/lint/unit validation but do not run authenticated Azure E2E. Same-repository Azure PR runs require maintainer approval for the current revision; trusted `master` pushes and manual runs are supported. Enforce Azure trust through project/resource policies as well as the YAML condition. Release and CodeQL remain in GitHub Actions.
 
