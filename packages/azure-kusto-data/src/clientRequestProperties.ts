@@ -14,6 +14,11 @@ export class ClientRequestProperties {
     public application: string | null;
     public raw?: boolean;
     /**
+     * Aborts this request when signaled. For queries, the SDK also sends `.cancel query` with the request's client request id,
+     * so the query stops running on the service. Other requests of the same client are not affected.
+     */
+    public abortSignal?: AbortSignal;
+    /**
      * When true, integers in the response that are outside JavaScript's safe integer range (such as large `long` values,
      * including those inside `dynamic` values) are returned as their exact decimal strings instead of rounded numbers.
      * Safe integers and all other values are parsed as usual.
