@@ -77,4 +77,44 @@ describe("ClientRequestProperties.abortSignal", () => {
         properties.abortSignal = AbortSignal.abort();
         await assert.rejects(client.execute("db", "fast", properties), (e: unknown) => axios.isCancel(e));
     });
+
+    it("does not start cloud discovery when already aborted", async () => {
+        const client = new KustoClient("http://127.0.0.1:1");
+        const getCloudInfo = CloudSettings.getCloudInfoForCluster.bind(CloudSettings);
+        let discoveryCalls = 0;
+        CloudSettings.getCloudInfoForCluster = (endpoint: string) => {
+            discoveryCalls++;
+            return getCloudInfo(endpoint);
+        };
+        try {
+            const properties = new ClientRequestProperties();
+            properties.abortSignal = AbortSignal.abort();
+            await assert.rejects(client.execute("db", "fast", properties), (e: unknown) => axios.isCancel(e));
+            assert.strictEqual(discoveryCalls, 0);
+        } finally {
+            CloudSettings.getCloudInfoForCluster = getCloudInfo;
+        }
+    });
+
+    it("stops waiting for authentication when aborted, even if authentication later fails", async () => {
+        const client = new KustoClient(cluster);
+        let authStarted!: () => void;
+        const authStartedPromise = new Promise<void>((resolve) => (authStarted = resolve));
+        let failAuth!: (e: Error) => void;
+        client.aadHelper.getAuthHeader = () => {
+            authStarted();
+            return new Promise<string | null>((_, reject) => (failAuth = reject));
+        };
+
+        const controller = new AbortController();
+        const properties = new ClientRequestProperties();
+        properties.abortSignal = controller.signal;
+        const request = client.execute("db", "fast", properties);
+        await authStartedPromise;
+        controller.abort();
+
+        const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("the aborted request did not settle")), 2000));
+        await assert.rejects(Promise.race([request, timeout]), (e: unknown) => axios.isCancel(e));
+        failAuth(new Error("auth failed"));
+    });
 });

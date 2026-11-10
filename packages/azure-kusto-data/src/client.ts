@@ -144,7 +144,12 @@ export class KustoClient {
         properties?: ClientRequestProperties | null,
     ): Promise<KustoResponseDataSet> {
         this.ensureOpen();
-        kustoTrustedEndpoints.validateTrustedEndpoint(endpoint, (await CloudSettings.getCloudInfoForCluster(this.cluster)).LoginEndpoint);
+        const signal = properties?.abortSignal;
+        if (signal?.aborted) {
+            throw new axios.CanceledError();
+        }
+        const cloudInfo = await KustoClient._abortable(CloudSettings.getCloudInfoForCluster(this.cluster), signal);
+        kustoTrustedEndpoints.validateTrustedEndpoint(endpoint, cloudInfo.LoginEndpoint);
         db = this.getDb(db);
         const headers: { [header: string]: string } = {};
 
@@ -202,12 +207,11 @@ export class KustoClient {
             }
         }
 
-        const authHeader = await this.aadHelper.getAuthHeader();
+        const authHeader = await KustoClient._abortable(this.aadHelper.getAuthHeader(), signal);
         if (authHeader != null) {
             headers.Authorization = authHeader;
         }
 
-        const signal = properties?.abortSignal;
         if (!signal || (executionType !== ExecutionType.Query && executionType !== ExecutionType.QueryV1)) {
             return this._doRequest(endpoint, executionType, headers, payloadContent, timeout, properties);
         }
@@ -223,6 +227,30 @@ export class KustoClient {
         } finally {
             signal.removeEventListener("abort", cancelOnService);
         }
+    }
+
+    // Stops waiting for shared work (cloud discovery, authentication) when this request is aborted, without cancelling the work itself.
+    private static _abortable<T>(promise: Promise<T>, signal?: AbortSignal): Promise<T> {
+        if (!signal) {
+            return promise;
+        }
+        return new Promise<T>((resolve, reject) => {
+            const onAbort = () => reject(new axios.CanceledError());
+            signal.addEventListener("abort", onAbort, { once: true });
+            if (signal.aborted) {
+                onAbort();
+            }
+            promise.then(
+                (value) => {
+                    signal.removeEventListener("abort", onAbort);
+                    resolve(value);
+                },
+                (error: unknown) => {
+                    signal.removeEventListener("abort", onAbort);
+                    reject(error);
+                },
+            );
+        });
     }
 
     private getDb(db: string | null) {
