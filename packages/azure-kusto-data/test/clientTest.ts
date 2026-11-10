@@ -440,5 +440,16 @@ describe("KustoClient", () => {
             });
             assert.deepStrictEqual(parseJsonWithLargeIntegersAsStrings('{"n":1}'), { n: 1 });
         });
+
+        it("reject malformed JSON like JSON.parse", () => {
+            for (const text of [
+                '{"n":009007199254740993}',
+                '{"n":-09007199254740993}',
+                '{9007199254740993:"gateway error"}',
+                '{9007199254740993 \n :"gateway error"}',
+            ]) {
+                assert.throws(() => parseJsonWithLargeIntegersAsStrings(text), SyntaxError, text);
+            }
+        });
     });
 });

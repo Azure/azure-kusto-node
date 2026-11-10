@@ -14,6 +14,7 @@ export function getStringTailLowerCase(val: string, tailLength: number): string 
 }
 
 const isNumberChar = (ch: string) => (ch >= "0" && ch <= "9") || ch === "-" || ch === "+" || ch === "." || ch === "e" || ch === "E";
+const isJsonWhitespace = (ch: string) => ch === " " || ch === "\t" || ch === "\n" || ch === "\r";
 
 /**
  * Parses JSON like `JSON.parse`, except that integer literals outside the safe integer range are returned as their exact decimal strings.
@@ -44,7 +45,12 @@ export function parseJsonWithLargeIntegersAsStrings(text: string): unknown {
                 end++;
             }
             const token = text.slice(i, end);
-            if (/^-?\d+$/.test(token) && !Number.isSafeInteger(Number(token))) {
+            let next = end;
+            while (next < text.length && isJsonWhitespace(text[next])) {
+                next++;
+            }
+            // Quote only valid JSON integers (no leading zeros) outside object-key positions, so malformed JSON still fails to parse.
+            if (/^-?[1-9]\d*$/.test(token) && !Number.isSafeInteger(Number(token)) && text[next] !== ":") {
                 result += `${text.slice(copiedUpTo, i)}"${token}"`;
                 copiedUpTo = end;
             }
