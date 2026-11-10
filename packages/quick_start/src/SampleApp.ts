@@ -2,8 +2,7 @@
 // Licensed under the MIT License.
 
 import { Client as KustoClient } from "azure-kusto-data";
-import { DataFormat, IngestClient } from "azure-kusto-ingest";
-import { dataFormatMappingKind } from "azure-kusto-ingest/src/ingestionProperties";
+import { DataFormat, IngestClient, dataFormatMappingKind } from "azure-kusto-ingest";
 import Console from "console";
 import fs from "fs";
 import readline from "readline";
