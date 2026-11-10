@@ -13,6 +13,12 @@ export class ClientRequestProperties {
     public user: string | null;
     public application: string | null;
     public raw?: boolean;
+    /**
+     * When true, integers in the response that are outside JavaScript's safe integer range (such as large `long` values,
+     * including those inside `dynamic` values) are returned as their exact decimal strings instead of rounded numbers.
+     * Safe integers and all other values are parsed as usual.
+     */
+    public largeIntegersAsStrings?: boolean;
 
     constructor(options?: Record<string, unknown>, parameters?: Record<string, unknown>, clientRequestId?: string, user?: string, application?: string) {
         this._options = options || {};
