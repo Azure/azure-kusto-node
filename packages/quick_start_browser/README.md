@@ -10,7 +10,7 @@ You can use it as a baseline to write your own first kusto client application, a
 
 ### Prerequisites
 
-1. Set up NodeJS version 14+ and npm on your machine. For instructions, consult a setup tutorial, like [this](https://docs.microsoft.com/en-us/windows/dev-environment/javascript/nodejs-on-windows)
+1. Set up NodeJS version 16+ and npm version 8.3.0+ (required for dependency overrides) on your machine. For instructions, consult a setup tutorial, like [this](https://docs.microsoft.com/en-us/windows/dev-environment/javascript/nodejs-on-windows)
 
 ### Retrieving the app from GitHub
 
