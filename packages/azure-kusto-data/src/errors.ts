@@ -25,7 +25,7 @@ export class KustoApiError extends AxiosError {
         public error: OneApiError,
         inner: AxiosError,
     ) {
-        super(error["@message"] || error.message, inner.code, inner.config, inner.request, inner.response);
+        super(error["@message"] || error.message || inner.message, inner.code, inner.config, inner.request, inner.response);
         this.name = "KustoApiError";
         this.cause = inner;
     }
