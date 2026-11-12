@@ -38,7 +38,7 @@ export class ClientDetails {
         if (isNodeLike) {
             return process?.env?.npm_package_name || process?.argv[1] || None;
         } else {
-            return window?.location?.href || None;
+            return globalThis.location?.href || None;
         }
     }
 
@@ -65,7 +65,7 @@ export class ClientDetails {
     static defaultVersion(): string {
         return this.formatHeader([
             ["Kusto.JavaScript.Client", SDK_VERSION],
-            ["Runtime." + (isNodeLike ? "Node" : "Browser"), (isNodeLike ? process.version : window?.navigator?.userAgent) || None],
+            ["Runtime." + (isNodeLike ? "Node" : "Browser"), (isNodeLike ? process.version : globalThis.navigator?.userAgent) || None],
         ]);
     }
 
