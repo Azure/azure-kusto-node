@@ -13,7 +13,7 @@
         }
     },
     "scripts": {
-        "clean": "rimraf dist/* dist-esm/* types/*",
+        "clean": "rimraf --glob dist/* dist-esm/* types/*",
         "build": "tsc -b"
     },
     "browser": {
@@ -60,17 +60,17 @@
     "homepage": "https://github.com/Azure/azure-kusto-node/blob/master/azure-kusto-data/README.md",
     "devDependencies": {
         "assert": "^2.1.0",
-        "rimraf": "^3.0.2"
+        "rimraf": "^6.1.4"
     },
     "dependencies": {
         "@azure/core-auth": "^1.10.0",
-        "@azure/core-util": "^1.13.1",
-        "@azure/identity": "^4.13.1",
-        "axios": "^1.16.0",
-        "follow-redirects": "^1.15.11",
+        "@azure/core-util": "~1.13.1",
+        "@azure/identity": "4.13.1",
+        "axios": "^1.21.0",
+        "follow-redirects": "^1.16.2",
         "https-browserify": "^1.0.0",
         "stream-http": "^3.2.0",
-        "uuid": "^14.0.0"
+        "uuid": "^14.0.3"
     },
     "gitHead": "f8a5dae26d6d2ca2ab8b95953bb9b88a02e8e35d"
 }
