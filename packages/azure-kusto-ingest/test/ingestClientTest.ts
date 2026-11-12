@@ -31,6 +31,21 @@ describe("KustoIngestClient", () => {
         });
     });
 
+    describe("#getIngestionEndpoint()", () => {
+        it.each([
+            ["http://127.0.0.1:8080", "http://127.0.0.1:8080"],
+            ["https://10.0.0.1", "https://10.0.0.1"],
+            ["http://localhost:8080", "http://localhost:8080"],
+            ["https://onebox.dev.kusto.windows.net", "https://onebox.dev.kusto.windows.net"],
+            ["https://cluster.kusto.windows.net", "https://ingest-cluster.kusto.windows.net"],
+            ["https://ingest-cluster.kusto.windows.net", "https://ingest-cluster.kusto.windows.net"],
+        ])("preserves endpoint routing for %s", (endpoint, expected) => {
+            const client = new KustoIngestClient("https://cluster.kusto.windows.net");
+
+            assert.strictEqual(client.getIngestionEndpoint(endpoint), expected);
+        });
+    });
+
     describe("#_resolveProperties()", () => {
         it.concurrent("empty default props", () => {
             const newProps = new IngestionProperties({

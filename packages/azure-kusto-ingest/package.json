@@ -14,7 +14,7 @@
     },
     "scripts": {
         "build": "tsc -b",
-        "clean": "rimraf dist/* dist-esm/* types/*"
+        "clean": "rimraf --glob dist/* dist-esm/* types/*"
     },
     "engines": {
         "node": ">= 20.0.0"
@@ -61,31 +61,31 @@
         "./dist-esm/src/ingestClient.js": "./dist-esm/src/ingestClient.browser.js"
     },
     "dependencies": {
-        "@azure/core-util": "^1.13.1",
+        "@azure/core-util": "~1.13.1",
         "@azure/data-tables": "^13.3.2",
-        "@azure/storage-blob": "^12.31.0",
-        "@azure/storage-queue": "^12.29.0",
+        "@azure/storage-blob": "~12.32.0",
+        "@azure/storage-queue": "~12.30.0",
         "@types/jsbn": "^1.2.33",
         "@types/pako": "^2.0.4",
         "@types/stream-array": "^1.1.4",
         "@types/stream-to-array": "^2.3.3",
         "@types/tmp": "^0.2.6",
-        "@types/uuid-validate": "0.0.1",
+        "@types/uuid-validate": "0.0.3",
         "azure-kusto-data": "^7.2.0",
         "browserify-zlib": "0.2.0",
         "buffer": "^6.0.3",
-        "is-ip": "^3.1.0",
+        "is-ip": "^5.0.1",
         "pako": "^2.1.0",
         "stream-array": "^1.1.2",
         "stream-browserify": "3.0.0",
         "stream-to-array": "^2.3.0",
         "tmp-promise": "^3.0.3",
-        "uuid": "^14.0.0",
+        "uuid": "^14.0.3",
         "uuid-validate": "0.0.3"
     },
     "devDependencies": {
         "@azure/core-xml": "1.5.0",
-        "@types/sinon": "^10.0.20",
+        "@types/sinon": "^22.0.2",
         "assert": "^2.1.0"
     },
     "gitHead": "f8a5dae26d6d2ca2ab8b95953bb9b88a02e8e35d"

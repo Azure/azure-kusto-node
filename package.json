@@ -40,17 +40,17 @@
         "jest": "^29.7.0",
         "jest-junit": "^17.0.0",
         "lerna": "^9.0.7",
-        "npm": "^11.12.1",
-        "prettier": "^3.8.1",
-        "rimraf": "^3.0.2",
-        "shx": "^0.3.4",
-        "sinon": "^14.0.2",
+        "npm": "^11.21.2",
+        "prettier": "^3.9.10",
+        "rimraf": "^6.1.4",
+        "shx": "^0.4.0",
+        "sinon": "^22.1.0",
         "stream-browserify": "^3.0.0",
-        "ts-jest": "^29.4.6",
-        "ts-loader": "^9.5.4",
+        "ts-jest": "^29.4.15",
+        "ts-loader": "^9.6.2",
         "ts-node": "^10.9.2",
         "typescript": "^5.5.4",
-        "webpack-cli": "^5.1.4",
+        "webpack-cli": "~7.2.3",
         "webpack-dev-server": "^5.2.7"
     },
     "workspaces": [
@@ -58,6 +58,10 @@
         "packages/azure-kusto-ingest"
     ],
     "overrides": {
+        "@azure/core-http-compat": "~2.4.0",
+        "@azure/core-rest-pipeline": "~1.24.0",
+        "@azure/storage-common": "~12.4.1",
+        "@typespec/ts-http-runtime": "0.3.6",
         "sockjs": {
             "uuid": "^11.1.1"
         }
