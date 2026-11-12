@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+-   **Breaking:** Both SDKs now require Node.js **>=22.12.0**, dropping Node 20 support for the 8.0.0 release.
+-   Align development, CI, and release tooling with Node 22 and npm 11.21.2; test the minimum runtime and newer LTS lines.
+-   Migrate both quickstarts from SDK 5.x to SDK 8.x as private workspaces. The Node sample now builds ESM before execution; the browser sample bundles the SDK browser implementations.
+-   Standalone quickstarts require the matching published SDK 8.x packages. Existing SDK APIs and browser variants are preserved.
+
+Broader Azure dependency upgrades and security findings remain separate work; raising the Node baseline does not resolve every dependency advisory.
+
 ## [7.2.0] - 2026-05-12
 
 ### Security

@@ -36,9 +36,12 @@ export class KustoIngestClient extends KustoIngestClientBase {
     }
 
     /**
-     * Use Readable in Node.JS and ArrayBuffer in browser
+     * Use Readable or Buffer in Node.js and ArrayBuffer in browser
      */
-    async ingestFromStream(stream: StreamDescriptor | Readable | ArrayBuffer, ingestionProperties?: IngestionPropertiesInput): Promise<IngestionResult> {
+    async ingestFromStream(
+        stream: StreamDescriptor | Readable | Buffer | ArrayBuffer,
+        ingestionProperties?: IngestionPropertiesInput,
+    ): Promise<IngestionResult> {
         this.ensureOpen();
         const props = this._getMergedProps(ingestionProperties);
         const descriptor: StreamDescriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);

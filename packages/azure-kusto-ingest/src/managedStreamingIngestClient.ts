@@ -89,10 +89,10 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
     }
 
     /**
-     * Use Readable for Node.js and ArrayBuffer in browser
+     * Use Readable or Buffer for Node.js and ArrayBuffer in browser
      */
     async ingestFromStream(
-        stream: StreamDescriptor | Readable | ArrayBuffer,
+        stream: StreamDescriptor | Readable | Buffer | ArrayBuffer,
         ingestionProperties?: IngestionPropertiesInput,
         clientRequestId?: string,
     ): Promise<KustoResponseDataSet | IngestionResult> {
@@ -150,7 +150,7 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
         descriptor: AbstractDescriptor,
         props?: IngestionPropertiesInput,
         clientRequestId?: string,
-        stream?: Readable | ArrayBuffer,
+        stream?: Readable | Buffer | ArrayBuffer,
     ): Promise<any> {
         const isBlob = descriptor instanceof BlobDescriptor;
         if (length <= maxStreamSize) {

@@ -7,14 +7,14 @@ import sinon from "sinon";
 import { StreamingIngestClient, IngestionResult } from "azure-kusto-ingest";
 import { StreamDescriptor } from "../src/descriptors.js";
 import { KustoIngestClient } from "../src/ingestClient.js";
-import { DataFormat, IngestionProperties, IngestionPropertiesInput } from "../src/ingestionProperties.js";
+import { DataFormat, IngestionProperties } from "../src/ingestionProperties.js";
 import KustoManagedStreamingIngestClient from "../src/managedStreamingIngestClient.js";
 import { Readable } from "stream";
 import { CloudSettings, KustoConnectionStringBuilder } from "azure-kusto-data";
 import assert from "assert";
 import uuidValidate from "uuid-validate";
 
-type IngestFromStreamStub = sinon.SinonStub<[StreamDescriptor | Readable | ArrayBuffer, IngestionPropertiesInput?, string?], Promise<IngestionResult>>;
+type IngestFromStreamStub = sinon.SinonStub<Parameters<StreamingIngestClient["ingestFromStream"]>, Promise<IngestionResult>>;
 beforeAll(() => {
     CloudSettings.writeToCache("https://cluster.kusto.windows.net");
 });
@@ -142,6 +142,20 @@ describe("ManagedStreamingIngestClient", () => {
     });
 
     describe("fallback", () => {
+        it.concurrent("preserves Buffer input through retries and queued fallback", async () => {
+            const { managedClient, queuedStub, sandbox, streamStub } = getMockedClient();
+            const input = Buffer.from("buffered ingestion data");
+            streamStub.throws({ "@permanent": false });
+            queuedStub.resolves();
+
+            await managedClient.ingestFromStream(input, { database: "db", table: "table", format: DataFormat.CSV });
+
+            sandbox.assert.calledThrice(streamStub);
+            sandbox.assert.calledOnce(queuedStub);
+            validateStream(streamStub, [input], null);
+            validateStream(queuedStub, [input], null);
+        });
+
         for (const sourceId of [null, testUuid]) {
             it.concurrent(`should fall to queued when transient error with sourceId ${sourceId}`, async () => {
                 const { managedClient, queuedStub, sandbox, streamStub } = getMockedClient();

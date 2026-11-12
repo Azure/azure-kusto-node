@@ -35,8 +35,8 @@ const mergeStreams = (...streams: Readable[]): Readable => {
     return pass;
 };
 
-export const tryStreamToArray = async (stream: Readable, maxBufferSize: number): Promise<Buffer | Readable> => {
-    if (stream instanceof Buffer) {
+export const tryStreamToArray = async (stream: Readable | Buffer, maxBufferSize: number): Promise<Buffer | Readable> => {
+    if (Buffer.isBuffer(stream)) {
         return stream;
     }
     return await new Promise<Buffer | Readable>((resolve, reject) => {
@@ -59,6 +59,6 @@ export const tryStreamToArray = async (stream: Readable, maxBufferSize: number):
     });
 };
 
-export const readableToStream = (stream: Readable | ArrayBuffer): Readable => {
+export const readableToStream = (stream: Readable | Buffer | ArrayBuffer): Readable => {
     return streamify([stream]);
 };

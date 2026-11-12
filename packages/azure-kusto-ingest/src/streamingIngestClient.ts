@@ -17,10 +17,10 @@ class KustoStreamingIngestClient extends KustoStreamingIngestClientBase {
     }
 
     /**
-     * Use Readable for Node.js and ArrayBuffer in browser
+     * Use Readable or Buffer for Node.js and ArrayBuffer in browser
      */
     async ingestFromStream(
-        stream: StreamDescriptor | Readable | ArrayBuffer,
+        stream: StreamDescriptor | Readable | Buffer | ArrayBuffer,
         ingestionProperties?: IngestionPropertiesInput,
         clientRequestId?: string,
     ): Promise<any> {
@@ -29,12 +29,13 @@ class KustoStreamingIngestClient extends KustoStreamingIngestClientBase {
         const props = this._getMergedProps(ingestionProperties);
         const descriptor: StreamDescriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
 
+        const inputStream = Buffer.isBuffer(descriptor.stream) ? Readable.from([descriptor.stream]) : descriptor.stream;
         const compressedStream =
             descriptor.compressionType === CompressionType.None
-                ? !(descriptor.stream instanceof ArrayBuffer)
-                    ? descriptor.stream.pipe(zlib.createGzip())
-                    : descriptor.stream
-                : descriptor.stream;
+                ? !(inputStream instanceof ArrayBuffer)
+                    ? inputStream.pipe(zlib.createGzip())
+                    : inputStream
+                : inputStream;
         return await this.kustoClient.executeStreamingIngest(
             props.database as string,
             props.table as string,

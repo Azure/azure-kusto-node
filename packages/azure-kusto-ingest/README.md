@@ -1,6 +1,8 @@
-# Microsoft Azure Kusto Ingest Library for JavaScript 
+# Microsoft Azure Kusto Ingest Library for JavaScript
 
 ## Installation
+
+Requires **Node.js >=22.12.0**. Use a current patched LTS release.
 
 `npm install azure-kusto-ingest`
 
@@ -10,19 +12,19 @@
 const IngestClient = require("azure-kusto-ingest").IngestClient;
 const IngestionProps = require("azure-kusto-ingest").IngestionProperties;
 const KustoConnectionStringBuilder = require("azure-kusto-data").KustoConnectionStringBuilder;
-const {DataFormat, JsonColumnMapping} = require("azure-kusto-ingest");
+const { DataFormat, JsonColumnMapping } = require("azure-kusto-ingest");
 
 const kcsb = KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(`https://ingest-${cluster}.kusto.windows.net`, appId, appKey, authorityId);
 
 const ingestionProps = new IngestionProps({
-  database: "Database",
-  table: "Table",
-  format: DataFormat.JSON,
-  ingestionMapping: [
-    JsonColumnMapping.withPath("TargetColumn1", "$.sourceProp1"),
-    JsonColumnMapping.withPath("TargetColumn2", "$.sourceProp2"),
-    JsonColumnMapping.withPath("TargetColumn3", "$.sourceProp3"),
-  ],
+    database: "Database",
+    table: "Table",
+    format: DataFormat.JSON,
+    ingestionMapping: [
+        JsonColumnMapping.withPath("TargetColumn1", "$.sourceProp1"),
+        JsonColumnMapping.withPath("TargetColumn2", "$.sourceProp2"),
+        JsonColumnMapping.withPath("TargetColumn3", "$.sourceProp3"),
+    ],
 });
 
 const ingestClient = new IngestClient(kcsb, ingestionProps);
@@ -57,7 +59,7 @@ const kcsb = KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(
     `https://ingest-${clusterName}.kusto.windows.net`,
     "appid",
     "appkey",
-    "authorityId"
+    "authorityId",
 );
 ```
 
@@ -68,7 +70,7 @@ const kcsb = KustoConnectionStringBuilder.withAadApplicationCertificateAuthentic
     `https://ingest-${clusterName}.kusto.windows.net`,
     "appid",
     "certificate",
-    "authorityId"
+    "authorityId",
 );
 ```
 
@@ -120,9 +122,9 @@ Example props:
 
 ```javascript
 const ingestionProps = new IngestionProps("Database", "Table", DataFormat.JSON, [
-  JsonColumnMapping.withPath("TargetColumn1", "$.sourceProp1"),
-  JsonColumnMapping.withPath("TargetColumn2", "$.sourceProp2"),
-  JsonColumnMapping.withPath("TargetColumn3", "$.sourceProp3"),
+    JsonColumnMapping.withPath("TargetColumn1", "$.sourceProp1"),
+    JsonColumnMapping.withPath("TargetColumn2", "$.sourceProp2"),
+    JsonColumnMapping.withPath("TargetColumn3", "$.sourceProp3"),
 ]);
 ```
 
@@ -134,15 +136,14 @@ There are several methods of ingesting data into Kusto (Azure Data Explorer) usi
 
 This is useful for cases you already have streams available (http respinse, file stream, etc..)
 
-````javascript
-try{
+```javascript
+try {
     await ingestClient.ingestFromStream(readable, null);
-}
-catch(err){
+} catch (err) {
     console.log(err);
 }
 console.log("Ingestion from stream DONE");
-````
+```
 
 #### From File
 
@@ -150,13 +151,12 @@ Ingesting a file first makes sure it's zipped (if not, it zips it locally) and t
 
 ```javascript
 let blob = new BlobDescriptor(blobUri, size);
-try{
+try {
     await ingestClient.ingestFromFile("file.json", null);
-}
-catch(err){
+} catch (err) {
     console.log(err);
 }
-````
+```
 
 #### From Azure Storage Blob
 
@@ -180,59 +180,59 @@ Enabling is done simply but setting the `reportLevel` Ingestion Property to `Rep
 For Example:
 
 ```javascript
-const IngestClient = require('azure-kusto-ingest').IngestClient;
-const IngestStatusQueues = require('azure-kusto-ingest').IngestStatusQueues;
-const IngestionProps = require('azure-kusto-ingest').IngestionProperties;
-const {ReportLevel, ReportMethod} = require('azure-kusto-ingest');
-const KustoConnectionStringBuilder = require('azure-kusto-data').KustoConnectionStringBuilder;
-const {DataFormat, JsonColumnMapping} = require('azure-kusto-ingest');
-const fs = require('fs');
+const IngestClient = require("azure-kusto-ingest").IngestClient;
+const IngestStatusQueues = require("azure-kusto-ingest").IngestStatusQueues;
+const IngestionProps = require("azure-kusto-ingest").IngestionProperties;
+const { ReportLevel, ReportMethod } = require("azure-kusto-ingest");
+const KustoConnectionStringBuilder = require("azure-kusto-data").KustoConnectionStringBuilder;
+const { DataFormat, JsonColumnMapping } = require("azure-kusto-ingest");
+const fs = require("fs");
 
 const ingestClient = new IngestClient(
     KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(`https://ingest-${clusterName}.kusto.windows.net`, appId, appKey, authorityId),
     new IngestionProps({
-      database: 'Database',
-      table: 'Table',
-      format: DataFormat.JSON,
-      ingestionMapping: [
-        JsonColumnMapping.withPath('TargetColumn1', '$.sourceProp1'),
-        JsonColumnMapping.withPath('TargetColumn2', '$.sourceProp2'),
-        JsonColumnMapping.withPath('TargetColumn3', '$.sourceProp3'),
-      ],
-      ingestionMappingType: IngestionMappingKind.JSON,
-      reportLevel: ReportLevel.FailuresAndSuccesses,
-      reportMethod: ReportMethod.Queue,
-    })
+        database: "Database",
+        table: "Table",
+        format: DataFormat.JSON,
+        ingestionMapping: [
+            JsonColumnMapping.withPath("TargetColumn1", "$.sourceProp1"),
+            JsonColumnMapping.withPath("TargetColumn2", "$.sourceProp2"),
+            JsonColumnMapping.withPath("TargetColumn3", "$.sourceProp3"),
+        ],
+        ingestionMappingType: IngestionMappingKind.JSON,
+        reportLevel: ReportLevel.FailuresAndSuccesses,
+        reportMethod: ReportMethod.Queue,
+    }),
 );
 
 const statusQueues = new IngestStatusQueues(ingestClient);
 
 async function waitForStatus() {
-  while ((await statusQueues.failure.isEmpty()) && (await statusQueues.success.isEmpty())) {
-    await new Promise((resolve) => {
-      setTimeout(resolve, 1000);
-    });
-  }
+    while ((await statusQueues.failure.isEmpty()) && (await statusQueues.success.isEmpty())) {
+        await new Promise((resolve) => {
+            setTimeout(resolve, 1000);
+        });
+    }
 
-  const successes = statusQueues.success.pop();
-  for (let success of successes) {
-    console.log(JSON.stringify(success));
-  }
+    const successes = statusQueues.success.pop();
+    for (let success of successes) {
+        console.log(JSON.stringify(success));
+    }
 
-  const failures = statusQueues.failure.pop();
-  for (let failure of failures) {
-    console.log(JSON.stringify(failure));
-  }
+    const failures = statusQueues.failure.pop();
+    for (let failure of failures) {
+        console.log(JSON.stringify(failure));
+    }
 }
 
 async function ingestFromFile() {
-  try {
-    await ingestClient.ingestFromFile('file.json', null);
-  } catch (err) {
-    console.log(err);
-  }
-  console.log('Wait for ingestion status...');
-  await waitForStatus();
+    try {
+        await ingestClient.ingestFromFile("file.json", null);
+    } catch (err) {
+        console.log(err);
+    }
+    console.log("Wait for ingestion status...");
+    await waitForStatus();
 }
 ```
 
@@ -244,7 +244,7 @@ A full browser example can be found [here](packages/azure-kusto-ingest/exampleBr
 const file = new Blob([`{"Name":"Moshe", "Value":2}`], { type: "application/json" });
 let desc = new FileDescriptor(blobUri, size);
 try {
-     await ingestClient.ingestFromFile(desp, null);
+    await ingestClient.ingestFromFile(desp, null);
 } catch (err) {
     console.log(err);
 }
