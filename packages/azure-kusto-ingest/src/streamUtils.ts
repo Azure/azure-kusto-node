@@ -35,9 +35,11 @@ const mergeStreams = (...streams: Readable[]): Readable => {
     return pass;
 };
 
+// Buffers its input up to maxBufferSize; returns a Readable for larger streams.
+// Buffer input is returned as-is regardless of size, so it stays retryable - callers must check its length.
 export const tryStreamToArray = async (stream: Readable | Buffer, maxBufferSize: number): Promise<Buffer | Readable> => {
     if (Buffer.isBuffer(stream)) {
-        return stream.length > maxBufferSize ? Readable.from([stream]) : stream;
+        return stream;
     }
     return await new Promise<Buffer | Readable>((resolve, reject) => {
         const result: Buffer[] = [];

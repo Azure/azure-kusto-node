@@ -58,23 +58,25 @@ describe("ManagedStreamingIngestClient", () => {
         return stream;
     };
 
-    const validateStream = (stub: IngestFromStreamStub, buffers: any[], sourceId: string | null) => {
+    const readPayload = async (payload: Parameters<StreamingIngestClient["ingestFromStream"]>[0]): Promise<Buffer> => {
+        const data = payload instanceof StreamDescriptor ? payload.stream : payload;
+        if (Buffer.isBuffer(data)) {
+            return data;
+        }
+        const chunks: Buffer[] = [];
+        await new Promise<void>((resolve, reject) => {
+            (data as Readable)
+                .on("data", (chunk: Buffer) => chunks.push(Buffer.from(chunk)))
+                .once("end", resolve)
+                .once("error", reject);
+        });
+        return Buffer.concat(chunks);
+    };
+
+    const validateStream = async (stub: IngestFromStreamStub, buffers: Buffer[], sourceId: string | null) => {
         for (const [i, call] of stub.getCalls().entries()) {
-            let calledStream = call.args[0];
-            if (calledStream instanceof StreamDescriptor) {
-                calledStream = calledStream.stream as Readable;
-            }
-
-            const chunks = [];
-            while (true) {
-                const chunk = (calledStream as Readable).read();
-                if (chunk === null) {
-                    break;
-                }
-                chunks.push(chunk);
-            }
-
-            assert.strictEqual(Buffer.compare(Buffer.concat(chunks), Buffer.concat(buffers)), 0);
+            const payload = await readPayload(call.args[0]);
+            assert.strictEqual(Buffer.compare(payload, Buffer.concat(buffers)), 0);
 
             if (call.thisValue instanceof KustoIngestClient) {
                 return;
@@ -117,7 +119,7 @@ describe("ManagedStreamingIngestClient", () => {
                 sandbox.assert.calledOnce(streamStub);
                 sandbox.assert.notCalled(queuedStub);
 
-                validateStream(streamStub, items, sourceId);
+                await validateStream(streamStub, items, sourceId);
             });
         }
     });
@@ -152,8 +154,39 @@ describe("ManagedStreamingIngestClient", () => {
 
             sandbox.assert.calledThrice(streamStub);
             sandbox.assert.calledOnce(queuedStub);
-            validateStream(streamStub, [input], null);
-            validateStream(queuedStub, [input], null);
+            await validateStream(streamStub, [input], null);
+            await validateStream(queuedStub, [input], null);
+            const queuedDescriptor = queuedStub.firstCall.args[0] as StreamDescriptor;
+            assert.ok(queuedDescriptor.stream === input, "queued ingestion should receive the original Buffer so blob upload retries resend all bytes");
+        });
+
+        it.concurrent("streams a Buffer of exactly 4 MiB", async () => {
+            const { managedClient, queuedStub, sandbox, streamStub } = getMockedClient();
+            const input = Buffer.alloc(4 * 1024 * 1024, "a");
+            streamStub.resolves({} as IngestionResult);
+            queuedStub.rejects(new Error("Should not be called"));
+
+            await managedClient.ingestFromStream(input, { database: "db", table: "table", format: DataFormat.CSV });
+
+            sandbox.assert.calledOnce(streamStub);
+            sandbox.assert.notCalled(queuedStub);
+            await validateStream(streamStub, [input], null);
+        });
+
+        it.concurrent("sends a Buffer larger than 4 MiB directly to queued ingestion", async () => {
+            const { managedClient, queuedStub, sandbox, streamStub } = getMockedClient();
+            const input = Buffer.alloc(4 * 1024 * 1024 + 1, "a");
+            input[input.length - 1] = "z".charCodeAt(0);
+            streamStub.rejects(new Error("Should not be called"));
+            queuedStub.resolves({} as IngestionResult);
+
+            await managedClient.ingestFromStream(input, { database: "db", table: "table", format: DataFormat.CSV });
+
+            sandbox.assert.notCalled(streamStub);
+            sandbox.assert.calledOnce(queuedStub);
+            await validateStream(queuedStub, [input], null);
+            const queuedDescriptor = queuedStub.firstCall.args[0] as StreamDescriptor;
+            assert.ok(queuedDescriptor.stream === input, "queued ingestion should receive the original Buffer so blob upload retries resend all bytes");
         });
 
         for (const sourceId of [null, testUuid]) {
@@ -182,8 +215,8 @@ describe("ManagedStreamingIngestClient", () => {
                 sandbox.assert.calledThrice(streamStub);
                 sandbox.assert.calledOnce(queuedStub);
 
-                validateStream(streamStub, items, sourceId);
-                validateStream(queuedStub, items, sourceId);
+                await validateStream(streamStub, items, sourceId);
+                await validateStream(queuedStub, items, sourceId);
             });
 
             it.concurrent("should fallback when size is too big", async () => {
@@ -227,7 +260,7 @@ describe("ManagedStreamingIngestClient", () => {
                     }),
                 );
 
-                validateStream(queuedStub, buffers, sourceId);
+                await validateStream(queuedStub, buffers, sourceId);
 
                 sandbox.assert.calledOnce(queuedStub);
                 sandbox.assert.notCalled(streamStub);

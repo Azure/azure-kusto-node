@@ -99,23 +99,17 @@ class KustoManagedStreamingIngestClient extends AbstractKustoClient {
         this.ensureOpen();
         const props = this._getMergedProps(ingestionProperties);
         let descriptor = stream instanceof StreamDescriptor ? stream : new StreamDescriptor(stream);
-        let result = isNodeLike ? await tryStreamToArray(descriptor.stream as Readable, maxStreamSize) : descriptor.stream;
+        const result = isNodeLike ? await tryStreamToArray(descriptor.stream as Readable | Buffer, maxStreamSize) : descriptor.stream;
         descriptor = new StreamDescriptor(result).merge(descriptor);
         let streamingResult: Promise<any> | null = null;
-        // tryStreamToArray returns a Buffer in NodeJS impl if stream size is small enouph
-        if ((isNodeLike && result instanceof Buffer) || !isNodeLike) {
-            streamingResult = await this.streamWithRetries(
-                isNodeLike ? (descriptor.size ?? 0) : (descriptor.stream as ArrayBuffer).byteLength,
-                descriptor,
-                props,
-                clientRequestId,
-                result,
-            );
-
-            result = isNodeLike ? readableToStream(result) : descriptor.stream;
+        // In Node.js, a Buffer means the whole payload is in memory; a Readable means it exceeded maxStreamSize.
+        if (!isNodeLike || Buffer.isBuffer(result)) {
+            const length = isNodeLike ? Math.max(descriptor.size ?? 0, (result as Buffer).length) : (result as ArrayBuffer).byteLength;
+            streamingResult = await this.streamWithRetries(length, descriptor, props, clientRequestId, result);
         }
 
-        return streamingResult ?? this.queuedIngestClient.ingestFromStream(new StreamDescriptor(result).merge(descriptor), props);
+        // Pass in-memory data to queued ingestion as-is, so blob upload retries resend the full payload.
+        return streamingResult ?? this.queuedIngestClient.ingestFromStream(descriptor, props);
     }
 
     /**
