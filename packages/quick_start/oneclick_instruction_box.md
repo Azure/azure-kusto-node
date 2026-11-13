@@ -1,19 +1,17 @@
 ### Prerequisites
 
-1. Set up NodeJS version 14+ and npm on your machine. For instructions, consult a setup tutorial, like [this](https://docs.microsoft.com/en-us/windows/dev-environment/javascript/nodejs-on-windows)
+1. Set up **Node.js >=22.12.0** and **npm 11.21.2** on your machine. Prefer a current patched LTS release; use `npm install --global npm@11.21.2` to select npm.
 
 ### Instructions
 
 1. Download the app as a ZIP file.
 2. Extract the app source code.
-   **Note**: The configuration parameters defined in the `kusto_sample_config.json` file are preconfigured with the appropriate values for your cluster. Verify
-   that these are correct.
+   **Note**: The configuration parameters in `src/kusto_sample_config.json` are preconfigured for your cluster. Verify them before running: the sample can create/alter tables and ingest data. Standalone installation requires the matching SDK 8.x release to be published.
 3. Open a command line window and navigate to the folder where you extracted the app.
-4. Either use an IDE of choice to build and run the project, or do the following using the command line window:
-    1. Open a command line window and navigate to the folder where you extracted the app.
-    2. Either use an IDE of your choice to build and run the project, or execute the following using the command line window:
-        1. Run `npm install` in the folder
-        2. Run `npm run quick_start`
+4. Run `npm install` in the folder.
+5. Run `npm run quick_start` to compile the ESM app and execute `dist/main.js`.
+
+Configuration and relative dataset paths resolve under `src/`; absolute dataset paths are supported.
 
 ### Troubleshooting
 

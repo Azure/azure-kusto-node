@@ -1,6 +1,6 @@
 {
     "name": "azure-kusto-ingest",
-    "version": "7.2.0",
+    "version": "8.0.0",
     "description": "Azure Data Explorer Ingestion SDK",
     "type": "module",
     "main": "dist-esm/src/index.js",
@@ -17,7 +17,7 @@
         "clean": "rimraf --glob dist/* dist-esm/* types/*"
     },
     "engines": {
-        "node": ">= 20.0.0"
+        "node": ">=22.12.0"
     },
     "publishConfig": {
         "access": "public"
@@ -71,7 +71,7 @@
         "@types/stream-to-array": "^2.3.3",
         "@types/tmp": "^0.2.6",
         "@types/uuid-validate": "0.0.3",
-        "azure-kusto-data": "^7.2.0",
+        "azure-kusto-data": "^8.0.0",
         "browserify-zlib": "0.2.0",
         "buffer": "^6.0.3",
         "is-ip": "^5.0.1",

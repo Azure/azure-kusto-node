@@ -6,8 +6,9 @@ import { DataFormat, IngestClient, dataFormatMappingKind } from "azure-kusto-ing
 import Console from "console";
 import fs from "fs";
 import readline from "readline";
+import { fileURLToPath } from "url";
 import { v4 as uuidv4 } from "uuid";
-import Utils, { Authentication, Ingestion, Queries } from "./Utils";
+import Utils, { Authentication, Ingestion, Queries } from "./Utils.js";
 
 enum SourceType {
     LocalFileSource = "localfilesource",
@@ -56,9 +57,9 @@ interface ConfigJson {
 // TODO (config):
 //  If this quickstart app was downloaded from OneClick, kusto_sample_config.json should be pre-populated with your cluster's details.
 //  If this quickstart app was downloaded from GitHub, edit kusto_sample_config.json and modify the cluster URL and database fields appropriately.
-const CONFIG_FILE_NAME = "src/kusto_sample_config.json";
+const CONFIG_FILE_NAME = fileURLToPath(new URL("../src/kusto_sample_config.json", import.meta.url));
 
-class SampleApp {
+export default class SampleApp {
     private static step = 1;
     private static waitForUser: boolean;
 
@@ -407,5 +408,3 @@ class SampleApp {
         }
     }
 }
-
-void SampleApp.start();

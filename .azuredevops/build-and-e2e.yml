@@ -29,9 +29,12 @@ jobs:
             persistCredentials: false
 
           - task: NodeTool@0
-            displayName: Use Node.js 20
+            displayName: Use Node.js 22
             inputs:
-                versionSpec: "20.x"
+                versionSpec: "22.x"
+
+          - script: npm install --global npm@11.21.2
+            displayName: Use npm 11.21.2
 
           - task: Cache@2
             displayName: Cache npm downloads
@@ -42,7 +45,7 @@ jobs:
                 path: $(npm_config_cache)
 
           - script: npm ci
-            displayName: Install dependencies and build
+            displayName: Install dependencies and build workspaces
 
           - task: UseDotNet@2
             displayName: Set up E2E coverage publisher runtime

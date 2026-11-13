@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+-   **Breaking:** Both SDKs now require Node.js **>=22.12.0**, dropping Node 20 support for the 8.0.0 release.
+-   Align development, CI, and release tooling with Node 22 and npm 11.21.2; test the minimum runtime and newer LTS lines.
+-   Migrate both quickstarts from SDK 5.x to SDK 8.x as private workspaces. The Node sample now builds ESM before execution; the browser sample bundles the SDK browser implementations.
+-   Standalone quickstarts require the matching published SDK 8.x packages. Existing SDK APIs and browser variants are preserved.
+
+Broader Azure dependency upgrades and security findings remain separate work; raising the Node baseline does not resolve every dependency advisory.
+
+### Fixed
+
+-   `Buffer` inputs to `ingestFromStream` are now supported by the queued, streaming, and managed streaming clients. Streaming ingestion compresses them like `Readable` inputs, and the original bytes are kept through managed streaming retries and the queued fallback.
+-   Managed streaming ingestion now routes by the actual size of the in-memory data. Payloads over 4 MiB go straight to queued ingestion instead of trying streaming ingestion. Payloads already in memory are passed to queued ingestion as a `Buffer`, so a blob upload retried on another storage container resends all of the bytes.
+-   The SDK version reported in client telemetry (`x-ms-client-version`) now matches the package version (previously it reported `7.0.3`).
+
 ## [7.2.0] - 2026-05-12
 
 ### Security

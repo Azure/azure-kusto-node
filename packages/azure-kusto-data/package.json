@@ -1,6 +1,6 @@
 {
     "name": "azure-kusto-data",
-    "version": "7.2.0",
+    "version": "8.0.0",
     "description": "Azure Data Explorer Query SDK",
     "type": "module",
     "main": "dist-esm/src/index.js",
@@ -28,7 +28,7 @@
         "./dist-esm/src/connectionBuilder.js": "./dist-esm/src/connectionBuilder.browser.js"
     },
     "engines": {
-        "node": ">= 20.0.0"
+        "node": ">=22.12.0"
     },
     "publishConfig": {
         "access": "public"

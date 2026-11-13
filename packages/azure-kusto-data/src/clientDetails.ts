@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { isNodeLike } from "@azure/core-util";
-import { userInfo } from "os";
+import os from "os";
 import { SDK_VERSION } from "./version.js";
 
 // eslint-disable-next-line @typescript-eslint/no-namespace,@typescript-eslint/no-unused-vars -- This is the correct way to augment the global namespace
@@ -46,7 +46,7 @@ export class ClientDetails {
         if (isNodeLike) {
             let username: string | undefined;
             try {
-                username = userInfo().username;
+                username = os.userInfo().username;
             } catch (err: any) {
                 /* Ignore possible errors like "uv_os_get_passwd returned ENOMEM" that may occur in some environments. */
 

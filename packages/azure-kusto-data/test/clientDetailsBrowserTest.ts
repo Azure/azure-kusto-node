@@ -6,6 +6,7 @@ import { jest } from "@jest/globals";
 
 // Simulate a non-Node runtime without `window`, such as a Web Worker.
 jest.unstable_mockModule("@azure/core-util", () => ({ isNodeLike: false }));
+jest.unstable_mockModule("os", () => ({ default: {} }));
 const { ClientDetails } = await import("../src/clientDetails.js");
 
 const setGlobal = (name: string, value: unknown): (() => void) => {

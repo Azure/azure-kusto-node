@@ -38,10 +38,10 @@ export abstract class AbstractDescriptor {
 
 export class StreamDescriptor extends AbstractDescriptor {
     /**
-     * Use Readable for Node.js and ArrayBuffer in browser
+     * Use Readable or Buffer for Node.js and ArrayBuffer in browser
      */
     constructor(
-        readonly stream: Readable | ArrayBuffer,
+        readonly stream: Readable | Buffer | ArrayBuffer,
         sourceId: string | null = null,
         public compressionType: CompressionType = CompressionType.None,
         size: number | null = null,
