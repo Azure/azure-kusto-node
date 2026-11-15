@@ -72,6 +72,12 @@
         "@typespec/ts-http-runtime": "0.3.6",
         "sockjs": {
             "uuid": "^11.1.1"
-        }
+        },
+        "nx": {
+            "follow-redirects": "^1.16.2",
+            "brace-expansion": "^5.0.13",
+            "smol-toml": "^1.9.1"
+        },
+        "axios": "^1.21.0"
     }
 }
