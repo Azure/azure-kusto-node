@@ -15,7 +15,7 @@ export const tryFileToBuffer = async (file: FileDescriptor): Promise<StreamDescr
 };
 
 // NOT USED
-export const tryStreamToArray = async (stream: any): Promise<Buffer> => {
+export const tryStreamToArray = async (stream: ArrayBuffer): Promise<ArrayBuffer> => {
     return Promise.resolve(stream);
 };
 

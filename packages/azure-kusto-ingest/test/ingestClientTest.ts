@@ -7,8 +7,10 @@ import { DataFormat, IngestionProperties, IngestionPropertiesInput, ReportLevel,
 import { IngestionPropertiesValidationError } from "../src/errors.js";
 import KustoStreamingIngestClient from "../src/streamingIngestClient.js";
 import KustoManagedStreamingIngestClient from "../src/managedStreamingIngestClient.js";
-import { KustoConnectionStringBuilder } from "azure-kusto-data";
+import { Client as KustoClient, KustoConnectionStringBuilder } from "azure-kusto-data";
 import { Readable } from "stream";
+import sinon from "sinon";
+import { gunzipSync } from "zlib";
 
 describe("KustoIngestClient", () => {
     describe("#constructor()", () => {
@@ -28,6 +30,21 @@ describe("KustoIngestClient", () => {
             assert.strictEqual(ingestClient.defaultProps!.database, "db");
             assert.strictEqual(ingestClient.defaultProps!.table, "table");
             assert.strictEqual(ingestClient.defaultProps!.format, "json");
+        });
+    });
+
+    describe("#getIngestionEndpoint()", () => {
+        it.each([
+            ["http://127.0.0.1:8080", "http://127.0.0.1:8080"],
+            ["https://10.0.0.1", "https://10.0.0.1"],
+            ["http://localhost:8080", "http://localhost:8080"],
+            ["https://onebox.dev.kusto.windows.net", "https://onebox.dev.kusto.windows.net"],
+            ["https://cluster.kusto.windows.net", "https://ingest-cluster.kusto.windows.net"],
+            ["https://ingest-cluster.kusto.windows.net", "https://ingest-cluster.kusto.windows.net"],
+        ])("preserves endpoint routing for %s", (endpoint, expected) => {
+            const client = new KustoIngestClient("https://cluster.kusto.windows.net");
+
+            assert.strictEqual(client.getIngestionEndpoint(endpoint), expected);
         });
     });
 
@@ -265,6 +282,28 @@ describe("KustoIngestClient", () => {
     });
 
     describe("#ingestFromStream()", () => {
+        it("compresses Buffer input before streaming ingestion", async () => {
+            const client = new KustoStreamingIngestClient("https://cluster.kusto.windows.net");
+            const execute = sinon.stub(KustoClient.prototype, "executeStreamingIngest").resolves();
+            const input = Buffer.from("value\n1\n");
+
+            try {
+                await client.ingestFromStream(input, { database: "db", table: "table", format: DataFormat.CSV });
+                sinon.assert.calledOnce(execute);
+                const stream = execute.firstCall.args[2];
+                assert.ok(stream instanceof Readable);
+                const chunks: Buffer[] = [];
+                for await (const chunk of stream) {
+                    assert.ok(Buffer.isBuffer(chunk));
+                    chunks.push(chunk);
+                }
+                assert.deepStrictEqual(gunzipSync(Buffer.concat(chunks)), input);
+            } finally {
+                execute.restore();
+                client.close();
+            }
+        });
+
         it.concurrent("valid input", () => {
             // TODO: not sure a unit test will be useful here
         });

@@ -19,25 +19,28 @@ jobs:
       - uses: actions/checkout@a37ce9120846195fa4ece8f58b268e6043cb2f26 # v3.7.0
       - uses: actions/setup-node@3235b876344d2a9aa001b8d1453c930bba69e610 # v3.9.1
         with:
-          node-version: 20
+          node-version: "22.x"
           registry-url: https://registry.npmjs.org/
           cache: "npm"
           cache-dependency-path: |
             package-lock.json
-      - name: Package
+      - run: npm install --global npm@11.21.2
+      - name: Install dependencies and build
         run: |
-          lerna exec -- npm pack
+          npm ci
+          npm run build
+      - name: Package SDKs
+        run: |
+          npm pack --workspace azure-kusto-data --pack-destination packages/azure-kusto-data
+          npm pack --workspace azure-kusto-ingest --pack-destination packages/azure-kusto-ingest
       - name: Github Release
         uses: docker://antonyurchenko/git-release:latest
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          args: packages/azure-kusto-data/*.tgz packages/azure-kusto-ingest/*.tgz packages/quick_start/*.tgz
+          args: packages/azure-kusto-data/*.tgz packages/azure-kusto-ingest/*.tgz
       - name: Publish new versions
         run: |
-          npm install -g npm@9.9.0
-          npm ci
-          npm run build
-          lerna publish from-git --yes
+          npx --no-install lerna publish from-git --yes
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}

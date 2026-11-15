@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { isNodeLike } from "@azure/core-util";
-import { userInfo } from "os";
+import os from "os";
 import { SDK_VERSION } from "./version.js";
 
 // eslint-disable-next-line @typescript-eslint/no-namespace,@typescript-eslint/no-unused-vars -- This is the correct way to augment the global namespace
@@ -38,7 +38,7 @@ export class ClientDetails {
         if (isNodeLike) {
             return process?.env?.npm_package_name || process?.argv[1] || None;
         } else {
-            return window?.location?.href || None;
+            return globalThis.location?.href || None;
         }
     }
 
@@ -46,7 +46,7 @@ export class ClientDetails {
         if (isNodeLike) {
             let username: string | undefined;
             try {
-                username = userInfo().username;
+                username = os.userInfo().username;
             } catch (err: any) {
                 /* Ignore possible errors like "uv_os_get_passwd returned ENOMEM" that may occur in some environments. */
 
@@ -65,7 +65,7 @@ export class ClientDetails {
     static defaultVersion(): string {
         return this.formatHeader([
             ["Kusto.JavaScript.Client", SDK_VERSION],
-            ["Runtime." + (isNodeLike ? "Node" : "Browser"), (isNodeLike ? process.version : window?.navigator?.userAgent) || None],
+            ["Runtime." + (isNodeLike ? "Node" : "Browser"), (isNodeLike ? process.version : globalThis.navigator?.userAgent) || None],
         ]);
     }
 

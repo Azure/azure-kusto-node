@@ -10,12 +10,12 @@ You can use it as a baseline to write your own first kusto client application, a
 
 ### Prerequisites
 
-1. Set up NodeJS version 16+ and npm version 8.3.0+ (required for dependency overrides) on your machine. For instructions, consult a setup tutorial, like [this](https://docs.microsoft.com/en-us/windows/dev-environment/javascript/nodejs-on-windows)
+1. Set up **Node.js >=22.12.0** (prefer a current patched LTS release) and **npm 11.21.2** on your machine. Use `npm install --global npm@11.21.2` to select npm. Node is build tooling; the app itself runs in the browser.
 
 ### Retrieving the app from GitHub
 
 1. Download the app files from this GitHub repository.
-2. You may modify the `kusto_sample_config.json` file, changing `kustoUri`, `ingestUri` and `databaseName` appropriately for your cluster.
+2. Modify `src/kusto_sample_config.json`, changing `kustoUri`, `ingestUri` and `databaseName` appropriately for an approved test cluster.
 
 ### Retrieving the app from OneClick
 
@@ -23,27 +23,34 @@ Not yet available.
 
 ### Run the app
 
-1. Open a command line window and navigate to the folder where you extracted the app.
+The app can create/alter tables, change ingestion policies, and ingest data. Review the configuration before running it; do not use a production database for experimentation.
+
+1. Open a command line window and navigate to the folder where you extracted the app. Standalone installation requires the matching SDK 8.x release to be published.
 2. Either use an IDE of your choice to build and run the project, or execute the following using the command line window:
     1. Run `npm install` in the sample folder
     2. Run `npm run dev`
 
+Open `http://localhost:3000`. To check the production browser bundle, run `npm run build` followed by `npm run preview -- --port 3000`.
+Both SDKs are bundled using their browser implementations; do not mark them external in Vite.
+
 #### Troubleshooting
 
--   If you are having trouble running the app from your IDE, first check if the app runs from the command line, then consult the troubleshooting references of your IDE.
+- If you are having trouble running the app from your IDE, first check if the app runs from the command line, then consult the troubleshooting references of your IDE.
 
-#### Authenticaiton
+#### Authentication
+
 This example uses @azure/identity InteractiveBrowserCredential, the authentication app id used in this method is taken from the App id field, the app should be granted admin consent to Azure Data Explorer and allow the redirectUri of the url of the runing site. See steps [here](https://github.com/Azure/azure-sdk-for-js/tree/main/sdk/identity/identity/test/manual/interactive-browser-credential)
-A production app should better authenticate users itself and use the "withTokenProvide" builder method of the Kusto client connectionStringBuilder.
+A production app should authenticate users itself and use the `withTokenProvider` builder method of the Kusto client connectionStringBuilder.
 
 ### Run the app with local changes to the data and ingest packages
-Run `npm run build` on root directory.
-Delete quick_start_browser/node_modules/azure-kust-data
-Delete quick_start_browser/node_modules/azure-kust-ingest
-Delete quick_start_browser/node_modules/.vite
-Delete quick_start_browser/package-lock.json
-cd packages/quick_start_browser directory.
-Run `npm install --save ..\azure-kusto-data\`
-Run `npm install --save ..\azure-kusto-ingest\`
-Run `npm install`
-Run `npm run dev`
+
+From the repository root:
+
+```bash
+npm ci
+npm run dev --workspace azure-kusto-quick-start-browser
+```
+
+The samples link to the SDK workspaces automatically; do not delete modules or replace SDK ranges with local paths.
+After SDK changes, run `npm run build`; Vite refreshes the optimized SDK dependencies on startup.
+Use `npm run build --workspace azure-kusto-quick-start-browser` to rebuild only the sample after its own changes.

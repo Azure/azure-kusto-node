@@ -1,33 +1,39 @@
 {
     "name": "azure-kusto-quick-start",
-    "version": "5.2.2",
+    "version": "8.0.0",
+    "private": true,
     "description": "Quick start Node sample app",
-    "main": "src/SampleApp.js",
+    "type": "module",
+    "main": "dist/main.js",
     "scripts": {
         "build": "tsc -b",
-        "quick_start": "npx ts-node src/SampleApp.ts --esm"
+        "clean": "rimraf dist",
+        "quick_start": "npm run build && node dist/main.js",
+        "test": "npm run build && node --test test/*Test.mjs"
+    },
+    "nx": {
+        "targets": {
+            "build": {
+                "outputs": [
+                    "{projectRoot}/dist"
+                ]
+            }
+        }
     },
     "engines": {
-        "node": ">=16.0.0",
-        "npm": ">=8.3.0"
+        "node": ">=22.12.0",
+        "npm": ">=11.21.2 <12"
     },
     "dependencies": {
-        "azure-kusto-data": "^5.2.2",
-        "azure-kusto-ingest": "^5.2.2",
+        "azure-kusto-data": "^8.0.0",
+        "azure-kusto-ingest": "^8.0.0",
         "diff": "^5.1.0",
         "uuid": "^11.1.1"
     },
     "devDependencies": {
-        "ts-node": "^10.9.1",
+        "@types/node": "^22.20.5",
+        "rimraf": "^6.1.4",
         "typescript": "^5.9.3"
-    },
-    "overrides": {
-        "azure-kusto-data": {
-            "uuid": "^11.1.1"
-        },
-        "azure-kusto-ingest": {
-            "uuid": "^11.1.1"
-        }
     },
     "repository": {
         "type": "git",

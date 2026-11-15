@@ -10,12 +10,12 @@ You can use it as a baseline to write your own first kusto client application, a
 
 ### Prerequisites
 
-1. Set up NodeJS version 16+ and npm version 8.3.0+ (required for dependency overrides) on your machine. For instructions, consult a setup tutorial, like [this](https://docs.microsoft.com/en-us/windows/dev-environment/javascript/nodejs-on-windows)
+1. Set up **Node.js >=22.12.0** (prefer a current patched LTS release) and **npm 11.21.2** on your machine. Use `npm install --global npm@11.21.2` to select npm.
 
 ### Retrieving the app from GitHub
 
 1. Download the app files from this GitHub repository.
-2. Modify the `kusto_sample_config.json` file, changing `kustoUri`, `ingestUri` and `databaseName` appropriately for your cluster.
+2. Modify `src/kusto_sample_config.json`, changing `kustoUri`, `ingestUri` and `databaseName` appropriately for an approved test cluster.
 
 ### Retrieving the app from OneClick
 
@@ -28,11 +28,30 @@ You can use it as a baseline to write your own first kusto client application, a
 
 ### Run the app
 
-1. Open a command line window and navigate to the folder where you extracted the app.
+The app can create/alter tables, change ingestion policies, and ingest data. Review the configuration before running it; do not use a production database for experimentation.
+
+1. Open a command line window and navigate to the folder where you extracted the app. Standalone installation requires the matching SDK 8.x release to be published.
 2. Either use an IDE of your choice to build and run the project, or execute the following using the command line window:
     1. Run `npm install` in the folder
     2. Run `npm run quick_start`
 
+`quick_start` compiles the ESM sources with TypeScript and runs `dist/main.js`; no ts-node loader is required.
+Configuration and relative dataset paths resolve under `src/`, independently of the working directory. Absolute dataset paths are supported.
+Relative `PRIVATE_KEY_PEM_FILE_PATH` values resolve from the sample directory; absolute certificate paths remain supported.
+
+### Run against local SDK changes
+
+From the repository root:
+
+```bash
+npm ci
+npm run quick_start --workspace azure-kusto-quick-start
+```
+
+Both SDKs and both samples are npm workspaces; no manual linking or sample-local lockfile is needed.
+After SDK changes, run `npm run build` before starting the sample.
+For credential-free module/import and dataset-path validation, run `npm run testQuickStart` from the root (or `npm test` in a standalone sample).
+
 #### Troubleshooting
 
--   If you are having trouble running the app from your IDE, first check if the app runs from the command line, then consult the troubleshooting references of your IDE.
+- If you are having trouble running the app from your IDE, first check if the app runs from the command line, then consult the troubleshooting references of your IDE.

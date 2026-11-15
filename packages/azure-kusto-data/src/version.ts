@@ -1,5 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-// SDK_VERSION should be updated in all 3 package.json and lerna.json(by running lerna version)
-export const SDK_VERSION = "7.0.3";
+// Keep SDK_VERSION in sync with the SDK package manifests and lerna.json.
+export const SDK_VERSION = "8.0.0";

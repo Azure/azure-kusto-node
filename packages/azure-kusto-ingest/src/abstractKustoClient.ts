@@ -3,7 +3,7 @@
 
 import { IngestionProperties, IngestionPropertiesInput } from "./ingestionProperties.js";
 import { StreamDescriptor, FileDescriptorBase, BlobDescriptor } from "./descriptors.js";
-import isIP from "is-ip";
+import { isIP } from "is-ip";
 
 const INGEST_PREFIX = "ingest-";
 const PROTOCOL_SUFFIX = "://";

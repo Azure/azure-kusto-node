@@ -2,6 +2,8 @@
 
 ## Installation
 
+Requires **Node.js >=22.12.0**. Use a current patched LTS release.
+
 `npm install azure-kusto-data`
 
 ## Quick Start
@@ -36,7 +38,7 @@ const kcsb = KustoConnectionStringBuilder.withAadApplicationKeyAuthentication(`h
 
 Option 2.1: Authenticating using AAD application id and corresponding certificate.
 
-```javascript
+````javascript
 const kcsb = KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(
     `https://${clusterName}.kusto.windows.net`,
     "appid",
@@ -59,7 +61,7 @@ const kcsb = KustoConnectionStringBuilder.withAadApplicationCertificateAuthentic
     "authorityId",
     true
 );
-```
+````
 
 Option 3: Authenticating using [AAD Managed Identities](https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/overview).
 

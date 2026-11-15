@@ -1,10 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { Button, Dropdown, Link, Option, Spinner, Text } from "@fluentui/react-components";
+import { Button, Dropdown, Link, Option, Spinner, Text, tokens } from "@fluentui/react-components";
 import { Client } from "azure-kusto-data";
 import { DataFormat, IngestClient, dataFormatMappingKind } from "azure-kusto-ingest";
 
-import { tokens } from "@fluentui/react-theme";
 import React from "react";
 import { v4 } from "uuid";
 import { BrowseFiles } from "./BrowseFiles";

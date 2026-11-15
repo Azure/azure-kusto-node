@@ -5,9 +5,13 @@ import { ClientRequestProperties, Client as KustoClient, KustoConnectionStringBu
 import { BlobDescriptor, DataFormat, FileDescriptor, IngestClient, IngestionProperties, dataFormatMappingKind } from "azure-kusto-ingest";
 import Console from "console";
 import fs from "fs";
+import { resolve } from "path";
+import { fileURLToPath } from "url";
 import util from "util";
 import { v4 as uuidv4 } from "uuid";
-import { AuthenticationModeOptions } from "./SampleApp";
+import { AuthenticationModeOptions } from "./SampleApp.js";
+
+const sampleRoot = fileURLToPath(new URL("../", import.meta.url));
 
 /**
  * Util static class - Handles the communication with the API, and provides generic and simple "plug-n-play" functions to use in different programs.
@@ -130,7 +134,7 @@ export class Authentication extends Utils {
             if (!privateKeyPemFilePath) {
                 this.errorHandler(`"Failed to load PEM file from ${privateKeyPemFilePath}"`);
             } else {
-                const pemCertificate: string = await fs.promises.readFile(privateKeyPemFilePath, "utf8");
+                const pemCertificate: string = await fs.promises.readFile(resolve(sampleRoot, privateKeyPemFilePath), "utf8");
                 if (publicCertFilePath) {
                     return KustoConnectionStringBuilder.withAadApplicationCertificateAuthentication(clusterUri, appId, pemCertificate, appTenant, sendX5c);
                 }
@@ -251,7 +255,7 @@ export class Ingestion extends Utils {
         // Tip 1: For optimal ingestion batching and performance, specify the uncompressed data size in the file descriptor instead of the default below of
         // 0. Otherwise, the service will determine the file size, requiring an additional s2s call, and may not be accurate for compressed files.
         // Tip 2: To correlate between ingestion operations in your applications and Kusto, set the source ID and log it somewhere.
-        const fileDescriptor = new FileDescriptor(`${__dirname}\\${filePath}`, uuidv4(), 0);
+        const fileDescriptor = new FileDescriptor(resolve(sampleRoot, "src", filePath), uuidv4(), 0);
         await ingestClient.ingestFromFile(fileDescriptor, ingestionProp);
     }
 
