@@ -3,7 +3,13 @@
 
 /* eslint-disable no-console */
 
-import { Client, CloudSettings, KustoConnectionStringBuilder as ConnectionStringBuilder, KustoConnectionStringBuilder } from "azure-kusto-data";
+import {
+    Client,
+    ClientRequestProperties,
+    CloudSettings,
+    KustoConnectionStringBuilder as ConnectionStringBuilder,
+    KustoConnectionStringBuilder,
+} from "azure-kusto-data";
 import {
     IngestClient,
     CompressionType,
@@ -22,6 +28,7 @@ import {
 import { type AxiosError } from "axios";
 
 import { sleep } from "../../src/retry.js";
+import { retryManagementCommand, runSetupTasks } from "../setupUtils.js";
 
 import { AzureCliCredential } from "@azure/identity";
 import assert from "assert";
@@ -171,54 +178,68 @@ const main = (): void => {
     const tableWithItems = tables.map((t) => testItems.map((tI) => `${t}_${tI.description}`)).flat() as Table[];
     const tableNames = Object.fromEntries(tableWithItems.map((t) => [t, t + testSuffix])) as Record<Table, string>;
 
+    const hookTimeoutMs = 240000;
+    const createManagementExecutor = () => {
+        const properties = new ClientRequestProperties();
+        // Leave time for pending requests and backoff to settle before the hook times out.
+        properties.abortSignal = AbortSignal.timeout(hookTimeoutMs - 30000);
+        return (client: Client, database: string, command: string) => retryManagementCommand(() => client.execute(database, command, properties));
+    };
+
+    const initializeTables = async () => {
+        const executeManagement = createManagementExecutor();
+        await runSetupTasks(Object.values(tableNames), async (table) => {
+            try {
+                await executeManagement(queryClient, databaseName, `.create-merge table ${table} ${tableColumns}`);
+                await executeManagement(queryClient, databaseName, `.alter table ${table} policy streamingingestion enable`);
+                try {
+                    await executeManagement(
+                        queryClient,
+                        databaseName,
+                        `.alter table ${table} policy ingestionbatching @'{"MaximumBatchingTimeSpan":"00:00:10", "MaximumNumberOfItems": 500, "MaximumRawDataSizeMB": 1024}'`,
+                    );
+                    await executeManagement(
+                        dmKustoClient,
+                        KustoConnectionStringBuilder.DefaultDatabaseName,
+                        `.refresh database '${databaseName}' table '${table}' cache ingestionbatchingpolicy`,
+                    );
+                } catch (err) {
+                    console.error("Failed refreshing policies from DM: " + util.format(err));
+                }
+
+                console.log("Create table ingestion mapping");
+                await executeManagement(queryClient, databaseName, `.create-or-alter table ${table} ingestion json mapping '${mappingName}' '${mapping}'`);
+            } catch (err) {
+                assert.fail(`Failed to initialize table ${table} in ${databaseName}: ${util.format(err)}`);
+            }
+        });
+        await executeManagement(queryClient, databaseName, ".clear database cache streamingingestion schema");
+    };
+
+    let setupPromise: Promise<void> | undefined;
+    beforeAll(() => {
+        setupPromise = initializeTables();
+        return setupPromise;
+    }, hookTimeoutMs);
+
     afterAll(async () => {
-        const cmd = ".drop tables (" + Object.values(tableNames).toString() + ") ifexists";
-        await queryClient.execute(databaseName, cmd);
-        queryClient.close();
-        ingestClient.close();
-    });
-
-    beforeAll(async () => {
         try {
-            await Promise.all(
-                Object.values(tableNames).map(async (tableName, i) => {
-                    const tableCommands = async (database: string, table: string) => {
-                        await queryClient.execute(database, `.create-merge table ${table} ${tableColumns}`);
-                        await queryClient.execute(database, `.alter table ${table} policy streamingingestion enable`);
-                        try {
-                            await queryClient.execute(
-                                database,
-                                `.alter table ${table} policy ingestionbatching @'{"MaximumBatchingTimeSpan":"00:00:10", "MaximumNumberOfItems": 500, "MaximumRawDataSizeMB": 1024}'`,
-                            );
-                            await dmKustoClient.execute(
-                                KustoConnectionStringBuilder.DefaultDatabaseName,
-                                `.refresh database '${database}' table '${table}' cache ingestionbatchingpolicy`,
-                            );
-                        } catch (err) {
-                            console.error("Failed refreshing policies from DM: " + util.format(err));
-                        }
-
-                        console.log("Create table ingestion mapping");
-                        await queryClient.execute(database, `.create-or-alter table ${table} ingestion json mapping '${mappingName}' '${mapping}'`);
-                    };
-                    try {
-                        await tableCommands(databaseName, tableName);
-                    } catch (err) {
-                        console.log(`Creating table ${tableName}, with columns ${tableColumns}`);
-                        if ((err as Error)?.name.includes("Throttling")) {
-                            await sleep(i * 100);
-                            await tableCommands(databaseName, tableName);
-                        }
-                        assert.fail(`Failed to create table ${tableName} ${err} ${databaseName}, error: ${util.format(err)}`);
-                    }
-                }),
-            );
-
-            await queryClient.execute(databaseName, ".clear database cache streamingingestion schema");
-        } catch (e) {
-            assert.fail(util.format(e));
+            if (setupPromise) {
+                await Promise.allSettled([setupPromise]);
+            }
+            const executeManagement = createManagementExecutor();
+            const cmd = ".drop tables (" + Object.values(tableNames).toString() + ") ifexists";
+            await executeManagement(queryClient, databaseName, cmd);
+        } finally {
+            queryClient.close();
+            ingestClient.close();
+            dmKustoClient.close();
+            streamingIngestClient.close();
+            managedStreamingIngestClient.close();
+            mockedStreamingIngestClient.close();
+            streamStub.restore();
         }
-    });
+    }, hookTimeoutMs);
     describe(`E2E Tests`, () => {
         describe("cloud info", () => {
             it.concurrent("cloud info 404", async () => {
