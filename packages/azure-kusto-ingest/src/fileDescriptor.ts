@@ -62,23 +62,15 @@ export class FileDescriptor extends AbstractDescriptor implements FileDescriptor
     }
 
     async prepare(ingestionProperties?: IngestionPropertiesInput): Promise<string> {
+        const asyncStat = promisify(fs.stat);
+        this._calculateSize((await asyncStat(this.file as string)).size, this.zipped);
+
         const shouldNotCompressByFormat = !shouldCompressFileByFormat(ingestionProperties);
         if (this.zipped || this.shouldNotCompress || shouldNotCompressByFormat) {
-            const estimatedCompressionModifier = 11;
-            await this._calculateSize(estimatedCompressionModifier);
             return this.file as string;
         }
 
-        const path = await this._gzip();
-        await this._calculateSize();
-        return path;
-    }
-
-    private async _calculateSize(modifier: number = 1): Promise<void> {
-        if (this.size == null || this.size <= 0) {
-            const asyncStat = promisify(fs.stat);
-            this.size = (await asyncStat(this.file as string)).size * modifier;
-        }
+        return this._gzip();
     }
 
     async cleanup(): Promise<void> {

@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Queued file ingestion now rejects empty files on Node.js and in browsers before compression or upload, even when a positive size hint is supplied.
+- Browser queued ingestion now preserves raw-size hints and estimates the raw size of already-compressed files. Uncompressed binary files retain their actual byte size on both platforms.
+- Browser Blob-read and compression failures now propagate instead of silently uploading the original input.
+- Queued ingestion now preserves the final storage-upload error after exhausting container retries.
+
 ## [8.0.1] - 2026-11-26
 
 ### Changed

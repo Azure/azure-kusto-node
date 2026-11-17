@@ -34,6 +34,16 @@ export abstract class AbstractDescriptor {
     ) {
         this.sourceId = getSourceId(sourceId);
     }
+
+    protected _calculateSize(fileSize: number, compressed: boolean): void {
+        if (fileSize <= 0) {
+            throw new Error("Empty file.");
+        }
+        if (!this.size || this.size <= 0) {
+            const estimatedCompressionModifier = 11;
+            this.size = fileSize * (compressed ? estimatedCompressionModifier : 1);
+        }
+    }
 }
 
 export class StreamDescriptor extends AbstractDescriptor {
