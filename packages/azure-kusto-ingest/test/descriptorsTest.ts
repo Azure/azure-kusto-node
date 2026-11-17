@@ -8,7 +8,10 @@ import { generateBlobName } from "../src/descriptors.js";
 import { FileDescriptor } from "../src/fileDescriptor.js";
 import { readFile, writeFile } from "fs/promises";
 import { file as tmpFile } from "tmp-promise";
-import { gunzipSync } from "zlib";
+import { gunzipSync, gzipSync } from "zlib";
+import fs from "fs";
+import pathlib from "path";
+import sinon from "sinon";
 
 describe("FileDescriptor", () => {
     describe("#constructor()", () => {
@@ -89,6 +92,89 @@ describe("FileDescriptor", () => {
             } finally {
                 await descriptor.cleanup();
                 await source.cleanup();
+            }
+        });
+
+        it.each([
+            { extension: ".csv", format: DataFormat.CSV, compress: true, size: null },
+            { extension: ".csv", format: DataFormat.CSV, compress: true, size: 1234 },
+            { extension: ".gz", format: DataFormat.CSV, compress: false, size: null },
+            { extension: ".avro", format: DataFormat.AVRO, compress: false, size: null },
+            { extension: ".csv", format: DataFormat.AVRO, compress: false, size: null },
+        ])("preserves nonempty $extension content with $format and hint $size when stat reports zero", async ({ extension, format, compress, size }) => {
+            const source = await tmpFile({ postfix: extension });
+            const descriptor = new FileDescriptor(source.path, null, size);
+            const sandbox = sinon.createSandbox();
+            const payload = Buffer.from("value\n123\n".repeat(8192));
+            const input = extension === ".gz" ? gzipSync(payload) : payload;
+            let prepared: string | undefined;
+
+            try {
+                await writeFile(source.path, input);
+                const stats = await fs.promises.stat(source.path);
+                stats.size = 0;
+                sandbox.stub(fs, "stat").callThrough().withArgs(source.path).yields(null, stats);
+
+                prepared = await descriptor.prepare({ format });
+
+                const uploaded = await readFile(prepared);
+                assert.deepStrictEqual(compress ? gunzipSync(uploaded) : uploaded, input);
+                if (size !== null) {
+                    assert.strictEqual(descriptor.size, size);
+                } else if (descriptor.zipped) {
+                    assert.ok(descriptor.size !== null && descriptor.size > input.length);
+                } else {
+                    assert.strictEqual(descriptor.size, input.length);
+                }
+            } finally {
+                sandbox.restore();
+                await descriptor.cleanup();
+                await source.cleanup();
+            }
+
+            assert.ok(prepared);
+            await assert.rejects(readFile(prepared), { code: "ENOENT" });
+        });
+
+        it("propagates a zero-stat input read failure and closes the file", async () => {
+            const source = await tmpFile({ postfix: ".csv" });
+            const descriptor = new FileDescriptor(source.path);
+            const input = await fs.promises.open(source.path, "r");
+            const sandbox = sinon.createSandbox();
+            const error = new Error("Unable to read input");
+
+            try {
+                sandbox.stub(fs.promises, "open").withArgs(source.path, "r").resolves(input);
+                sandbox.stub(input, "read").rejects(error);
+                const close = sandbox.spy(input, "close");
+
+                await assert.rejects(descriptor.prepare(), (actual) => actual === error);
+
+                sandbox.assert.calledOnce(close);
+                assert.strictEqual(descriptor.cleanupTmp, undefined);
+            } finally {
+                sandbox.restore();
+                if (input.fd !== -1) {
+                    await input.close();
+                }
+                await descriptor.cleanup();
+                await source.cleanup();
+            }
+        });
+
+        const linuxTest = process.platform === "linux" ? it : it.skip;
+        linuxTest("prepares nonempty procfs content despite a zero stat size", async () => {
+            const descriptor = new FileDescriptor(pathlib.join(pathlib.sep, "proc", "self", "status"), null, 1234);
+
+            try {
+                const prepared = await descriptor.prepare();
+                const content = gunzipSync(await readFile(prepared)).toString();
+
+                assert.match(content, /^Name:/);
+                assert.match(content, new RegExp(`^Pid:\\s+${process.pid}$`, "m"));
+                assert.strictEqual(descriptor.size, 1234);
+            } finally {
+                await descriptor.cleanup();
             }
         });
     });
