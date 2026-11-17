@@ -178,10 +178,14 @@ const main = (): void => {
 
     const hookTimeoutMs = 240000;
     const createManagementExecutor = () => {
-        const properties = new ClientRequestProperties();
         // Leave time for pending requests and backoff to settle before the hook times out.
-        properties.abortSignal = AbortSignal.timeout(hookTimeoutMs - 30000);
-        return (client: Client, database: string, command: string) => retryManagementCommand(() => client.execute(database, command, properties));
+        const abortSignal = AbortSignal.timeout(hookTimeoutMs - 30000);
+        return (client: Client, database: string, command: string) =>
+            retryManagementCommand(() => {
+                const properties = new ClientRequestProperties();
+                properties.abortSignal = abortSignal;
+                return client.execute(database, command, properties);
+            });
     };
 
     const initializeTables = async () => {
@@ -208,7 +212,7 @@ const main = (): void => {
                 console.log("Create table ingestion mapping");
                 await executeManagement(queryClient, databaseName, `.create-or-alter table ${table} ingestion json mapping '${mappingName}' '${mapping}'`);
             } catch (err) {
-                assert.fail(`Failed to initialize table ${table} in ${databaseName}: ${util.format(err)}`);
+                throw new Error(`Failed to initialize table ${table} in ${databaseName}: ${util.format(err)}`, { cause: err });
             }
         });
         await executeManagement(queryClient, databaseName, ".clear database cache streamingingestion schema");
@@ -223,7 +227,7 @@ const main = (): void => {
     afterAll(async () => {
         try {
             if (setupPromise) {
-                await Promise.allSettled([setupPromise]);
+                await setupPromise.catch(() => undefined);
             }
             const executeManagement = createManagementExecutor();
             const cmd = ".drop tables (" + Object.values(tableNames).toString() + ") ifexists";
