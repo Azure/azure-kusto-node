@@ -6,7 +6,6 @@ import { AbstractDescriptor, CompressionType, FileDescriptorBase, shouldCompress
 import { IngestionPropertiesInput, shouldCompressFileByFormat } from "./ingestionProperties.js";
 
 export class FileDescriptor extends AbstractDescriptor implements FileDescriptorBase {
-    size: number | null;
     zipped: boolean;
     compressionType: CompressionType;
     shouldNotCompress: boolean;
@@ -20,25 +19,22 @@ export class FileDescriptor extends AbstractDescriptor implements FileDescriptor
         readonly extension?: string,
         readonly name?: string,
     ) {
-        super(sourceId);
+        super(sourceId, size);
         this.compressionType = compressionType;
-        this.size = size || file.size;
         this.zipped = compressionType !== CompressionType.None || this.extension === ".gz" || this.extension === ".zip";
         this.shouldNotCompress = !shouldCompressFileByExtension(this.extension);
     }
 
     async prepare(ingestionProperties?: IngestionPropertiesInput): Promise<Blob> {
+        this._calculateSize(this.file.size, this.zipped);
+
         const shouldNotCompressByFormat = !shouldCompressFileByFormat(ingestionProperties);
-        if (!this.zipped && !this.shouldNotCompress && !shouldNotCompressByFormat) {
-            try {
-                const gzipped = pako.gzip(await this.file.arrayBuffer());
-                return new Blob([gzipped]);
-            } catch (e) {
-                // Ignore - return the file itself
-            }
+        if (this.zipped || this.shouldNotCompress || shouldNotCompressByFormat) {
+            return this.file;
         }
 
-        return this.file;
+        const gzipped = pako.gzip(await this.file.arrayBuffer());
+        return new Blob([gzipped]);
     }
 
     async cleanup(): Promise<void> {
