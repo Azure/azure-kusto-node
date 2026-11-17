@@ -11,6 +11,11 @@ import { Client as KustoClient, KustoConnectionStringBuilder } from "azure-kusto
 import { Readable } from "stream";
 import sinon from "sinon";
 import { gunzipSync } from "zlib";
+import { BlockBlobClient } from "@azure/storage-blob";
+import { ResourceType, ResourceURI } from "../src/resourceManager.js";
+import { StreamDescriptor } from "../src/descriptors.js";
+import { FileDescriptor } from "../src/fileDescriptor.js";
+import { file as tmpFile } from "tmp-promise";
 
 describe("KustoIngestClient", () => {
     describe("#constructor()", () => {
@@ -276,8 +281,89 @@ describe("KustoIngestClient", () => {
     });
 
     describe("#ingestFromFile()", () => {
-        it.concurrent("valid input", () => {
-            // TODO: not sure a unit test will be useful here
+        it("rejects an empty file with a positive size hint before upload and runs cleanup", async () => {
+            const source = await tmpFile({ postfix: ".csv" });
+            const descriptor = new FileDescriptor(source.path, null, 1234);
+            const client = new KustoIngestClient("https://cluster.kusto.windows.net", { database: "db", table: "table" });
+            const sandbox = sinon.createSandbox();
+            const upload = sandbox.stub(client, "uploadToBlobWithRetry").resolves("https://storage.blob.core.windows.net/container/file.csv.gz");
+            const queued = sandbox.stub(client, "ingestFromBlob").resolves();
+            const cleanup = sandbox.spy(descriptor, "cleanup");
+
+            try {
+                await assert.rejects(client.ingestFromFile(descriptor), /Empty file/);
+                sandbox.assert.notCalled(upload);
+                sandbox.assert.notCalled(queued);
+                sandbox.assert.calledOnce(cleanup);
+                assert.strictEqual(descriptor.cleanupTmp, undefined);
+            } finally {
+                sandbox.restore();
+                client.close();
+                await source.cleanup();
+            }
+        });
+    });
+
+    describe("#uploadToBlobWithRetry()", () => {
+        let client: KustoIngestClient;
+        let sandbox: sinon.SinonSandbox;
+
+        beforeEach(() => {
+            sandbox = sinon.createSandbox();
+            client = new KustoIngestClient("https://cluster.kusto.windows.net");
+            sandbox
+                .stub(client.resourceManager, "getContainers")
+                .resolves(
+                    ["first", "second", "third"].map(
+                        (account) => new ResourceURI(`https://${account}.blob.core.windows.net/container`, account, ResourceType.Container),
+                    ),
+                );
+        });
+
+        afterEach(() => {
+            sandbox.restore();
+            client.close();
+        });
+
+        it.each(["uploadFile", "uploadData", "uploadStream"] as const)("preserves the final %s error after the retry limit", async (method) => {
+            const firstError = new Error("First upload failed");
+            const finalError = Object.assign(new Error("Final upload denied"), { code: "AuthorizationFailure", statusCode: 403 });
+            const upload = sandbox.stub(BlockBlobClient.prototype, method);
+            upload.onFirstCall().rejects(firstError);
+            upload.onSecondCall().rejects(finalError);
+            const usage = sandbox.stub(client.resourceManager, "reportResourceUsageResult");
+            const descriptor =
+                method === "uploadFile" ? "file.csv" : new StreamDescriptor(method === "uploadData" ? Buffer.from("payload") : Readable.from(["payload"]));
+
+            await assert.rejects(client.uploadToBlobWithRetry(descriptor, "file", 2), (error) => error === finalError);
+
+            sandbox.assert.calledTwice(upload);
+            assert.deepStrictEqual(
+                usage.getCalls().map((call) => call.args),
+                [
+                    ["first", false],
+                    ["second", false],
+                ],
+            );
+        });
+
+        it("retries a failed container and reports the successful upload", async () => {
+            const upload = sandbox.stub(BlockBlobClient.prototype, "uploadData");
+            upload.onFirstCall().rejects(new Error("First upload failed"));
+            upload.onSecondCall().resolves();
+            const usage = sandbox.stub(client.resourceManager, "reportResourceUsageResult");
+
+            const url = await client.uploadToBlobWithRetry(new StreamDescriptor(Buffer.from("payload")), "file", 2);
+
+            assert.strictEqual(url, "https://second.blob.core.windows.net/container/file");
+            sandbox.assert.calledTwice(upload);
+            assert.deepStrictEqual(
+                usage.getCalls().map((call) => call.args),
+                [
+                    ["first", false],
+                    ["second", true],
+                ],
+            );
         });
     });
 

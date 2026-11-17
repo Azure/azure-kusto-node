@@ -6,6 +6,8 @@ import pathlib from "path";
 import fs from "fs";
 import { file as tmpFile } from "tmp-promise";
 import { promisify } from "util";
+import { PassThrough } from "stream";
+import { pipeline } from "stream/promises";
 import { AbstractDescriptor, CompressionType, FileDescriptorBase, shouldCompressFileByExtension } from "./descriptors.js";
 import { IngestionPropertiesInput, shouldCompressFileByFormat } from "./ingestionProperties.js";
 
@@ -61,24 +63,47 @@ export class FileDescriptor extends AbstractDescriptor implements FileDescriptor
         return path;
     }
 
-    async prepare(ingestionProperties?: IngestionPropertiesInput): Promise<string> {
-        const shouldNotCompressByFormat = !shouldCompressFileByFormat(ingestionProperties);
-        if (this.zipped || this.shouldNotCompress || shouldNotCompressByFormat) {
-            const estimatedCompressionModifier = 11;
-            await this._calculateSize(estimatedCompressionModifier);
-            return this.file as string;
-        }
+    private async _prepareUnknownSize(compress: boolean): Promise<string> {
+        const file = await fs.promises.open(this.file as string, "r");
+        try {
+            const firstByte = Buffer.alloc(1);
+            const { bytesRead } = await file.read(firstByte);
+            if (bytesRead === 0) {
+                this._calculateSize(0, this.zipped);
+            }
 
-        const path = await this._gzip();
-        await this._calculateSize();
-        return path;
+            const { path, cleanup } = await tmpFile({ postfix: compress ? ".gz" : this.extension, keep: false });
+            this.cleanupTmp = cleanup;
+
+            const input = file.createReadStream({ autoClose: false });
+            const prefixed = new PassThrough();
+            // Preserve the probe byte without reopening a possibly non-seekable input.
+            prefixed.write(firstByte);
+            const output = fs.createWriteStream(path);
+            if (compress) {
+                await pipeline(input, prefixed, zlib.createGzip(), output);
+            } else {
+                await pipeline(input, prefixed, output);
+            }
+            this._calculateSize(bytesRead + input.bytesRead, this.zipped);
+            return path;
+        } finally {
+            await file.close();
+        }
     }
 
-    private async _calculateSize(modifier: number = 1): Promise<void> {
-        if (this.size == null || this.size <= 0) {
-            const asyncStat = promisify(fs.stat);
-            this.size = (await asyncStat(this.file as string)).size * modifier;
+    async prepare(ingestionProperties?: IngestionPropertiesInput): Promise<string> {
+        const asyncStat = promisify(fs.stat);
+        const fileSize = (await asyncStat(this.file as string)).size;
+        const shouldNotCompressByFormat = !shouldCompressFileByFormat(ingestionProperties);
+        const compress = !this.zipped && !this.shouldNotCompress && !shouldNotCompressByFormat;
+
+        if (fileSize === 0) {
+            return this._prepareUnknownSize(compress);
         }
+        this._calculateSize(fileSize, this.zipped);
+
+        return compress ? this._gzip() : (this.file as string);
     }
 
     async cleanup(): Promise<void> {

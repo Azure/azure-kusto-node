@@ -152,6 +152,9 @@ export abstract class KustoIngestClientBase extends AbstractKustoClient {
                 return blockBlobClient.url;
             } catch (ex) {
                 this.resourceManager.reportResourceUsageResult(containerClient.accountName, false);
+                if (i === retryCount - 1) {
+                    throw ex;
+                }
             }
         }
 
