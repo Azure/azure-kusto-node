@@ -30,6 +30,7 @@ describe("Kcsb", () => {
         it.each([null, 1234])("compresses a real Blob and queues raw-size hint %s", async (size) => {
             const input = new Blob(["value\n123\n"]);
             const descriptor = new FileDescriptor(input, null, size);
+            assert.strictEqual(descriptor.size, size ?? input.size);
             const queued = sandbox.stub(client, "ingestFromBlob").resolves();
             const upload = sandbox.stub(client, "uploadToBlobWithRetry").resolves("https://storage.blob.core.windows.net/container/file.csv.gz");
 
@@ -78,9 +79,11 @@ describe("Kcsb", () => {
             sandbox.assert.notCalled(queued);
         });
 
-        it("queues an estimated raw size for an already-compressed Blob", async () => {
+        it.each(["default", "zero", "explicit"] as const)("queues raw size for an already-compressed Blob with a %s hint", async (hint) => {
             const input = new Blob([new Uint8Array(gzipSync("value\n123\n"))]);
-            const descriptor = new FileDescriptor(input, null, null, CompressionType.GZIP);
+            const size = hint === "default" ? null : hint === "zero" ? 0 : input.size;
+            const descriptor = new FileDescriptor(input, null, size, CompressionType.GZIP);
+            assert.strictEqual(descriptor.size, size || input.size);
             const upload = sandbox.stub(client, "uploadToBlobWithRetry").resolves("https://storage.blob.core.windows.net/container/file.csv.gz");
             const queued = sandbox.stub(client, "ingestFromBlob").resolves();
 
@@ -90,7 +93,13 @@ describe("Kcsb", () => {
             const blobDescriptor = queued.firstCall.args[0];
             assert.ok(blobDescriptor instanceof BlobDescriptor);
             assert.strictEqual(blobDescriptor.size, descriptor.size);
-            assert.ok(blobDescriptor.size !== null && blobDescriptor.size > input.size);
+            if (hint === "explicit") {
+                assert.strictEqual(blobDescriptor.size, size);
+            } else {
+                assert.ok(blobDescriptor.size !== null && blobDescriptor.size > input.size);
+            }
+            assert.strictEqual(await descriptor.prepare(), input);
+            assert.strictEqual(descriptor.size, blobDescriptor.size);
         });
 
         it("does not compress or inflate the raw size of uncompressed binary data", async () => {
