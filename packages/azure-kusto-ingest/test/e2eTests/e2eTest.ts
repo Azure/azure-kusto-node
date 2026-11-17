@@ -212,7 +212,7 @@ const main = (): void => {
                 console.log("Create table ingestion mapping");
                 await executeManagement(queryClient, databaseName, `.create-or-alter table ${table} ingestion json mapping '${mappingName}' '${mapping}'`);
             } catch (err) {
-                throw new Error(`Failed to initialize table ${table} in ${databaseName}: ${util.format(err)}`, { cause: err });
+                throw Object.assign(new Error(`Failed to initialize table ${table} in ${databaseName}: ${util.format(err)}`), { cause: err });
             }
         });
         await executeManagement(queryClient, databaseName, ".clear database cache streamingingestion schema");
