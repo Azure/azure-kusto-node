@@ -15,6 +15,7 @@ type TimeSpanParser = (value: string | null) => any;
 
 const defaultDatetimeParser: DateTimeParser = (t: string | null) => (t ? new Date(t) : null);
 const defaultTimespanParser: TimeSpanParser = parseKustoTimestampToMillis;
+const reservedValues = Symbol("KustoResultRow.reservedValues");
 
 export interface Table {
     TableKind?: string;
@@ -39,7 +40,7 @@ interface Column {
 export class KustoResultRow {
     columns: KustoResultColumn[];
     raw: { [ord: number]: any };
-    #reservedValues?: Map<string, any>;
+    declare readonly [reservedValues]?: Map<string, any>;
 
     [column: string]: any;
 
@@ -70,7 +71,12 @@ export class KustoResultRow {
             }
 
             if (col.name === "columns" || col.name === "raw" || col.name in KustoResultRow.prototype) {
-                (this.#reservedValues ??= new Map<string, any>()).set(col.name, value);
+                let reserved = this[reservedValues];
+                if (!reserved) {
+                    reserved = new Map<string, any>();
+                    Object.defineProperty(this, reservedValues, { value: reserved, enumerable: false });
+                }
+                reserved.set(col.name, value);
             } else {
                 this[col.name] = value;
             }
@@ -85,7 +91,8 @@ export class KustoResultRow {
 
     getValueAt(index: number) {
         const name = this.columns[index].name as string;
-        return this.#reservedValues?.has(name) ? this.#reservedValues.get(name) : this[name];
+        const reserved = this[reservedValues];
+        return reserved?.has(name) ? reserved.get(name) : this[name];
     }
 
     /**
@@ -99,12 +106,18 @@ export class KustoResultRow {
         const obj: Record<string, any> = {};
 
         for (const [index, col] of this.columns.entries()) {
-            Object.defineProperty(obj, col.name as string, {
-                value: this.getValueAt(index),
-                enumerable: true,
-                configurable: true,
-                writable: true,
-            });
+            const name = col.name as string;
+            const value = this.getValueAt(index);
+            if (name === "__proto__") {
+                Object.defineProperty(obj, name, {
+                    value,
+                    enumerable: true,
+                    configurable: true,
+                    writable: true,
+                });
+            } else {
+                obj[name] = value;
+            }
         }
 
         return obj as T;

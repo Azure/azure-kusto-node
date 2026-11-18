@@ -216,6 +216,25 @@ describe("KustoResultRow", () => {
             assert.deepStrictEqual(actual.toJSON(), { raw: value, status: 200, level: "Info" });
         });
 
+        it.concurrent.each(["message", "raw"])("support structurally typed proxy rows with a %s column", (name) => {
+            const columns = [new KustoResultColumn({ ColumnName: name, ColumnType: "string" }, 0)];
+            const inputValues = ["value"];
+            const rowLike: Pick<KustoResultRow, "columns" | "raw" | "values" | "getValueAt" | "toJson" | "toJSON" | "toString"> = new Proxy(
+                new KustoResultRow(columns, inputValues),
+                {},
+            );
+            const actual: KustoResultRow = rowLike;
+            const expected = { [name]: "value" };
+
+            assert.strictEqual(actual.getValueAt(0), "value");
+            assert.deepStrictEqual(actual.toJSON(), expected);
+            assert.deepStrictEqual(actual.toJson(), expected);
+            assert.strictEqual(actual.toString(), JSON.stringify(expected));
+            assert.strictEqual(JSON.stringify(actual), JSON.stringify(expected));
+            assert.deepStrictEqual([...actual.values()], inputValues);
+            assert.deepStrictEqual({ ...actual }, name === "message" ? { columns, raw: inputValues, message: "value" } : { columns, raw: inputValues });
+        });
+
         it.concurrent.each(["columns", "values", "getValueAt", "toJSON", "toJson", "toString", "constructor", "hasOwnProperty", "__proto__"])(
             "preserve the row API and serialize a %s column",
             (name) => {
