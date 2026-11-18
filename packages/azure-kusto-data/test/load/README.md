@@ -97,36 +97,69 @@ network/service variability or GC noise to the PR. The ordinary control also req
 Reports contain synthetic query text and a target fingerprint, but no cluster/database names, identities, access tokens,
 connection strings, or raw service error messages. Review artifacts before publishing them.
 
-## Planned follow-ups (not executed)
+## A/A calibration
 
-These experiments have not been executed. A/A can use the existing runner; payload replay/profiling needs a dedicated driver.
-Keep existing report files and published results immutable; write every new experiment to a separate output path.
+Compare the fixed candidate against itself, using the same approved live target and settings as the A/B run:
 
-### A/A calibration
+```powershell
+npm run loadTest -- --before . --after . --rows 5000 --iterations 20 --concurrency 4 --rounds 3 --warmup 2 --output artifacts\aa-c4-rep1.json
+```
 
-- Compare the fixed candidate against itself (`--before <candidate> --after <candidate>`), verifying identical compiled SDK and lockfile hashes.
-- Use the same approved target, Node/runtime, five workloads, 5,000 rows, 20 measured requests, three paired rounds, warm-up, and concurrency levels 1, 4, 8, and 12.
-- Repeat independent, sequential paired runs to characterize throughput, CPU, and P90/P95/P99 variation. Retain per-round samples and before/after ordering.
-- Use the observed A/A variability to judge A/B differences; do not assume the previous throughput changes are either regressions or noise.
-  Collect more samples across bounded runs before treating P99 as a reliable tail estimate. Do not silently relax the existing load limits.
+Repeat independent, sequential profiles at concurrency 1, 4, 8, and 12 with new output names for every repetition.
+Verify identical compiled SDK and lockfile hashes. Identical-SDK comparisons are labeled `A/A` and require both variants
+to pass all correctness checks, including the four workloads whose original A/B baseline was expected to fail.
+Retain per-round samples as well as profile-level aggregates. Use their throughput/CPU/P90/P95/P99 variation to assess
+A/B differences; a few repetitions provide an empirical noise range, not a population confidence interval or a preapproved regression budget.
+Do not silently relax the existing load limits.
 
-### Synthetic payload replay and profiling
+## Synthetic payload replay and profiling
 
-- Capture only the generated queries' synthetic primary-result frames; remove target/authentication/diagnostic metadata before retaining fixtures.
-- Replay the same fixtures through the original base and fixed candidate in separate, alternating Node workers without live query traffic.
-  Create fresh data sets per iteration so custom parsers and row mutations cannot leak between samples.
-- Measure response decoding/data-set construction separately from row iteration, indexed custom parsing, JSON serialization, and collection-aware proxies.
-  Keep the existing correctness guards; do not compare successful throughput for known-broken baseline cases.
-- First collect warmed, unprofiled latency/CPU/memory measurements. Then capture CPU and heap-allocation/GC profiles of the measured replay loop
-  inside each SDK worker, not the coordinator. Keep instrumented results separate because profiling changes performance.
-- Attribute the observed ordinary-row client-side cost to hot paths, allocations, GC, or variability before proposing an SDK optimization.
-  Publish matching fixture/configuration hashes and comparison evidence without including private service metadata.
+First capture the same five fixed queries once each, using the fixed candidate and the approved E2E target:
+
+```powershell
+npm run replayTest -- --capture --rows 5000 --output artifacts\row-payloads.json
+```
+
+Only capture uses the cluster/Azure CLI. It retains normalized synthetic primary-result frames, not diagnostic frames,
+target/authentication metadata, original compressed HTTP bytes, or arbitrary query output. The adjacent `.metadata.json`
+records the capture SDK, target fingerprint, query count, and fixture hash without disclosing the endpoint/database.
+
+Run the same immutable fixtures through the original base and fixed candidate, then collect separate instrumented comparisons:
+
+```powershell
+npm run replayTest -- --before ..\azure-kusto-node-before --fixtures artifacts\row-payloads.json --rows 5000 --profile none --output artifacts\replay.json
+npm run replayTest -- --before ..\azure-kusto-node-before --fixtures artifacts\row-payloads.json --rows 5000 --profile cpu --output artifacts\replay-cpu.json
+npm run replayTest -- --before ..\azure-kusto-node-before --fixtures artifacts\row-payloads.json --rows 5000 --profile heap --output artifacts\replay-heap.json
+```
+
+Defaults are 20 measured iterations/case/round, 10 warm-up iterations/case, three alternating paired rounds, and a 300-second
+post-build budget. Bounds are 1-200 measured iterations, 1-50 warm-ups, 1-5 rounds, 1-50,000 rows, fixtures up to 64 MiB,
+and at most 5,000 total iterations including warm-up. Existing fixtures, reports, and profile directories are never overwritten.
+Replay is deliberately single-threaded and offline; do not run it alongside live latency measurements.
+
+Every iteration decodes the same payload into fresh objects and constructs a fresh `KustoResponseDataSetV2`, preventing parser
+or row mutations from leaking across samples. Reports separate JSON decode, data-set construction, and row consumption/validation/
+serialization (including proxies and custom indexed parsers). They include matching payload/fixture/configuration hashes,
+raw samples, CPU, and observed RSS. Decode/construction samples survive later model failures; successful throughput and
+model/total percentiles do not count failed work. Known-broken baseline workloads retain their correctness guards.
+
+CPU and sampling-allocation profilers start **inside each SDK worker after warm-up**, not in the coordinator.
+Each instrumented report has a separate `.profiles` directory containing per-variant/round/workload `.cpuprofile` or
+`.heapprofile` files. Stack URLs are rewritten to SDK/harness/dependency-relative labels before writing them.
+CPU sampling uses 1 ms; allocation sampling uses 32 KiB and includes collected objects. The heap profile is an allocation
+sample, not a heap snapshot or an exact retained-memory/leak measurement. Instrumented runs also observe GC durations
+whose start times lie inside the measured loop; unprofiled runs do not enable GC observation.
+
+Keep instrumented rates separate from unprofiled performance results. GC/CPU profiles are diagnostic, RSS can include retained
+warm-up memory, and a heap-used delta can be negative due to GC. Attribute any ordinary-row cost to measured SDK hot paths,
+allocations, GC, or calibration variability before proposing an optimization. Preserve all earlier artifacts/publications.
 
 ## Offline validation
 
 ```powershell
-npm run testData -- --runInBand --runTestsByPath packages\azure-kusto-data\test\load\resultRowsLoadTest.ts
+npm run testData -- --runInBand --runTestsByPath packages\azure-kusto-data\test\load\resultRowsLoadTest.ts packages\azure-kusto-data\test\load\resultRowsReplayTest.ts
 ```
 
-These tests exercise token caching/refresh, bounded scheduling, warm-up exclusion, error accounting/redaction, aggregation, and input limits
-without requiring a cluster or Azure credentials.
+These tests exercise token caching/refresh, bounded scheduling, warm-up exclusion, error accounting/redaction, aggregation,
+strict A/A correctness, immutable fixture identities, fresh replay state, worker CPU/allocation profiling, profile-path
+redaction, and input limits without requiring a cluster or Azure credentials.

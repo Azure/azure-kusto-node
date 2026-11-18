@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 import { execFile as execFileCallback } from "node:child_process";
-import { createHash, randomUUID } from "node:crypto";
-import { access, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import { randomUUID } from "node:crypto";
+import { mkdir, writeFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { cpus } from "node:os";
 import { dirname, join } from "node:path";
@@ -14,6 +14,7 @@ import type * as Identity from "@azure/identity";
 import {
     LoadConfigurationError,
     LoadValidationError,
+    comparisonPassed,
     makeWorkloads,
     performanceChange,
     readOptions,
@@ -23,10 +24,9 @@ import {
     withCachedTokens,
 } from "./resultRowsLoad.js";
 import type { CaseSamples, LoadLimits, LoadOptions, Variant } from "./resultRowsLoad.js";
+import { assertNewOutputs, display, hash, identifyAndBuild, sdkDirectory, target } from "./resultRowsHarness.js";
 
 const execFile = promisify(execFileCallback);
-const sdkDirectory = (root: string): string => join(root, "packages", "azure-kusto-data", "dist-esm", "src");
-const hash = (value: string | Buffer): string => createHash("sha256").update(value).digest("hex");
 const limitsOf = ({ rows, iterations, concurrency, warmup, rounds, timeoutMs, maxDurationSeconds }: LoadLimits): LoadLimits => ({
     rows,
     iterations,
@@ -36,71 +36,6 @@ const limitsOf = ({ rows, iterations, concurrency, warmup, rounds, timeoutMs, ma
     timeoutMs,
     maxDurationSeconds,
 });
-
-const target = (): { cluster: string; database: string } => {
-    const cluster = process.env.ENGINE_CONNECTION_STRING?.trim();
-    const database = process.env.TEST_DATABASE?.trim();
-    if (!cluster || !database) {
-        throw new LoadConfigurationError("Set ENGINE_CONNECTION_STRING and TEST_DATABASE to an approved live test cluster/database");
-    }
-    let url: URL;
-    try {
-        url = new URL(cluster);
-    } catch (error: unknown) {
-        if (!(error instanceof TypeError)) {
-            throw error;
-        }
-        throw new LoadConfigurationError("ENGINE_CONNECTION_STRING must be a credential-free HTTPS cluster URL");
-    }
-    if (url.protocol !== "https:" || url.username || url.password || url.search || url.hash || url.pathname !== "/" || !/^[a-z0-9.-]+$/i.test(url.hostname)) {
-        throw new LoadConfigurationError("ENGINE_CONNECTION_STRING must be a credential-free HTTPS cluster URL, not a connection string");
-    }
-    return { cluster: url.origin, database };
-};
-
-const identifyAndBuild = async (root: string, variant: Variant) => {
-    const build = await execFile(
-        process.execPath,
-        [join(root, "node_modules", "typescript", "bin", "tsc"), "--build", join(root, "packages", "azure-kusto-data"), "--force"],
-        { timeout: 120000, maxBuffer: 8 * 1024 * 1024 },
-    ).catch((error: unknown): never => {
-        if (typeof error === "object" && error !== null) {
-            for (const key of ["stdout", "stderr"]) {
-                const output: unknown = Reflect.get(error, key);
-                if (typeof output === "string" && output) {
-                    process.stderr.write(output);
-                }
-            }
-        }
-        throw new LoadConfigurationError(`Building the ${variant} SDK failed; run npm ci in that checkout and fix any compiler errors`);
-    });
-    if (build.stderr) {
-        process.stderr.write(build.stderr);
-    }
-    const directory = sdkDirectory(root);
-    const source = createHash("sha256");
-    for (const name of (await readdir(directory)).filter((entry) => /\.(js|json)$/.test(entry)).sort()) {
-        source.update(name).update(await readFile(join(directory, name)));
-    }
-    const revision = await execFile("git", ["-C", root, "rev-parse", "HEAD"]);
-    const dirty = await execFile("git", [
-        "-C",
-        root,
-        "status",
-        "--porcelain",
-        "--untracked-files=normal",
-        "--",
-        "packages/azure-kusto-data/src",
-        "packages/azure-kusto-data/package.json",
-        "package-lock.json",
-    ]);
-    return {
-        revision: revision.stdout.trim(),
-        sdkSourcesDirty: dirty.stdout.trim().length > 0,
-        compiledSdkSha256: source.digest("hex"),
-        lockfileSha256: hash(await readFile(join(root, "package-lock.json"))),
-    };
-};
 
 const worker = async (options: LoadOptions): Promise<CaseSamples[]> => {
     const { cluster, database } = target();
@@ -196,25 +131,14 @@ const runWorker = async (options: LoadOptions, variant: Variant, round: number, 
     return samples;
 };
 
-const display = (value: number | null): string => (value === null ? "n/a" : value.toFixed(2));
-
 const compare = async (options: LoadOptions): Promise<boolean> => {
     const destination = options.output;
-    for (const path of [destination, `${destination}.md`]) {
-        try {
-            await access(path);
-        } catch (error: unknown) {
-            if (typeof error === "object" && error !== null && "code" in error && error.code === "ENOENT") {
-                continue;
-            }
-            throw error;
-        }
-        throw new LoadConfigurationError("An output file already exists; choose a new --output path");
-    }
+    await assertNewOutputs([destination, `${destination}.md`]);
     const settings = limitsOf(options);
     const configured = target();
     const before = await identifyAndBuild(options.before, "before");
     const after = await identifyAndBuild(options.after, "after");
+    const identicalSdk = before.compiledSdkSha256 === after.compiledSdkSha256 && before.lockfileSha256 === after.lockfileSha256;
     const workloads = makeWorkloads(options.rows);
     const runs: { variant: Variant; round: number; samples: CaseSamples[] }[] = [];
     const deadline = Date.now() + options.maxDurationSeconds * 1000;
@@ -262,17 +186,12 @@ const compare = async (options: LoadOptions): Promise<boolean> => {
     });
     const passed =
         !fatalError &&
-        comparisons.every(
-            (comparison) =>
-                comparison.after.succeeded === options.iterations * options.rounds &&
-                comparison.after.warmupFailures === 0 &&
-                (comparison.expectedBaselineFailure ||
-                    (comparison.before.succeeded === options.iterations * options.rounds &&
-                        comparison.before.warmupFailures === 0 &&
-                        comparison.before.bytes === comparison.after.bytes)),
+        comparisons.every((comparison) =>
+            comparisonPassed(comparison.before, comparison.after, options.iterations * options.rounds, comparison.expectedBaselineFailure && !identicalSdk),
         );
     const report = {
         schemaVersion: 1,
+        comparisonKind: identicalSdk ? "A/A" : "A/B",
         generatedAt: new Date().toISOString(),
         targetSha256: hash(`${configured.cluster}\n${configured.database}`),
         authentication: "Azure CLI with an in-memory per-worker token cache",

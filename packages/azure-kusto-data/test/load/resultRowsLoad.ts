@@ -103,7 +103,7 @@ export const withCachedTokens = (credential: TokenCredential, now: () => number 
     };
 };
 
-const integer = (name: string, value: string, min: number, max: number): number => {
+export const integer = (name: string, value: string, min: number, max: number): number => {
     const parsed = Number(value);
     if (!/^\d+$/.test(value) || !Number.isSafeInteger(parsed) || parsed < min || parsed > max) {
         throw new LoadConfigurationError(`--${name} must be an integer between ${min} and ${max}`);
@@ -452,3 +452,15 @@ export const performanceChange = (before: ReturnType<typeof summarize>, after: R
               modelP95Percent: change(before.modelMs.p95, after.modelMs.p95),
           };
 };
+
+export const comparisonPassed = (
+    before: Pick<CaseSamples, "attempted" | "succeeded" | "warmupFailures" | "bytes">,
+    after: Pick<CaseSamples, "attempted" | "succeeded" | "warmupFailures" | "bytes">,
+    expected: number,
+    allowBaselineFailure: boolean,
+): boolean =>
+    before.attempted === expected &&
+    after.attempted === expected &&
+    after.succeeded === expected &&
+    after.warmupFailures === 0 &&
+    (allowBaselineFailure || (before.succeeded === expected && before.warmupFailures === 0 && before.bytes === after.bytes));

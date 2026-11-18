@@ -4,7 +4,17 @@
 import assert from "node:assert/strict";
 import { setImmediate } from "node:timers/promises";
 import { KustoResultTable } from "../../src/models.js";
-import { LoadValidationError, makeWorkloads, performanceChange, readOptions, runCase, safeFailure, summarize, withCachedTokens } from "./resultRowsLoad.js";
+import {
+    comparisonPassed,
+    LoadValidationError,
+    makeWorkloads,
+    performanceChange,
+    readOptions,
+    runCase,
+    safeFailure,
+    summarize,
+    withCachedTokens,
+} from "./resultRowsLoad.js";
 import type { LoadLimits, Workload } from "./resultRowsLoad.js";
 
 const limits: LoadLimits = { rows: 2, iterations: 7, concurrency: 2, warmup: 1, rounds: 1, timeoutMs: 1000, maxDurationSeconds: 30 };
@@ -155,6 +165,16 @@ describe("Result-row load suite", () => {
         assert.deepEqual(summary.modelMs, { p50: 30, p90: 54, p95: 57, p99: 60 });
         assert.deepEqual(summary.queryMs, { p50: 60, p90: 108, p95: 114, p99: 120 });
         assert.deepEqual(summary.totalMs, { p50: 90, p90: 162, p95: 171, p99: 180 });
+    });
+
+    it("requires both A/A variants to pass instead of applying the original A/B baseline-failure allowance", async () => {
+        const passed = summarize([await runCase(workload(), limits, () => Promise.resolve(table()))]);
+        const failed = { ...passed, succeeded: 0, warmupFailures: 1 };
+        assert.equal(comparisonPassed(failed, passed, limits.iterations, true), true);
+        assert.equal(comparisonPassed(failed, passed, limits.iterations, false), false);
+        assert.equal(comparisonPassed(passed, passed, limits.iterations, false), true);
+        assert.equal(comparisonPassed({ ...passed, attempted: 1 }, passed, limits.iterations, true), false);
+        assert.equal(comparisonPassed({ ...passed, bytes: passed.bytes + 1 }, passed, limits.iterations, false), false);
     });
 
     it("rejects unbounded/injected workloads and configurations that understate concurrency", () => {
