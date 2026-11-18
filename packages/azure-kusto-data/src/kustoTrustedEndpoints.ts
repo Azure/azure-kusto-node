@@ -2,7 +2,12 @@
 // Licensed under the MIT License.
 
 import { getStringTailLowerCase } from "./utils.js";
-import { default as endpointsData } from "./wellKnownKustoEndpoints.js";
+import endpointsData from "./resources/wellKnownKustoEndpoints.json" with { type: "json" };
+
+type EndpointRules = {
+    AllowedKustoSuffixes: string[];
+    AllowedKustoHostnames: string[];
+};
 
 export class MatchRule {
     constructor(
@@ -72,7 +77,7 @@ class KustoTrustedEndpointsImpl {
     overrideMatcher: ((host: string) => boolean) | null = null; // We could unify this with matchers, but separating makes debugging easier
 
     constructor() {
-        const etr = Object.entries(endpointsData.AllowedEndpointsByLogin);
+        const etr = Object.entries(endpointsData.AllowedEndpointsByLogin satisfies Record<string, EndpointRules>);
         for (const [k, v] of etr) {
             const rules: MatchRule[] = [];
             v.AllowedKustoSuffixes.forEach((suffix: string) => rules.push(new MatchRule(suffix, false)));

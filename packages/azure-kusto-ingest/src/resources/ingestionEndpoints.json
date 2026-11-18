@@ -1,0 +1,4 @@
+{
+    "ingestionPrefix": "ingest-",
+    "reservedHostnames": ["onebox.dev.kusto.windows.net"]
+}

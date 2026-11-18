@@ -36,6 +36,31 @@ beforeAll(() => {
 });
 
 describe("KustoClient", () => {
+    it("routes each operation through its configured path without dropping the cluster path or port", async () => {
+        const cluster = "https://cluster.kusto.windows.net:4242/base";
+        const client = new KustoClient(cluster);
+        const endpoints: string[] = [];
+        client._execute = (endpoint) => {
+            endpoints.push(endpoint);
+            return Promise.resolve(new KustoResponseDataSetV2([]));
+        };
+        try {
+            await client.executeMgmt("db", ".show version");
+            await client.executeQuery("db", "table");
+            await client.executeQueryV1("db", "table");
+            await client.executeStreamingIngest("db", "table", Readable.from("{}"), "json", null);
+
+            assert.deepStrictEqual(endpoints, [
+                `${cluster}/v1/rest/mgmt`,
+                `${cluster}/v2/rest/query`,
+                `${cluster}/v1/rest/query`,
+                `${cluster}/v1/rest/ingest/db/table?streamFormat=json`,
+            ]);
+        } finally {
+            client.close();
+        }
+    });
+
     describe("NoRedirects", () => {
         it.each([301, 302, 307, 308])("does not follow %d redirects", async (code) => {
             let redirectedRequests = 0;

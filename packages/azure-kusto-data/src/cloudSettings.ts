@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 import axios from "axios";
 import { isNodeLike } from "@azure/core-util";
+import cloudSettingsConfig from "./resources/cloudSettings.json" with { type: "json" };
+import serviceEndpoints from "./resources/serviceEndpoints.json" with { type: "json" };
 
 export type CloudInfo = {
     LoginEndpoint: string;
@@ -18,14 +20,10 @@ const AXIOS_ERR_NETWORK = axios?.AxiosError?.ERR_NETWORK ?? "ERR_NETWORK";
  * This class holds data for all cloud instances, and returns the specific data instance by parsing the dns suffix from a URL
  */
 class CloudSettings {
-    METADATA_ENDPOINT = "/v1/rest/auth/metadata";
+    METADATA_ENDPOINT = serviceEndpoints.metadata;
     defaultCloudInfo: CloudInfo = {
-        LoginEndpoint: (isNodeLike ? process?.env?.AadAuthorityUri : undefined) || "https://login.microsoftonline.com",
-        LoginMfaRequired: false,
-        KustoClientAppId: "db662dc1-0cfe-4e1c-a843-19a68e65be58",
-        KustoClientRedirectUri: "https://microsoft/kustoclient",
-        KustoServiceResourceId: "https://kusto.kusto.windows.net",
-        FirstPartyAuthorityUrl: "https://login.microsoftonline.com/f8cdef31-a31e-4b4a-93e4-5f571e91255a",
+        ...cloudSettingsConfig.defaultCloudInfo,
+        LoginEndpoint: (isNodeLike ? process?.env?.AadAuthorityUri : undefined) || cloudSettingsConfig.defaultCloudInfo.LoginEndpoint,
     };
     cloudCache: { [kustoUri: string]: CloudInfo } = {};
 
@@ -90,7 +88,7 @@ class CloudSettings {
     }
 
     static getAuthorityUri(cloudInfo: CloudInfo, authorityId?: string): string {
-        return cloudInfo.LoginEndpoint + "/" + (authorityId || "organizations");
+        return cloudInfo.LoginEndpoint + "/" + (authorityId || cloudSettingsConfig.defaultAuthorityId);
     }
 }
 

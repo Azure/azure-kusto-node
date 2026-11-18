@@ -4,6 +4,7 @@
 import { DeviceCodeInfo, InteractiveBrowserCredentialInBrowserOptions, InteractiveBrowserCredentialNodeOptions, TokenCredential } from "@azure/identity";
 import { KeyOfType } from "./typeUtilts.js";
 import { ClientDetails } from "./clientDetails.js";
+import cloudSettingsConfig from "./resources/cloudSettings.json" with { type: "json" };
 
 interface MappingType {
     mappedTo: string;
@@ -94,7 +95,7 @@ export abstract class KustoConnectionStringBuilderBase {
     applicationKey?: string;
     applicationCertificatePrivateKey?: string;
     applicationCertificateSendX5c?: boolean;
-    authorityId: string = "organizations";
+    authorityId: string = cloudSettingsConfig.defaultAuthorityId;
     deviceCodeCallback?: (response: DeviceCodeInfo) => void;
     tokenProvider?: () => Promise<string>;
     timeoutMs?: number;

@@ -2,11 +2,30 @@
 // Licensed under the MIT License.
 
 import { kustoTrustedEndpoints, MatchRule } from "azure-kusto-data";
+import endpointsData from "../src/resources/wellKnownKustoEndpoints.json" with { type: "json" };
 
 const DEFAULT_PUBLIC_LOGIN_URL = "https://login.microsoftonline.com";
 const CHINA_CLOUD_LOGIN = "https://login.partner.microsoftonline.cn";
+const US_GOV_CLOUD_LOGIN = "https://login.microsoftonline.us";
 
 describe("kustoTrustedEndpoints", function () {
+    it.each(Object.entries(endpointsData.AllowedEndpointsByLogin))("loads configured rules for %s", (loginEndpoint, rules) => {
+        for (const suffix of rules.AllowedKustoSuffixes) {
+            expect(suffix).toMatch(/^\.[^.]/);
+            validateEndpoint(`https://cluster${suffix}`, loginEndpoint);
+            expect(() => validateEndpoint(`https://cluster${suffix}.example.invalid`, loginEndpoint)).toThrow("hostname is currently not trusted");
+        }
+        for (const hostname of rules.AllowedKustoHostnames) {
+            validateEndpoint(`https://${hostname}`, loginEndpoint);
+        }
+    });
+
+    it("does not broaden exact hosts or fall back from an unknown authority", () => {
+        expect(() => validateEndpoint("https://cluster.adx.monitor.azure.com", DEFAULT_PUBLIC_LOGIN_URL)).toThrow("hostname is currently not trusted");
+        expect(() => validateEndpoint("https://cluster.adx.monitor.azure.us", US_GOV_CLOUD_LOGIN)).toThrow("hostname is currently not trusted");
+        expect(() => validateEndpoint("https://cluster.kusto.windows.net", "https://login.example.invalid")).toThrow("hostname is currently not trusted");
+    });
+
     it.concurrent("Random kusto endpoints", function () {
         for (const c of [
             "https://127.0.0.1",
@@ -107,7 +126,9 @@ describe("kustoTrustedEndpoints", function () {
     it.concurrent("test well known kusto endpoints national clouds", function () {
         for (const c of [
             `https://kustozszokb5yrauyq.kusto.chinacloudapi.cn,${CHINA_CLOUD_LOGIN}`,
-            "https://kustofrbwrznltavls.kusto.usgovcloudapi.net,https://login.microsoftonline.us",
+            `https://kustofrbwrznltavls.kusto.usgovcloudapi.net,${US_GOV_CLOUD_LOGIN}`,
+            `https://cluster.kusto.fabric.microsoft.us,${US_GOV_CLOUD_LOGIN}`,
+            `https://cluster.z7.kusto.fabric.microsoft.us,${US_GOV_CLOUD_LOGIN}`,
             "https://kusto7j53clqswr4he.kusto.core.eaglex.ic.gov,https://login.microsoftonline.eaglex.ic.gov",
             "https://rpe2e0422132101fct2.kusto.core.microsoft.scloud,https://login.microsoftonline.microsoft.scloud",
             "https://abc.kusto.sovcloud-api.fr,https://login.sovcloud-identity.fr",
@@ -118,6 +139,18 @@ describe("kustoTrustedEndpoints", function () {
             validateEndpoint(clusterAndLoginEndpoint[0], clusterAndLoginEndpoint[1]);
             // Test case sensitivity
             validateEndpoint(clusterAndLoginEndpoint[0].toUpperCase(), clusterAndLoginEndpoint[1].toUpperCase());
+        }
+    });
+
+    it.concurrent("test government Fabric endpoints trust boundaries", function () {
+        for (const [clusterName, loginEndpoint] of [
+            ["https://cluster.kusto.fabric.microsoft.us", DEFAULT_PUBLIC_LOGIN_URL],
+            ["https://cluster.kusto.fabric.microsoft.com", US_GOV_CLOUD_LOGIN],
+            ["https://cluster.kusto.fabric.microsoft.us.example.invalid", US_GOV_CLOUD_LOGIN],
+            ["https://notkusto.fabric.microsoft.us", US_GOV_CLOUD_LOGIN],
+            ["https://kusto.fabric.microsoft.us", US_GOV_CLOUD_LOGIN],
+        ]) {
+            expect(() => validateEndpoint(clusterName, loginEndpoint)).toThrow("hostname is currently not trusted");
         }
     });
 

@@ -69,6 +69,14 @@ Both packages support browser environments via the `"browser"` field in `package
 
 When adding or modifying a Node-specific module that has a browser counterpart, update both files and ensure the browser variant doesn't use Node-only APIs (fs, streams, etc.). Browser auth is limited to `withUserPrompt`, `withAccessToken`, `withTokenProvider`, and `withTokenCredential`.
 
+### Endpoint and cloud configuration
+
+For endpoint allow-list changes, edit `packages/azure-kusto-data/src/resources/wellKnownKustoEndpoints.json`, not the matcher or authentication code. It groups leading-dot DNS suffixes and exact hostnames by login authority. Preserve authority separation and add positive, uppercase, wrong-cloud, and lookalike regression cases.
+
+Related built-in data lives in `packages/azure-kusto-data/src/resources/cloudSettings.json` (cloud/auth defaults), `packages/azure-kusto-data/src/resources/serviceEndpoints.json` (REST paths), and `packages/azure-kusto-ingest/src/resources/ingestionEndpoints.json` (ingestion prefix/reserved hosts). Keep matching, discovery, authentication, and routing algorithms in TypeScript.
+
+Use typed ESM JSON imports with `with { type: "json" }`; resources must be emitted, included in npm tarballs, and bundled for browsers without filesystem loading or remote fetches. Do not add a runtime configuration API, trust bypass, or static secrets. See [CONTRIBUTING.md](../CONTRIBUTING.md#endpoint-and-cloud-configuration) for the editing procedure and classification of other configuration candidates.
+
 ### Authentication flow
 
 `KustoConnectionStringBuilder` configures auth via static factory methods (e.g., `withAadApplicationKeyAuthentication`, `withAzLoginIdentity`). At runtime, `AadHelper` (in `security.ts`) selects the appropriate `TokenProvider` subclass from `tokenProvider.ts`. Auth failures are wrapped in `KustoAuthenticationError` with the provider name and inner error.
