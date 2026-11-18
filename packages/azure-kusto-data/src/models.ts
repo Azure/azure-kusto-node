@@ -74,7 +74,8 @@ export class KustoResultRow {
                 let reserved = this[reservedValues];
                 if (!reserved) {
                     reserved = new Map<string, any>();
-                    Object.defineProperty(this, reservedValues, { value: reserved, enumerable: false });
+                    // Allow collection-aware proxies to wrap the stored Map.
+                    Object.defineProperty(this, reservedValues, { value: reserved, enumerable: false, configurable: true });
                 }
                 reserved.set(col.name, value);
             } else {

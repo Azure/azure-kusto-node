@@ -235,6 +235,37 @@ describe("KustoResultRow", () => {
             assert.deepStrictEqual({ ...actual }, name === "message" ? { columns, raw: inputValues, message: "value" } : { columns, raw: inputValues });
         });
 
+        it.concurrent("support collection-wrapping proxies for reserved columns", () => {
+            const columns = [
+                new KustoResultColumn({ ColumnName: "raw", ColumnType: "string" }, 0),
+                new KustoResultColumn({ ColumnName: "columns", ColumnType: "long" }, 1),
+                new KustoResultColumn({ ColumnName: "message", ColumnType: "string" }, 2),
+            ];
+            const inputValues = ["GET /health", 3, "Info"];
+            const actual = new Proxy(new KustoResultRow(columns, inputValues), {
+                get(target, property, receiver) {
+                    const value: unknown = Reflect.get(target, property, receiver);
+                    if (!(value instanceof Map)) {
+                        return value;
+                    }
+                    return new Proxy(value, {
+                        get(map, key) {
+                            const member: unknown = Reflect.get(map, key, map);
+                            return typeof member === "function" ? member.bind(map) : member;
+                        },
+                    });
+                },
+            });
+            const expected = { raw: "GET /health", columns: 3, message: "Info" };
+
+            assert.strictEqual(actual.getValueAt(0), "GET /health");
+            assert.strictEqual(actual.getValueAt(1), 3);
+            assert.strictEqual(actual.getValueAt(2), "Info");
+            assert.deepStrictEqual(actual.toJSON(), expected);
+            assert.strictEqual(JSON.stringify(actual), JSON.stringify(expected));
+            assert.deepStrictEqual({ ...actual }, { columns, raw: inputValues, message: "Info" });
+        });
+
         it.concurrent.each(["columns", "values", "getValueAt", "toJSON", "toJson", "toString", "constructor", "hasOwnProperty", "__proto__"])(
             "preserve the row API and serialize a %s column",
             (name) => {
