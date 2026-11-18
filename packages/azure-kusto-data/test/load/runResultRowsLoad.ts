@@ -323,7 +323,8 @@ const main = async (): Promise<void> => {
         process.stdout.write(
             "npm run loadTest -- --before <baseline-checkout> [--after <candidate-checkout>] [--output <report.json>]\n" +
                 "Options: --rows 1000 --iterations 20 --concurrency 4 --warmup 2 --rounds 3 --timeout-ms 30000 --max-duration-seconds 300\n" +
-                "Requires npm ci in both checkouts, az login, ENGINE_CONNECTION_STRING, and TEST_DATABASE. See test/load/README.md.\n",
+                "Requires npm ci in both checkouts, az login, ENGINE_CONNECTION_STRING, and TEST_DATABASE. " +
+                `See ${join("packages", "azure-kusto-data", "test", "load", "README.md")}.\n`,
         );
         return;
     }
