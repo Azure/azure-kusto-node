@@ -15,6 +15,7 @@ type TimeSpanParser = (value: string | null) => any;
 
 const defaultDatetimeParser: DateTimeParser = (t: string | null) => (t ? new Date(t) : null);
 const defaultTimespanParser: TimeSpanParser = parseKustoTimestampToMillis;
+const reservedValues = Symbol("KustoResultRow.reservedValues");
 
 export interface Table {
     TableKind?: string;
@@ -34,10 +35,12 @@ interface Column {
  * Represents a Kusto result row.
  * Use `dateTimeParser` and `timeSpanParser` to customize the parsing of the `datetime` and `timespan` types.
  * By default, `datetime` is parsed to a `Date` object and `timespan` is parsed to a number representing the number of milliseconds, as returned by subtracting two `Date` objects.
+ * Columns whose names conflict with row properties or methods are accessible through `getValueAt()` and `toJSON()`.
  */
 export class KustoResultRow {
     columns: KustoResultColumn[];
     raw: { [ord: number]: any };
+    declare readonly [reservedValues]?: Map<string, any>;
 
     [column: string]: any;
 
@@ -65,10 +68,19 @@ export class KustoResultRow {
                         value = timeSpanParser(value);
                         break;
                 }
-                this[col.name] = row[col.ordinal];
             }
 
-            this[col.name] = value;
+            if (col.name === "columns" || col.name === "raw" || col.name in KustoResultRow.prototype) {
+                let reserved = this[reservedValues];
+                if (!reserved) {
+                    reserved = new Map<string, any>();
+                    // Allow collection-aware proxies to wrap the stored Map.
+                    Object.defineProperty(this, reservedValues, { value: reserved, enumerable: false, configurable: true });
+                }
+                reserved.set(col.name, value);
+            } else {
+                this[col.name] = value;
+            }
         }
     }
 
@@ -79,7 +91,9 @@ export class KustoResultRow {
     }
 
     getValueAt(index: number) {
-        return this[this.columns[index].name as string];
+        const name = this.columns[index].name as string;
+        const reserved = this[reservedValues];
+        return reserved?.has(name) ? reserved.get(name) : this[name];
     }
 
     /**
@@ -92,8 +106,19 @@ export class KustoResultRow {
     toJSON<T = Record<string, any>>(): T {
         const obj: Record<string, any> = {};
 
-        for (const col of this.columns) {
-            obj[col.name as string] = this[col.name as string];
+        for (const [index, col] of this.columns.entries()) {
+            const name = col.name as string;
+            const value = this.getValueAt(index);
+            if (name === "__proto__") {
+                Object.defineProperty(obj, name, {
+                    value,
+                    enumerable: true,
+                    configurable: true,
+                    writable: true,
+                });
+            } else {
+                obj[name] = value;
+            }
         }
 
         return obj as T;
@@ -143,7 +168,9 @@ export class KustoResultTable {
 
         if (this._rows && this._rows.length > 0) {
             for (let i = 0; i < tableObj.Rows.length; i++) {
-                Object.defineProperty(this, i, { get: () => new KustoResultRow(this.columns, this._rows[i]) });
+                Object.defineProperty(this, i, {
+                    get: () => new KustoResultRow(this.columns, this._rows[i], this._dateTimeParser, this._timeSpanParser),
+                });
             }
         }
     }
