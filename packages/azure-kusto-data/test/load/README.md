@@ -78,7 +78,10 @@ Node version, and target unchanged when comparing levels. Do not run independent
 | `custom-index`  | Numeric row access with custom datetime/timespan parsers, including null datetimes                | Custom parsers ignored            |
 
 The JSON report and adjacent `.json.md` comparison include success/error counts, requests/second, rows/second,
-nearest-rank p50/p95/p99, CPU milliseconds, observed peak process RSS, and individual measured samples.
+nearest-rank p50/p90/p95/p99, CPU milliseconds, observed peak process RSS, and individual measured samples.
+Markdown includes a P90/P95/P99 table for each workload's query, model, and total latency.
+Percentiles pool individual samples across rounds, rather than averaging per-round percentiles.
+With the default 60 successful samples per case/revision, P99 is the observed maximum, not a stable tail estimate.
 `queryMs` measures the entire `executeQuery` await, including network, service work, response decoding, and event-loop contention;
 it is **not server-only execution time**. `modelMs` measures synchronous row consumption, validation, and serialization.
 `totalMs` spans both. CPU/RSS are process-level measurements; RSS is sampled after warm-up and request consumption, not an allocation profiler.
@@ -93,6 +96,31 @@ Performance deltas are informational, not a regression gate. Inspect paired roun
 network/service variability or GC noise to the PR. The ordinary control also requires identical serialized byte counts.
 Reports contain synthetic query text and a target fingerprint, but no cluster/database names, identities, access tokens,
 connection strings, or raw service error messages. Review artifacts before publishing them.
+
+## Planned follow-ups (not executed)
+
+These experiments have not been executed. A/A can use the existing runner; payload replay/profiling needs a dedicated driver.
+Keep existing report files and published results immutable; write every new experiment to a separate output path.
+
+### A/A calibration
+
+- Compare the fixed candidate against itself (`--before <candidate> --after <candidate>`), verifying identical compiled SDK and lockfile hashes.
+- Use the same approved target, Node/runtime, five workloads, 5,000 rows, 20 measured requests, three paired rounds, warm-up, and concurrency levels 1, 4, 8, and 12.
+- Repeat independent, sequential paired runs to characterize throughput, CPU, and P90/P95/P99 variation. Retain per-round samples and before/after ordering.
+- Use the observed A/A variability to judge A/B differences; do not assume the previous throughput changes are either regressions or noise.
+  Collect more samples across bounded runs before treating P99 as a reliable tail estimate. Do not silently relax the existing load limits.
+
+### Synthetic payload replay and profiling
+
+- Capture only the generated queries' synthetic primary-result frames; remove target/authentication/diagnostic metadata before retaining fixtures.
+- Replay the same fixtures through the original base and fixed candidate in separate, alternating Node workers without live query traffic.
+  Create fresh data sets per iteration so custom parsers and row mutations cannot leak between samples.
+- Measure response decoding/data-set construction separately from row iteration, indexed custom parsing, JSON serialization, and collection-aware proxies.
+  Keep the existing correctness guards; do not compare successful throughput for known-broken baseline cases.
+- First collect warmed, unprofiled latency/CPU/memory measurements. Then capture CPU and heap-allocation/GC profiles of the measured replay loop
+  inside each SDK worker, not the coordinator. Keep instrumented results separate because profiling changes performance.
+- Attribute the observed ordinary-row client-side cost to hot paths, allocations, GC, or variability before proposing an SDK optimization.
+  Publish matching fixture/configuration hashes and comparison evidence without including private service metadata.
 
 ## Offline validation
 

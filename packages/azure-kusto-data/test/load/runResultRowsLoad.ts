@@ -306,6 +306,21 @@ const compare = async (options: LoadOptions): Promise<boolean> => {
         ),
         "",
         "Failures are measured + warm-up for each revision.",
+        "",
+        "## Latency percentiles (ms)",
+        "",
+        "| Workload | Component | Before P90 | Before P95 | Before P99 | After P90 | After P95 | After P99 |",
+        "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |",
+        ...comparisons.flatMap((item) =>
+            (["totalMs", "queryMs", "modelMs"] as const).map(
+                (component) =>
+                    `| ${item.workload} | ${component} | ` +
+                    `${display(item.before[component].p90)} | ${display(item.before[component].p95)} | ${display(item.before[component].p99)} | ` +
+                    `${display(item.after[component].p90)} | ${display(item.after[component].p95)} | ${display(item.after[component].p99)} |`,
+            ),
+        ),
+        "",
+        "Percentiles pool individual samples across rounds. With 1-99 successful samples, nearest-rank P99 is the observed maximum.",
         "Only successful requests contribute to throughput and end-to-end/model percentiles. Deltas are omitted for failed or incomplete cases.",
         "Performance deltas are informational, not an automatic regression gate. JSON includes executeQuery latency, CPU, observed peak RSS, warm-up failures, and raw samples.",
         ...(fatalError ? ["", `Failure: ${fatalError}.`] : []),

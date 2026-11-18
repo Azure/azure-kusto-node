@@ -86,7 +86,7 @@ describe("Result-row load suite", () => {
         assert.equal(samples.queryMs.length, limits.iterations);
         const summary = summarize([samples]);
         assert.equal(summary.requestsPerSecond, 0);
-        assert.equal(summary.totalMs.p95, null);
+        assert.deepEqual(summary.totalMs, { p50: null, p90: null, p95: null, p99: null });
         assert.equal(performanceChange(summary, summary), null);
     });
 
@@ -143,9 +143,18 @@ describe("Result-row load suite", () => {
             { ...second, elapsedMs: 6000 },
         ]);
         assert.equal(before.requestsPerSecond, (2 * limits.iterations) / 4);
-        assert.deepEqual(before.totalMs, { p50: 20, p95: 40, p99: 40 });
+        assert.deepEqual(before.totalMs, { p50: 20, p90: 40, p95: 40, p99: 40 });
         assert.equal(performanceChange(before, after)?.requestsPerSecondPercent, -50);
         assert.equal(performanceChange(before, { ...after, bytes: after.bytes + 1 }), null);
+    });
+
+    it("reports distinct P90/P95/P99 values for all latency components at the live-run sample count", async () => {
+        const samples = await runCase(workload(), { ...limits, iterations: 60 }, () => Promise.resolve(table()));
+        const modelMs = Array.from({ length: 60 }, (_, index) => index + 1);
+        const summary = summarize([{ ...samples, modelMs, queryMs: modelMs.map((value) => value * 2), totalMs: modelMs.map((value) => value * 3) }]);
+        assert.deepEqual(summary.modelMs, { p50: 30, p90: 54, p95: 57, p99: 60 });
+        assert.deepEqual(summary.queryMs, { p50: 60, p90: 108, p95: 114, p99: 120 });
+        assert.deepEqual(summary.totalMs, { p50: 90, p90: 162, p95: 171, p99: 180 });
     });
 
     it("rejects unbounded/injected workloads and configurations that understate concurrency", () => {

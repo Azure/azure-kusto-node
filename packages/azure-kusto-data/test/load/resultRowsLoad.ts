@@ -420,7 +420,7 @@ export const summarize = (runs: CaseSamples[]) => {
     ) => runs.reduce((total, run) => total + run[field], 0);
     const latency = (field: "queryMs" | "modelMs" | "totalMs") => {
         const values = runs.flatMap((run) => run[field]);
-        return { p50: percentile(values, 0.5), p95: percentile(values, 0.95), p99: percentile(values, 0.99) };
+        return { p50: percentile(values, 0.5), p90: percentile(values, 0.9), p95: percentile(values, 0.95), p99: percentile(values, 0.99) };
     };
     const elapsedMs = sum("elapsedMs");
     return {
