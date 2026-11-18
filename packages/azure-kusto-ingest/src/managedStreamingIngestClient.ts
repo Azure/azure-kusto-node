@@ -14,10 +14,11 @@ import { ExponentialRetry } from "./retry.js";
 import { readableToStream, tryFileToBuffer, tryStreamToArray } from "./streamUtils.js";
 import StreamingIngestClient from "./streamingIngestClient.js";
 import { IngestionResult } from "./ingestionResult.js";
+import ingestionEndpoints from "./resources/ingestionEndpoints.json" with { type: "json" };
 
 const maxStreamSize = 1024 * 1024 * 4;
 const attemptCount = 3;
-const ingestPrefix = "https://ingest-";
+const ingestPrefix = `https://${ingestionEndpoints.ingestionPrefix}`;
 
 class KustoManagedStreamingIngestClient extends AbstractKustoClient {
     private streamingIngestClient: StreamingIngestClient;

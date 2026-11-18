@@ -42,6 +42,21 @@ CI tests Node 22.12.0, latest Node 22, Node 24, and Node 26. Node 20 and Node 23
 
 Repository development and both quickstart apps use **npm 11.21.2**. See [CONTRIBUTING.md](CONTRIBUTING.md) for workspace setup.
 
+## Endpoint and cloud configuration
+
+Built-in endpoint and cloud settings live in package-owned JSON resources, shared by Node.js and browser builds:
+
+| Configuration | Source of truth |
+| --- | --- |
+| Trusted suffixes and exact hostnames, grouped by login authority | [wellKnownKustoEndpoints.json](packages/azure-kusto-data/src/resources/wellKnownKustoEndpoints.json) |
+| Fallback cloud metadata, default authority, and MFA resource naming | [cloudSettings.json](packages/azure-kusto-data/src/resources/cloudSettings.json) |
+| Authentication metadata and REST endpoint paths | [serviceEndpoints.json](packages/azure-kusto-data/src/resources/serviceEndpoints.json) |
+| Ingestion endpoint prefix and reserved hostnames | [ingestionEndpoints.json](packages/azure-kusto-ingest/src/resources/ingestionEndpoints.json) |
+
+To allowlist an endpoint, edit the trusted-endpoint resource, not the matcher or authentication implementation.
+Follow the [endpoint configuration contribution procedure](CONTRIBUTING.md#endpoint-and-cloud-configuration) for authority selection and regression tests.
+These resources ship with the SDK; they are not user-provided runtime configuration files.
+
 ## Looking for SDKs for other languages/platforms?
 
 - [Python](https://github.com/azure/azure-kusto-python)

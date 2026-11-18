@@ -2,8 +2,64 @@
 // Licensed under the MIT License.
 
 import assert from "assert";
+import axios, { AxiosError, AxiosHeaders } from "axios";
+import { execFileSync } from "child_process";
+import sinon from "sinon";
 
 import { CloudSettings } from "../src/cloudSettings.js";
+
+describe("CloudSettings defaults", () => {
+    it.each([undefined, "", "https://login.override.example"])("preserves Node authority override precedence for %s", (authority) => {
+        const moduleUrl = new URL("../dist-esm/src/cloudSettings.js", import.meta.url);
+        const loginEndpoint = execFileSync(
+            process.execPath,
+            [
+                "--input-type=module",
+                "-e",
+                `import { CloudSettings } from ${JSON.stringify(moduleUrl.href)}; process.stdout.write(CloudSettings.defaultCloudInfo.LoginEndpoint);`,
+            ],
+            { env: { ...process.env, AadAuthorityUri: authority }, encoding: "utf8" },
+        );
+        assert.strictEqual(loginEndpoint, authority || "https://login.microsoftonline.com");
+    });
+});
+
+describe("CloudSettings metadata defaults", () => {
+    const sandbox = sinon.createSandbox();
+    const cluster = "https://metadata.example.invalid";
+
+    afterEach(() => {
+        sandbox.restore();
+        CloudSettings.deleteFromCache(cluster);
+    });
+
+    it("uses fallback settings when metadata omits AzureAD", async () => {
+        sandbox.stub(axios, "get").resolves({ status: 200, data: {} });
+
+        assert.strictEqual(await CloudSettings.getCloudInfoForCluster(cluster), CloudSettings.defaultCloudInfo);
+    });
+
+    it("uses fallback settings when the metadata endpoint is unavailable", async () => {
+        const error = new AxiosError("Not Found", AxiosError.ERR_BAD_REQUEST);
+        error.response = {
+            status: 404,
+            statusText: "Not Found",
+            data: {},
+            headers: {},
+            config: { headers: new AxiosHeaders() },
+        };
+        sandbox.stub(axios, "get").rejects(error);
+
+        assert.strictEqual(await CloudSettings.getCloudInfoForCluster(cluster), CloudSettings.defaultCloudInfo);
+    });
+
+    it("prefers discovered cloud settings to the fallback configuration", async () => {
+        const cloudInfo = { ...CloudSettings.defaultCloudInfo, LoginEndpoint: "https://login.microsoftonline.us" };
+        sandbox.stub(axios, "get").resolves({ status: 200, data: { AzureAD: cloudInfo } });
+
+        assert.strictEqual(await CloudSettings.getCloudInfoForCluster(cluster), cloudInfo);
+    });
+});
 
 describe("CloudSettings.getAuthMetadataEndpointFromClusterUri", () => {
     it("valid input", () => {

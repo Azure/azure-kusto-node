@@ -1,0 +1,9 @@
+{
+    "metadata": "/v1/rest/auth/metadata",
+    "execution": {
+        "mgmt": "/v1/rest/mgmt",
+        "query": "/v2/rest/query",
+        "ingest": "/v1/rest/ingest",
+        "queryv1": "/v1/rest/query"
+    }
+}

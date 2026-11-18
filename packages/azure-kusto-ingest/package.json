@@ -41,6 +41,7 @@
         "dist-esm/src/*.js.map",
         "dist-esm/src/*.js",
         "types/src/*.d.ts",
+        "dist-esm/src/resources/*.json",
         "tsconfig.tsbuildinfo"
     ],
     "author": "Microsoft Corporation",

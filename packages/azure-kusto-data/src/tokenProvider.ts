@@ -16,6 +16,7 @@ import {
 } from "@azure/identity";
 import { TokenCredential } from "@azure/core-auth";
 import { CloudInfo, CloudSettings } from "./cloudSettings.js";
+import cloudSettingsConfig from "./resources/cloudSettings.json" with { type: "json" };
 
 export declare type TokenResponse = {
     tokenType: string;
@@ -112,7 +113,7 @@ export abstract class CloudSettingsTokenProvider extends TokenProviderBase {
                 this.cloudInfo = await CloudSettings.getCloudInfoForCluster(this.kustoUri);
                 let resourceUri = this.cloudInfo.KustoServiceResourceId;
                 if (this.cloudInfo.LoginMfaRequired) {
-                    resourceUri = resourceUri.replace(".kusto.", ".kustomfa.");
+                    resourceUri = resourceUri.replace(cloudSettingsConfig.mfaResourceUriReplacement.from, cloudSettingsConfig.mfaResourceUriReplacement.to);
                 }
                 this.scopes = [resourceUri + "/.default"];
                 this.additionalCloudSettingsInit();

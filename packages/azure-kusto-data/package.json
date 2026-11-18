@@ -53,7 +53,7 @@
         "dist-esm/src/*.js.map",
         "types/src/*.d.ts",
         "tsconfig.tsbuildinfo",
-        "dist-esm/src/wellKnownKustoEndpoints.json"
+        "dist-esm/src/resources/*.json"
     ],
     "author": "",
     "license": "ISC",

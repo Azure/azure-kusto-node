@@ -23,4 +23,3 @@ tsconfig.json
 .idea
 .mocharc.json
 **/test/data/**/*
-wellKnownKustoEndpoints.ts

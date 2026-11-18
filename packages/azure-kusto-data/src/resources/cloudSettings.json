@@ -1,0 +1,15 @@
+{
+    "defaultCloudInfo": {
+        "LoginEndpoint": "https://login.microsoftonline.com",
+        "LoginMfaRequired": false,
+        "KustoClientAppId": "db662dc1-0cfe-4e1c-a843-19a68e65be58",
+        "KustoClientRedirectUri": "https://microsoft/kustoclient",
+        "KustoServiceResourceId": "https://kusto.kusto.windows.net",
+        "FirstPartyAuthorityUrl": "https://login.microsoftonline.com/f8cdef31-a31e-4b4a-93e4-5f571e91255a"
+    },
+    "defaultAuthorityId": "organizations",
+    "mfaResourceUriReplacement": {
+        "from": ".kusto.",
+        "to": ".kustomfa."
+    }
+}

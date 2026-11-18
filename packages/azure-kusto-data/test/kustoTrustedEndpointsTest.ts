@@ -2,12 +2,30 @@
 // Licensed under the MIT License.
 
 import { kustoTrustedEndpoints, MatchRule } from "azure-kusto-data";
+import endpointsData from "../src/resources/wellKnownKustoEndpoints.json" with { type: "json" };
 
 const DEFAULT_PUBLIC_LOGIN_URL = "https://login.microsoftonline.com";
 const CHINA_CLOUD_LOGIN = "https://login.partner.microsoftonline.cn";
 const US_GOV_CLOUD_LOGIN = "https://login.microsoftonline.us";
 
 describe("kustoTrustedEndpoints", function () {
+    it.each(Object.entries(endpointsData.AllowedEndpointsByLogin))("loads configured rules for %s", (loginEndpoint, rules) => {
+        for (const suffix of rules.AllowedKustoSuffixes) {
+            expect(suffix).toMatch(/^\.[^.]/);
+            validateEndpoint(`https://cluster${suffix}`, loginEndpoint);
+            expect(() => validateEndpoint(`https://cluster${suffix}.example.invalid`, loginEndpoint)).toThrow("hostname is currently not trusted");
+        }
+        for (const hostname of rules.AllowedKustoHostnames) {
+            validateEndpoint(`https://${hostname}`, loginEndpoint);
+        }
+    });
+
+    it("does not broaden exact hosts or fall back from an unknown authority", () => {
+        expect(() => validateEndpoint("https://cluster.adx.monitor.azure.com", DEFAULT_PUBLIC_LOGIN_URL)).toThrow("hostname is currently not trusted");
+        expect(() => validateEndpoint("https://cluster.adx.monitor.azure.us", US_GOV_CLOUD_LOGIN)).toThrow("hostname is currently not trusted");
+        expect(() => validateEndpoint("https://cluster.kusto.windows.net", "https://login.example.invalid")).toThrow("hostname is currently not trusted");
+    });
+
     it.concurrent("Random kusto endpoints", function () {
         for (const c of [
             "https://127.0.0.1",

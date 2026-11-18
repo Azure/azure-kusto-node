@@ -4,8 +4,9 @@
 import { IngestionProperties, IngestionPropertiesInput } from "./ingestionProperties.js";
 import { StreamDescriptor, FileDescriptorBase, BlobDescriptor } from "./descriptors.js";
 import { isIP } from "is-ip";
+import ingestionEndpoints from "./resources/ingestionEndpoints.json" with { type: "json" };
 
-const INGEST_PREFIX = "ingest-";
+const INGEST_PREFIX = ingestionEndpoints.ingestionPrefix;
 const PROTOCOL_SUFFIX = "://";
 
 export abstract class AbstractKustoClient {
@@ -73,7 +74,7 @@ export abstract class AbstractKustoClient {
             }
             const is_ip = isIP(authority);
             const is_localhost = authority.includes("localhost");
-            return is_localhost || is_ip || authority.toLowerCase() === "onebox.dev.kusto.windows.net";
+            return is_localhost || is_ip || ingestionEndpoints.reservedHostnames.includes(authority.toLowerCase());
         } catch {
             return false;
         }

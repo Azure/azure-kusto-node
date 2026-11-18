@@ -16,6 +16,7 @@ import { KustoResponseDataSet, KustoResponseDataSetV1, KustoResponseDataSetV2, V
 import AadHelper from "./security.js";
 import { toMilliseconds } from "./timeUtils.js";
 import { parseJsonWithLargeIntegersAsStrings } from "./utils.js";
+import serviceEndpoints from "./resources/serviceEndpoints.json" with { type: "json" };
 
 const COMMAND_TIMEOUT_IN_MILLISECS = toMilliseconds(0, 10, 30);
 const QUERY_TIMEOUT_IN_MILLISECS = toMilliseconds(0, 4, 30);
@@ -28,6 +29,8 @@ enum ExecutionType {
     Ingest = "ingest",
     QueryV1 = "queryv1",
 }
+
+const executionEndpoints = serviceEndpoints.execution satisfies Record<ExecutionType, string>;
 
 export type RequestEntity = { query: string } | { stream: any } | { blob: string };
 
@@ -53,10 +56,10 @@ export class KustoClient {
         }
         this.defaultDatabase = this.connectionString.initialCatalog;
         this.endpoints = {
-            [ExecutionType.Mgmt]: `${this.cluster}/v1/rest/mgmt`,
-            [ExecutionType.Query]: `${this.cluster}/v2/rest/query`,
-            [ExecutionType.Ingest]: `${this.cluster}/v1/rest/ingest`,
-            [ExecutionType.QueryV1]: `${this.cluster}/v1/rest/query`,
+            [ExecutionType.Mgmt]: `${this.cluster}${executionEndpoints[ExecutionType.Mgmt]}`,
+            [ExecutionType.Query]: `${this.cluster}${executionEndpoints[ExecutionType.Query]}`,
+            [ExecutionType.Ingest]: `${this.cluster}${executionEndpoints[ExecutionType.Ingest]}`,
+            [ExecutionType.QueryV1]: `${this.cluster}${executionEndpoints[ExecutionType.QueryV1]}`,
         };
         this.aadHelper = new AadHelper(this.connectionString);
 

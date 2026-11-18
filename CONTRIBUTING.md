@@ -21,6 +21,35 @@ Run the Node sample with `npm run quick_start --workspace azure-kusto-quick-star
 `npm run dev --workspace azure-kusto-quick-start-browser`. Configure an approved test target first: samples can create/alter tables and ingest data.
 See the sample READMEs for standalone installation after the matching SDK release is published.
 
+## Endpoint and cloud configuration
+
+Start with the [configuration resource index](README.md#endpoint-and-cloud-configuration). The JSON files under each SDK's `src/resources` directory are the source of truth for built-in endpoint/cloud data. The TypeScript consumers retain matching, discovery, authentication, and routing behavior.
+
+To add a trusted endpoint:
+
+1. Edit `packages/azure-kusto-data/src/resources/wellKnownKustoEndpoints.json`. Select the correct login authority in `AllowedEndpointsByLogin`; do not put a sovereign-cloud endpoint under the public-cloud authority.
+2. Use `AllowedKustoSuffixes` for subdomains of a DNS suffix, including the leading dot, or `AllowedKustoHostnames` for an exact hostname. Keep authorities and rules lowercase. Host rules contain DNS names, not URLs, paths, ports, or wildcard expressions. Never allow a broad parent domain to accommodate one endpoint.
+3. Add independent positive and uppercase cases, plus explicit wrong-cloud, appended-domain, missing-label-boundary, and bare-suffix rejection assertions in `kustoTrustedEndpointsTest.ts`. Exact hostnames must not implicitly trust their subdomains.
+4. Run the focused suite with `npm run testData -- --testPathPattern kustoTrustedEndpointsTest --runInBand`, then the applicable build, lint, and formatting checks described below. Keep `LOGIN_TEST` empty.
+5. Before publication, verify the built resources are present in the SDK tarballs and both Node.js and browser builds consume them. Built-in resource changes require an SDK release; do not introduce filesystem loading, remote configuration, or a validation bypass.
+
+For the other resources, preserve the existing defaults and behavior: discovered cloud metadata takes precedence over fallback metadata, `AadAuthorityUri` remains a Node-only fallback override, and endpoint path/prefix changes must retain routing tests. Never store credentials, tokens, service-returned SAS URLs, or customer settings in these resources.
+
+### Other configuration candidates
+
+The following are separate follow-up candidates, not part of the endpoint/cloud resource catalog:
+
+| Candidate | Existing implementation |
+| --- | --- |
+| Request timeout defaults and interactive authentication port bounds | Data SDK `client.ts` and `tokenProvider.ts` |
+| Ingestion retries, streaming size threshold, and resource refresh intervals | Ingest SDK `ingestClientBase.ts`, `managedStreamingIngestClient.ts`, and `resourceManager.ts` |
+| Storage ranking windows and tiers | Ingest SDK `rankedStorageAccountSet.ts` |
+| Connection-string keyword/alias metadata | Data SDK `connectionBuilderBase.ts`; preserve typed keys, secret handling, and serialization compatibility |
+| Format-to-mapping-kind and compression eligibility tables | Ingest SDK `ingestionProperties.ts` and `descriptors.ts`; preserve public enums and Node/browser parity |
+| Ingestion format/reporting defaults and compression size estimates | Ingest SDK `ingestionProperties.ts` and `fileDescriptor.ts` |
+
+Keep executable trust/routing/retry algorithms, unconditional loopback policy, public enums, wire schemas, redaction policy, and release-managed versions in TypeScript. Credentials, caches, request-specific options, and discovered resources remain dynamic. Quickstart configuration is already external and stays separate from SDK trust configuration.
+
 ## Testing
 
 This project uses [Jest](https://jestjs.io/) for testing. Run commands from the repository root.
