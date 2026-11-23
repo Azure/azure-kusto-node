@@ -87,9 +87,10 @@ test("Lerna versions and publishes linked workspaces using the overridden depend
     const manifest = { name: "kusto-override-fixture-root", private: true, workspaces: ["packages/{core,client,sample}"] };
     await writeJson(path.join(fixture, "package.json"), manifest);
     await writeJson(path.join(fixture, "lerna.json"), { version: "1.0.0" });
-    await writeFile(path.join(fixture, ".gitignore"), ".nx/\nnode_modules/\n.npmrc\nnpm-user-config\nnpm-global-config\n");
+    await writeFile(path.join(fixture, ".gitignore"), ".nx/\nnode_modules/\n.npmrc\nnpm-user-config\nnpm-global-config\ngit-config\n");
     await writeFile(path.join(fixture, "npm-user-config"), "");
     await writeFile(path.join(fixture, "npm-global-config"), "");
+    await writeFile(path.join(fixture, "git-config"), "");
     await writeFile(path.join(fixture, ".npmrc"), `registry=${registry}\n//127.0.0.1:${address.port}/:_authToken=fixture-token\n`);
     for (const name of ["core", "client", "sample"]) {
         const directory = path.join(fixture, "packages", name);
@@ -131,15 +132,17 @@ test("Lerna versions and publishes linked workspaces using the overridden depend
         "kusto-override-fixture-sample",
     ]);
 
-    // Do not inherit npm credentials or configuration from the developer or CI runner.
+    // Keep credentials, Git configuration and workspace/cache overrides out of the fixture.
     const env = {
-        ...Object.fromEntries(Object.entries(process.env).filter(([key]) => !/^npm_/i.test(key))),
+        ...Object.fromEntries(Object.entries(process.env).filter(([key]) => !/^(npm|nx|git)_/i.test(key))),
         NPM_CONFIG_USERCONFIG: path.join(fixture, "npm-user-config"),
         NPM_CONFIG_GLOBALCONFIG: path.join(fixture, "npm-global-config"),
         NPM_CONFIG_REGISTRY: registry,
         NPM_CONFIG_AUDIT: "false",
         NPM_CONFIG_FUND: "false",
         NPM_CONFIG_UPDATE_NOTIFIER: "false",
+        GIT_CONFIG_GLOBAL: path.join(fixture, "git-config"),
+        GIT_CONFIG_NOSYSTEM: "1",
         NX_DAEMON: "false",
         NX_TUI: "false",
     };
