@@ -59,11 +59,27 @@ describe("Dependency declaration scanner", () => {
         assert.deepStrictEqual(findUndeclaredDependencies(directory), {});
     });
 
-    it("reports undeclared static, dynamic and CommonJS imports without duplicate files", () => {
+    it("reports undeclared import forms without duplicate files", () => {
         const source = path.join(directory, "index.ts");
-        writeFileSync(source, ['import "missing/subpath";', 'import("missing/other");', 'const dependency = require("@scope/missing/subpath");'].join("\n"));
+        writeFileSync(
+            source,
+            [
+                'import "missing/subpath";',
+                'import("missing/other");',
+                'import("dynamic-only");',
+                'import type { Value } from "type-only";',
+                'export { value } from "reexport-only";',
+                'const dependency = require("@scope/missing/subpath");',
+            ].join("\n"),
+        );
 
-        assert.deepStrictEqual(findUndeclaredDependencies(directory), { missing: [source], "@scope/missing": [source] });
+        assert.deepStrictEqual(findUndeclaredDependencies(directory), {
+            missing: [source],
+            "dynamic-only": [source],
+            "type-only": [source],
+            "reexport-only": [source],
+            "@scope/missing": [source],
+        });
     });
 
     it("keeps test, generated, installed and example files out of the declaration check", () => {

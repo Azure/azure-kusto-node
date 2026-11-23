@@ -20,6 +20,7 @@
         "testIngest": "npm run test -- --selectProjects azure-kusto-ingest",
         "testIngestNoE2E": "npm run testNoE2E -- --selectProjects azure-kusto-ingest",
         "testQuickStart": "npm run test --workspace azure-kusto-quick-start",
+        "testDependencyOverrides": "node --test test/dependencyOverridesTest.mjs",
         "testPipeline": "npm run test -- --ci --reporters=default --reporters=jest-junit --coverage",
         "format": "prettier --write .",
         "checkFormat": "prettier --check --end-of-line lf .",
@@ -71,10 +72,14 @@
         "sockjs": {
             "uuid": "^11.1.1"
         },
+        "@nx/devkit": {
+            "minimatch@10": "10.2.6"
+        },
         "nx": {
             "follow-redirects": "^1.16.2",
             "brace-expansion": "^5.0.13",
-            "smol-toml": "^1.9.1"
+            "smol-toml": "^1.9.1",
+            "minimatch@10": "10.2.6"
         },
         "axios": "^1.21.0",
         "@babel/core": "7.29.13",
@@ -86,12 +91,15 @@
         "brace-expansion@5": "5.0.13",
         "browserslist": "4.29.5",
         "compression": "1.8.2",
-        "glob@>=9": "14.0.6",
+        "glob@11": "14.0.6",
+        "glob@13": "14.0.6",
+        "glob@14": "14.0.6",
         "ip-address": "10.7.6",
         "js-yaml@3": "3.15.2",
         "js-yaml@4": "4.3.2",
         "minimatch@3": "3.1.5",
-        "minimatch@>=7": "11.0.8",
+        "minimatch@10": "11.0.8",
+        "minimatch@11": "11.0.8",
         "pacote": "21.5.3",
         "sigstore": "4.1.1",
         "tar": "7.5.23",
