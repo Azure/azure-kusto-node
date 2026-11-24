@@ -64,6 +64,29 @@ describe("FileDescriptor", () => {
             }
         });
 
+        it.each([
+            { extension: ".csv", format: DataFormat.CSV },
+            { extension: ".gz", format: DataFormat.CSV },
+            { extension: ".avro", format: DataFormat.AVRO },
+        ])("rejects empty $extension content despite a positive stat size and raw-size hint", async ({ extension, format }) => {
+            const source = await tmpFile({ postfix: extension });
+            const descriptor = new FileDescriptor(source.path, null, 1234);
+            const sandbox = sinon.createSandbox();
+
+            try {
+                const stats = await fs.promises.stat(source.path);
+                stats.size = 4096;
+                sandbox.stub(fs, "stat").callThrough().withArgs(source.path).yields(null, stats);
+
+                await assert.rejects(descriptor.prepare({ format }), /Empty file/);
+                assert.strictEqual(descriptor.cleanupTmp, undefined);
+            } finally {
+                sandbox.restore();
+                await descriptor.cleanup();
+                await source.cleanup();
+            }
+        });
+
         it.each([null, 1234])("compresses nonempty data while preserving raw-size hint %s", async (size) => {
             const source = await tmpFile({ postfix: ".csv" });
             const descriptor = new FileDescriptor(source.path, null, size);
@@ -136,6 +159,39 @@ describe("FileDescriptor", () => {
             await assert.rejects(readFile(prepared), { code: "ENOENT" });
         });
 
+        it.each([
+            { extension: ".csv", compress: true },
+            { extension: ".avro", compress: false },
+        ])("preserves a complete one-shot zero-stat $extension read", async ({ extension, compress }) => {
+            const source = await tmpFile({ postfix: extension });
+            const descriptor = new FileDescriptor(source.path);
+            const sandbox = sinon.createSandbox();
+            const payload = Buffer.from("9223372036854775807\n");
+            await writeFile(source.path, payload);
+            const input = await fs.promises.open(source.path, "r");
+
+            try {
+                const stats = await fs.promises.stat(source.path);
+                stats.size = 0;
+                sandbox.stub(fs, "stat").callThrough().withArgs(source.path).yields(null, stats);
+                sandbox.stub(fs.promises, "open").withArgs(source.path, "r").resolves(input);
+                sandbox.stub(input, "createReadStream").returns(fs.createReadStream(source.path, { fd: input.fd, autoClose: false, start: payload.length }));
+
+                const prepared = await descriptor.prepare();
+                const content = await readFile(prepared);
+
+                assert.deepStrictEqual(compress ? gunzipSync(content) : content, payload);
+                assert.strictEqual(descriptor.size, payload.length);
+            } finally {
+                sandbox.restore();
+                if (input.fd !== -1) {
+                    await input.close();
+                }
+                await descriptor.cleanup();
+                await source.cleanup();
+            }
+        });
+
         it("propagates a zero-stat input read failure and closes the file", async () => {
             const source = await tmpFile({ postfix: ".csv" });
             const descriptor = new FileDescriptor(source.path);
@@ -173,6 +229,21 @@ describe("FileDescriptor", () => {
                 assert.match(content, /^Name:/);
                 assert.match(content, new RegExp(`^Pid:\\s+${process.pid}$`, "m"));
                 assert.strictEqual(descriptor.size, 1234);
+            } finally {
+                await descriptor.cleanup();
+            }
+        });
+
+        linuxTest("preserves the complete value of a one-shot procfs file", async () => {
+            const source = pathlib.join(pathlib.sep, "proc", "sys", "fs", "file-max");
+            const expected = await readFile(source);
+            const descriptor = new FileDescriptor(source);
+
+            try {
+                const prepared = await descriptor.prepare();
+
+                assert.deepStrictEqual(gunzipSync(await readFile(prepared)), expected);
+                assert.strictEqual(descriptor.size, expected.length);
             } finally {
                 await descriptor.cleanup();
             }

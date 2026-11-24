@@ -102,6 +102,25 @@ describe("Kcsb", () => {
             assert.strictEqual(descriptor.size, blobDescriptor.size);
         });
 
+        it.each([false, true])("preserves an assigned raw-size hint after prior preparation: %s", async (prepareFirst) => {
+            const input = new Blob([new Uint8Array(gzipSync("value\n123\n"))]);
+            const descriptor = new FileDescriptor(input, null, null, CompressionType.GZIP);
+            if (prepareFirst) {
+                await descriptor.prepare();
+            }
+            descriptor.size = input.size;
+            sandbox.stub(client, "uploadToBlobWithRetry").resolves("https://storage.blob.core.windows.net/container/file.csv.gz");
+            const queued = sandbox.stub(client, "ingestFromBlob").resolves();
+
+            await client.ingestFromFile(descriptor);
+
+            const blobDescriptor = queued.firstCall.args[0];
+            assert.ok(blobDescriptor instanceof BlobDescriptor);
+            assert.strictEqual(blobDescriptor.size, input.size);
+            assert.strictEqual(await descriptor.prepare(), input);
+            assert.strictEqual(descriptor.size, input.size);
+        });
+
         it("does not compress or inflate the raw size of uncompressed binary data", async () => {
             const input = new Blob(["uncompressed binary data"]);
             const upload = sandbox.stub(client, "uploadToBlobWithRetry").resolves("https://storage.blob.core.windows.net/container/file.avro");

@@ -41,35 +41,21 @@ export class FileDescriptor extends AbstractDescriptor implements FileDescriptor
     }
 
     async _gzip(): Promise<string> {
-        const { path, cleanup } = await tmpFile({ postfix: ".gz", keep: false });
-        this.cleanupTmp = cleanup;
-
-        const zipper = zlib.createGzip();
-        const input = fs.createReadStream(this.file as string, { autoClose: true });
-        const output = fs.createWriteStream(path);
-
-        await new Promise((resolve, reject) => {
-            input
-                .pipe(zipper)
-                .pipe(output)
-                .on("error", (err) => {
-                    reject(err);
-                });
-            output.once("close", () => {
-                resolve(null);
-            });
-        });
-
-        return path;
+        return this._prepareFile(true);
     }
 
-    private async _prepareUnknownSize(compress: boolean): Promise<string> {
+    private async _prepareFile(compress: boolean, fileSize = 0): Promise<string> {
         const file = await fs.promises.open(this.file as string, "r");
         try {
-            const firstByte = Buffer.alloc(1);
-            const { bytesRead } = await file.read(firstByte);
+            // Some procfs values can only be read once, so probe with a full stream-sized chunk.
+            const firstChunk = Buffer.alloc(64 * 1024);
+            const { bytesRead } = await file.read(firstChunk);
             if (bytesRead === 0) {
                 this._calculateSize(0, this.zipped);
+            }
+            if (!compress && fileSize > 0) {
+                this._calculateSize(fileSize, this.zipped);
+                return this.file as string;
             }
 
             const { path, cleanup } = await tmpFile({ postfix: compress ? ".gz" : this.extension, keep: false });
@@ -77,8 +63,8 @@ export class FileDescriptor extends AbstractDescriptor implements FileDescriptor
 
             const input = file.createReadStream({ autoClose: false });
             const prefixed = new PassThrough();
-            // Preserve the probe byte without reopening a possibly non-seekable input.
-            prefixed.write(firstByte);
+            // Preserve the probe chunk without reopening a possibly non-seekable input.
+            prefixed.write(firstChunk.subarray(0, bytesRead));
             const output = fs.createWriteStream(path);
             if (compress) {
                 await pipeline(input, prefixed, zlib.createGzip(), output);
@@ -98,12 +84,7 @@ export class FileDescriptor extends AbstractDescriptor implements FileDescriptor
         const shouldNotCompressByFormat = !shouldCompressFileByFormat(ingestionProperties);
         const compress = !this.zipped && !this.shouldNotCompress && !shouldNotCompressByFormat;
 
-        if (fileSize === 0) {
-            return this._prepareUnknownSize(compress);
-        }
-        this._calculateSize(fileSize, this.zipped);
-
-        return compress ? this._gzip() : (this.file as string);
+        return compress ? this._gzip() : this._prepareFile(false, fileSize);
     }
 
     async cleanup(): Promise<void> {

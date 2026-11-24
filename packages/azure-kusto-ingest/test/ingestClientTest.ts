@@ -16,6 +16,7 @@ import { ResourceType, ResourceURI } from "../src/resourceManager.js";
 import { StreamDescriptor } from "../src/descriptors.js";
 import { FileDescriptor } from "../src/fileDescriptor.js";
 import { file as tmpFile } from "tmp-promise";
+import fs from "fs";
 
 describe("KustoIngestClient", () => {
     describe("#constructor()", () => {
@@ -281,7 +282,7 @@ describe("KustoIngestClient", () => {
     });
 
     describe("#ingestFromFile()", () => {
-        it("rejects an empty file with a positive size hint before upload and runs cleanup", async () => {
+        it.each([0, 4096])("rejects empty input before upload and runs cleanup when stat reports %s bytes", async (fileSize) => {
             const source = await tmpFile({ postfix: ".csv" });
             const descriptor = new FileDescriptor(source.path, null, 1234);
             const client = new KustoIngestClient("https://cluster.kusto.windows.net", { database: "db", table: "table" });
@@ -291,6 +292,10 @@ describe("KustoIngestClient", () => {
             const cleanup = sandbox.spy(descriptor, "cleanup");
 
             try {
+                const stats = await fs.promises.stat(source.path);
+                stats.size = fileSize;
+                sandbox.stub(fs, "stat").callThrough().withArgs(source.path).yields(null, stats);
+
                 await assert.rejects(client.ingestFromFile(descriptor), /Empty file/);
                 sandbox.assert.notCalled(upload);
                 sandbox.assert.notCalled(queued);

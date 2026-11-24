@@ -10,7 +10,7 @@ export class FileDescriptor extends AbstractDescriptor implements FileDescriptor
     compressionType: CompressionType;
     shouldNotCompress: boolean;
     cleanupTmp?: () => Promise<void>;
-    private readonly _hasSizeHint: boolean;
+    private _hasSizeHint: boolean;
 
     constructor(
         readonly file: Blob,
@@ -22,13 +22,23 @@ export class FileDescriptor extends AbstractDescriptor implements FileDescriptor
     ) {
         super(sourceId, size || file.size);
         this._hasSizeHint = size !== null && size > 0;
+        let currentSize = this.size;
+        Object.defineProperty(this, "size", {
+            configurable: true,
+            enumerable: true,
+            get: () => currentSize,
+            set: (value: number | null) => {
+                currentSize = value;
+                this._hasSizeHint = value !== null && value > 0;
+            },
+        });
         this.compressionType = compressionType;
         this.zipped = compressionType !== CompressionType.None || this.extension === ".gz" || this.extension === ".zip";
         this.shouldNotCompress = !shouldCompressFileByExtension(this.extension);
     }
 
     async prepare(ingestionProperties?: IngestionPropertiesInput): Promise<Blob> {
-        if (this.zipped && !this._hasSizeHint && this.size === this.file.size) {
+        if (this.zipped && !this._hasSizeHint) {
             // The constructor's Blob-size fallback is not a raw-size hint for compressed input.
             this.size = null;
         }
