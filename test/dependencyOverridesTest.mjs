@@ -14,6 +14,8 @@ import { promisify } from "node:util";
 
 const require = createRequire(import.meta.url);
 const { findMatchingProjects, getMatchingStringsWithCache } = require("nx/src/utils/find-matching-projects");
+const { FsTree } = require("nx/src/generators/tree");
+const { glob, globAsync } = require("nx/src/generators/utils/glob");
 /** @type {{ prepare: (directory: string) => Promise<{ content: { readme?: string, bin?: Record<string, string> } }> }} */
 const PackageJson = require(require.resolve("@npmcli/package-json"));
 /** @type {(options: { cwd: string, pkg: { workspaces: string[] } }) => Promise<Map<string, string>>} */
@@ -44,6 +46,63 @@ test("Nx matches project and file globs with the overridden minimatch", () => {
         "src/nested/view.tsx",
         "src/.hidden.ts",
     ]);
+});
+
+test("Nx tree-aware globs include created files and exclude deleted files with the overridden minimatch", async (t) => {
+    const fixture = await mkdtemp(path.join(tmpdir(), "kusto-nx-tree-globs-"));
+    t.after(() => rm(fixture, { recursive: true, force: true }));
+    await mkdir(path.join(fixture, "src"));
+    await writeFile(path.join(fixture, "src", "kept.ts"), "original\n");
+    await writeFile(path.join(fixture, "src", "deleted.ts"), "deleted\n");
+    const tree = new FsTree(fixture, false);
+    tree.write("src/kept.ts", "updated\n");
+    tree.write("src/created.tsx", "created\n");
+    tree.write("src/ignored.js", "ignored\n");
+    tree.delete("src/deleted.ts");
+
+    const patterns = ["src/**/*.{ts,tsx}"];
+    const expected = ["src/created.tsx", "src/kept.ts"];
+    assert.deepEqual(glob(tree, patterns).sort(), expected);
+    assert.deepEqual((await globAsync(tree, patterns)).sort(), expected);
+});
+
+test("Nx release branch globs distinguish merged tags from all tags with the overridden minimatch", { timeout: 60_000 }, async (t) => {
+    const fixture = await mkdtemp(path.join(tmpdir(), "kusto-nx-release-globs-"));
+    t.after(() => rm(fixture, { recursive: true, force: true }));
+    await writeJson(path.join(fixture, "package.json"), { name: "kusto-nx-release-fixture", private: true });
+    await writeJson(path.join(fixture, "nx.json"), {});
+    await writeFile(path.join(fixture, "git-config"), "");
+    await writeFile(path.join(fixture, ".gitignore"), ".nx/\ngit-config\n");
+    const env = fixtureEnvironment(fixture);
+    /** @param {string} command @param {string[]} args */
+    const run = (command, args) => execute(command, args, { cwd: fixture, env, timeout: 30_000 });
+    await run("git", ["init", "--initial-branch=release/1.x"]);
+    await commitFixture(run, fixture);
+    await run("git", ["tag", "sdk@1.0.0"]);
+    await run("git", ["checkout", "-b", "next/2.x"]);
+    await writeFile(path.join(fixture, "next.txt"), "next release\n");
+    await commitFixture(run, fixture);
+    await run("git", ["tag", "sdk@2.0.0"]);
+    await run("git", ["checkout", "release/1.x"]);
+
+    const { stdout } = await run(process.execPath, [
+        "--input-type=module",
+        "--eval",
+        `import { createRequire } from "node:module";
+        const require = createRequire(${JSON.stringify(import.meta.url)});
+        const { RepoGitTags } = require(${JSON.stringify(require.resolve("nx/src/command-line/release/utils/repository-git-tags"))});
+        const tags = RepoGitTags.create();
+        process.stdout.write(JSON.stringify({
+            merged: await tags.resolveTags(false),
+            all: await tags.resolveTags(["release/*"]),
+            nonmatching: await tags.resolveTags(["hotfix/*"])
+        }));`,
+    ]);
+    assert.deepEqual(JSON.parse(stdout), {
+        merged: ["sdk@1.0.0"],
+        all: ["sdk@2.0.0", "sdk@1.0.0"],
+        nonmatching: ["sdk@1.0.0"],
+    });
 });
 
 test("Lerna versions and publishes linked workspaces using the overridden dependencies", { timeout: 120_000 }, async (t) => {
@@ -133,38 +192,18 @@ test("Lerna versions and publishes linked workspaces using the overridden depend
         "kusto-override-fixture-sample",
     ]);
 
-    // Keep credentials, Git configuration and workspace/cache overrides out of the fixture.
     const env = {
-        ...Object.fromEntries(Object.entries(process.env).filter(([key]) => !/^(npm|nx|git)_/i.test(key))),
+        ...fixtureEnvironment(fixture),
         NPM_CONFIG_USERCONFIG: path.join(fixture, "npm-user-config"),
         NPM_CONFIG_GLOBALCONFIG: path.join(fixture, "npm-global-config"),
         NPM_CONFIG_REGISTRY: registry,
         NPM_CONFIG_AUDIT: "false",
         NPM_CONFIG_FUND: "false",
         NPM_CONFIG_UPDATE_NOTIFIER: "false",
-        GIT_CONFIG_GLOBAL: path.join(fixture, "git-config"),
-        GIT_CONFIG_NOSYSTEM: "1",
-        NX_DAEMON: "false",
-        NX_TUI: "false",
     };
     /** @param {string} command @param {string[]} args */
     const run = (command, args) => execute(command, args, { cwd: fixture, env, timeout: 60_000, maxBuffer: 2 * 1024 * 1024 });
-    const commit = async () => {
-        await run("git", ["add", "."]);
-        await run("git", [
-            "-c",
-            "user.name=Dependency override fixture",
-            "-c",
-            "user.email=fixture@example.invalid",
-            "-c",
-            "commit.gpgSign=false",
-            "-c",
-            `core.hooksPath=${fixture}`,
-            "commit",
-            "-m",
-            "Update fixture",
-        ]);
-    };
+    const commit = () => commitFixture(run, fixture);
     await run("git", ["init", "--initial-branch=fixture"]);
     await commit();
     const lerna = require.resolve("lerna/cli");
@@ -209,6 +248,36 @@ test("Lerna versions and publishes linked workspaces using the overridden depend
         }
     }
 });
+
+/** @param {string} directory */
+function fixtureEnvironment(directory) {
+    // Keep credentials, Git configuration and workspace/cache overrides out of the fixture.
+    return {
+        ...Object.fromEntries(Object.entries(process.env).filter(([key]) => !/^(npm|nx|git)_/i.test(key))),
+        GIT_CONFIG_GLOBAL: path.join(directory, "git-config"),
+        GIT_CONFIG_NOSYSTEM: "1",
+        NX_DAEMON: "false",
+        NX_TUI: "false",
+    };
+}
+
+/** @param {(command: string, args: string[]) => Promise<unknown>} run @param {string} directory */
+async function commitFixture(run, directory) {
+    await run("git", ["add", "."]);
+    await run("git", [
+        "-c",
+        "user.name=Dependency override fixture",
+        "-c",
+        "user.email=fixture@example.invalid",
+        "-c",
+        "commit.gpgSign=false",
+        "-c",
+        `core.hooksPath=${directory}`,
+        "commit",
+        "-m",
+        "Update fixture",
+    ]);
+}
 
 /** @param {string} filename @param {object} data */
 async function writeJson(filename, data) {
