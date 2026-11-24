@@ -5,7 +5,7 @@ import assert from "assert";
 import { AxiosError, AxiosHeaders } from "axios";
 import { KustoDataErrors } from "azure-kusto-data";
 import sinon from "sinon";
-import { retryManagementCommand, runSetupTasks } from "./setupUtils.js";
+import { createSetupGate, retryManagementCommand, runSetupTasks } from "./setupUtils.js";
 
 const deferred = () => {
     let resolve!: () => void;
@@ -23,6 +23,56 @@ const httpError = (status: number) =>
         headers: {},
         config: { headers: new AxiosHeaders() },
     });
+
+describe("createSetupGate", () => {
+    it("makes early concurrent test bodies and the hook wait for the same initialization", async () => {
+        const initialized = deferred();
+        const initialize = sinon.stub<[], Promise<void>>().returns(initialized.promise);
+        const ready = createSetupGate(initialize);
+        const started: number[] = [];
+        const cases = [0, 1, 2].map(async (item) => {
+            await ready();
+            started.push(item);
+        });
+        const hook = ready();
+
+        await new Promise<void>((resolve) => setImmediate(resolve));
+        assert.deepStrictEqual(started, []);
+        assert.strictEqual(initialize.callCount, 1);
+        initialized.resolve();
+        await Promise.all([hook, ...cases]);
+        assert.deepStrictEqual(started, [0, 1, 2]);
+        await ready();
+        assert.strictEqual(initialize.callCount, 1);
+    });
+
+    it.each([
+        { description: "an asynchronous failure", synchronous: false },
+        { description: "a synchronous failure", synchronous: true },
+    ])("preserves $description without retrying setup or starting test work", async ({ synchronous }) => {
+        const failure = new Error("Fixture initialization failed");
+        const initialize = sinon.stub<[], Promise<void>>();
+        if (synchronous) {
+            initialize.throws(failure);
+        } else {
+            initialize.rejects(failure);
+        }
+        const ready = createSetupGate(initialize);
+        const work = sinon.stub<[], Promise<void>>().resolves();
+        const run = async () => {
+            await ready();
+            await work();
+        };
+
+        await Promise.all([
+            assert.rejects(run(), (error) => error === failure),
+            assert.rejects(run(), (error) => error === failure),
+            assert.rejects(ready(), (error) => error === failure),
+        ]);
+        assert.strictEqual(initialize.callCount, 1);
+        assert.strictEqual(work.callCount, 0);
+    });
+});
 
 describe("runSetupTasks", () => {
     it("bounds parallel setup and initializes every item", async () => {
