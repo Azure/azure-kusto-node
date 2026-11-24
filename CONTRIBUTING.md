@@ -65,6 +65,9 @@ The tests use `AzureCliCredential` by default. Local application-key authenticat
 
 Use `npm run testNoE2E -- --ci --maxWorkers=2 --coverage` for parity with the GitHub unit-coverage job. Azure selects the E2E test paths using the complementary pattern, including the sibling `NoRedirects` and `Mgmt Parsing` suites. `npm run testPipeline` without a path selector still runs all tests locally. `npm run testE2E` filters by the name "E2E Tests" and excludes those sibling integration suites.
 
+For an opt-in, read-only before/after load comparison on a live test cluster, see the
+[result-row load suite](packages/azure-kusto-data/test/load/README.md). It is not run automatically by CI.
+
 ## Continuous integration
 
 Build, formatting/lint checks, and non-E2E unit tests run in [GitHub Actions](.github/workflows/build.yml) on `master` pushes and every PR, including forks. The offline matrix tests the exact Node 22.12.0 minimum and latest Node 22/24/26, including both sample builds and the Node sample's offline module/path tests. The Node 22 build job generates unit coverage and uploads it using the existing Codecov GitHub Action invocation, without adding a token requirement. This workflow does not use Azure/Kusto credentials or a protected environment.
