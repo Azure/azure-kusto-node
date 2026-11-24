@@ -21,6 +21,8 @@
         "testIngestNoE2E": "npm run testNoE2E -- --selectProjects azure-kusto-ingest",
         "testQuickStart": "npm run test --workspace azure-kusto-quick-start",
         "testDependencyOverrides": "node --test test/dependencyOverridesTest.mjs",
+        "loadTest": "npm run build --workspace azure-kusto-data && node packages/azure-kusto-data/dist-esm/test/load/runResultRowsLoad.js",
+        "replayTest": "npm run build --workspace azure-kusto-data && node packages/azure-kusto-data/dist-esm/test/load/runResultRowsReplay.js",
         "testPipeline": "npm run test -- --ci --reporters=default --reporters=jest-junit --coverage",
         "format": "prettier --write .",
         "checkFormat": "prettier --check --end-of-line lf .",

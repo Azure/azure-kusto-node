@@ -21,6 +21,16 @@ Run the Node sample with `npm run quick_start --workspace azure-kusto-quick-star
 `npm run dev --workspace azure-kusto-quick-start-browser`. Configure an approved test target first: samples can create/alter tables and ingest data.
 See the sample READMEs for standalone installation after the matching SDK release is published.
 
+### Development dependency scope
+
+Build, test, and release tools belong in the private root package's `devDependencies`; browser build tools belong in the private browser sample's `devDependencies`.
+npm has no separate `testDependencies` scope. The dependency scanner reuses the existing TypeScript dependency, and the override compatibility tests exercise the existing Lerna/Nx toolchain without adding direct dependencies.
+
+The new `overrides` entries select patched versions of already-required transitive packages; they do not add dependency declarations.
+Their targets, including Babel, Sigstore, Glob/minimatch, and browser development-server tooling, are marked `dev: true` in the lockfile and excluded by `npm ci --omit=dev --ignore-scripts`.
+`--ignore-scripts` is needed for a production-only install because the repository's `prepublish` script invokes development build tools.
+The published SDK runtime dependency declarations are unchanged, and the private root's overrides are not inherited by SDK consumers.
+
 ### Security overrides
 
 Most dependency overrides preserve the consumer's major version. Two development-tool exceptions intentionally exceed declared ranges:
@@ -89,6 +99,9 @@ npm run testPipeline -- --testPathPattern '/.*e2e.*/'
 The tests use `AzureCliCredential` by default. Local application-key authentication is optional: set `APP_ID`, `APP_KEY`, and `TENANT_ID` together to select it. Do not provide `APP_KEY` in CI. The test principal must be able to query, create/alter/drop test tables, configure ingestion policies/mappings, and access the ingestion resources returned by Kusto. E2E tests modify the configured database; do not use a production database.
 
 Use `npm run testNoE2E -- --ci --maxWorkers=2 --coverage` for parity with the GitHub unit-coverage job. Azure selects the E2E test paths using the complementary pattern, including the sibling `NoRedirects` and `Mgmt Parsing` suites. `npm run testPipeline` without a path selector still runs all tests locally. `npm run testE2E` filters by the name "E2E Tests" and excludes those sibling integration suites.
+
+For an opt-in, read-only before/after load comparison on a live test cluster, see the
+[result-row load suite](packages/azure-kusto-data/test/load/README.md). It is not run automatically by CI.
 
 ## Continuous integration
 

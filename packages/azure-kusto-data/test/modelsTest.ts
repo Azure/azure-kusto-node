@@ -200,6 +200,112 @@ describe("KustoResultRow", () => {
                 }
             }
         });
+
+        it.concurrent.each(["GET /health", null])("iterate data with a raw column containing %p", (value) => {
+            const columns = [
+                new KustoResultColumn({ ColumnName: "raw", ColumnType: "string" }, 0),
+                new KustoResultColumn({ ColumnName: "status", ColumnType: "long" }, 1),
+                new KustoResultColumn({ ColumnName: "level", ColumnType: "string" }, 2),
+            ];
+            const inputValues = [value, 200, "Info"];
+            const actual = new KustoResultRow(columns, inputValues);
+
+            assert.deepStrictEqual([...actual.values()], inputValues);
+            assert.strictEqual(actual.raw, inputValues);
+            assert.strictEqual(actual.getValueAt(0), value);
+            assert.deepStrictEqual(actual.toJSON(), { raw: value, status: 200, level: "Info" });
+        });
+
+        it.concurrent.each(["message", "raw"])("support structurally typed proxy rows with a %s column", (name) => {
+            const columns = [new KustoResultColumn({ ColumnName: name, ColumnType: "string" }, 0)];
+            const inputValues = ["value"];
+            const rowLike: Pick<KustoResultRow, "columns" | "raw" | "values" | "getValueAt" | "toJson" | "toJSON" | "toString"> = new Proxy(
+                new KustoResultRow(columns, inputValues),
+                {},
+            );
+            const actual: KustoResultRow = rowLike;
+            const expected = { [name]: "value" };
+
+            assert.strictEqual(actual.getValueAt(0), "value");
+            assert.deepStrictEqual(actual.toJSON(), expected);
+            assert.deepStrictEqual(actual.toJson(), expected);
+            assert.strictEqual(actual.toString(), JSON.stringify(expected));
+            assert.strictEqual(JSON.stringify(actual), JSON.stringify(expected));
+            assert.deepStrictEqual([...actual.values()], inputValues);
+            assert.deepStrictEqual({ ...actual }, name === "message" ? { columns, raw: inputValues, message: "value" } : { columns, raw: inputValues });
+        });
+
+        it.concurrent("support collection-wrapping proxies for reserved columns", () => {
+            const columns = [
+                new KustoResultColumn({ ColumnName: "raw", ColumnType: "string" }, 0),
+                new KustoResultColumn({ ColumnName: "columns", ColumnType: "long" }, 1),
+                new KustoResultColumn({ ColumnName: "message", ColumnType: "string" }, 2),
+            ];
+            const inputValues = ["GET /health", 3, "Info"];
+            const actual = new Proxy(new KustoResultRow(columns, inputValues), {
+                get(target, property, receiver) {
+                    const value: unknown = Reflect.get(target, property, receiver);
+                    if (!(value instanceof Map)) {
+                        return value;
+                    }
+                    return new Proxy(value, {
+                        get(map, key) {
+                            const member: unknown = Reflect.get(map, key, map);
+                            return typeof member === "function" ? member.bind(map) : member;
+                        },
+                    });
+                },
+            });
+            const expected = { raw: "GET /health", columns: 3, message: "Info" };
+
+            assert.strictEqual(actual.getValueAt(0), "GET /health");
+            assert.strictEqual(actual.getValueAt(1), 3);
+            assert.strictEqual(actual.getValueAt(2), "Info");
+            assert.deepStrictEqual(actual.toJSON(), expected);
+            assert.strictEqual(JSON.stringify(actual), JSON.stringify(expected));
+            assert.deepStrictEqual({ ...actual }, { columns, raw: inputValues, message: "Info" });
+        });
+
+        it.concurrent.each(["columns", "values", "getValueAt", "toJSON", "toJson", "toString", "constructor", "hasOwnProperty", "__proto__"])(
+            "preserve the row API and serialize a %s column",
+            (name) => {
+                const value = { message: "column value" };
+                const inputValues = [value, "Info"];
+                const table = new KustoResultTable({
+                    TableName: "PrimaryResult",
+                    Columns: [
+                        { ColumnName: name, ColumnType: "dynamic" },
+                        { ColumnName: "level", ColumnType: "string" },
+                    ],
+                    Rows: [inputValues],
+                });
+                const expected = { [name]: value, level: "Info" };
+                const rows: KustoResultRow[] = [...table.rows(), table[0]];
+
+                for (const actual of rows) {
+                    assert.strictEqual(Object.getPrototypeOf(actual), KustoResultRow.prototype);
+                    assert.strictEqual(actual.constructor, KustoResultRow);
+                    assert.strictEqual(typeof actual.hasOwnProperty, "function");
+                    assert.strictEqual(actual.columns, table.columns);
+                    assert.strictEqual(actual.raw, inputValues);
+                    assert.deepStrictEqual([...actual.values()], inputValues);
+                    assert.strictEqual(actual.getValueAt(0), value);
+                    assert.deepStrictEqual(actual.toJSON(), expected);
+                    assert.deepStrictEqual(actual.toJson(), expected);
+                    assert.strictEqual(actual.toString(), JSON.stringify(expected));
+                    assert.strictEqual(JSON.stringify(actual), JSON.stringify(expected));
+
+                    actual.level = "Warning";
+                    assert.strictEqual(actual.getValueAt(1), "Warning");
+                    assert.deepStrictEqual(actual.toJSON(), { [name]: value, level: "Warning" });
+                }
+
+                const expectedTable = { name: "PrimaryResult", data: [expected] };
+                assert.deepStrictEqual(table.toJSON(), expectedTable);
+                assert.strictEqual(table.toString(), JSON.stringify(expectedTable));
+                assert.strictEqual(JSON.stringify(table), JSON.stringify(expectedTable));
+            },
+        );
     });
 });
 
@@ -279,6 +385,40 @@ describe("KustoResultTable", () => {
             }
 
             assert.strictEqual(rows.length, 3);
+        });
+
+        it.concurrent("indexed rows use the current custom parsers, including null values", () => {
+            const actual = new KustoResultTable({
+                TableName: "PrimaryResult",
+                Columns: [
+                    { ColumnName: "ts", ColumnType: "datetime" },
+                    { ColumnName: "dur", ColumnType: "timespan" },
+                ],
+                Rows: [
+                    ["2026-01-01T00:00:00Z", "01:00:00"],
+                    [null, null],
+                ],
+            });
+            actual.dateTimeParser = (value) => `dt:${value}`;
+            actual.timeSpanParser = (value) => `sp:${value}`;
+            const expected = [
+                { ts: "dt:2026-01-01T00:00:00Z", dur: "sp:01:00:00" },
+                { ts: "dt:null", dur: "sp:null" },
+            ];
+
+            for (const [index, row] of [...actual.rows()].entries()) {
+                const indexedRow: KustoResultRow = actual[index];
+                assert.deepStrictEqual(row.toJSON(), expected[index]);
+                assert.deepStrictEqual(indexedRow.toJSON(), expected[index]);
+            }
+
+            actual.dateTimeParser = (value) => `updated-dt:${value}`;
+            actual.timeSpanParser = (value) => `updated-sp:${value}`;
+            const updatedIndexedRow: KustoResultRow = actual[0];
+            assert.deepStrictEqual(updatedIndexedRow.toJSON(), {
+                ts: "updated-dt:2026-01-01T00:00:00Z",
+                dur: "updated-sp:01:00:00",
+            });
         });
 
         describe("test defaultTimespanParser", () => {
