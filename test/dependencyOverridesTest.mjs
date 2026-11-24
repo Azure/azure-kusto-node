@@ -13,6 +13,8 @@ import test from "node:test";
 import { promisify } from "node:util";
 
 const require = createRequire(import.meta.url);
+// Keep in-process Nx globbing on the fixture workspace instead of this repository's Nx daemon.
+process.env.NX_DAEMON = "false";
 const { findMatchingProjects, getMatchingStringsWithCache } = require("nx/src/utils/find-matching-projects");
 const { FsTree } = require("nx/src/generators/tree");
 const { glob, globAsync } = require("nx/src/generators/utils/glob");
