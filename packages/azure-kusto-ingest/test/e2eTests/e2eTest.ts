@@ -26,7 +26,7 @@ import {
 } from "azure-kusto-ingest";
 
 import { sleep } from "../../src/retry.js";
-import { retryManagementCommand, runSetupTasks } from "../setupUtils.js";
+import { createSetupGate, retryManagementCommand, runSetupTasks } from "../setupUtils.js";
 
 import { AzureCliCredential } from "@azure/identity";
 import assert from "assert";
@@ -93,21 +93,6 @@ const main = (): void => {
         ManagedStreamingIngestClient.prototype,
     );
 
-    const tables = [
-        "general",
-        "queued_file",
-        "queued_stream",
-        "streaming_file",
-        "streaming_stream",
-        "streaming_blob",
-        "managed_file",
-        "managed_mocked_file",
-        "managed_stream",
-        "status_success",
-        "status_fail",
-        "status_table",
-    ] as const;
-
     class TestDataItem {
         constructor(
             public description: string,
@@ -170,10 +155,23 @@ const main = (): void => {
         new TestDataItem("json_gz_with_mapping", getTestResourcePath("dataset_gzip.json.gz"), 2, ingestionPropertiesWithColumnMapping, false),
     ] as const;
 
-    type Table = `${(typeof tables)[number]}_${(typeof testItems)[number]["description"]}`;
+    const streamingTestItems = testItems.filter((item) => item.testOnStreamingIngestion);
+    const tables = [
+        { name: "queued_file", items: testItems },
+        { name: "queued_stream", items: testItems },
+        { name: "streaming_file", items: streamingTestItems },
+        { name: "streaming_stream", items: streamingTestItems },
+        { name: "streaming_blob", items: streamingTestItems },
+        { name: "managed_file", items: streamingTestItems },
+        { name: "managed_mocked_file", items: streamingTestItems },
+        { name: "managed_stream", items: streamingTestItems },
+        { name: "status_table", items: testItems },
+    ] as const;
+
+    type Table = `${(typeof tables)[number]["name"]}_${(typeof testItems)[number]["description"]}`;
 
     const testSuffix = `_node_e2e_${new Date().getTime()}_${Math.floor(Math.random() * 100000)}`;
-    const tableWithItems = tables.map((t) => testItems.map((tI) => `${t}_${tI.description}`)).flat() as Table[];
+    const tableWithItems = tables.flatMap(({ name, items }) => items.map((item) => `${name}_${item.description}`)) as Table[];
     const tableNames = Object.fromEntries(tableWithItems.map((t) => [t, t + testSuffix])) as Record<Table, string>;
 
     const hookTimeoutMs = 240000;
@@ -218,17 +216,13 @@ const main = (): void => {
         await executeManagement(queryClient, databaseName, ".clear database cache streamingingestion schema");
     };
 
-    let setupPromise: Promise<void> | undefined;
-    beforeAll(() => {
-        setupPromise = initializeTables();
-        return setupPromise;
-    }, hookTimeoutMs);
+    // Concurrent test bodies can start before the root beforeAll hook.
+    const ensureSetup = createSetupGate(initializeTables);
+    beforeAll(ensureSetup, hookTimeoutMs);
 
     afterAll(async () => {
         try {
-            if (setupPromise) {
-                await setupPromise.catch(() => undefined);
-            }
+            await ensureSetup().catch(() => undefined);
             const executeManagement = createManagementExecutor();
             const cmd = ".drop tables (" + Object.values(tableNames).toString() + ") ifexists";
             await executeManagement(queryClient, databaseName, cmd);
@@ -245,6 +239,7 @@ const main = (): void => {
     describe(`E2E Tests`, () => {
         describe("cloud info", () => {
             it.concurrent("cloud info 404", async () => {
+                await ensureSetup();
                 const cloudInfo = await CloudSettings.getCloudInfoForCluster("https://www.bing.com");
                 assert.strictEqual(cloudInfo, CloudSettings.defaultCloudInfo);
             });
@@ -256,6 +251,7 @@ const main = (): void => {
                     return { item: i };
                 }),
             )("ingestFromFile_$item.description", async ({ item }) => {
+                await ensureSetup();
                 const table = tableNames[("queued_file" + "_" + item.description) as Table];
                 try {
                     await ingestClient.ingestFromFile(item.path, item.ingestionPropertiesCallback(table));
@@ -270,6 +266,7 @@ const main = (): void => {
                     return { item: i };
                 }),
             )("ingestFromFile_TableReporting_$item.description", async ({ item }) => {
+                await ensureSetup();
                 const table = tableNames[("status_table" + "_" + item.description) as Table];
                 const props = item.ingestionPropertiesCallback(table);
                 props.reportLevel = ReportLevel.FailuresAndSuccesses;
@@ -282,9 +279,10 @@ const main = (): void => {
                     const endTime = Date.now() + 180000; // Timeout is 3 minutes
                     while (Date.now() < endTime) {
                         status = await res.getIngestionStatusCollection();
-                        if (status.Status === "Pending") {
-                            await sleep(1000);
+                        if (status.Status !== "Pending" && status.Status !== "Queued") {
+                            break;
                         }
+                        await sleep(1000);
                     }
 
                     assert.equal(status!.Status, "Succeeded");
@@ -299,6 +297,7 @@ const main = (): void => {
                     return { item: i };
                 }),
             )("ingestFromStream_$item.description", async ({ item }) => {
+                await ensureSetup();
                 let stream: ReadStream | StreamDescriptor = fs.createReadStream(item.path);
                 if (item.path.endsWith("gz")) {
                     stream = new StreamDescriptor(stream, null, CompressionType.GZIP);
@@ -315,12 +314,11 @@ const main = (): void => {
 
         describe("StreamingIngestClient", () => {
             it.concurrent.each(
-                testItems
-                    .filter((i) => i.testOnStreamingIngestion)
-                    .map((i) => {
-                        return { item: i };
-                    }),
+                streamingTestItems.map((i) => {
+                    return { item: i };
+                }),
             )("ingestFromFile_$item.description", async ({ item }) => {
+                await ensureSetup();
                 const table = tableNames[("streaming_file" + "_" + item.description) as Table];
                 try {
                     await streamingIngestClient.ingestFromFile(item.path, item.ingestionPropertiesCallback(table));
@@ -331,12 +329,11 @@ const main = (): void => {
             });
 
             it.concurrent.each(
-                testItems
-                    .filter((i) => i.testOnStreamingIngestion)
-                    .map((i) => {
-                        return { item: i };
-                    }),
+                streamingTestItems.map((i) => {
+                    return { item: i };
+                }),
             )("ingestFromStream_$item.description", async ({ item }) => {
+                await ensureSetup();
                 let stream: ReadStream | StreamDescriptor = fs.createReadStream(item.path);
                 if (item.path.endsWith("gz")) {
                     stream = new StreamDescriptor(stream, null, CompressionType.GZIP);
@@ -351,12 +348,11 @@ const main = (): void => {
             });
 
             it.concurrent.each(
-                testItems
-                    .filter((i) => i.testOnStreamingIngestion)
-                    .map((i) => {
-                        return { item: i };
-                    }),
+                streamingTestItems.map((i) => {
+                    return { item: i };
+                }),
             )("ingestFromBlob_$item.description", async ({ item }) => {
+                await ensureSetup();
                 const blobName = uuidv4() + basename(item.path);
                 const result = await dmKustoClient.execute(databaseName, ".show export containers");
                 const container = result.primaryResults?.[0]?.toJSON<{ StorageRoot: string }>().data[0].StorageRoot;
@@ -381,12 +377,11 @@ const main = (): void => {
 
         describe("ManagedStreamingIngestClient", () => {
             it.concurrent.each(
-                testItems
-                    .filter((i) => i.testOnStreamingIngestion)
-                    .map((i) => {
-                        return { item: i };
-                    }),
+                streamingTestItems.map((i) => {
+                    return { item: i };
+                }),
             )("ingestFromFile_$item.description", async ({ item }) => {
+                await ensureSetup();
                 // Expect mocked client to retry stream after transient failure and succeed from queue with same stream
                 const table = tableNames[("managed_mocked_file" + "_" + item.description) as Table];
                 try {
@@ -397,12 +392,11 @@ const main = (): void => {
                 await assertRowsCount(item, table as Table);
             });
             it.concurrent.each(
-                testItems
-                    .filter((i) => i.testOnStreamingIngestion)
-                    .map((i) => {
-                        return { item: i };
-                    }),
+                streamingTestItems.map((i) => {
+                    return { item: i };
+                }),
             )("ingestFromFile_$item.description", async ({ item }) => {
+                await ensureSetup();
                 const table = tableNames[("managed_file" + "_" + item.description) as Table];
                 try {
                     await managedStreamingIngestClient.ingestFromFile(item.path, item.ingestionPropertiesCallback(table));
@@ -412,12 +406,11 @@ const main = (): void => {
                 await assertRowsCount(item, table as Table);
             });
             it.concurrent.each(
-                testItems
-                    .filter((i) => i.testOnStreamingIngestion)
-                    .map((i) => {
-                        return { item: i };
-                    }),
+                streamingTestItems.map((i) => {
+                    return { item: i };
+                }),
             )("ingestFromStream_$item.description", async ({ item }) => {
+                await ensureSetup();
                 let stream: ReadStream | StreamDescriptor = fs.createReadStream(item.path);
                 if (item.path.endsWith("gz")) {
                     stream = new StreamDescriptor(stream, null, CompressionType.GZIP);
@@ -434,6 +427,7 @@ const main = (): void => {
 
         describe("QueryClient", () => {
             it.concurrent("General BadRequest", async () => {
+                await ensureSetup();
                 try {
                     await queryClient.executeQuery(databaseName, "invalidSyntax ");
                 } catch (ex) {
@@ -446,6 +440,7 @@ const main = (): void => {
             });
 
             it.concurrent("PartialQueryFailure", async () => {
+                await ensureSetup();
                 try {
                     await queryClient.executeQuery(databaseName, "invalidSyntax ");
                 } catch (ex) {
@@ -458,6 +453,7 @@ const main = (): void => {
 
     describe("Mgmt Parsing", () => {
         it.concurrent("Parse .show tables correctly", async () => {
+            await ensureSetup();
             const result = await queryClient.execute(databaseName, ".show tables | project TableName, DatabaseName");
             expect(result.tables.length).toBeGreaterThan(0);
             expect(result.primaryResults.length).toBe(1);
@@ -465,6 +461,7 @@ const main = (): void => {
         });
 
         it.concurrent("Parse .show database correctly", async () => {
+            await ensureSetup();
             const result = await queryClient.execute(databaseName, `.show database ${databaseName}  policy retention | project ChildEntities, EntityType`);
             expect(result.tables.length).toBeGreaterThan(0);
             expect(result.primaryResults.length).toBe(1);

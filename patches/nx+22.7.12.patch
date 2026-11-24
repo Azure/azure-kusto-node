@@ -1,0 +1,77 @@
+diff --git a/node_modules/nx/dist/src/command-line/release/utils/repository-git-tags.js b/node_modules/nx/dist/src/command-line/release/utils/repository-git-tags.js
+index 42d6cf7..ebe9f9c 100644
+--- a/node_modules/nx/dist/src/command-line/release/utils/repository-git-tags.js
++++ b/node_modules/nx/dist/src/command-line/release/utils/repository-git-tags.js
+@@ -110,11 +110,11 @@ async function _RepoGitTags_alwaysCheckAllBranches(checkAllBranchesWhen) {
+             // Check if any glob pattern matches next
+             if (!alwaysCheckAllBranches) {
+                 alwaysCheckAllBranches = checkAllBranchesWhen.some((pattern) => {
+-                    const r = minimatch_1.minimatch.makeRe(pattern, { dot: true });
+-                    if (!r) {
++                    const matcher = new minimatch_1.Minimatch(pattern, { dot: true });
++                    if (matcher.set.length === 0) {
+                         return false;
+                     }
+-                    return r.test(currentBranch);
++                    return matcher.match(currentBranch);
+                 });
+             }
+         }
+diff --git a/node_modules/nx/dist/src/generators/utils/glob.js b/node_modules/nx/dist/src/generators/utils/glob.js
+index af0e4c3..c6d1689 100644
+--- a/node_modules/nx/dist/src/generators/utils/glob.js
++++ b/node_modules/nx/dist/src/generators/utils/glob.js
+@@ -33,12 +33,12 @@ async function globAsync(tree, patterns) {
+ function combineGlobResultsWithTree(tree, patterns, results) {
+     const matches = new Set(results);
+     const combinedGlob = (0, globs_1.combineGlobPatterns)(patterns);
+-    const matcher = minimatch_1.minimatch.makeRe(combinedGlob);
+-    if (!matcher) {
++    const matcher = new minimatch_1.Minimatch(combinedGlob);
++    if (matcher.set.length === 0) {
+         throw new Error('Invalid glob pattern: ' + combinedGlob);
+     }
+     for (const change of tree.listChanges()) {
+-        if (change.type !== 'UPDATE' && matcher.test(change.path)) {
++        if (change.type !== 'UPDATE' && matcher.match(change.path)) {
+             if (change.type === 'CREATE') {
+                 matches.add(change.path);
+             }
+diff --git a/node_modules/nx/dist/src/utils/find-matching-projects.js b/node_modules/nx/dist/src/utils/find-matching-projects.js
+index ba4e40c..d428725 100644
+--- a/node_modules/nx/dist/src/utils/find-matching-projects.js
++++ b/node_modules/nx/dist/src/utils/find-matching-projects.js
+@@ -194,26 +194,24 @@ function isValidPatternType(type) {
+ exports.getMatchingStringsWithCache = (() => {
+     // Map< Pattern, Map< Item, Result >>
+     const minimatchCache = new Map();
+-    const regexCache = new Map();
++    const matcherCache = new Map();
+     return (pattern, items) => {
+         if (!minimatchCache.has(pattern)) {
+             minimatchCache.set(pattern, new Map());
+         }
+         const patternCache = minimatchCache.get(pattern);
+-        if (!regexCache.has(pattern)) {
+-            const regex = minimatch_1.minimatch.makeRe(pattern, { dot: true });
+-            if (regex) {
+-                regexCache.set(pattern, regex);
+-            }
+-            else {
++        if (!matcherCache.has(pattern)) {
++            const matcher = new minimatch_1.Minimatch(pattern, { dot: true });
++            if (matcher.set.length === 0) {
+                 throw new Error('Invalid glob pattern ' + pattern);
+             }
++            matcherCache.set(pattern, matcher);
+         }
+-        const matcher = regexCache.get(pattern);
++        const matcher = matcherCache.get(pattern);
+         return items.filter((item) => {
+             let entry = patternCache.get(item);
+             if (entry === undefined || entry === null) {
+-                entry = item === pattern ? true : matcher.test(item);
++                entry = item === pattern ? true : matcher.match(item);
+                 patternCache.set(item, entry);
+             }
+             return entry;

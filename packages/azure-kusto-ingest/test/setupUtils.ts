@@ -5,6 +5,11 @@ import { KustoDataErrors } from "azure-kusto-data";
 import { isAxiosError } from "axios";
 import { ExponentialRetry } from "../src/retry.js";
 
+export const createSetupGate = (initialize: () => Promise<void>): (() => Promise<void>) => {
+    let setupPromise: Promise<void> | undefined;
+    return () => (setupPromise ??= Promise.resolve().then(initialize));
+};
+
 export const runSetupTasks = async <T>(items: readonly T[], initialize: (item: T) => Promise<void>): Promise<void> => {
     const concurrency = 4;
     for (let start = 0; start < items.length; start += concurrency) {

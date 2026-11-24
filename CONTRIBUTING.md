@@ -35,10 +35,10 @@ The published SDK runtime dependency declarations are unchanged, and the private
 
 Most dependency overrides preserve the consumer's major version. Two development-tool exceptions intentionally exceed declared ranges:
 
-| Requested major         | Selected release | Consumers                                               |
-| ----------------------- | ---------------- | ------------------------------------------------------- |
-| Glob 11/13              | 14.0.6           | `@npmcli/package-json`, `@npmcli/map-workspaces`, `cacache` |
-| minimatch 10 (except Nx) | 11.0.8           | Arborist, workspace mapping, TUF models, `ignore-walk`    |
+| Requested major | Selected release | Consumers                                                         |
+| --------------- | ---------------- | ----------------------------------------------------------------- |
+| Glob 11/13      | 14.0.6           | `@npmcli/package-json`, `@npmcli/map-workspaces`, `cacache`       |
+| minimatch 10    | 11.0.8           | Arborist, workspace mapping, TUF models, `ignore-walk`, Nx/devkit |
 
 Glob 11.1.0/13.0.7 and minimatch 10.2.6 are still affected by
 [Glob cancellation bypass](https://github.com/advisories/GHSA-3g3m-2fjr-6pw4) and
@@ -46,13 +46,21 @@ Glob 11.1.0/13.0.7 and minimatch 10.2.6 are still affected by
 Keeping those maintenance releases reintroduces transitive audit findings, so these are security-driven cross-major upgrades, not guarantees of semver compatibility.
 The selectors name only the affected requested majors; future consumer majors are not automatically overridden.
 
-Nx and `@nx/devkit` have consumer-scoped minimatch 10.2.6 overrides, the latest maintenance release compatible with their regex-matching API.
-minimatch 11 removes `minimatch.makeRe`, which Nx still calls; forcing it breaks project selection even when ordinary builds pass.
-There is no patched minimatch 10 release for the globparts advisory, so this development-tool finding remains pending an upstream-compatible fix.
-Do not interpret a clean production-only audit as a clean development-tool audit, or upgrade Nx's minimatch without running the compatibility tests.
+Nx 22.7.12 calls `minimatch.makeRe`, which minimatch 11 removes. The versioned patch in `patches/nx+22.7.12.patch`
+backports the three matching-path changes from [upstream Nx PR #37730](https://github.com/nrwl/nx/pull/37730)
+([commit](https://github.com/nrwl/nx/commit/0f44fbf2061afc1fbd5f6d79c5785e960b08609b)):
+project selection, tree-aware globs, and release-branch matching now use `Minimatch` instances and their `match` method.
+This allows Nx and `@nx/devkit` to use the patched minimatch 11 release without changing the Lerna/Nx versions or the minimum Node version.
+
+The private root's development-only `patch-package` tool applies the patch during `postinstall`, before the existing `prepublish` builds.
+`--error-on-fail` makes installation fail if the patch cannot be applied; do not suppress a patch failure.
+After a development install using `--ignore-scripts`, run `npm run postinstall` before using the build/release tools.
+Production-only installs still use `npm ci --omit=dev --ignore-scripts` and do not install Nx or the patch tool.
+Remove the patch and patch tool when a compatible stable Nx release containing the upstream fix is available within Lerna's supported range.
 
 Run `npm run testDependencyOverrides` when changing these exceptions, in addition to the normal build/test checks.
-It exercises npm's workspace and package-metadata discovery, Nx's include/exclude, brace, extglob, and dot-path matching, and Lerna's fixed-version update and publication paths.
+It exercises npm's workspace and package-metadata discovery, Nx's include/exclude, brace, extglob, and dot-path matching,
+tree-aware creation/deletion, release-branch tag selection, and Lerna's fixed-version update and publication paths.
 The Lerna fixture verifies linked dependency ranges and the lockfile update, publishes only its two non-private packages to an ephemeral loopback registry, and inspects the submitted tarballs.
 It does not publish to a real registry or modify this repository. The existing offline CI matrix runs it on all four supported Node runtimes.
 
