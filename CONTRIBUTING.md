@@ -21,6 +21,41 @@ Run the Node sample with `npm run quick_start --workspace azure-kusto-quick-star
 `npm run dev --workspace azure-kusto-quick-start-browser`. Configure an approved test target first: samples can create/alter tables and ingest data.
 See the sample READMEs for standalone installation after the matching SDK release is published.
 
+### Development dependency scope
+
+Build, test, and release tools belong in the private root package's `devDependencies`; browser build tools belong in the private browser sample's `devDependencies`.
+npm has no separate `testDependencies` scope. The dependency scanner reuses the existing TypeScript dependency, and the override compatibility tests exercise the existing Lerna/Nx toolchain without adding direct dependencies.
+
+The new `overrides` entries select patched versions of already-required transitive packages; they do not add dependency declarations.
+Their targets, including Babel, Sigstore, Glob/minimatch, and browser development-server tooling, are marked `dev: true` in the lockfile and excluded by `npm ci --omit=dev --ignore-scripts`.
+`--ignore-scripts` is needed for a production-only install because the repository's `prepublish` script invokes development build tools.
+The published SDK runtime dependency declarations are unchanged, and the private root's overrides are not inherited by SDK consumers.
+
+### Security overrides
+
+Most dependency overrides preserve the consumer's major version. Two development-tool exceptions intentionally exceed declared ranges:
+
+| Requested major         | Selected release | Consumers                                               |
+| ----------------------- | ---------------- | ------------------------------------------------------- |
+| Glob 11/13              | 14.0.6           | `@npmcli/package-json`, `@npmcli/map-workspaces`, `cacache` |
+| minimatch 10 (except Nx) | 11.0.8           | Arborist, workspace mapping, TUF models, `ignore-walk`    |
+
+Glob 11.1.0/13.0.7 and minimatch 10.2.6 are still affected by
+[Glob cancellation bypass](https://github.com/advisories/GHSA-3g3m-2fjr-6pw4) and
+[minimatch globparts amplification](https://github.com/advisories/GHSA-g3hv-75wg-m249), respectively.
+Keeping those maintenance releases reintroduces transitive audit findings, so these are security-driven cross-major upgrades, not guarantees of semver compatibility.
+The selectors name only the affected requested majors; future consumer majors are not automatically overridden.
+
+Nx and `@nx/devkit` have consumer-scoped minimatch 10.2.6 overrides, the latest maintenance release compatible with their regex-matching API.
+minimatch 11 removes `minimatch.makeRe`, which Nx still calls; forcing it breaks project selection even when ordinary builds pass.
+There is no patched minimatch 10 release for the globparts advisory, so this development-tool finding remains pending an upstream-compatible fix.
+Do not interpret a clean production-only audit as a clean development-tool audit, or upgrade Nx's minimatch without running the compatibility tests.
+
+Run `npm run testDependencyOverrides` when changing these exceptions, in addition to the normal build/test checks.
+It exercises npm's workspace and package-metadata discovery, Nx's include/exclude, brace, extglob, and dot-path matching, and Lerna's fixed-version update and publication paths.
+The Lerna fixture verifies linked dependency ranges and the lockfile update, publishes only its two non-private packages to an ephemeral loopback registry, and inspects the submitted tarballs.
+It does not publish to a real registry or modify this repository. The existing offline CI matrix runs it on all four supported Node runtimes.
+
 ## Testing
 
 This project uses [Jest](https://jestjs.io/) for testing. Run commands from the repository root.
