@@ -5,6 +5,7 @@ import { kustoTrustedEndpoints, MatchRule } from "azure-kusto-data";
 
 const DEFAULT_PUBLIC_LOGIN_URL = "https://login.microsoftonline.com";
 const CHINA_CLOUD_LOGIN = "https://login.partner.microsoftonline.cn";
+const US_GOV_CLOUD_LOGIN = "https://login.microsoftonline.us";
 
 describe("kustoTrustedEndpoints", function () {
     it.concurrent("Random kusto endpoints", function () {
@@ -107,7 +108,9 @@ describe("kustoTrustedEndpoints", function () {
     it.concurrent("test well known kusto endpoints national clouds", function () {
         for (const c of [
             `https://kustozszokb5yrauyq.kusto.chinacloudapi.cn,${CHINA_CLOUD_LOGIN}`,
-            "https://kustofrbwrznltavls.kusto.usgovcloudapi.net,https://login.microsoftonline.us",
+            `https://kustofrbwrznltavls.kusto.usgovcloudapi.net,${US_GOV_CLOUD_LOGIN}`,
+            `https://cluster.kusto.fabric.microsoft.us,${US_GOV_CLOUD_LOGIN}`,
+            `https://cluster.z7.kusto.fabric.microsoft.us,${US_GOV_CLOUD_LOGIN}`,
             "https://kusto7j53clqswr4he.kusto.core.eaglex.ic.gov,https://login.microsoftonline.eaglex.ic.gov",
             "https://rpe2e0422132101fct2.kusto.core.microsoft.scloud,https://login.microsoftonline.microsoft.scloud",
             "https://abc.kusto.sovcloud-api.fr,https://login.sovcloud-identity.fr",
@@ -118,6 +121,18 @@ describe("kustoTrustedEndpoints", function () {
             validateEndpoint(clusterAndLoginEndpoint[0], clusterAndLoginEndpoint[1]);
             // Test case sensitivity
             validateEndpoint(clusterAndLoginEndpoint[0].toUpperCase(), clusterAndLoginEndpoint[1].toUpperCase());
+        }
+    });
+
+    it.concurrent("test government Fabric endpoints trust boundaries", function () {
+        for (const [clusterName, loginEndpoint] of [
+            ["https://cluster.kusto.fabric.microsoft.us", DEFAULT_PUBLIC_LOGIN_URL],
+            ["https://cluster.kusto.fabric.microsoft.com", US_GOV_CLOUD_LOGIN],
+            ["https://cluster.kusto.fabric.microsoft.us.example.invalid", US_GOV_CLOUD_LOGIN],
+            ["https://notkusto.fabric.microsoft.us", US_GOV_CLOUD_LOGIN],
+            ["https://kusto.fabric.microsoft.us", US_GOV_CLOUD_LOGIN],
+        ]) {
+            expect(() => validateEndpoint(clusterName, loginEndpoint)).toThrow("hostname is currently not trusted");
         }
     });
 
