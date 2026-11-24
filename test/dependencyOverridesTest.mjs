@@ -96,13 +96,14 @@ test("Lerna versions and publishes linked workspaces using the overridden depend
         const directory = path.join(fixture, "packages", name);
         await mkdir(path.join(directory, "dist"), { recursive: true });
         await writeFile(path.join(directory, "dist", "index.js"), `module.exports = "${name}";\n`);
+        await writeFile(path.join(directory, "dist", "ignored.txt"), "This file should not be published.\n");
         await writeFile(path.join(directory, "README.md"), `# Fixture ${name}\n`);
         await writeJson(path.join(directory, "package.json"), {
             name: `kusto-override-fixture-${name}`,
             version: "1.0.0",
             license: "MIT",
             private: name === "sample",
-            files: ["dist", "bin"],
+            files: ["dist/*.js", "bin"],
             directories: name === "core" ? { bin: "bin" } : undefined,
             dependencies: name === "core" ? undefined : { "kusto-override-fixture-core": "^1.0.0" },
             publishConfig: { registry, provenance: false },
@@ -194,6 +195,7 @@ test("Lerna versions and publishes linked workspaces using the overridden depend
         const files = await readTar(Buffer.from(attachments[0].data, "base64"));
         assert(files.has("package/README.md"));
         assert(files.has("package/dist/index.js"));
+        assert.equal(files.has("package/dist/ignored.txt"), false);
         const packedManifest = files.get("package/package.json");
         assert(packedManifest);
         const packed = JSON.parse(packedManifest);
