@@ -1,6 +1,6 @@
 {
     "name": "azure-kusto-data",
-    "version": "8.0.0",
+    "version": "8.0.1",
     "description": "Azure Data Explorer Query SDK",
     "type": "module",
     "main": "dist-esm/src/index.js",

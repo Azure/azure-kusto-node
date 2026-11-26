@@ -1,6 +1,6 @@
 {
     "name": "azure-kusto-quick-start",
-    "version": "8.0.0",
+    "version": "8.0.1",
     "private": true,
     "description": "Quick start Node sample app",
     "type": "module",
@@ -25,8 +25,8 @@
         "npm": ">=11.21.2 <12"
     },
     "dependencies": {
-        "azure-kusto-data": "^8.0.0",
-        "azure-kusto-ingest": "^8.0.0",
+        "azure-kusto-data": "^8.0.1",
+        "azure-kusto-ingest": "^8.0.1",
         "diff": "^5.1.0",
         "uuid": "^11.1.1"
     },
