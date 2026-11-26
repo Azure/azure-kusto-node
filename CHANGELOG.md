@@ -7,9 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [8.0.1] - 2026-11-26
+
+### Changed
+
+- Update `@azure/identity` to 4.14.1 and refresh its MSAL dependencies while retaining the Node.js >=22.12.0 requirement.
+- Refresh development and browser quickstart tooling, including Nx/minimatch compatibility, pinned GitHub Actions, and CodeQL coverage for Actions workflows.
+
 ### Fixed
 
+- Preserve query result row metadata and methods when column names collide with them. Colliding values remain accessible through `getValueAt()` and `toJSON()`, including safe serialization of `__proto__` columns.
+- Apply the current custom datetime/timespan parsers consistently to numeric table index access and row iteration, including null values.
+- Trust US government Fabric endpoints under `.kusto.fabric.microsoft.us` only with the US government login authority.
 - Expand HTTPS trusted-endpoint coverage to match the .NET SDK for Azure Monitor proxy subdomains, Bleu/Delos Fabric endpoints, and Bleu/Delos/GovSG Monitor hostnames, while preserving existing trusted endpoints.
+- Stabilize authenticated E2E table initialization, retries, and cleanup, and replace external redirect-test dependencies with local HTTP fixtures.
 
 ## [8.0.0] - 2026-11-13
 
