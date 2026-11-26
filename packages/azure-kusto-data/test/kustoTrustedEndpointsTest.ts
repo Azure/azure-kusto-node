@@ -6,6 +6,9 @@ import { kustoTrustedEndpoints, MatchRule } from "azure-kusto-data";
 const DEFAULT_PUBLIC_LOGIN_URL = "https://login.microsoftonline.com";
 const CHINA_CLOUD_LOGIN = "https://login.partner.microsoftonline.cn";
 const US_GOV_CLOUD_LOGIN = "https://login.microsoftonline.us";
+const BLEU_CLOUD_LOGIN = "https://login.sovcloud-identity.fr";
+const DELOS_CLOUD_LOGIN = "https://login.sovcloud-identity.de";
+const GOV_SG_CLOUD_LOGIN = "https://login.sovcloud-identity.sg";
 
 describe("kustoTrustedEndpoints", function () {
     it.concurrent("Random kusto endpoints", function () {
@@ -136,6 +139,57 @@ describe("kustoTrustedEndpoints", function () {
         }
     });
 
+    it.each<[string, string]>([
+        [".adx.loganalytics.azure.com", DEFAULT_PUBLIC_LOGIN_URL],
+        [".adx.applicationinsights.azure.com", DEFAULT_PUBLIC_LOGIN_URL],
+        [".adx.monitor.azure.com", DEFAULT_PUBLIC_LOGIN_URL],
+        [".adx.loganalytics.azure.us", US_GOV_CLOUD_LOGIN],
+        [".adx.applicationinsights.azure.us", US_GOV_CLOUD_LOGIN],
+        [".adx.monitor.azure.us", US_GOV_CLOUD_LOGIN],
+        [".adx.loganalytics.azure.cn", CHINA_CLOUD_LOGIN],
+        [".adx.applicationinsights.azure.cn", CHINA_CLOUD_LOGIN],
+        [".adx.monitor.azure.cn", CHINA_CLOUD_LOGIN],
+        [".kusto.fabric.sovcloud-api.fr", BLEU_CLOUD_LOGIN],
+        [".kusto.fabric.sovcloud-api.de", DELOS_CLOUD_LOGIN],
+    ])("trusts subdomains of %s under %s", (suffix, loginEndpoint) => {
+        for (const prefix of ["cluster", "cluster.region"]) {
+            const endpoint = `https://${prefix}${suffix}`;
+            validateEndpoint(endpoint, loginEndpoint);
+            validateEndpoint(endpoint.toUpperCase(), loginEndpoint.toUpperCase());
+        }
+    });
+
+    it.each<[string, string]>([
+        ["adx.applicationinsights.sovcloud-api.fr", BLEU_CLOUD_LOGIN],
+        ["adx.loganalytics.sovcloud-api.fr", BLEU_CLOUD_LOGIN],
+        ["adx.monitor.sovcloud-api.fr", BLEU_CLOUD_LOGIN],
+        ["adx.applicationinsights.sovcloud-api.de", DELOS_CLOUD_LOGIN],
+        ["adx.loganalytics.sovcloud-api.de", DELOS_CLOUD_LOGIN],
+        ["adx.monitor.sovcloud-api.de", DELOS_CLOUD_LOGIN],
+        ["adx.applicationinsights.sovcloud-api.sg", GOV_SG_CLOUD_LOGIN],
+        ["adx.loganalytics.sovcloud-api.sg", GOV_SG_CLOUD_LOGIN],
+        ["adx.monitor.sovcloud-api.sg", GOV_SG_CLOUD_LOGIN],
+    ])("trusts only the exact sovereign proxy %s under %s", (hostname, loginEndpoint) => {
+        const endpoint = `https://${hostname}`;
+        validateEndpoint(endpoint, loginEndpoint);
+        validateEndpoint(endpoint.toUpperCase(), loginEndpoint.toUpperCase());
+        expect(() => validateEndpoint(`https://cluster.${hostname}`, loginEndpoint)).toThrow("hostname is currently not trusted");
+    });
+
+    it.each<[string, string]>([
+        ["https://cluster.adx.monitor.azure.com", US_GOV_CLOUD_LOGIN],
+        ["https://cluster.adx.monitor.azure.us", DEFAULT_PUBLIC_LOGIN_URL],
+        ["https://cluster.adx.monitor.azure.cn", DEFAULT_PUBLIC_LOGIN_URL],
+        ["https://cluster.kusto.fabric.sovcloud-api.fr", DELOS_CLOUD_LOGIN],
+        ["https://adx.monitor.sovcloud-api.sg", BLEU_CLOUD_LOGIN],
+        ["https://cluster.adx.monitor.azure.com.example.invalid", DEFAULT_PUBLIC_LOGIN_URL],
+        ["https://cluster.kusto.fabric.sovcloud-api.de.example.invalid", DELOS_CLOUD_LOGIN],
+        ["https://notkusto.fabric.sovcloud-api.fr", BLEU_CLOUD_LOGIN],
+        ["https://kusto.fabric.sovcloud-api.de", DELOS_CLOUD_LOGIN],
+    ])("rejects endpoint %s under %s", (endpoint, loginEndpoint) => {
+        expect(() => validateEndpoint(endpoint, loginEndpoint)).toThrow("hostname is currently not trusted");
+    });
+
     it.concurrent("test well known kusto endpoints proxy test", function () {
         for (const c of [
             `https://kusto.aria.microsoft.com,${DEFAULT_PUBLIC_LOGIN_URL}`,
@@ -175,7 +229,6 @@ describe("kustoTrustedEndpoints", function () {
             "https://cluster.eu.kusto.aria.microsoft.com",
             "https://cluster.ade.loganalytics.io",
             "https://cluster.ade.applicationinsights.io",
-            "https://cluster.adx.monitor.azure.com",
             "https://cluster.adx.applicationinsights.azure.cn",
             "https://cluster.adx.monitor.azure.eaglex.ic.gov",
         ]) {
@@ -243,13 +296,7 @@ function validateEndpoint(address: string, loginEndpoint: any) {
 
 function checkEndpoint(clusterName: string, loginUrl: string, expectFail: boolean) {
     if (expectFail) {
-        try {
-            validateEndpoint(clusterName, loginUrl);
-        } catch (error) {
-            if (!(error as Error).message.startsWith("Can't communicate with")) {
-                throw error;
-            }
-        }
+        expect(() => validateEndpoint(clusterName, loginUrl)).toThrow(/^Can't communicate with/);
     } else {
         validateEndpoint(clusterName, loginUrl);
     }
