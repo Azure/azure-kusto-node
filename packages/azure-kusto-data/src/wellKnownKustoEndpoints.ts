@@ -23,6 +23,9 @@ export default {
                 ".playfab.com",
                 ".kusto.data.microsoft.com",
                 ".kusto.fabric.microsoft.com",
+                ".adx.loganalytics.azure.com",
+                ".adx.applicationinsights.azure.com",
+                ".adx.monitor.azure.com",
                 ".api.securityplatform.microsoft.com",
                 ".securitycenter.windows.com",
                 ".arg-int.core.windows.net",
@@ -44,11 +47,29 @@ export default {
             ]
         },
         "https://login.microsoftonline.us": {
-            "AllowedKustoSuffixes": [".kusto.usgovcloudapi.net", ".kustomfa.usgovcloudapi.net", ".arg.core.usgovcloudapi.net", ".securitycenter.windows.us", ".kusto.fabric.microsoft.us"],
+            "AllowedKustoSuffixes": [
+                ".kusto.usgovcloudapi.net",
+                ".kustomfa.usgovcloudapi.net",
+                ".arg.core.usgovcloudapi.net",
+                ".securitycenter.windows.us",
+                ".kusto.fabric.microsoft.us",
+                ".adx.loganalytics.azure.us",
+                ".adx.applicationinsights.azure.us",
+                ".adx.monitor.azure.us"
+            ],
             "AllowedKustoHostnames": ["adx.applicationinsights.azure.us", "adx.loganalytics.azure.us", "adx.monitor.azure.us"]
         },
         "https://login.partner.microsoftonline.cn": {
-            "AllowedKustoSuffixes": [".kusto.azuresynapse.azure.cn", ".kusto.chinacloudapi.cn", ".kustomfa.chinacloudapi.cn", ".playfab.cn", ".arg.core.chinacloudapi.cn"],
+            "AllowedKustoSuffixes": [
+                ".kusto.azuresynapse.azure.cn",
+                ".kusto.chinacloudapi.cn",
+                ".kustomfa.chinacloudapi.cn",
+                ".playfab.cn",
+                ".arg.core.chinacloudapi.cn",
+                ".adx.loganalytics.azure.cn",
+                ".adx.applicationinsights.azure.cn",
+                ".adx.monitor.azure.cn"
+            ],
             "AllowedKustoHostnames": ["adx.applicationinsights.azure.cn", "adx.loganalytics.azure.cn", "adx.monitor.azure.cn"]
         },
         "https://login.microsoftonline.eaglex.ic.gov": {
@@ -64,18 +85,29 @@ export default {
             ]
         },
         "https://login.sovcloud-identity.fr": {
-            "AllowedKustoSuffixes": [".kusto.sovcloud-api.fr", ".kustomfa.sovcloud-api.fr"],
-            "AllowedKustoHostnames": ["adx.applicationinsights.azure.fr", "adx.loganalytics.azure.fr", "adx.monitor.azure.fr"]
+            "AllowedKustoSuffixes": [".kusto.sovcloud-api.fr", ".kustomfa.sovcloud-api.fr", ".kusto.fabric.sovcloud-api.fr"],
+            "AllowedKustoHostnames": [
+                "adx.applicationinsights.azure.fr",
+                "adx.loganalytics.azure.fr",
+                "adx.monitor.azure.fr",
+                "adx.applicationinsights.sovcloud-api.fr",
+                "adx.loganalytics.sovcloud-api.fr",
+                "adx.monitor.sovcloud-api.fr"
+            ]
         },
         "https://login.sovcloud-identity.de": {
           "AllowedKustoSuffixes": [
             ".kusto.sovcloud-api.de",
-            ".kustomfa.sovcloud-api.de"
+            ".kustomfa.sovcloud-api.de",
+            ".kusto.fabric.sovcloud-api.de"
           ],
           "AllowedKustoHostnames": [
             "adx.applicationinsights.azure.de",
             "adx.loganalytics.azure.de",
-            "adx.monitor.azure.de"
+            "adx.monitor.azure.de",
+            "adx.applicationinsights.sovcloud-api.de",
+            "adx.loganalytics.sovcloud-api.de",
+            "adx.monitor.sovcloud-api.de"
           ]
         },
         "https://login.sovcloud-identity.sg": {
@@ -86,7 +118,10 @@ export default {
           "AllowedKustoHostnames": [
             "adx.applicationinsights.azure.sg",
             "adx.loganalytics.azure.sg",
-            "adx.monitor.azure.sg"
+            "adx.monitor.azure.sg",
+            "adx.applicationinsights.sovcloud-api.sg",
+            "adx.loganalytics.sovcloud-api.sg",
+            "adx.monitor.sovcloud-api.sg"
           ]
         }
     }

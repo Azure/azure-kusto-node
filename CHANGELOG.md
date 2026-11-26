@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- Expand HTTPS trusted-endpoint coverage to match the .NET SDK for Azure Monitor proxy subdomains, Bleu/Delos Fabric endpoints, and Bleu/Delos/GovSG Monitor hostnames, while preserving existing trusted endpoints.
+
 ## [8.0.0] - 2026-11-13
 
 ### Changed
