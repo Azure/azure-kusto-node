@@ -53,7 +53,7 @@ export class FileDescriptor extends AbstractDescriptor implements FileDescriptor
             if (bytesRead === 0) {
                 this._calculateSize(0, this.zipped);
             }
-            if (!compress && fileSize > 0) {
+            if (!compress && fileSize > 0 && bytesRead === Math.min(fileSize, firstChunk.length)) {
                 this._calculateSize(fileSize, this.zipped);
                 return this.file as string;
             }

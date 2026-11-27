@@ -119,6 +119,60 @@ describe("FileDescriptor", () => {
         });
 
         it.each([
+            { extension: ".avro", format: DataFormat.CSV, size: null, fileSize: 4096, length: 18 },
+            { extension: ".csv", format: DataFormat.AVRO, size: 1234, fileSize: 4096, length: 18 },
+            { extension: ".gz", format: DataFormat.CSV, size: null, fileSize: 4096, length: 18 },
+            { extension: ".avro", format: DataFormat.AVRO, size: null, fileSize: 1, length: 64 * 1024 + 18 },
+        ])(
+            "counts complete $extension input with hint $size when stat incorrectly reports $fileSize bytes",
+            async ({ extension, format, size, fileSize, length }) => {
+                const source = await tmpFile({ postfix: extension });
+                const descriptor = new FileDescriptor(source.path, null, size);
+                const sandbox = sinon.createSandbox();
+                const payload = Buffer.alloc(length, "a");
+                const input = extension === ".gz" ? gzipSync(payload) : payload;
+                let prepared: string | undefined;
+
+                try {
+                    await writeFile(source.path, input);
+                    const stats = await fs.promises.stat(source.path);
+                    stats.size = fileSize;
+                    sandbox.stub(fs, "stat").callThrough().withArgs(source.path).yields(null, stats);
+
+                    prepared = await descriptor.prepare({ format });
+
+                    assert.strictEqual(descriptor.size, size ?? input.length * (descriptor.zipped ? 11 : 1));
+                    assert.deepStrictEqual(await readFile(prepared), input);
+                    assert.notStrictEqual(prepared, source.path);
+                } finally {
+                    sandbox.restore();
+                    await descriptor.cleanup();
+                    await source.cleanup();
+                }
+
+                assert.ok(prepared);
+                await assert.rejects(readFile(prepared), { code: "ENOENT" });
+            },
+        );
+
+        it("keeps the original path for a matching file larger than the probe", async () => {
+            const source = await tmpFile({ postfix: ".avro" });
+            const descriptor = new FileDescriptor(source.path);
+            const input = Buffer.alloc(64 * 1024 + 18, "a");
+
+            try {
+                await writeFile(source.path, input);
+
+                assert.strictEqual(await descriptor.prepare(), source.path);
+                assert.strictEqual(descriptor.size, input.length);
+                assert.strictEqual(descriptor.cleanupTmp, undefined);
+            } finally {
+                await descriptor.cleanup();
+                await source.cleanup();
+            }
+        });
+
+        it.each([
             { extension: ".csv", format: DataFormat.CSV, compress: true, size: null },
             { extension: ".csv", format: DataFormat.CSV, compress: true, size: 1234 },
             { extension: ".gz", format: DataFormat.CSV, compress: false, size: null },
@@ -244,6 +298,23 @@ describe("FileDescriptor", () => {
 
                 assert.deepStrictEqual(gunzipSync(await readFile(prepared)), expected);
                 assert.strictEqual(descriptor.size, expected.length);
+            } finally {
+                await descriptor.cleanup();
+            }
+        });
+
+        linuxTest("counts sysfs content despite an inflated positive stat size", async () => {
+            const source = pathlib.join(pathlib.sep, "sys", "class", "net", "lo", "address");
+            const expected = await readFile(source);
+            const descriptor = new FileDescriptor(source);
+
+            try {
+                assert.ok((await fs.promises.stat(source)).size > expected.length);
+
+                const prepared = await descriptor.prepare({ format: DataFormat.AVRO });
+
+                assert.strictEqual(descriptor.size, expected.length);
+                assert.deepStrictEqual(await readFile(prepared), expected);
             } finally {
                 await descriptor.cleanup();
             }

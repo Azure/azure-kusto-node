@@ -12,6 +12,7 @@ import { Readable } from "stream";
 import sinon from "sinon";
 import { gunzipSync } from "zlib";
 import { BlockBlobClient } from "@azure/storage-blob";
+import { QueueClient } from "@azure/storage-queue";
 import { ResourceType, ResourceURI } from "../src/resourceManager.js";
 import { StreamDescriptor } from "../src/descriptors.js";
 import { FileDescriptor } from "../src/fileDescriptor.js";
@@ -282,6 +283,60 @@ describe("KustoIngestClient", () => {
     });
 
     describe("#ingestFromFile()", () => {
+        it("queues the observed raw size and preserves mismatched input across upload retries", async () => {
+            const source = await tmpFile({ postfix: ".avro" });
+            const descriptor = new FileDescriptor(source.path);
+            const client = new KustoIngestClient("https://cluster.kusto.windows.net", { database: "db", table: "table" });
+            const sandbox = sinon.createSandbox();
+            const input = Buffer.from("value\n123\n");
+            const uploaded: Buffer[] = [];
+            const finishUpload = sandbox.stub<[], ReturnType<BlockBlobClient["uploadFile"]>>().resolves();
+            const upload = sandbox.stub(BlockBlobClient.prototype, "uploadFile").callsFake(async (path) => {
+                uploaded.push(await fs.promises.readFile(path));
+                if (uploaded.length === 1) {
+                    throw new Error("First upload failed");
+                }
+                return finishUpload();
+            });
+            const queued = sandbox.stub(QueueClient.prototype, "sendMessage").resolves();
+            sandbox
+                .stub(client.resourceManager, "getContainers")
+                .resolves(
+                    ["first", "second"].map(
+                        (account) => new ResourceURI(`https://${account}.blob.core.windows.net/container`, account, ResourceType.Container),
+                    ),
+                );
+            sandbox.stub(client.resourceManager, "getAuthorizationContext").resolves("authorization");
+            sandbox
+                .stub(client.resourceManager, "getIngestionQueues")
+                .resolves([new ResourceURI("https://storage.queue.core.windows.net/ingestion", "storage", ResourceType.Queue)]);
+            sandbox.stub(client.resourceManager, "reportResourceUsageResult");
+
+            try {
+                await fs.promises.writeFile(source.path, input);
+                const stats = await fs.promises.stat(source.path);
+                stats.size = 4096;
+                sandbox.stub(fs, "stat").callThrough().withArgs(source.path).yields(null, stats);
+
+                await client.ingestFromFile(descriptor, { format: DataFormat.AVRO });
+
+                sandbox.assert.calledTwice(upload);
+                assert.deepStrictEqual(uploaded, [input, input]);
+                sandbox.assert.calledOnce(queued);
+                const message: unknown = JSON.parse(Buffer.from(queued.firstCall.args[0], "base64").toString());
+                assert.ok(typeof message === "object" && message !== null && "RawDataSize" in message);
+                assert.strictEqual(message.RawDataSize, input.length);
+                const prepared = upload.firstCall.args[0];
+                assert.notStrictEqual(prepared, source.path);
+                assert.strictEqual(upload.secondCall.args[0], prepared);
+                await assert.rejects(fs.promises.readFile(prepared), { code: "ENOENT" });
+            } finally {
+                sandbox.restore();
+                client.close();
+                await source.cleanup();
+            }
+        });
+
         it.each([0, 4096])("rejects empty input before upload and runs cleanup when stat reports %s bytes", async (fileSize) => {
             const source = await tmpFile({ postfix: ".csv" });
             const descriptor = new FileDescriptor(source.path, null, 1234);
