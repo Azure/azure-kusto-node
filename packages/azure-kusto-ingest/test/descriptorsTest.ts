@@ -110,7 +110,10 @@ describe("FileDescriptor", () => {
 
             try {
                 await writeFile(source.path, input);
-                assert.strictEqual(await descriptor.prepare({ format: DataFormat.AVRO }), source.path);
+                const prepared = await descriptor.prepare({ format: DataFormat.AVRO });
+
+                assert.notStrictEqual(prepared, source.path);
+                assert.deepStrictEqual(await readFile(prepared), input);
                 assert.strictEqual(descriptor.size, input.length);
             } finally {
                 await descriptor.cleanup();
@@ -123,6 +126,9 @@ describe("FileDescriptor", () => {
             { extension: ".csv", format: DataFormat.AVRO, size: 1234, fileSize: 4096, length: 18 },
             { extension: ".gz", format: DataFormat.CSV, size: null, fileSize: 4096, length: 18 },
             { extension: ".avro", format: DataFormat.AVRO, size: null, fileSize: 1, length: 64 * 1024 + 18 },
+            { extension: ".avro", format: DataFormat.AVRO, size: null, fileSize: 1024 * 1024, length: 128 * 1024 },
+            { extension: ".avro", format: DataFormat.AVRO, size: null, fileSize: 128 * 1024, length: 256 * 1024 },
+            { extension: ".gz", format: DataFormat.CSV, size: null, fileSize: 1024 * 1024, length: 128 * 1024 },
         ])(
             "counts complete $extension input with hint $size when stat incorrectly reports $fileSize bytes",
             async ({ extension, format, size, fileSize, length }) => {
@@ -130,7 +136,7 @@ describe("FileDescriptor", () => {
                 const descriptor = new FileDescriptor(source.path, null, size);
                 const sandbox = sinon.createSandbox();
                 const payload = Buffer.alloc(length, "a");
-                const input = extension === ".gz" ? gzipSync(payload) : payload;
+                const input = extension === ".gz" ? gzipSync(payload, { level: 0 }) : payload;
                 let prepared: string | undefined;
 
                 try {
@@ -155,7 +161,7 @@ describe("FileDescriptor", () => {
             },
         );
 
-        it("keeps the original path for a matching file larger than the probe", async () => {
+        it("preserves the completed input when the original changes after preparation", async () => {
             const source = await tmpFile({ postfix: ".avro" });
             const descriptor = new FileDescriptor(source.path);
             const input = Buffer.alloc(64 * 1024 + 18, "a");
@@ -163,10 +169,95 @@ describe("FileDescriptor", () => {
             try {
                 await writeFile(source.path, input);
 
-                assert.strictEqual(await descriptor.prepare(), source.path);
+                const prepared = await descriptor.prepare();
+                await writeFile(source.path, "changed");
+
+                assert.notStrictEqual(prepared, source.path);
+                assert.deepStrictEqual(await readFile(prepared), input);
                 assert.strictEqual(descriptor.size, input.length);
+            } finally {
+                await descriptor.cleanup();
+                await source.cleanup();
+            }
+        });
+
+        it("cleans up all concurrent preparations through the legacy cleanup API", async () => {
+            const source = await tmpFile({ postfix: ".csv" });
+            const descriptor = new FileDescriptor(source.path);
+            const input = Buffer.from("value\n123\n");
+
+            try {
+                await writeFile(source.path, input);
+                const prepared = await Promise.all([descriptor.prepare(), descriptor.prepare()]);
+
+                assert.notStrictEqual(prepared[0], prepared[1]);
+                for (const path of prepared) {
+                    assert.deepStrictEqual(gunzipSync(await readFile(path)), input);
+                }
+                await descriptor.cleanup();
+                await descriptor.cleanup();
+                for (const path of prepared) {
+                    await assert.rejects(readFile(path), { code: "ENOENT" });
+                }
+            } finally {
+                await descriptor.cleanup();
+                await source.cleanup();
+            }
+        });
+
+        it.each([null, 3])("distinguishes a calculated size from a subsequently assigned hint %s on reuse", async (hint) => {
+            const source = await tmpFile({ postfix: ".avro" });
+            const descriptor = new FileDescriptor(source.path);
+            const input = Buffer.alloc(128 * 1024, "a");
+
+            try {
+                await writeFile(source.path, "old");
+                await descriptor.prepare();
+                assert.strictEqual(descriptor.size, 3);
+                if (hint !== null) {
+                    descriptor.size = hint;
+                }
+
+                await writeFile(source.path, input);
+                const prepared = await descriptor.prepare();
+
+                assert.deepStrictEqual(await readFile(prepared), input);
+                assert.strictEqual(descriptor.size, hint ?? input.length);
+            } finally {
+                await descriptor.cleanup();
+                await source.cleanup();
+            }
+        });
+
+        it.each([".csv", ".avro"])("removes its own temporary %s file after a stream failure and closes the source", async (extension) => {
+            const source = await tmpFile({ postfix: extension });
+            const descriptor = new FileDescriptor(source.path);
+            const sandbox = sinon.createSandbox();
+            const error = new Error("Unable to read remaining input");
+            await writeFile(source.path, "value\n123\n");
+            const input = await fs.promises.open(source.path, "r");
+            const tail = input.createReadStream({ autoClose: false });
+            sandbox.stub(tail, "_read").callsFake(() => {
+                tail.destroy(error);
+            });
+            sandbox.stub(input, "createReadStream").returns(tail);
+            sandbox.stub(fs.promises, "open").callThrough().withArgs(source.path, "r").resolves(input);
+            const output = sandbox.spy(fs, "createWriteStream");
+
+            try {
+                await assert.rejects(descriptor.prepare(), (actual) => actual === error);
+
+                assert.strictEqual(input.fd, -1);
+                sandbox.assert.calledOnce(output);
+                const prepared = output.firstCall.args[0];
+                assert.strictEqual(typeof prepared, "string");
+                await assert.rejects(readFile(prepared), { code: "ENOENT" });
                 assert.strictEqual(descriptor.cleanupTmp, undefined);
             } finally {
+                sandbox.restore();
+                if (input.fd !== -1) {
+                    await input.close();
+                }
                 await descriptor.cleanup();
                 await source.cleanup();
             }

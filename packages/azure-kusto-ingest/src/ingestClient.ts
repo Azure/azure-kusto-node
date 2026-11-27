@@ -24,14 +24,15 @@ export class KustoIngestClient extends KustoIngestClientBase {
         const props = this._getMergedProps(ingestionProperties);
 
         const descriptor = file instanceof FileDescriptor ? file : new FileDescriptor(file);
+        const blobName = generateBlobName(descriptor, props);
+        const sourceId = descriptor.sourceId;
+        const prepared = await descriptor.prepareForUpload(ingestionProperties);
 
         try {
-            const blobName = generateBlobName(descriptor, props);
-            const fileToUpload = await descriptor.prepare(ingestionProperties);
-            const blobUri = await this.uploadToBlobWithRetry(fileToUpload, blobName);
-            return this.ingestFromBlob(new BlobDescriptor(blobUri, descriptor.size, descriptor.sourceId), props);
+            const blobUri = await this.uploadToBlobWithRetry(prepared.path, blobName);
+            return await this.ingestFromBlob(new BlobDescriptor(blobUri, prepared.size, sourceId), props);
         } finally {
-            await descriptor.cleanup();
+            await prepared.cleanup();
         }
     }
 

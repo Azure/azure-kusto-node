@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Browser queued ingestion now preserves raw-size hints and estimates the raw size of already-compressed files. Uncompressed binary files retain their actual byte size on both platforms.
 - Browser Blob-read and compression failures now propagate instead of silently uploading the original input.
 - Queued ingestion now preserves the final storage-upload error after exhausting container retries.
+- Node.js queued ingestion now preserves and counts complete file input before upload instead of trusting filesystem size metadata. Each ingestion owns its prepared file and cleanup, including when a descriptor is shared concurrently.
+
+### Changed
+
+- Node.js queued ingestion now prepares uncompressed and already-compressed files in temporary storage as well, adding full-file disk I/O to keep retries and size accounting consistent.
 
 ## [8.0.1] - 2026-11-26
 

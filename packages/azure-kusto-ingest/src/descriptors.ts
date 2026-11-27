@@ -36,13 +36,21 @@ export abstract class AbstractDescriptor {
     }
 
     protected _calculateSize(fileSize: number, compressed: boolean): void {
+        const size = this._getRawSize(fileSize, compressed, this.size);
+        if (!this.size || this.size <= 0) {
+            this.size = size;
+        }
+    }
+
+    protected _getRawSize(fileSize: number, compressed: boolean, sizeHint: number | null): number {
         if (fileSize <= 0) {
             throw new Error("Empty file.");
         }
-        if (!this.size || this.size <= 0) {
-            const estimatedCompressionModifier = 11;
-            this.size = fileSize * (compressed ? estimatedCompressionModifier : 1);
+        if (sizeHint && sizeHint > 0) {
+            return sizeHint;
         }
+        const estimatedCompressionModifier = 11;
+        return fileSize * (compressed ? estimatedCompressionModifier : 1);
     }
 }
 
